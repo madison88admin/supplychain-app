@@ -6,25 +6,35 @@ import { useUser } from '../../contexts/UserContext';
 interface AddTechpackModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialStyleNumber?: string;
+  initialCustomer?: string;
 }
 
-const AddTechpackModal: React.FC<AddTechpackModalProps> = ({ isOpen, onClose }) => {
+const AddTechpackModal: React.FC<AddTechpackModalProps> = ({ isOpen, onClose, initialStyleNumber, initialCustomer }) => {
   const { addTechpack } = useData();
   const { user } = useUser();
   
   const [formData, setFormData] = useState({
     name: '',
-    styleNumber: '',
+    styleNumber: initialStyleNumber || '',
     version: '1.0',
     status: 'Draft' as const,
     category: '',
     dueDate: '',
-    customer: '',
+    customer: initialCustomer || '',
     completionRate: 0,
     comments: 0,
     attachments: 0,
     priority: 'Medium' as const
   });
+
+  React.useEffect(() => {
+    setFormData(f => ({
+      ...f,
+      styleNumber: initialStyleNumber || '',
+      customer: initialCustomer || ''
+    }));
+  }, [initialStyleNumber, initialCustomer, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

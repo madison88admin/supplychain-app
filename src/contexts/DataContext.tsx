@@ -50,6 +50,8 @@ export interface Techpack {
   comments: number;
   attachments: number;
   priority: 'High' | 'Medium' | 'Low';
+  fibreCompositions?: Array<{ fibreName: string; percentage: string; notes: string }>;
+  versionHistory?: Array<{ version: string; status: string; lastUpdated: string; editedBy?: string }>;
 }
 
 export interface SampleRequest {

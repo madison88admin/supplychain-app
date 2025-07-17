@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { BarChart3, Download, Filter, Calendar, TrendingUp, DollarSign, Package, Users } from 'lucide-react';
+import ExportReportModal from '../components/modals/ExportReportModal';
 
 const PivotReports: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState('overview');
   const [dateRange, setDateRange] = useState('last30days');
+  const [showExportModal, setShowExportModal] = useState(false);
 
   const reportTypes = [
     { id: 'overview', name: 'Overview Dashboard', icon: BarChart3 },
@@ -46,6 +48,13 @@ const PivotReports: React.FC = () => {
     { month: 'Jun', orders: 67, revenue: 670000 },
   ];
 
+  const handleExport = (reportType: string, exportFormat: string) => {
+    console.log(`Exporting ${reportType} report as ${exportFormat}`);
+    
+    // Simulate export process
+    alert(`Exporting ${reportType} report as ${exportFormat}...\n\nThis would trigger the actual export functionality.`);
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
@@ -65,7 +74,10 @@ const PivotReports: React.FC = () => {
               <option value="last90days">Last 90 Days</option>
               <option value="lastyear">Last Year</option>
             </select>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+            <button 
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+              onClick={() => setShowExportModal(true)}
+            >
               <Download className="h-5 w-5" />
               <span>Export</span>
             </button>
@@ -226,6 +238,11 @@ const PivotReports: React.FC = () => {
           </div>
         </div>
       </div>
+      <ExportReportModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        onExport={handleExport}
+      />
     </div>
   );
 };

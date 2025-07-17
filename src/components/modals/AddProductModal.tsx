@@ -16,7 +16,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
     styleNumber: '',
     styleName: '',
     customer: '',
-    season: 'Spring 2024',
+    season: '',
     status: 'Development' as const,
     quantity: 0,
     price: 0,
@@ -29,11 +29,8 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const margin = ((formData.price - formData.landedCost) / formData.price) * 100;
-    
     addProduct({
       ...formData,
-      margin,
       createdBy: user?.name || 'Unknown User'
     });
     
@@ -42,7 +39,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
       styleNumber: '',
       styleName: '',
       customer: '',
-      season: 'Spring 2024',
+      season: '',
       status: 'Development',
       quantity: 0,
       price: 0,
@@ -128,17 +125,14 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Season
               </label>
-              <select
+              <input
+                type="text"
                 name="season"
                 value={formData.season}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="Spring 2024">Spring 2024</option>
-                <option value="Summer 2024">Summer 2024</option>
-                <option value="Fall 2024">Fall 2024</option>
-                <option value="Winter 2024">Winter 2024</option>
-              </select>
+                placeholder="e.g., Spring 2024"
+              />
             </div>
 
             <div>

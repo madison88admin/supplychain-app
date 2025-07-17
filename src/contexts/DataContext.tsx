@@ -11,7 +11,6 @@ export interface Product {
   quantity: number;
   price: number;
   landedCost: number;
-  margin: number;
   leadTime: string;
   lastUpdated: string;
   approved: boolean;
@@ -187,44 +186,7 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 // Initial data
-const initialProducts: Product[] = [
-  {
-    id: '1',
-    styleNumber: 'SC001',
-    styleName: 'Cotton T-Shirt Premium',
-    customer: 'H&M',
-    season: 'Spring 2024',
-    status: 'Active',
-    quantity: 10000,
-    price: 15.99,
-    landedCost: 8.50,
-    margin: 46.9,
-    leadTime: '45 days',
-    lastUpdated: '2024-01-14',
-    approved: true,
-    image: 'https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1',
-    createdBy: 'Sarah Johnson',
-    createdDate: '2024-01-01'
-  },
-  {
-    id: '2',
-    styleNumber: 'SC002',
-    styleName: 'Summer Dress Collection',
-    customer: 'Zara',
-    season: 'Summer 2024',
-    status: 'Development',
-    quantity: 5000,
-    price: 29.99,
-    landedCost: 18.75,
-    margin: 37.5,
-    leadTime: '60 days',
-    lastUpdated: '2024-01-13',
-    approved: false,
-    image: 'https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1',
-    createdBy: 'Mike Chen',
-    createdDate: '2024-01-02'
-  }
-];
+const initialProducts: Product[] = [];
 
 const initialTasks: Task[] = [
   {
@@ -323,7 +285,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Utility functions
   const generateId = () => Date.now().toString() + Math.random().toString(36).substr(2, 9);
-  const getCurrentDate = () => new Date().toISOString().split('T')[0];
+  const getCurrentDate = () => new Date().toISOString();
 
   // Product functions
   const addProduct = (productData: Omit<Product, 'id' | 'createdDate' | 'lastUpdated'>) => {

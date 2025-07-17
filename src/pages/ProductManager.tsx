@@ -1,17 +1,26 @@
 import React, { useState } from 'react';
-import { Plus, Search, ChevronDown, ChevronRight } from 'lucide-react';
+import { Plus, Search, ChevronDown, ChevronRight, Edit, Trash2, Copy } from 'lucide-react';
 import AddProductModal from '../components/modals/AddProductModal';
 import AddTechpackModal from '../components/modals/AddTechpackModal';
+import AddFibreModal from '../components/modals/AddFibreModal';
+import ReportingModal from '../components/modals/ReportingModal';
 import { useData } from '../contexts/DataContext';
 
-// Mock data for seasons
-const mockSeasons = [
-  { id: 'FH2024', name: 'FH:2024' },
-  { id: 'FH2025', name: 'FH:2025' },
-  { id: 'Library', name: 'Library' },
-  { id: 'None', name: 'None' },
-  { id: 'All', name: 'All' },
-];
+// Dynamic seasons based on actual product data
+const getDynamicSeasons = (products: any[]) => {
+  // Get unique seasons from products
+  const uniqueSeasons = [...new Set(products.map(product => product.season))].filter(season => season && season.trim() !== '');  // Create season objects
+  const dynamicSeasons = uniqueSeasons.map(season => ({
+    id: season,
+    name: season
+  }));
+  
+  // Add special options
+  return  [{ id: 'All', name: 'All Seasons' },
+    ...dynamicSeasons,
+    { id: 'None', name: 'No Season' }
+  ];
+};
 
 const techPackTabs = [
   'Tech Pack Version',
@@ -53,11 +62,139 @@ const getFibreCompositions = (tp: any) => {
   return tp.fibreCompositions;
 };
 
+// Helper to format date to MM/DD/YYYY HH:MM:SS format
+const formatDateTime = (dateString: string) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '';
+  // Convert to Philippine timezone (Asia/Manila)
+  const philippineDate = new Date(date.toLocaleString("en-US", {timeZone: "Asia/Manila"}));
+  
+  const month = String(philippineDate.getMonth() + 1).padStart(2, '0');
+  const day = String(philippineDate.getDate()).padStart(2, '0');
+  const year = philippineDate.getFullYear();
+  
+  // Convert to 12our format with AM/PM
+  let hours = philippineDate.getHours();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  
+  const minutes = String(philippineDate.getMinutes()).padStart(2, '0');
+  const seconds = String(philippineDate.getSeconds()).padStart(2, '0');
+  
+  return `${month}/${day}/${year} ${hours}:${minutes}:${seconds} ${ampm}`;
+};
+
+// Add a modal for showing linked techpacks
+const LinkedTechpacksModal = ({ isOpen, onClose, techpacks }: { isOpen: boolean; onClose: () => void; techpacks: any[] }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-900">Linked Techpacks</h2>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">✕</button>
+        </div>
+        <table className="w-full text-sm border border-blue-200 rounded mb-2">
+          <thead className="bg-blue-100">
+            <tr>
+              <th className="px-2 py-1 text-left">Techpack Name</th>
+              <th className="px-2 py-1 text-left">Version</th>
+              <th className="px-2 py-1 text-left">Status</th>
+              <th className="px-2 py-1 text-left">Customer</th>
+            </tr>
+          </thead>
+          <tbody>
+            {techpacks.length === 0 ? (
+              <tr><td colSpan={4} className="text-gray-400 text-center py-2">No linked techpacks.</td></tr>
+            ) : (
+              techpacks.map(tp => (
+                <tr key={tp.id} className="border-b border-blue-100">
+                  <td className="px-2 py-1">{tp.name || tp.styleNumber}</td>
+                  <td className="px-2 py-1">{tp.version}</td>
+                  <td className="px-2 py-1">{tp.status}</td>
+                  <td className="px-2 py-1">{tp.customer}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+        <div className="flex justify-end">
+          <button onClick={onClose} className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Close</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Inline Edit Modal (reuse AddProductModal style, but prefill data)
+const EditProductModal = ({ isOpen, onClose, product, onSave }: { isOpen: boolean; onClose: () => void; product: any; onSave: (data: any) => void }) => {
+  const [formData, setFormData] = useState(product || {});
+  React.useEffect(() => { setFormData(product || {}); }, [product]);
+  if (!isOpen || !product) return null;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    setFormData((prev: any) => ({
+      ...prev,
+      [name]: type === 'number' ? parseFloat(value) || 0 : type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+    }));
+  };
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(formData);
+    onClose();
+  };
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">Edit Product</h2>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">✕</button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Style Number *</label><input type="text" name="styleNumber" value={formData.styleNumber || ''} onChange={handleChange} required className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Style Name *</label><input type="text" name="styleName" value={formData.styleName || ''} onChange={handleChange} required className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Customer *</label><input type="text" name="customer" value={formData.customer || ''} onChange={handleChange} required className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Season</label><input type="text" name="season" value={formData.season || ''} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Status</label><select name="status" value={formData.status || 'Development'} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"><option value="Development">Development</option><option value="Sampling">Sampling</option><option value="Active">Active</option><option value="Production">Production</option></select></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label><input type="number" name="quantity" value={formData.quantity || 0} onChange={handleChange} min="0" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label><input type="number" name="price" value={formData.price || 0} onChange={handleChange} min="0" step="0.01" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Landed Cost ($)</label><input type="number" name="landedCost" value={formData.landedCost || 0} onChange={handleChange} min="0" step="0.01" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Lead Time</label><input type="text" name="leadTime" value={formData.leadTime || ''} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /></div>
+            <div className="md:col-span-2"><label className="flex items-center space-x-2"><input type="checkbox" name="approved" checked={formData.approved || false} onChange={handleChange} className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" /><span className="text-sm font-medium text-gray-700">Approved</span></label></div>
+          </div>
+          <div className="flex items-center justify-end space-x-3"><button type="button" onClick={onClose} className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button><button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"><span>Update Product</span></button></div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Reusable confirmation modal
+const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message }: { isOpen: boolean; onClose: () => void; onConfirm: () => void; title: string; message: string }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl p-6 w-full max-w-sm">
+        <h2 className="text-lg font-bold mb-4">{title}</h2>
+        <p className="mb-6">{message}</p>
+        <div className="flex justify-end gap-2">
+          <button onClick={onClose} className="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-50">Cancel</button>
+          <button onClick={() => { onConfirm(); onClose(); }} className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Confirm</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ProductManager: React.FC = () => {
-  const { products, techpacks, updateTechpack } = useData();
-  const [selectedSeason, setSelectedSeason] = useState('FH2024');
+  const { products, techpacks, updateTechpack, updateProduct, deleteProduct, addProduct } = useData();
+  const [selectedSeason, setSelectedSeason] = useState('All');
   const [searchQuery, setSearchQuery] = useState(''); // main search
   const [sidebarSearch, setSidebarSearch] = useState(''); // sidebar search
+  const [productIdFilter, setProductIdFilter] = useState(''); // product ID filter
   const [showAddModal, setShowAddModal] = useState(false);
   const [activeTechPackTab, setActiveTechPackTab] = useState(techPackTabs[0]);
   const [activeDetailTab, setActiveDetailTab] = useState(detailTabs[0]);
@@ -68,21 +205,42 @@ const ProductManager: React.FC = () => {
   const [showAddTechpackModal, setShowAddTechpackModal] = useState(false);
   const [techpackModalProduct, setTechpackModalProduct] = useState<any | null>(null);
   const [editingVersionTechpackId, setEditingVersionTechpackId] = useState<string | null>(null);
-  const [versionEditValues, setVersionEditValues] = useState<{ version: string; status: string; lastUpdated: string } | null>(null);
+  const [versionEditValues, setVersionEditValues] = useState<{ version: string; status: string; lastUpdated: string; comments?: string } | null>(null);
+  const [showAddFibreModal, setShowAddFibreModal] = useState<{ open: boolean, techpackId: string | null }>({ open: false, techpackId: null });
+  const [showReportingModal, setShowReportingModal] = useState(false);
+  const [linkedTechpacksModal, setLinkedTechpacksModal] = useState({ open: false, techpacks: [] });
+  const [editModal, setEditModal] = useState({ open: false, product: null });
+  const [confirmModal, setConfirmModal] = useState({ open: false, action: null, product: null });
 
-  // Filter products by season and both search inputs
+  // Get dynamic seasons from products
+  const dynamicSeasons = getDynamicSeasons(products);
+
+  // Filter products by season and all search inputs
   const filteredProducts = products.filter(product => {
-    const matchesSeason = selectedSeason === 'All' || product.season === selectedSeason;
+    let matchesSeason;
+    if (selectedSeason === 'All') {
+      matchesSeason = true;
+    } else if (selectedSeason === 'None') {
+      matchesSeason = !product.season || product.season.trim() === '';
+    } else {
+      matchesSeason = product.season === selectedSeason;
+    }
+    
     const matchesMainSearch =
       product.styleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.styleNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.customer.toLowerCase().includes(searchQuery.toLowerCase());
+    
     const matchesSidebarSearch =
       product.styleName.toLowerCase().includes(sidebarSearch.toLowerCase()) ||
       product.styleNumber.toLowerCase().includes(sidebarSearch.toLowerCase()) ||
       product.customer.toLowerCase().includes(sidebarSearch.toLowerCase());
-    // Both must match if both are used
-    return matchesSeason && matchesMainSearch && matchesSidebarSearch;
+    
+    const matchesProductId = !productIdFilter || 
+      product.styleNumber.toLowerCase().includes(productIdFilter.toLowerCase());
+    
+    // All filters must match
+    return matchesSeason && matchesMainSearch && matchesSidebarSearch && matchesProductId;
   });
 
   // Helper: get techpacks for a product
@@ -119,11 +277,7 @@ const ProductManager: React.FC = () => {
 
   // Add/remove fibre composition row
   const handleAddFibreRow = (techpackId: string) => {
-    const tp = techpacks.find(tp => tp.id === techpackId);
-    if (!tp) return;
-    const fibreCompositions = getFibreCompositions(tp).slice();
-    fibreCompositions.push({ fibreName: '', percentage: '', notes: '' });
-    updateTechpack(techpackId, { fibreCompositions });
+    setShowAddFibreModal({ open: true, techpackId });
   };
   const handleRemoveFibreRow = (techpackId: string, idx: number) => {
     const tp = techpacks.find(tp => tp.id === techpackId);
@@ -131,6 +285,16 @@ const ProductManager: React.FC = () => {
     const fibreCompositions = getFibreCompositions(tp).slice();
     fibreCompositions.splice(idx, 1);
     updateTechpack(techpackId, { fibreCompositions });
+  };
+
+  // Add a handler for when the modal submits
+  const handleAddFibre = (fibreData: { fibreName: string; percentage: string; notes: string }) => {
+    if (!showAddFibreModal.techpackId) return;
+    const tp = techpacks.find(tp => tp.id === showAddFibreModal.techpackId);
+    if (!tp) return;
+    const fibreCompositions = getFibreCompositions(tp).slice();
+    fibreCompositions.push(fibreData);
+    updateTechpack(tp.id, { fibreCompositions });
   };
 
   // Mock fields for each tab (for demo, map to existing techpack fields)
@@ -171,6 +335,12 @@ const ProductManager: React.FC = () => {
     }
   };
 
+  // Add a handler for generating reports
+  const handleGenerateReport = (reportType: string, exportFormat: string, filters: any) => {
+    console.log('Generating report:', { reportType, exportFormat, filters });
+    alert(`Generating ${reportType} report as ${exportFormat}...\n\nFilters: ${JSON.stringify(filters, null, 2)}`);
+  };
+
   return (
     <div className="flex h-[calc(100vh-2rem)] p-4 gap-4">
       {/* Sidebar */}
@@ -188,7 +358,7 @@ const ProductManager: React.FC = () => {
           />
         </div>
         <ul className="space-y-2">
-          {mockSeasons.map(season => (
+          {dynamicSeasons.map(season => (
             <li key={season.id}>
               <button
                 className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${selectedSeason === season.id ? 'bg-blue-100 text-blue-700 font-bold' : 'hover:bg-gray-100 text-gray-700'}`}
@@ -223,7 +393,10 @@ const ProductManager: React.FC = () => {
           <button className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 flex items-center gap-2">
             Audit
           </button>
-          <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center gap-2">
+          <button
+            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center gap-2"
+            onClick={() => setShowReportingModal(true)}
+          >
             Reporting
           </button>
         </div>
@@ -244,15 +417,30 @@ const ProductManager: React.FC = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="flex items-center mb-4">
-          <Search className="h-5 w-5 text-gray-400 mr-2" />
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
+        <div className="flex items-center gap-4">
+          {/* Product ID Filter */}
+          <div className="flex items-center">
+            <label className="text-sm font-medium text-gray-700 mr-2">Product ID:</label>
+            <input
+              type="text"
+              placeholder="Filter by product ID..."
+              value={productIdFilter}
+              onChange={e => setProductIdFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-48"
+            />
+          </div>
+          
+          {/* Main Search */}
+          <div className="flex items-center flex-1">
+            <Search className="h-5 w-5 text-gray-400 mr-2" />
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="flex-1 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
         </div>
 
         {/* Products Table */}
@@ -268,7 +456,10 @@ const ProductManager: React.FC = () => {
                   <th className="text-left py-3 px-4 text-sm font-medium text-gray-900">Status</th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-gray-900">Quantity</th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-gray-900">Price</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900">Margin</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900">Created By</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900">Created Date</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900">Edited Date</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -301,11 +492,36 @@ const ProductManager: React.FC = () => {
                         <td className="py-3 px-4 text-sm text-gray-900">{product.status}</td>
                         <td className="py-3 px-4 text-sm text-gray-900">{product.quantity}</td>
                         <td className="py-3 px-4 text-sm text-gray-900">${product.price}</td>
-                        <td className="py-3 px-4 text-sm text-gray-900">{product.margin}%</td>
+                        <td className="py-3 px-4 text-sm text-gray-900">{product.createdBy}</td>
+                        <td className="py-3 px-4 text-sm text-gray-900">{formatDateTime(product.createdDate)}</td>
+                        <td className="py-3 px-4 text-sm text-gray-900">{formatDateTime(product.lastUpdated)}</td>
+                        <td className="py-3 px-4 text-sm text-gray-900">
+                          <button 
+                            onClick={() => setEditModal({ open: true, product })} 
+                            className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 mr-1"
+                            title="Edit Product"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button 
+                            onClick={() => setConfirmModal({ open: true, action: 'delete', product })} 
+                            className="bg-red-600 text-white p-2 rounded hover:bg-red-700 mr-1"
+                            title="Delete Product"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                          <button 
+                            onClick={() => setConfirmModal({ open: true, action: 'duplicate', product })} 
+                            className="bg-green-600 text-white p-2 rounded hover:bg-green-700"
+                            title="Duplicate Product"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </button>
+                        </td>
                       </tr>
                       {expanded && (
                         <tr>
-                          <td colSpan={8} className="bg-blue-50 px-6 py-4">
+                          <td colSpan={11} className="bg-blue-50 px-6 py-4">
                             <div>
                               <div className="font-semibold text-blue-700 mb-2">Techpacks for this product</div>
                               {/* Techpack Tabs */}
@@ -349,6 +565,7 @@ const ProductManager: React.FC = () => {
                                               <th className="px-2 py-1 text-left">Version</th>
                                               <th className="px-2 py-1 text-left">Status</th>
                                               <th className="px-2 py-1 text-left">Last Updated</th>
+                                              <th className="px-2 py-1 text-left">Comments</th>
                                               <th className="px-2 py-1 text-left">Actions</th>
                                             </tr>
                                           </thead>
@@ -360,7 +577,7 @@ const ProductManager: React.FC = () => {
                                                     <input
                                                       type="text"
                                                       value={versionEditValues?.version ?? tp.version}
-                                                      onChange={e => setVersionEditValues(v => ({ ...(v || { version: tp.version, status: tp.status, lastUpdated: tp.lastUpdated }), version: e.target.value }))}
+                                                      onChange={e => setVersionEditValues(v => ({ ...(v || { version: tp.version, status: tp.status, lastUpdated: tp.lastUpdated, comments: tp.comments || '' }), version: e.target.value }))}
                                                       className="px-1 py-0.5 border border-blue-300 rounded text-sm w-full"
                                                     />
                                                   </td>
@@ -368,7 +585,7 @@ const ProductManager: React.FC = () => {
                                                     <input
                                                       type="text"
                                                       value={versionEditValues?.status ?? tp.status}
-                                                      onChange={e => setVersionEditValues(v => ({ ...(v || { version: tp.version, status: tp.status, lastUpdated: tp.lastUpdated }), status: e.target.value }))}
+                                                      onChange={e => setVersionEditValues(v => ({ ...(v || { version: tp.version, status: tp.status, lastUpdated: tp.lastUpdated, comments: tp.comments || '' }), status: e.target.value }))}
                                                       className="px-1 py-0.5 border border-blue-300 rounded text-sm w-full"
                                                     />
                                                   </td>
@@ -376,26 +593,38 @@ const ProductManager: React.FC = () => {
                                                     <input
                                                       type="text"
                                                       value={versionEditValues?.lastUpdated ?? tp.lastUpdated}
-                                                      onChange={e => setVersionEditValues(v => ({ ...(v || { version: tp.version, status: tp.status, lastUpdated: tp.lastUpdated }), lastUpdated: e.target.value }))}
+                                                      onChange={e => setVersionEditValues(v => ({ ...(v || { version: tp.version, status: tp.status, lastUpdated: tp.lastUpdated, comments: tp.comments || '' }), lastUpdated: e.target.value }))}
                                                       className="px-1 py-0.5 border border-blue-300 rounded text-sm w-full"
                                                     />
                                                   </td>
-                                                  <td className="px-2 py-1 flex gap-2">
+                                                  <td className="px-2 py-1">
+                                                    <textarea
+                                                      value={versionEditValues?.comments ?? (tp.comments || '')}
+                                                      onChange={e => setVersionEditValues(v => ({ ...(v || { version: tp.version, status: tp.status, lastUpdated: tp.lastUpdated, comments: tp.comments || '' }), comments: e.target.value }))}
+                                                      className="px-1 py-0.5 border border-blue-300 rounded text-sm w-full"
+                                                      rows={2}
+                                                      placeholder="Add comments..."
+                                                    />
+                                                  </td>
+                                                  <td className="px-2 py-1">
                                                     <button
                                                       className="text-green-600 hover:text-green-800 text-xs px-2 py-1 border border-green-200 rounded"
                                                       onClick={() => {
-                                                        // Save: push previous to versionHistory, update current
-                                                        const prevVersion = tp.version;
-                                                        const prevStatus = tp.status;
-                                                        const prevLastUpdated = tp.lastUpdated;
-                                                        const newHistory = Array.isArray(tp.versionHistory) ? [...tp.versionHistory] : [];
-                                                        newHistory.unshift({ version: prevVersion, status: prevStatus, lastUpdated: prevLastUpdated });
-                                                        updateTechpack(tp.id, {
-                                                          version: versionEditValues?.version ?? tp.version,
-                                                          status: (versionEditValues?.status ?? tp.status) as 'Draft' | 'In Review' | 'Approved' | 'Revision Required',
-                                                          lastUpdated: versionEditValues?.lastUpdated ?? tp.lastUpdated,
-                                                          versionHistory: newHistory
-                                                        });
+                                                        if (versionEditValues) {
+                                                          // Save previous version to history before updating
+                                                          const prevVersion = tp.version;
+                                                          const prevStatus = tp.status;
+                                                          const prevLastUpdated = tp.lastUpdated;
+                                                          const newHistory = Array.isArray(tp.versionHistory) ? [...tp.versionHistory] : [];
+                                                          newHistory.unshift({ version: prevVersion, status: prevStatus, lastUpdated: prevLastUpdated });
+                                                          
+                                                          // Update with new values and history
+                                                          updateTechpack(tp.id, { 
+                                                            ...versionEditValues, 
+                                                            lastUpdated: new Date().toISOString(),
+                                                            versionHistory: newHistory 
+                                                          });
+                                                        }
                                                         setEditingVersionTechpackId(null);
                                                         setVersionEditValues(null);
                                                       }}
@@ -419,11 +648,16 @@ const ProductManager: React.FC = () => {
                                                   <td className="px-2 py-1">{tp.status}</td>
                                                   <td className="px-2 py-1">{tp.lastUpdated}</td>
                                                   <td className="px-2 py-1">
+                                                    <span className="text-xs text-gray-600">
+                                                      {tp.comments || 'No comments'}
+                                                    </span>
+                                                  </td>
+                                                  <td className="px-2 py-1">
                                                     <button
                                                       className="text-blue-600 hover:text-blue-800 text-xs px-2 py-1 border border-blue-200 rounded"
                                                       onClick={() => {
                                                         setEditingVersionTechpackId(tp.id);
-                                                        setVersionEditValues({ version: tp.version, status: tp.status, lastUpdated: tp.lastUpdated });
+                                                        setVersionEditValues({ version: tp.version, status: tp.status, lastUpdated: tp.lastUpdated, comments: tp.comments || '' });
                                                       }}
                                                     >
                                                       Edit
@@ -615,6 +849,44 @@ const ProductManager: React.FC = () => {
           onClose={() => setShowAddTechpackModal(false)}
           initialStyleNumber={techpackModalProduct?.styleNumber}
           initialCustomer={techpackModalProduct?.customer}
+        />
+        <AddFibreModal
+          isOpen={showAddFibreModal.open}
+          onClose={() => setShowAddFibreModal({ open: false, techpackId: null })}
+          onAdd={fibreData => {
+            handleAddFibre(fibreData);
+            setShowAddFibreModal({ open: false, techpackId: null });
+          }}
+        />
+        <ReportingModal
+          isOpen={showReportingModal}
+          onClose={() => setShowReportingModal(false)}
+          onGenerateReport={handleGenerateReport}
+        />
+        <LinkedTechpacksModal
+          isOpen={linkedTechpacksModal.open}
+          onClose={() => setLinkedTechpacksModal({ open: false, techpacks: [] })}
+          techpacks={linkedTechpacksModal.techpacks}
+        />
+        <EditProductModal
+          isOpen={editModal.open}
+          onClose={() => setEditModal({ open: false, product: null })}
+          product={editModal.product}
+          onSave={updated => updateProduct(editModal.product.id, updated)}
+        />
+        <ConfirmModal
+          isOpen={confirmModal.open}
+          onClose={() => setConfirmModal({ open: false, action: null, product: null })}
+          onConfirm={() => {
+            if (confirmModal.action === 'delete') {
+              deleteProduct(confirmModal.product.id);
+            } else if (confirmModal.action === 'duplicate') {
+              const { id, ...rest } = confirmModal.product;
+              addProduct({ ...rest, styleNumber: rest.styleNumber + '_COPY' });
+            }
+          }}
+          title={confirmModal.action === 'delete' ? 'Delete Product' : 'Duplicate Product'}
+          message={confirmModal.action === 'delete' ? 'Are you sure you want to delete this product?' : 'Are you sure you want to duplicate this product?'}
         />
       </main>
     </div>

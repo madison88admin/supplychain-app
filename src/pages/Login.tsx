@@ -1,0 +1,272 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../contexts/UserContext';
+import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
+
+const Login: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { setUser } = useUser();
+
+  // Admin credentials (in a real app, this would be handled server-side)
+  const adminCredentials = {
+    email: 'admin@madison88.com',
+    password: 'admin123',
+    user: {
+      id: 'admin-1',
+      name: 'Admin User',
+      email: 'admin@madison88.com',
+      role: 'Admin' as const,
+      department: 'Administration',
+      avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1'
+    }
+  };
+
+  // Demo users for testing
+  const demoUsers = [
+    {
+      email: 'production@madison88.com',
+      password: 'demo123',
+      user: {
+        id: 'production-1',
+        name: 'Production Manager',
+        email: 'production@madison88.com',
+        role: 'Production' as const,
+        department: 'Production',
+        avatar: 'https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1'
+      }
+    },
+    {
+      email: 'qa@madison88.com',
+      password: 'demo123',
+      user: {
+        id: 'qa-1',
+        name: 'QA Specialist',
+        email: 'qa@madison88.com',
+        role: 'QA' as const,
+        department: 'Quality Assurance',
+        avatar: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1'
+      }
+    },
+    {
+      email: 'sarah.johnson@madison88.com',
+      password: 'demo123',
+      user: {
+        id: '1',
+        name: 'Sarah Johnson',
+        email: 'sarah.johnson@madison88.com',
+        role: 'Product Developer' as const,
+        department: 'Product Development',
+        avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1'
+      }
+    },
+    {
+      email: 'buyer@madison88.com',
+      password: 'demo123',
+      user: {
+        id: '2',
+        name: 'John Buyer',
+        email: 'buyer@madison88.com',
+        role: 'Buyer' as const,
+        department: 'Procurement',
+        avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1'
+      }
+    }
+  ];
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    try {
+      // Check admin credentials first
+      if (email === adminCredentials.email && password === adminCredentials.password) {
+        setUser(adminCredentials.user);
+        navigate('/');
+        return;
+      }
+
+      // Check demo users
+      const demoUser = demoUsers.find(user => 
+        user.email === email && user.password === password
+      );
+
+      if (demoUser) {
+        setUser(demoUser.user);
+        navigate('/');
+        return;
+      }
+
+      // If no match found
+      setError('Invalid email or password. Please try again.');
+    } catch (err) {
+      setError('An error occurred during login. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDemoLogin = (demoEmail: string, demoPassword: string) => {
+    setEmail(demoEmail);
+    setPassword(demoPassword);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="max-w-md w-full space-y-8">
+        {/* Title */}
+        <div className="text-center">
+          <h2 className="text-3xl font-extrabold text-gray-900">
+            Madison88 Supply Chain
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Sign in to your account
+          </p>
+        </div>
+
+        {/* Login Form */}
+        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+          <div className="space-y-4">
+            {/* Email Field */}
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email address
+              </label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  placeholder="Enter your email"
+                />
+              </div>
+            </div>
+
+            {/* Password Field */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="appearance-none relative block w-full pl-10 pr-10 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  placeholder="Enter your password"
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-400" />
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+              {error}
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Signing in...
+                </div>
+              ) : (
+                'Sign in'
+              )}
+            </button>
+          </div>
+        </form>
+
+        {/* Demo Login Buttons */}
+        <div className="mt-6">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-500">
+                Demo Accounts
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-4 space-y-2">
+            <button
+              onClick={() => handleDemoLogin(adminCredentials.email, adminCredentials.password)}
+              className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <User className="h-4 w-4 mr-2" />
+              Admin Login (Full Access)
+            </button>
+            <button
+              onClick={() => handleDemoLogin('production@madison88.com', 'demo123')}
+              className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <User className="h-4 w-4 mr-2" />
+              Production Login (No Techpack Edit)
+            </button>
+            <button
+              onClick={() => handleDemoLogin('qa@madison88.com', 'demo123')}
+              className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <User className="h-4 w-4 mr-2" />
+              QA Login (Techpack Access)
+            </button>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center text-xs text-gray-500">
+          <p>Demo credentials for testing purposes</p>
+          <p className="mt-1">Admin: admin@madison88.com / admin123 (Full Access)</p>
+          <p className="mt-1">Production: production@madison88.com / demo123 (No Techpack Edit)</p>
+          <p className="mt-1">QA: qa@madison88.com / demo123 (Techpack Access)</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Login; 

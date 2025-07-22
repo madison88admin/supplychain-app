@@ -7,7 +7,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
-  const { user } = useUser();
+  const { user, logout } = useUser();
 
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-3">
@@ -21,9 +21,6 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
           </button>
           
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">M88</span>
-            </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900">Madison 88</h1>
               <p className="text-sm text-gray-500">Supply Chain Management</p>
@@ -73,10 +70,13 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
                   <span>Settings</span>
                 </a>
                 <hr className="my-2" />
-                <a href="#" className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                <button
+                  onClick={logout}
+                  className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
+                >
                   <LogOut className="h-4 w-4" />
                   <span>Sign out</span>
-                </a>
+                </button>
               </div>
             </div>
           </div>

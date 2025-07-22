@@ -34,6 +34,11 @@ export interface Task {
   completedDate?: string;
 }
 
+export interface FibreGroup {
+  groupName: string;
+  fibres: Array<{ fibre: string; percentage: number }>;
+}
+
 export interface Techpack {
   id: string;
   name: string;
@@ -46,10 +51,10 @@ export interface Techpack {
   dueDate: string;
   customer: string;
   completionRate: number;
-  comments: number;
+  comments?: string | number;
   attachments: number;
   priority: 'High' | 'Medium' | 'Low';
-  fibreCompositions?: Array<{ fibreName: string; percentage: string; notes: string }>;
+  fibreCompositions?: FibreGroup[];
   versionHistory?: Array<{ version: string; status: string; lastUpdated: string; editedBy?: string }>;
 }
 

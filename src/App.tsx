@@ -19,6 +19,8 @@ import { UserProvider } from './contexts/UserContext';
 import { DataProvider } from './contexts/DataContext';
 import PurchaseOrder from './pages/PurchaseOrder';
 import DataBank from './pages/DataBank';
+import MaterialPurchaseOrder from './pages/MaterialPurchaseOrder';
+import MaterialPurchaseOrderLines from './pages/MaterialPurchaseOrderLines';
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -52,6 +54,8 @@ function App() {
                           <Route path="/user-administration" element={<UserAdministration />} />
                           <Route path="/purchase-order" element={<PurchaseOrder />} />
                           <Route path="/data-bank" element={<DataBank />} />
+                          <Route path="/material-purchase-order" element={<MaterialPurchaseOrder />} />
+                          <Route path="/material-purchase-order-lines" element={<MaterialPurchaseOrderLines />} />
                         </Routes>
                       </main>
                     </div>

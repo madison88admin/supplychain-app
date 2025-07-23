@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 
 // Define grouped columns
 const groupedColumns = [
@@ -100,6 +101,43 @@ const blankRow: Record<string, any> = Object.fromEntries([
   ...groupedColumns.map(g => [g.key, { 'Target Date': '', 'Completed Date': '' }]),
 ]);
 
+const poDetailsColumns = ['Line #', 'Item', 'Description', 'Qty', 'Unit Price', 'Total'];
+const mockPODetails = [
+  { line: 1, item: 'A123', description: 'Widget A', qty: 100, unitPrice: '$10', total: '$1000' },
+  { line: 2, item: 'B456', description: 'Widget B', qty: 50, unitPrice: '$20', total: '$1000' },
+];
+
+// Add mock data for other subtables
+const deliveryDetailsColumns = ['Delivery Date', 'Location', 'Status'];
+const mockDeliveryDetails = [
+  { date: '2024-07-20', location: 'Warehouse 1', status: 'Pending' },
+  { date: '2024-07-22', location: 'Warehouse 2', status: 'Delivered' },
+];
+
+const criticalPathColumns = ['Milestone', 'Target Date', 'Completed Date', 'Status'];
+const mockCriticalPath = [
+  { milestone: 'Order Placed', target: '2024-07-01', completed: '2024-07-01', status: 'Done' },
+  { milestone: 'Production Start', target: '2024-07-05', completed: '', status: 'Pending' },
+];
+
+const auditColumns = ['Audit Type', 'Date', 'Result'];
+const mockAudit = [
+  { type: 'Quality', date: '2024-07-10', result: 'Pass' },
+  { type: 'Compliance', date: '2024-07-12', result: 'Pending' },
+];
+
+const totalsColumns = ['Label', 'Value'];
+const mockTotals = [
+  { label: 'Total Qty', value: 150 },
+  { label: 'Total Value', value: '$2,000' },
+];
+
+const commentsColumns = ['User', 'Date', 'Comment'];
+const mockComments = [
+  { user: 'Admin', date: '2024-07-01', comment: 'Order created.' },
+  { user: 'Editor', date: '2024-07-02', comment: 'Checked delivery schedule.' },
+];
+
 const PurchaseOrder: React.FC = () => {
   const [rows, setRows] = useState([initialRow]);
   const [editIndex, setEditIndex] = useState<number | null>(null);
@@ -110,6 +148,7 @@ const PurchaseOrder: React.FC = () => {
   const [showColumnSelector, setShowColumnSelector] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState<string[]>(allColumns);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const handleEdit = () => {
     setEditIndex(selectedIndex);
@@ -305,6 +344,9 @@ const PurchaseOrder: React.FC = () => {
     return [firstRow, secondRow];
   };
 
+  const subTabs = ['PO Details', 'Delivery', 'Critical Path', 'Audit', 'Totals', 'Comments'];
+  const [activeSubTab, setActiveSubTab] = useState('PO Details');
+
   return (
     <div className="p-6">
       <div className="flex flex-wrap items-center mb-4 gap-2 relative">
@@ -370,54 +412,227 @@ const PurchaseOrder: React.FC = () => {
           </thead>
           <tbody>
             {displayRows.map((row, idx) => (
-              <tr
-                key={idx}
-                className={
-                  (selectedIndex === idx ? 'bg-blue-50 ' : '') +
-                  (editIndex === idx ? 'bg-yellow-50' : '')
-                }
-                onClick={() => setSelectedIndex(idx)}
-                style={{ cursor: 'pointer' }}
-              >
-                {renderColumns().flatMap((col, colIdx, arr) => {
-                  if (col.isGroup) {
-                    return col.children!.map((subCol, subIdx) => (
-                      <td
-                        key={col.key + '-' + subCol}
-                        className={
-                          `px-2 py-1 border-b align-top whitespace-nowrap` +
-                          ((subIdx === 0 || subCol === 'Target Date') ? ' border-r-2 border-gray-200' : '') +
-                          (colIdx === arr.length - 1 && subCol === 'Completed Date' ? '' : '')
-                        }
-                      >
-                        {editIndex === idx ? (
-                          <input
-                            className="border px-1 py-0.5 rounded w-32 text-xs"
-                            value={editRow ? editRow[col.key]?.[subCol] || '' : ''}
-                            onChange={e => handleChange(col.key, e.target.value, subCol)}
-                          />
-                        ) : (
-                          row[col.key]?.[subCol] || ''
-                        )}
-                      </td>
-                    ));
-                  } else {
-                    return [
-                      <td key={col.key} className={`px-2 py-1 border-b align-top whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>
-                        {editIndex === idx ? (
-                          <input
-                            className="border px-1 py-0.5 rounded w-32 text-xs"
-                            value={editRow ? editRow[col.key] : ''}
-                            onChange={e => handleChange(col.key, e.target.value)}
-                          />
-                        ) : (
-                          row[col.key] || ''
-                        )}
-                      </td>
-                    ];
+              <React.Fragment key={idx}>
+                <tr
+                  className={
+                    (selectedIndex === idx ? 'bg-blue-50 ' : '') +
+                    (editIndex === idx ? 'bg-yellow-50' : '')
                   }
-                })}
-              </tr>
+                  onClick={() => setSelectedIndex(idx)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {renderColumns().flatMap((col, colIdx, arr) => {
+                    if (col.key === 'Order References') {
+                      return [
+                        <td key={col.key} className={`px-2 py-1 border-b align-top whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}> 
+                          <button
+                            className="mr-2 align-middle"
+                            onClick={e => {
+                              e.stopPropagation();
+                              setExpandedIndex(expandedIndex === idx ? null : idx);
+                            }}
+                            aria-label={expandedIndex === idx ? 'Collapse details' : 'Expand details'}
+                          >
+                            {expandedIndex === idx ? <ChevronDown className="inline h-4 w-4" /> : <ChevronRight className="inline h-4 w-4" />}
+                          </button>
+                          {editIndex === idx ? (
+                            <input
+                              className="border px-1 py-0.5 rounded w-32 text-xs"
+                              value={editRow ? editRow[col.key] : ''}
+                              onChange={e => handleChange(col.key, e.target.value)}
+                            />
+                          ) : (
+                            row[col.key] || ''
+                          )}
+                        </td>
+                      ];
+                    }
+                    if (col.isGroup) {
+                      return col.children!.map((subCol, subIdx) => (
+                        <td
+                          key={col.key + '-' + subCol}
+                          className={
+                            `px-2 py-1 border-b align-top whitespace-nowrap` +
+                            ((subIdx === 0 || subCol === 'Target Date') ? ' border-r-2 border-gray-200' : '') +
+                            (colIdx === arr.length - 1 && subCol === 'Completed Date' ? '' : '')
+                          }
+                        >
+                          {editIndex === idx ? (
+                            <input
+                              className="border px-1 py-0.5 rounded w-32 text-xs"
+                              value={editRow ? editRow[col.key]?.[subCol] || '' : ''}
+                              onChange={e => handleChange(col.key, e.target.value, subCol)}
+                            />
+                          ) : (
+                            row[col.key]?.[subCol] || ''
+                          )}
+                        </td>
+                      ));
+                    } else {
+                      return [
+                        <td key={col.key} className={`px-2 py-1 border-b align-top whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>
+                          {editIndex === idx ? (
+                            <input
+                              className="border px-1 py-0.5 rounded w-32 text-xs"
+                              value={editRow ? editRow[col.key] : ''}
+                              onChange={e => handleChange(col.key, e.target.value)}
+                            />
+                          ) : (
+                            row[col.key] || ''
+                          )}
+                        </td>
+                      ];
+                    }
+                  })}
+                </tr>
+                {expandedIndex === idx && (
+                  <tr>
+                    <td colSpan={renderColumns().length} className="bg-blue-50 px-6 py-4">
+                      <div>
+                        <div className="font-semibold text-blue-700 mb-2">Purchase Order Details</div>
+                        {/* Horizontal Tabs */}
+                        <div className="mb-4 flex gap-2 border-b border-blue-200">
+                          {subTabs.map(tab => (
+                            <button
+                              key={tab}
+                              className={`px-4 py-2 -mb-px rounded-t font-medium transition-colors border-b-2 ${activeSubTab === tab ? 'bg-white border-blue-500 text-blue-700' : 'bg-blue-50 border-transparent text-gray-600 hover:text-blue-600'}`}
+                              onClick={() => setActiveSubTab(tab)}
+                            >
+                              {tab}
+                            </button>
+                          ))}
+                        </div>
+                        {/* Subtable Content */}
+                        <div className="max-w-4xl w-full">
+                          {activeSubTab === 'PO Details' && (
+                            <table className="text-sm border border-blue-200 rounded mb-2 w-full">
+                              <thead className="bg-blue-100">
+                                <tr>
+                                  {poDetailsColumns.map(col => (
+                                    <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {mockPODetails.map((detail, i) => (
+                                  <tr key={i} className="border-b border-blue-100">
+                                    <td className="px-2 py-1">{detail.line}</td>
+                                    <td className="px-2 py-1">{detail.item}</td>
+                                    <td className="px-2 py-1">{detail.description}</td>
+                                    <td className="px-2 py-1">{detail.qty}</td>
+                                    <td className="px-2 py-1">{detail.unitPrice}</td>
+                                    <td className="px-2 py-1">{detail.total}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          )}
+                          {activeSubTab === 'Delivery' && (
+                            <table className="text-sm border border-blue-200 rounded mb-2 w-full">
+                              <thead className="bg-blue-100">
+                                <tr>
+                                  {deliveryDetailsColumns.map(col => (
+                                    <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {mockDeliveryDetails.map((detail, i) => (
+                                  <tr key={i} className="border-b border-blue-100">
+                                    <td className="px-2 py-1">{detail.date}</td>
+                                    <td className="px-2 py-1">{detail.location}</td>
+                                    <td className="px-2 py-1">{detail.status}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          )}
+                          {activeSubTab === 'Critical Path' && (
+                            <table className="text-sm border border-blue-200 rounded mb-2 w-full">
+                              <thead className="bg-blue-100">
+                                <tr>
+                                  {criticalPathColumns.map(col => (
+                                    <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {mockCriticalPath.map((detail, i) => (
+                                  <tr key={i} className="border-b border-blue-100">
+                                    <td className="px-2 py-1">{detail.milestone}</td>
+                                    <td className="px-2 py-1">{detail.target}</td>
+                                    <td className="px-2 py-1">{detail.completed}</td>
+                                    <td className="px-2 py-1">{detail.status}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          )}
+                          {activeSubTab === 'Audit' && (
+                            <table className="text-sm border border-blue-200 rounded mb-2 w-full">
+                              <thead className="bg-blue-100">
+                                <tr>
+                                  {auditColumns.map(col => (
+                                    <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {mockAudit.map((detail, i) => (
+                                  <tr key={i} className="border-b border-blue-100">
+                                    <td className="px-2 py-1">{detail.type}</td>
+                                    <td className="px-2 py-1">{detail.date}</td>
+                                    <td className="px-2 py-1">{detail.result}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          )}
+                          {activeSubTab === 'Totals' && (
+                            <table className="text-sm border border-blue-200 rounded mb-2 w-full">
+                              <thead className="bg-blue-100">
+                                <tr>
+                                  {totalsColumns.map(col => (
+                                    <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {mockTotals.map((detail, i) => (
+                                  <tr key={i} className="border-b border-blue-100">
+                                    <td className="px-2 py-1">{detail.label}</td>
+                                    <td className="px-2 py-1">{detail.value}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          )}
+                          {activeSubTab === 'Comments' && (
+                            <table className="text-sm border border-blue-200 rounded mb-2 w-full">
+                              <thead className="bg-blue-100">
+                                <tr>
+                                  {commentsColumns.map(col => (
+                                    <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {mockComments.map((detail, i) => (
+                                  <tr key={i} className="border-b border-blue-100">
+                                    <td className="px-2 py-1">{detail.user}</td>
+                                    <td className="px-2 py-1">{detail.date}</td>
+                                    <td className="px-2 py-1">{detail.comment}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             ))}
             {displayRows.length === 0 && (
               <tr><td colSpan={visibleColumns.reduce((acc, col) => {

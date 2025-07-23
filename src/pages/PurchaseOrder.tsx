@@ -376,6 +376,9 @@ const PurchaseOrders: React.FC = () => {
     order.customer || order.Customer || order.CustomerName || ''
   ).filter(Boolean)));
 
+  const subTabs = ['PO Details', 'Delivery', 'Critical Path', 'Audit', 'Totals', 'Comments'];
+  const [activeSubTab, setActiveSubTab] = useState('PO Details');
+
   return (
     <div className="flex h-auto max-h-[90vh]">
       {/* Remove the left sidebar with Create PO and stats */}

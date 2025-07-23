@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Plus, Search, Filter, Eye, Edit as Pencil, Save, ShoppingCart, Calendar, DollarSign, TrendingUp, Package, Truck, ChevronLeft, ChevronRight } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import EditPurchaseOrderModal, { PurchaseOrder as PurchaseOrderType } from '../components/modals/EditPurchaseOrderModal';
@@ -118,10 +118,16 @@ const PurchaseOrders: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<PurchaseOrderType | null>(null);
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // --- Excel Upload Handler ---
+  const EXCEL_COLUMNS = [
+    'Order References', 'Status', 'Total Qty', 'Total Cost', 'Total Value', 'Customer', 'Supplier', 'Purchase Currency', 'Selling Currency', 'Purchase Payment Term', 'Selling Payment Term', 'Supplier Parent', 'Delivery Contact', 'Division', 'Group', 'Supplier Description', 'Supplier Location', 'Supplier Country', 'Template', 'Transport Method', 'Deliver to', 'Closed Date', 'Delivery Date', 'PO Issue Date', 'Supplier Currency', 'Comments', 'Production', 'MLA- Purchasing', 'China -QC', 'MLA-Planning', 'MLA-Shipping', 'PO Key User 6', 'PO Key User 7', 'PO Key User 8', 'PO Key Working Group 2', 'PO Key Working Group 3', 'PO Key Working Group 4', 'Purchase Payment Term Description', 'Selling Payment Term Description', 'Note Count', 'Latest Note', 'Default PO Line Template', 'Default Ex-Factory', 'Created By', 'Created', 'Last Edited', 'Last Edited By', 'Finish trim Order - Target Date', 'Finish trim Order - Completed Date', 'Link to line - Target Date', 'Link to line - Completed Date', 'Finish Care Label - Target Date', 'Finish Care Label - Completed Date', 'Packing & Shipping Instructions - Target Date', 'Packing & Shipping Instructions - Completed Date'
+  ];
   const handleExcelUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    setSelectedFileName(file ? file.name : null);
     if (!file) return;
     const reader = new FileReader();
     const isCSV = file.name.endsWith('.csv');
@@ -145,28 +151,19 @@ const PurchaseOrders: React.FC = () => {
         const normalizedRow = Object.fromEntries(
           Object.entries(row).map(([key, value]) => [key.trim(), value])
         );
-
-        return {
-          id: idx + 1,
-          poNumber: normalizedRow['Name'] || normalizedRow['Order References'] || normalizedRow['PO Number'] || normalizedRow['poNumber'] || '',
-          customer: normalizedRow['Customer'] || normalizedRow['CustomerName'] || normalizedRow['customer'] || '',
-          styleNumber: normalizedRow['Style Number'] || normalizedRow['styleNumber'] || '',
-          styleName: normalizedRow['Style Name'] || normalizedRow['styleName'] || '',
-          colorway: normalizedRow['Colorway'] || normalizedRow['colorway'] || '',
-          quantity: Number(normalizedRow['Quantity'] || normalizedRow['quantity'] || 0),
-          sizes: normalizedRow['Sizes'] || normalizedRow['sizes'] || '',
-          unitPrice: Number(normalizedRow['Unit Price'] || normalizedRow['unitPrice'] || 0),
-          totalValue: Number(normalizedRow['Total Value'] || normalizedRow['totalValue'] || 0),
-          status: normalizedRow['Status'] || normalizedRow['StatusName'] || normalizedRow['status'] || '',
-          exFactoryDate: normalizedRow['Ex-Factory Date'] || normalizedRow['exFactoryDate'] || '',
-          destination: normalizedRow['Destination'] || normalizedRow['Location'] || normalizedRow['LocationName'] || normalizedRow['destination'] || '',
-          version: normalizedRow['Version'] || normalizedRow['version'] || '',
-          supplier: normalizedRow['Supplier'] || normalizedRow['supplier'] || '',
-          createdDate: normalizedRow['Created Date'] || normalizedRow['createdDate'] || '',
-          lastUpdated: normalizedRow['Last Updated'] || normalizedRow['lastUpdated'] || '',
-          bulkApprovalStatus: normalizedRow['Bulk Approval Status'] || normalizedRow['bulkApprovalStatus'] || '',
-          progress: Number(normalizedRow['Progress'] || normalizedRow['progress'] || 0),
-        };
+        // Build the mapped object using the master column list
+        const mapped: any = { id: idx + 1 };
+        EXCEL_COLUMNS.forEach(col => {
+          const val = normalizedRow[col];
+          mapped[col] = (val === undefined || val === '') ? null : val;
+        });
+        // Add any extra fields from the row that aren't in the master list
+        Object.keys(normalizedRow).forEach(key => {
+          if (!EXCEL_COLUMNS.includes(key)) {
+            mapped[key] = (normalizedRow[key] === undefined || normalizedRow[key] === '') ? null : normalizedRow[key];
+          }
+        });
+        return mapped;
       });
       setPurchaseOrders(mappedOrders);
     };
@@ -216,11 +213,15 @@ const PurchaseOrders: React.FC = () => {
   };
 
   const filteredOrders = purchaseOrders.filter(order => {
-    const matchesSearch = order.styleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         order.poNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         order.customer.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
-    const matchesCustomer = filterCustomer === 'all' || order.customer === filterCustomer;
+    const styleName = order['Style Name'] || '';
+    const poNumber = order['Order References'] || '';
+    const customer = order['Customer'] || '';
+    const matchesSearch =
+      styleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      poNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      customer.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = filterStatus === 'all' || (order['Status'] || '') === filterStatus;
+    const matchesCustomer = filterCustomer === 'all' || (order['Customer'] || '') === filterCustomer;
     return matchesSearch && matchesStatus && matchesCustomer;
   });
 
@@ -347,24 +348,29 @@ const PurchaseOrders: React.FC = () => {
     const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
     let lineId = 1;
     let lines: any[] = [];
-    purchaseOrders.filter(po => po.poNumber === poNumber).forEach(po => {
-      const sizeRanges = po.sizes.split('-');
+    purchaseOrders.filter(po => (po.poNumber || (po as any)['Order References']) === poNumber).forEach(po => {
+      const sizeRanges = (po.sizes || (po as any)['Sizes'] || '').split('-');
       const startSize = sizeMap[sizeRanges[0]] || 0;
       const endSize = sizeMap[sizeRanges[sizeRanges.length - 1]] || 0;
       const sizeCount = endSize - startSize + 1;
-      const quantityPerSize = Math.floor(po.quantity / sizeCount);
+      const quantity = po.quantity || (po as any)['Total Qty'] || 0;
+      const styleNumber = po.styleNumber || (po as any)['Style Number'] || '';
+      const styleName = po.styleName || (po as any)['Style Name'] || '';
+      const colorway = po.colorway || (po as any)['Colorway'] || '';
+      const status = po.status || (po as any)['Status'] || '';
+      const quantityPerSize = Math.floor(quantity / sizeCount);
       for (let i = startSize; i <= endSize; i++) {
         const size = sizes[i];
-        const sizeQuantity = i === endSize ? po.quantity - (quantityPerSize * (sizeCount - 1)) : quantityPerSize;
+        const sizeQuantity = i === endSize ? quantity - (quantityPerSize * (sizeCount - 1)) : quantityPerSize;
         lines.push({
           id: lineId++,
           lineNumber: String(lineId - 1).padStart(3, '0'),
           size,
           quantity: sizeQuantity,
-          styleNumber: po.styleNumber,
-          styleName: po.styleName,
-          colorway: po.colorway,
-          status: po.status,
+          styleNumber,
+          styleName,
+          colorway,
+          status,
         });
       }
     });
@@ -387,27 +393,45 @@ const PurchaseOrders: React.FC = () => {
         <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-1">Purchase Orders</h1>
-            <p className="text-sm text-gray-600">Manage purchase orders and track production progress</p>
+            <p className="text-xs text-gray-600">Manage purchase orders and track production progress</p>
           </div>
-          <div className="flex gap-2 items-center">
-            <input type="file" accept=".xlsx,.xls,.csv" onChange={handleExcelUpload} className="block text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
-            <a href="https://1drv.ms/x/c/491b76432c9908e6/Eay_Qx5RaG9MlDoxhaP4TlgBGPJqPrtjRWG26tJyF5JOBw?e=HAQAJN" target="_blank" rel="noopener noreferrer" className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">View Excel Source</a>
-            <button onClick={exportToExcel} className="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm">Export to Excel</button>
+          <div className="flex w-full md:w-auto justify-between md:justify-end items-end gap-2">
+            <div className="flex flex-col items-start">
+              <span className="mb-0.5 text-xs text-gray-700">{selectedFileName || "No file chosen"}</span>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="py-1 px-2 rounded-lg border-0 text-xs font-semibold bg-blue-200 text-blue-800 hover:bg-blue-300"
+              >
+                Choose File
+              </button>
+              <input
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                ref={fileInputRef}
+                onChange={handleExcelUpload}
+                className="hidden"
+              />
+            </div>
+            <div className="flex gap-1 items-center">
+              <a href="file:///C:/Users/DELL/Downloads/purchase_orders.xlsx" target="_blank" rel="noopener noreferrer" className="bg-blue-600 text-white px-2 py-1 rounded-lg hover:bg-blue-700 transition-colors text-xs">View Excel Source</a>
+              <button onClick={exportToExcel} className="bg-green-600 text-white px-2 py-1 rounded-lg hover:bg-green-700 transition-colors text-xs">Export to Excel</button>
+            </div>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 mb-4">
-          <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-2">
-                <Filter className="h-4 w-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-700">Filters:</span>
+        <div className="bg-white rounded-lg p-2 shadow-sm border border-gray-200 mb-2">
+          <div className="flex flex-col md:flex-row gap-1 items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1">
+                <Filter className="h-3 w-3 text-gray-500" />
+                <span className="text-xs font-medium text-gray-700">Filters:</span>
               </div>
               <select 
                 value={filterStatus} 
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-2 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Status</option>
                 <option value="Draft">Draft</option>
@@ -419,7 +443,7 @@ const PurchaseOrders: React.FC = () => {
               <select 
                 value={filterCustomer} 
                 onChange={(e) => setFilterCustomer(e.target.value)}
-                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-2 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Customers</option>
                 {customerOptions.map((customer) => (
@@ -427,15 +451,14 @@ const PurchaseOrders: React.FC = () => {
                 ))}
               </select>
             </div>
-            
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search orders..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="pl-7 pr-2 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -447,122 +470,97 @@ const PurchaseOrders: React.FC = () => {
             <table className="w-full">
               <thead className="bg-blue-600 border-b border-blue-700 sticky top-0 z-10">
                 <tr>
-                  <th className="text-left py-2 px-2 text-xs font-semibold text-white">PO Number</th>
-                  <th className="text-left py-2 px-2 text-xs font-semibold text-white">Product</th>
-                  <th className="text-left py-2 px-2 text-xs font-semibold text-white">Customer</th>
+                  <th className="text-left py-2 px-2 text-xs font-semibold text-white">Order Reference</th>
                   <th className="text-left py-2 px-2 text-xs font-semibold text-white">Status</th>
-                  <th className="text-left py-2 px-2 text-xs font-semibold text-white hidden md:table-cell">Quantity</th>
-                  <th className="text-left py-2 px-2 text-xs font-semibold text-white hidden md:table-cell">Total Value</th>
-                  <th className="text-left py-2 px-2 text-xs font-semibold text-white hidden lg:table-cell">Location</th>
-                  <th className="text-left py-2 px-2 text-xs font-semibold text-white hidden lg:table-cell">Progress</th>
-                  <th className="text-left py-2 px-2 text-xs font-semibold text-white hidden xl:table-cell">Actions</th>
+                  <th className="text-left py-2 px-2 text-xs font-semibold text-white">Total Qty</th>
+                  <th className="text-left py-2 px-2 text-xs font-semibold text-white">Total Value</th>
+                  <th className="text-left py-2 px-2 text-xs font-semibold text-white">Total Cost</th>
+                  <th className="text-left py-2 px-2 text-xs font-semibold text-white">Customer</th>
+                  <th className="text-left py-2 px-2 text-xs font-semibold text-white">Supplier</th>
+                  <th className="text-left py-2 px-2 text-xs font-semibold text-white">Delivery Date</th>
+                  <th className="text-left py-2 px-2 text-xs font-semibold text-white">PO Issue Date</th>
+                  <th className="text-left py-2 px-2 text-xs font-semibold text-white">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredOrders.map((order) => {
-                  const expanded = expandedPO === order.poNumber;
+                  const expanded = expandedPO === order['Order References'];
                   return (
                     <React.Fragment key={order.id}>
                       <tr
                         className={`hover:bg-gray-50 cursor-pointer ${expanded ? 'bg-blue-50' : ''}`}
-                        onClick={() => setExpandedPO(expanded ? null : order.poNumber)}
+                        onClick={() => setExpandedPO(expanded ? null : order['Order References'])}
                         tabIndex={0}
                         aria-expanded={expanded}
                       >
-                        <td className="py-2 px-2">
-                          <div>
-                            <div className="font-bold text-xs text-gray-900" title={order.poNumber}>{order.poNumber?.toString().slice(0, 8)}</div>
-                            <div className="text-[10px] text-gray-500">{order.version}</div>
-                          </div>
-                        </td>
-                        <td className="py-2 px-2">
-                          <div>
-                            <div className="font-medium text-xs text-gray-900">{order.styleName}</div>
-                            <div className="text-[10px] text-gray-500">{order.styleNumber} • {order.colorway}</div>
-                          </div>
-                        </td>
-                        <td className="py-2 px-2 text-xs text-gray-900">{order.customer}</td>
-                        <td className="py-2 px-2">
-                          <div className="space-y-1">
-                            <span className={`px-2 py-1 rounded-full text-[10px] font-medium border ${getStatusColor(order.status)}`}>{order.status}</span>
-                            <div>
-                              <span className={`px-2 py-1 rounded-full text-[10px] font-medium border ${getBulkApprovalColor(order.bulkApprovalStatus)}`}>{order.bulkApprovalStatus}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-2 px-2 hidden md:table-cell">
-                          <div>
-                            <div className="text-xs text-gray-900">{order.quantity.toLocaleString()}</div>
-                            <div className="text-[10px] text-gray-500">{order.sizes}</div>
-                          </div>
-                        </td>
-                        <td className="py-2 px-2 hidden md:table-cell">
-                          <div>
-                            <div className="text-xs font-medium text-gray-900">${order.totalValue.toLocaleString()}</div>
-                            <div className="text-[10px] text-gray-500">${order.unitPrice}/unit</div>
-                          </div>
-                        </td>
-                        <td className="py-2 px-2 hidden lg:table-cell">
-                          <div className="flex items-center space-x-1">
-                            <Calendar className="h-3 w-3 text-gray-400" />
-                            <span className="text-xs text-gray-900">{order.destination}</span>
-                          </div>
-                        </td>
-                        <td className="py-2 px-2 hidden lg:table-cell">
-                          <div className="w-12">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] text-gray-600">{order.progress}%</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-1">
-                              <div 
-                                className={`h-1 rounded-full ${order.progress === 100 ? 'bg-green-500' : 'bg-blue-500'}`}
-                                style={{ width: `${order.progress}%` }}
-                              />
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-2 px-2 hidden xl:table-cell">
-                          <div className="flex items-center space-x-2">
-                            <button className="p-1 text-gray-600 hover:text-gray-800 transition-colors" onClick={e => { e.stopPropagation(); setEditingOrder(order); setEditModalOpen(true); }}>
-                              <Pencil className="h-3 w-3" />
-                            </button>
-                            {order.status === 'Shipped' && (
-                              <button className="p-1 text-purple-600 hover:text-purple-800 transition-colors">
-                                <Truck className="h-3 w-3" />
-                              </button>
-                            )}
-                          </div>
+                        <td className="py-2 px-2 text-xs">{order['Order References']}</td>
+                        <td className="py-2 px-2 text-xs">{order['Status']}</td>
+                        <td className="py-2 px-2 text-xs">{order['Total Qty']}</td>
+                        <td className="py-2 px-2 text-xs">{order['Total Value']}</td>
+                        <td className="py-2 px-2 text-xs">{order['Total Cost']}</td>
+                        <td className="py-2 px-2 text-xs">{order['Customer']}</td>
+                        <td className="py-2 px-2 text-xs">{order['Supplier']}</td>
+                        <td className="py-2 px-2 text-xs">{order['Delivery Date']}</td>
+                        <td className="py-2 px-2 text-xs">{order['PO Issue Date']}</td>
+                        <td className="py-2 px-2 text-xs">
+                          <button className="p-1 text-gray-600 hover:text-gray-800 transition-colors" onClick={e => { e.stopPropagation(); setEditingOrder(order); setEditModalOpen(true); }}>
+                            <Pencil className="h-4 w-4" />
+                          </button>
                         </td>
                       </tr>
                       {expanded && (
                         <tr>
-                          <td colSpan={9} className="bg-blue-50 px-6 py-4">
-                            <div className="bg-white rounded-lg shadow p-4 border border-blue-200">
-                              <div className="font-semibold text-blue-700 mb-2">Purchase Order Lines</div>
-                              <table className="w-full text-xs border border-blue-100 rounded mb-2">
-                                <thead className="bg-blue-50">
-                                  <tr>
-                                    <th className="px-2 py-1 text-left">Line #</th>
-                                    <th className="px-2 py-1 text-left">Size</th>
-                                    <th className="px-2 py-1 text-left">Quantity</th>
-                                    <th className="px-2 py-1 text-left">Style</th>
-                                    <th className="px-2 py-1 text-left">Colorway</th>
-                                    <th className="px-2 py-1 text-left">Status</th> {/* Add this */}
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {getPurchaseOrderLines(order.poNumber).map(line => (
-                                    <tr key={line.id} className="border-b border-blue-50">
-                                      <td className="px-2 py-1">{line.lineNumber}</td>
-                                      <td className="px-2 py-1">{line.size}</td>
-                                      <td className="px-2 py-1">{line.quantity}</td>
-                                      <td className="px-2 py-1">{line.styleNumber} - {line.styleName}</td>
-                                      <td className="px-2 py-1">{line.colorway}</td>
-                                      <td className="px-2 py-1">{line.status}</td> {/* Show status here */}
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
+                          <td colSpan={10} className="bg-blue-50 px-6 py-4">
+                            <div className="flex flex-row gap-2">
+                              {/* PO Lines Data */}
+                              <div className="flex-1">
+                                <div className="bg-white rounded-lg shadow p-4 border border-blue-200">
+                                  <div className="font-semibold text-blue-700 mb-2">Purchase Order Lines</div>
+                                  <table className="w-full text-xs border border-blue-100 rounded mb-2">
+                                    <thead className="bg-blue-50">
+                                      <tr>
+                                        <th className="px-0.5 py-1 text-left w-8">Line No.</th>
+                                        <th className="px-0.5 py-1 text-left w-12">Status</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {getPurchaseOrderLines(order['Order References']).map(line => (
+                                        <tr key={line.id} className="border-b border-blue-50">
+                                          <td className="px-0.5 py-1 w-8">{line.lineNumber}</td>
+                                          <td className="px-0.5 py-1 w-12">{line.status}</td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                              {/* Extra Info Card */}
+                              <div className="w-[700px] min-w-[400px] max-w-[700px]">
+                                <div className="bg-white rounded-lg shadow p-4 border border-blue-200">
+                                  <div className="font-semibold text-blue-700 mb-2">Information</div>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-x-4 gap-y-2 text-xs">
+                                    {/* Show Comments as the first field if present */}
+                                    {order['Comments'] && (
+                                      <div className="flex flex-col border-b border-blue-50 pb-1 mb-1 col-span-1">
+                                        <span className="font-semibold text-gray-700">Comments</span>
+                                        <span className="text-gray-900">{String(order['Comments'])}</span>
+                                      </div>
+                                    )}
+                                    {Object.entries(order).map(([key, value]) => {
+                                      // Skip the 10 main columns, id, and Total Cost, and skip Comments (already shown)
+                                      if ([
+                                        'poNumber', 'Order References', 'status', 'Status', 'quantity', 'Total Qty', 'totalValue', 'Total Value', 'Total Cost', 'customer', 'Customer', 'supplier', 'Supplier', 'Delivery Date', 'PO Issue Date', 'Comments', 'id'
+                                      ].includes(key)) return null;
+                                      return (
+                                        <div key={key} className="flex flex-col border-b border-blue-50 pb-1 mb-1 col-span-1">
+                                          <span className="font-semibold text-gray-700">{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</span>
+                                          <span className="text-gray-900">{String(value)}</span>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </td>
                         </tr>

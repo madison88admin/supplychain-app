@@ -545,13 +545,11 @@ const PurchaseOrder: React.FC = () => {
                 </tr>
                 {expandedIndex === idx && (
                   <tr>
-                    <td colSpan={renderColumns().length} className="bg-blue-50 px-0 py-0 relative">
-                      <div className="w-full overflow-x-auto bg-white shadow-lg px-6 py-4">
-                        <div className="flex gap-8 min-w-[950px]">
-                          {/* Details Card */}
-                          <div className="min-w-[600px]">
-                            <div className="font-semibold text-blue-700 mb-2">Purchase Order Details</div>
-                            {/* Horizontal Tabs */}
+                    <td colSpan={visibleColumns.length} className="bg-transparent p-0 border-none">
+                      <div className="sticky left-0 z-30 bg-white w-full shadow-lg p-6 mt-2">
+                        <div className="flex flex-col md:flex-row gap-8">
+                          {/* Left: Tab bar and tab content */}
+                          <div className="flex-1 min-w-0 max-w-[800px] w-full overflow-x-auto">
                             <div className="mb-4 flex gap-2 border-b border-blue-200">
                               {subTabs.map(tab => (
                                 <button
@@ -563,376 +561,147 @@ const PurchaseOrder: React.FC = () => {
                                 </button>
                               ))}
                             </div>
-                            {/* Subtable Content */}
-                            <div className="max-w-4xl w-full">
-                              {activeSubTab === 'PO Details' && (
-                                <div>
-                                  <div className="font-semibold text-blue-700 mb-2">Purchase Order Details</div>
-                                  <table className="text-sm border border-blue-200 rounded-md mb-2 w-full">
-                                    <thead className="bg-blue-100">
-                                      <tr>
-                                        {poDetailsColumns.map(col => (
-                                          <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
-                                        ))}
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      <tr>
-                                        {poDetailsColumns.map(col => (
-                                          <td key={col} className="px-2 py-1">
-                                            {poDetailsEditMode ? (
-                                              <input
-                                                className="border px-1 py-0.5 rounded w-full text-xs"
-                                                value={poDetailsForm?.[col] ?? (col === 'Order Reference' ? displayRows[expandedIndex]?.['Order References'] || '' : displayRows[expandedIndex]?.[col] || '')}
-                                                onChange={e => setPoDetailsForm(f => ({ ...(f || {}), [col]: e.target.value }))}
-                                              />
-                                            ) : (
-                                              col === 'Order Reference'
-                                                ? displayRows[expandedIndex]?.['Order References'] || ''
-                                                : displayRows[expandedIndex]?.[col] || ''
-                                            )}
-                                          </td>
-                                        ))}
-                                      </tr>
-                                    </tbody>
-                                  </table>
-                                  <div className="flex gap-2 mt-2">
-                                    {!poDetailsEditMode && (
-                                      <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
-                                        setPoDetailsEditMode(true);
-                                        setPoDetailsForm({ ...(displayRows[expandedIndex] || {}) });
-                                      }}>Edit</button>
-                                    )}
-                                    {poDetailsEditMode && (
-                                      <>
-                                        <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
-                                          // Save edits
-                                          const updatedRows = [...rows];
-                                          const idx = expandedIndex;
-                                          if (idx !== null && poDetailsForm) {
-                                            // Map 'Order Reference' to 'Order References' in the row
-                                            updatedRows[idx] = {
-                                              ...updatedRows[idx],
-                                              'Order References': poDetailsForm['Order Reference'],
-                                              'Supplier': poDetailsForm['Supplier'],
-                                              'Purchase Currency': poDetailsForm['Purchase Currency'],
-                                              'Status': poDetailsForm['Status'],
-                                              'Production': poDetailsForm['Production'],
-                                              'MLA- Purchasing': poDetailsForm['MLA- Purchasing'],
-                                              'China -QC': poDetailsForm['China -QC'],
-                                              'MLA-Planning': poDetailsForm['MLA-Planning'],
-                                              'MLA-Shipping': poDetailsForm['MLA-Shipping'],
-                                              'Closed Date': poDetailsForm['Closed Date'],
-                                              'Selling Currency': poDetailsForm['Selling Currency'],
-                                            };
-                                            setRows(updatedRows);
-                                          }
-                                          setPoDetailsEditMode(false);
-                                          setPoDetailsForm(null);
-                                        }}>Save</button>
-                                        <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => {
-                                          setPoDetailsEditMode(false);
-                                          setPoDetailsForm(null);
-                                        }}>Cancel</button>
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-                              {activeSubTab === 'Delivery' && (
-                                <div>
-                                  <div className="font-semibold text-blue-700 mb-2">Delivery</div>
-                                  <div className="overflow-x-auto w-full">
-                                    <table className="text-sm border border-blue-200 rounded-md mb-2 min-w-[600px]">
-                                      <thead className="bg-blue-100">
-                                        <tr>
-                                          {deliveryDetailsColumns.map(col => (
-                                            <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
-                                          ))}
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr>
-                                          <td key="Customer" className="px-2 py-1">{deliveryEditMode ? (
-                                            <input className="border px-1 py-0.5 rounded w-full text-xs" value={deliveryForm?.['Customer'] ?? (displayRows[expandedIndex]?.['Customer'] || '')} onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Customer': e.target.value }))} />
-                                          ) : (displayRows[expandedIndex]?.['Customer'] || '')}</td>
-                                          <td key="Deliver To" className="px-2 py-1">{deliveryEditMode ? (
-                                            <input className="border px-1 py-0.5 rounded w-full text-xs" value={deliveryForm?.['Deliver to'] ?? (displayRows[expandedIndex]?.['Deliver to'] || '')} onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Deliver to': e.target.value }))} />
-                                          ) : (displayRows[expandedIndex]?.['Deliver to'] || '')}</td>
-                                          <td key="Transport Method" className="px-2 py-1">{deliveryEditMode ? (
-                                            <input className="border px-1 py-0.5 rounded w-full text-xs" value={deliveryForm?.['Transport Method'] ?? (displayRows[expandedIndex]?.['Transport Method'] || '')} onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Transport Method': e.target.value }))} />
-                                          ) : (displayRows[expandedIndex]?.['Transport Method'] || '')}</td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                  <div className="flex gap-2 mt-2">
-                                    {!deliveryEditMode && (
-                                      <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
-                                        setDeliveryEditMode(true);
-                                        setDeliveryForm({ ...(displayRows[expandedIndex] || {}) });
-                                      }}>Edit</button>
-                                    )}
-                                    {deliveryEditMode && (
-                                      <>
-                                        <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
-                                          const updatedRows = [...rows];
-                                          const idx = expandedIndex;
-                                          if (idx !== null && deliveryForm) {
-                                            updatedRows[idx] = {
-                                              ...updatedRows[idx],
-                                              'Customer': deliveryForm['Customer'],
-                                              'Deliver to': deliveryForm['Deliver to'],
-                                              'Transport Method': deliveryForm['Transport Method'],
-                                            };
-                                            setRows(updatedRows);
-                                          }
-                                          setDeliveryEditMode(false);
-                                          setDeliveryForm(null);
-                                        }}>Save</button>
-                                        <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => {
-                                          setDeliveryEditMode(false);
-                                          setDeliveryForm(null);
-                                        }}>Cancel</button>
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-                              {activeSubTab === 'Critical Path' && (
-                                <div>
-                                  <div className="font-semibold text-blue-700 mb-2">Critical Path</div>
-                                  <div className="overflow-x-auto w-full">
-                                    <table className="text-sm border border-blue-200 rounded-md mb-2 min-w-[400px]">
-                                      <thead className="bg-blue-100">
-                                        <tr>
-                                          {criticalPathColumns.map(col => (
-                                            <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
-                                          ))}
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr>
-                                          <td key="Template" className="px-2 py-1">{criticalPathEditMode ? (
-                                            <input className="border px-1 py-0.5 rounded w-full text-xs" value={criticalPathForm?.['Template'] ?? (displayRows[expandedIndex]?.['Template'] || '')} onChange={e => setCriticalPathForm(f => ({ ...(f || {}), 'Template': e.target.value }))} />
-                                          ) : (displayRows[expandedIndex]?.['Template'] || '')}</td>
-                                          <td key="PO Issue Date" className="px-2 py-1">{criticalPathEditMode ? (
-                                            <input className="border px-1 py-0.5 rounded w-full text-xs" value={criticalPathForm?.['PO Issue Date'] ?? (displayRows[expandedIndex]?.['PO Issue Date'] || '')} onChange={e => setCriticalPathForm(f => ({ ...(f || {}), 'PO Issue Date': e.target.value }))} />
-                                          ) : (displayRows[expandedIndex]?.['PO Issue Date'] || '')}</td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                  <div className="flex gap-2 mt-2">
-                                    {!criticalPathEditMode && (
-                                      <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
-                                        setCriticalPathEditMode(true);
-                                        setCriticalPathForm({ ...(displayRows[expandedIndex] || {}) });
-                                      }}>Edit</button>
-                                    )}
-                                    {criticalPathEditMode && (
-                                      <>
-                                        <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
-                                          const updatedRows = [...rows];
-                                          const idx = expandedIndex;
-                                          if (idx !== null && criticalPathForm) {
-                                            updatedRows[idx] = {
-                                              ...updatedRows[idx],
-                                              'Template': criticalPathForm['Template'],
-                                              'PO Issue Date': criticalPathForm['PO Issue Date'],
-                                            };
-                                            setRows(updatedRows);
-                                          }
-                                          setCriticalPathEditMode(false);
-                                          setCriticalPathForm(null);
-                                        }}>Save</button>
-                                        <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => {
-                                          setCriticalPathEditMode(false);
-                                          setCriticalPathForm(null);
-                                        }}>Cancel</button>
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-                              {activeSubTab === 'Audit' && (
-                                <div>
-                                  <div className="font-semibold text-blue-700 mb-2">Audit</div>
-                                  <div className="overflow-x-auto w-full">
-                                    <table className="text-sm border border-blue-200 rounded-md mb-2 min-w-[400px]">
-                                      <thead className="bg-blue-100">
-                                        <tr>
-                                          {auditColumns.map(col => (
-                                            <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
-                                          ))}
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr>
-                                          <td key="Created By" className="px-2 py-1">{auditEditMode ? (
-                                            <input className="border px-1 py-0.5 rounded w-full text-xs" value={auditForm?.['Created By'] ?? (displayRows[expandedIndex]?.['Created By'] || '')} onChange={e => setAuditForm(f => ({ ...(f || {}), 'Created By': e.target.value }))} />
-                                          ) : (displayRows[expandedIndex]?.['Created By'] || '')}</td>
-                                          <td key="Created" className="px-2 py-1">{auditEditMode ? (
-                                            <input className="border px-1 py-0.5 rounded w-full text-xs" value={auditForm?.['Created'] ?? (displayRows[expandedIndex]?.['Created'] || '')} onChange={e => setAuditForm(f => ({ ...(f || {}), 'Created': e.target.value }))} />
-                                          ) : (displayRows[expandedIndex]?.['Created'] || '')}</td>
-                                          <td key="Last Edited" className="px-2 py-1">{auditEditMode ? (
-                                            <input className="border px-1 py-0.5 rounded w-full text-xs" value={auditForm?.['Last Edited'] ?? (displayRows[expandedIndex]?.['Last Edited'] || '')} onChange={e => setAuditForm(f => ({ ...(f || {}), 'Last Edited': e.target.value }))} />
-                                          ) : (displayRows[expandedIndex]?.['Last Edited'] || '')}</td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                  <div className="flex gap-2 mt-2">
-                                    {!auditEditMode && (
-                                      <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
-                                        setAuditEditMode(true);
-                                        setAuditForm({ ...(displayRows[expandedIndex] || {}) });
-                                      }}>Edit</button>
-                                    )}
-                                    {auditEditMode && (
-                                      <>
-                                        <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
-                                          const updatedRows = [...rows];
-                                          const idx = expandedIndex;
-                                          if (idx !== null && auditForm) {
-                                            updatedRows[idx] = {
-                                              ...updatedRows[idx],
-                                              'Created By': auditForm['Created By'],
-                                              'Created': auditForm['Created'],
-                                              'Last Edited': auditForm['Last Edited'],
-                                            };
-                                            setRows(updatedRows);
-                                          }
-                                          setAuditEditMode(false);
-                                          setAuditForm(null);
-                                        }}>Save</button>
-                                        <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => {
-                                          setAuditEditMode(false);
-                                          setAuditForm(null);
-                                        }}>Cancel</button>
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-                              {activeSubTab === 'Totals' && (
-                                <div>
-                                  <div className="font-semibold text-blue-700 mb-2">Totals</div>
-                                  <div className="overflow-x-auto w-full">
-                                    <table className="text-sm border border-blue-200 rounded-md mb-2 min-w-[400px]">
-                                      <thead className="bg-blue-100">
-                                        <tr>
-                                          {totalsColumns.map(col => (
-                                            <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
-                                          ))}
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr>
-                                          <td key="Total Qty" className="px-2 py-1">{totalsEditMode ? (
-                                            <input className="border px-1 py-0.5 rounded w-full text-xs" value={totalsForm?.['Total Qty'] ?? (displayRows[expandedIndex]?.['Total Qty'] || '')} onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Total Qty': e.target.value }))} />
-                                          ) : (displayRows[expandedIndex]?.['Total Qty'] || '')}</td>
-                                          <td key="Total Cost" className="px-2 py-1">{totalsEditMode ? (
-                                            <input className="border px-1 py-0.5 rounded w-full text-xs" value={totalsForm?.['Total Cost'] ?? (displayRows[expandedIndex]?.['Total Cost'] || '')} onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Total Cost': e.target.value }))} />
-                                          ) : (displayRows[expandedIndex]?.['Total Cost'] || '')}</td>
-                                          <td key="Total Value" className="px-2 py-1">{totalsEditMode ? (
-                                            <input className="border px-1 py-0.5 rounded w-full text-xs" value={totalsForm?.['Total Value'] ?? (displayRows[expandedIndex]?.['Total Value'] || '')} onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Total Value': e.target.value }))} />
-                                          ) : (displayRows[expandedIndex]?.['Total Value'] || '')}</td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                  <div className="flex gap-2 mt-2">
-                                    {!totalsEditMode && (
-                                      <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
-                                        setTotalsEditMode(true);
-                                        setTotalsForm({ ...(displayRows[expandedIndex] || {}) });
-                                      }}>Edit</button>
-                                    )}
-                                    {totalsEditMode && (
-                                      <>
-                                        <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
-                                          const updatedRows = [...rows];
-                                          const idx = expandedIndex;
-                                          if (idx !== null && totalsForm) {
-                                            updatedRows[idx] = {
-                                              ...updatedRows[idx],
-                                              'Total Qty': totalsForm['Total Qty'],
-                                              'Total Cost': totalsForm['Total Cost'],
-                                              'Total Value': totalsForm['Total Value'],
-                                            };
-                                            setRows(updatedRows);
-                                          }
-                                          setTotalsEditMode(false);
-                                          setTotalsForm(null);
-                                        }}>Save</button>
-                                        <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => {
-                                          setTotalsEditMode(false);
-                                          setTotalsForm(null);
-                                        }}>Cancel</button>
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-                              {activeSubTab === 'Comments' && (
-                                <div>
-                                  <div className="font-semibold text-blue-700 mb-2">Comments</div>
-                                  <div className="overflow-x-auto w-full">
-                                    <table className="text-sm border border-blue-200 rounded-md mb-2 min-w-[200px]">
-                                      <thead className="bg-blue-100">
-                                        <tr>
-                                          {commentsColumns.map(col => (
-                                            <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
-                                          ))}
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr>
-                                          <td key="Comments" className="px-2 py-1">{commentsEditMode ? (
-                                            <input className="border px-1 py-0.5 rounded w-full text-xs" value={commentsForm?.['Comments'] ?? (displayRows[expandedIndex]?.['Comments'] || '')} onChange={e => setCommentsForm(f => ({ ...(f || {}), 'Comments': e.target.value }))} />
-                                          ) : (displayRows[expandedIndex]?.['Comments'] || '')}</td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                  <div className="flex gap-2 mt-2">
-                                    {!commentsEditMode && (
-                                      <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
-                                        setCommentsEditMode(true);
-                                        setCommentsForm({ ...(displayRows[expandedIndex] || {}) });
-                                      }}>Edit</button>
-                                    )}
-                                    {commentsEditMode && (
-                                      <>
-                                        <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
-                                          const updatedRows = [...rows];
-                                          const idx = expandedIndex;
-                                          if (idx !== null && commentsForm) {
-                                            updatedRows[idx] = {
-                                              ...updatedRows[idx],
-                                              'Comments': commentsForm['Comments'],
-                                            };
-                                            setRows(updatedRows);
-                                          }
-                                          setCommentsEditMode(false);
-                                          setCommentsForm(null);
-                                        }}>Save</button>
-                                        <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => {
-                                          setCommentsEditMode(false);
-                                          setCommentsForm(null);
-                                        }}>Cancel</button>
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
+                            {/* Tab content */}
+                            {activeSubTab === 'PO Details' && (
+                              <>
+                                <div className="font-semibold text-blue-700 mb-2">Purchase Order Details</div>
+                                <table className="text-sm border border-blue-200 rounded-md mb-2 w-full">
+                                  <thead className="bg-blue-100">
+                                    <tr>
+                                      {poDetailsColumns.map(col => (
+                                        <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      {poDetailsColumns.map(col => (
+                                        <td key={col} className="px-2 py-1">
+                                          {poDetailsEditMode ? (
+                                            <input
+                                              className="border px-1 py-0.5 rounded w-full text-xs"
+                                              value={poDetailsForm?.[col] ?? (col === 'Order Reference' ? displayRows[expandedIndex]?.['Order References'] || '' : displayRows[expandedIndex]?.[col] || '')}
+                                              onChange={e => setPoDetailsForm(f => ({ ...(f || {}), [col]: e.target.value }))}
+                                            />
+                                          ) : (
+                                            col === 'Order Reference'
+                                              ? displayRows[expandedIndex]?.['Order References'] || ''
+                                              : displayRows[expandedIndex]?.[col] || ''
+                                          )}
+                                        </td>
+                                      ))}
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </>
+                            )}
+                            {activeSubTab === 'Delivery' && (
+                              <>
+                                <div className="font-semibold text-blue-700 mb-2">Delivery</div>
+                                <table className="text-sm border border-blue-200 rounded-md mb-2 w-full">
+                                  <thead className="bg-blue-100">
+                                    <tr>
+                                      {deliveryDetailsColumns.map(col => (
+                                        <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Customer'] || ''}</td>
+                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Deliver to'] || ''}</td>
+                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Transport Method'] || ''}</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </>
+                            )}
+                            {activeSubTab === 'Critical Path' && (
+                              <>
+                                <div className="font-semibold text-blue-700 mb-2">Critical Path</div>
+                                <table className="text-sm border border-blue-200 rounded-md mb-2 w-full">
+                                  <thead className="bg-blue-100">
+                                    <tr>
+                                      {criticalPathColumns.map(col => (
+                                        <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Template'] || ''}</td>
+                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['PO Issue Date'] || ''}</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </>
+                            )}
+                            {activeSubTab === 'Audit' && (
+                              <>
+                                <div className="font-semibold text-blue-700 mb-2">Audit</div>
+                                <table className="text-sm border border-blue-200 rounded-md mb-2 w-full">
+                                  <thead className="bg-blue-100">
+                                    <tr>
+                                      {auditColumns.map(col => (
+                                        <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Created By'] || ''}</td>
+                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Created'] || ''}</td>
+                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Last Edited'] || ''}</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </>
+                            )}
+                            {activeSubTab === 'Totals' && (
+                              <>
+                                <div className="font-semibold text-blue-700 mb-2">Totals</div>
+                                <table className="text-sm border border-blue-200 rounded-md mb-2 w-full">
+                                  <thead className="bg-blue-100">
+                                    <tr>
+                                      {totalsColumns.map(col => (
+                                        <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Total Qty'] || ''}</td>
+                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Total Cost'] || ''}</td>
+                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Total Value'] || ''}</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </>
+                            )}
+                            {activeSubTab === 'Comments' && (
+                              <>
+                                <div className="font-semibold text-blue-700 mb-2">Comments</div>
+                                <table className="text-sm border border-blue-200 rounded-md mb-2 w-full">
+                                  <thead className="bg-blue-100">
+                                    <tr>
+                                      {commentsColumns.map(col => (
+                                        <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Comments'] || ''}</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </>
+                            )}
                           </div>
-                          {/* PO Lines Table */}
-                          <div className="min-w-[320px] max-w-[400px]">
+                          {/* Right: PO Lines table */}
+                          <div className="min-w-[360px] max-w-[400px]">
                             <div className="font-semibold text-blue-700 mb-2">PO Lines</div>
-                            <table className="text-sm border border-blue-200 rounded-md mb-2 w-full min-w-[300px]">
+                            <table className="text-sm border border-blue-200 rounded-md mb-2 w-full">
                               <thead className="bg-blue-100">
                                 <tr>
                                   <th className="px-2 py-1 text-left font-semibold">PO Line</th>

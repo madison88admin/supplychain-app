@@ -31,7 +31,8 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
   const location = useLocation();
   const { user } = useUser();
-  const [collapsed, setCollapsed] = useState(false);
+  // Set collapsed to true by default so sidebar is collapsed until hovered
+  const [collapsed, setCollapsed] = useState(true);
   const [adminOpen, setAdminOpen] = useState(false);
 
   // Define menu item types

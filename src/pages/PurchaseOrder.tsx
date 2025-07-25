@@ -387,18 +387,6 @@ const PurchaseOrders: React.FC = () => {
         <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-1">Purchase Orders</h1>
-            <p className="text-sm text-gray-600">Manage purchase orders and track production progress</p>
-          </div>
-          <div className="flex gap-2 items-center">
-            <input type="file" accept=".xlsx,.xls,.csv" onChange={handleExcelUpload} className="block text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
-            <a href="https://1drv.ms/x/c/491b76432c9908e6/Eay_Qx5RaG9MlDoxhaP4TlgBGPJqPrtjRWG26tJyF5JOBw?e=HAQAJN" target="_blank" rel="noopener noreferrer" className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">View Excel Source</a>
-            <button onClick={exportToExcel} className="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm">Export to Excel</button>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 mb-4">
-          <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="flex items-center space-x-2">
                 <Filter className="h-4 w-4 text-gray-500" />
@@ -427,17 +415,25 @@ const PurchaseOrders: React.FC = () => {
                 ))}
               </select>
             </div>
-            
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search orders..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
+          </div>
+          <div className="flex gap-2 items-center">
+            <input type="file" accept=".xlsx,.xls,.csv" onChange={handleExcelUpload} className="block text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+            <a href="https://1drv.ms/x/c/491b76432c9908e6/Eay_Qx5RaG9MlDoxhaP4TlgBGPJqPrtjRWG26tJyF5JOBw?e=HAQAJN" target="_blank" rel="noopener noreferrer" className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">View Excel Source</a>
+            <button onClick={exportToExcel} className="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm">Export to Excel</button>
+          </div>
+        </div>
+        
+        {/* Search Bar - Centered */}
+        <div className="mb-4 flex justify-center">
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search orders..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
           </div>
         </div>
 
@@ -587,15 +583,11 @@ const PurchaseOrders: React.FC = () => {
         )}
       </div>
       {/* Collapsible Metrics Sidebar (sticky) */}
-      <div className={`sticky top-0 h-screen z-20 relative transition-all duration-300 bg-gray-50 border-l border-gray-200 flex flex-col items-center ${sidebarOpen ? 'w-60' : 'w-15'}`}>
-        {/* Toggle Button */}
-        <button
-          className="absolute -left-4 top-4 z-10 bg-white border border-gray-200 rounded-full shadow p-1 hover:bg-gray-100 transition-colors"
-          onClick={() => setSidebarOpen((open) => !open)}
-          aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
-        >
-          {sidebarOpen ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </button>
+      <div
+        className={`sticky top-0 h-screen z-20 relative transition-all duration-300 bg-gray-50 border-l border-gray-200 flex flex-col items-center ${sidebarOpen ? 'w-60' : 'w-15'}`}
+        onMouseEnter={() => setSidebarOpen(true)}
+        onMouseLeave={() => setSidebarOpen(false)}
+      >
         {/* Create PO Button */}
         <button className={`bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors mb-2 mt-4 flex items-center justify-center mx-2 ${sidebarOpen ? 'w-full px-3 py-2 space-x-2' : 'w-14 h-14 p-0'}`}>
           <Plus className="h-5 w-5" />

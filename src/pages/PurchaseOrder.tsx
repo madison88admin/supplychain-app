@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, Copy as CopyIcon, Plus, Filter as FilterIcon, Download, X } from 'lucide-react';
 
 // Define grouped columns
 const groupedColumns = [
@@ -101,38 +101,53 @@ const blankRow: Record<string, any> = Object.fromEntries([
   ...groupedColumns.map(g => [g.key, { 'Target Date': '', 'Completed Date': '' }]),
 ]);
 
-const poDetailsColumns = ['Line #', 'Item', 'Description', 'Qty', 'Unit Price', 'Total'];
+// In the PO Details subtable, use these columns from the main table:
+const poDetailsColumns = [
+  'Order Reference',
+  'Supplier',
+  'Purchase Currency',
+  'Status',
+  'Production',
+  'MLA- Purchasing',
+  'China -QC',
+  'MLA-Planning',
+  'MLA-Shipping',
+  'Closed Date',
+  'Selling Currency',
+];
 const mockPODetails = [
   { line: 1, item: 'A123', description: 'Widget A', qty: 100, unitPrice: '$10', total: '$1000' },
   { line: 2, item: 'B456', description: 'Widget B', qty: 50, unitPrice: '$20', total: '$1000' },
 ];
 
 // Add mock data for other subtables
-const deliveryDetailsColumns = ['Delivery Date', 'Location', 'Status'];
+const deliveryDetailsColumns = ['Customer', 'Deliver To', 'Transport Method'];
 const mockDeliveryDetails = [
   { date: '2024-07-20', location: 'Warehouse 1', status: 'Pending' },
   { date: '2024-07-22', location: 'Warehouse 2', status: 'Delivered' },
 ];
 
-const criticalPathColumns = ['Milestone', 'Target Date', 'Completed Date', 'Status'];
+// In the Critical Path tab, use these columns:
+const criticalPathColumns = ['Template', 'PO Issue Date'];
 const mockCriticalPath = [
   { milestone: 'Order Placed', target: '2024-07-01', completed: '2024-07-01', status: 'Done' },
   { milestone: 'Production Start', target: '2024-07-05', completed: '', status: 'Pending' },
 ];
 
-const auditColumns = ['Audit Type', 'Date', 'Result'];
+const auditColumns = ['Created By', 'Created', 'Last Edited'];
 const mockAudit = [
   { type: 'Quality', date: '2024-07-10', result: 'Pass' },
   { type: 'Compliance', date: '2024-07-12', result: 'Pending' },
 ];
 
-const totalsColumns = ['Label', 'Value'];
+// In the Totals tab, use these columns:
+const totalsColumns = ['Total Qty', 'Total Cost', 'Total Value'];
 const mockTotals = [
   { label: 'Total Qty', value: 150 },
   { label: 'Total Value', value: '$2,000' },
 ];
 
-const commentsColumns = ['User', 'Date', 'Comment'];
+const commentsColumns = ['Comments'];
 const mockComments = [
   { user: 'Admin', date: '2024-07-01', comment: 'Order created.' },
   { user: 'Editor', date: '2024-07-02', comment: 'Checked delivery schedule.' },
@@ -149,6 +164,22 @@ const PurchaseOrder: React.FC = () => {
   const [visibleColumns, setVisibleColumns] = useState<string[]>(allColumns);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+
+  // Add state for PO Details edit mode and form
+  const [poDetailsEditMode, setPoDetailsEditMode] = useState(false);
+  const [poDetailsForm, setPoDetailsForm] = useState<Record<string, any> | null>(null);
+
+  // Add edit state and form for each tab
+  const [deliveryEditMode, setDeliveryEditMode] = useState(false);
+  const [deliveryForm, setDeliveryForm] = useState<Record<string, any> | null>(null);
+  const [criticalPathEditMode, setCriticalPathEditMode] = useState(false);
+  const [criticalPathForm, setCriticalPathForm] = useState<Record<string, any> | null>(null);
+  const [auditEditMode, setAuditEditMode] = useState(false);
+  const [auditForm, setAuditForm] = useState<Record<string, any> | null>(null);
+  const [totalsEditMode, setTotalsEditMode] = useState(false);
+  const [totalsForm, setTotalsForm] = useState<Record<string, any> | null>(null);
+  const [commentsEditMode, setCommentsEditMode] = useState(false);
+  const [commentsForm, setCommentsForm] = useState<Record<string, any> | null>(null);
 
   const handleEdit = () => {
     setEditIndex(selectedIndex);
@@ -328,12 +359,10 @@ const PurchaseOrder: React.FC = () => {
     const firstRow = cols.map((col, i) =>
       col.isGroup ? (
         <th key={col.key} colSpan={2} className={`px-2 py-1 border-b text-center whitespace-nowrap${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
+      ) : col.key === 'Order References' ? (
+        <th key={col.key} rowSpan={2} className="sticky left-0 z-20 bg-white px-2 py-1 border-b text-left whitespace-nowrap align-middle border-r-2 border-gray-200">{col.label}</th>
       ) : (
-        col.key === 'Order References' ? (
-          <th key={col.key} rowSpan={2} className="sticky left-0 z-20 bg-white px-2 py-1 border-b text-left whitespace-nowrap align-middle border-r-2 border-gray-200">{col.label}</th>
-        ) : (
-          <th key={col.key} rowSpan={2} className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
-        )
+        <th key={col.key} rowSpan={2} className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
       )
     );
     // Second row: subheaders
@@ -355,7 +384,9 @@ const PurchaseOrder: React.FC = () => {
     <div className="p-6">
       <div className="flex flex-wrap items-center mb-4 gap-2 relative">
         <h1 className="text-2xl font-bold mr-4">Purchase Orders</h1>
-        <button className="bg-blue-700 text-white px-3 py-1 rounded mr-2" onClick={handleImportClick}>Import</button>
+        <button className="bg-blue-700 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleImportClick}>
+          <Upload className="w-4 h-4 mr-1" /> Import
+        </button>
         <input
           type="file"
           accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
@@ -363,19 +394,31 @@ const PurchaseOrder: React.FC = () => {
           onChange={handleFileChange}
           className="hidden"
         />
-        <button className="bg-blue-500 text-white px-3 py-1 rounded mr-2" onClick={handleEdit} disabled={editIndex !== null || displayRows.length === 0}>Edit</button>
-        <button className="bg-green-500 text-white px-3 py-1 rounded mr-2" onClick={handleSave} disabled={editIndex === null}>Save</button>
-        <button className="bg-gray-500 text-white px-3 py-1 rounded mr-2" onClick={handleCopy} disabled={displayRows.length === 0}>Copy</button>
-        <button className="bg-purple-500 text-white px-3 py-1 rounded mr-2" onClick={handleAdd} disabled={editIndex !== null}>Add</button>
-        <button className="bg-indigo-500 text-white px-3 py-1 rounded mr-2" onClick={() => setShowColumnSelector(v => !v)}>Filter Columns</button>
-        <button className="bg-green-700 text-white px-3 py-1 rounded mr-2" onClick={handleExport} disabled={displayRows.length === 0}>Export to XLSX</button>
+        <button className="bg-blue-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleEdit} disabled={editIndex !== null || displayRows.length === 0}>
+          <EditIcon className="w-4 h-4 mr-1" /> Edit
+        </button>
+        <button className="bg-green-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleSave} disabled={editIndex === null}>
+          <SaveIcon className="w-4 h-4 mr-1" /> Save
+        </button>
+        <button className="bg-gray-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleCopy} disabled={displayRows.length === 0}>
+          <CopyIcon className="w-4 h-4 mr-1" /> Copy
+        </button>
+        <button className="bg-purple-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleAdd} disabled={editIndex !== null}>
+          <Plus className="w-4 h-4 mr-1" /> Add
+        </button>
+        <button className="bg-indigo-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={() => setShowColumnSelector(v => !v)}>
+          <FilterIcon className="w-4 h-4 mr-1" /> Filter Columns
+        </button>
+        <button className="bg-green-700 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleExport} disabled={displayRows.length === 0}>
+          <Download className="w-4 h-4 mr-1" /> Export to XLSX
+        </button>
         {showColumnSelector && (
-          <div className="absolute z-10 bg-white border rounded shadow p-3 top-12 left-0 max-h-72 overflow-y-auto w-64">
-            <div className="font-bold mb-2">Select Columns</div>
+          <div className="absolute z-50 bg-white border rounded shadow p-3 top-12 left-0 mt-4 max-h-72 overflow-y-auto w-64">
             <div className="flex gap-2 mb-2">
               <button className="bg-green-500 text-white px-2 py-1 rounded text-xs" onClick={() => setVisibleColumns(allColumns)}>Select All</button>
               <button className="bg-red-500 text-white px-2 py-1 rounded text-xs" onClick={() => setVisibleColumns([])}>Deselect All</button>
             </div>
+            <div className="font-bold mb-2">Select Columns</div>
             {allColumns.map(col => (
               <label key={col} className="flex items-center mb-1 cursor-pointer">
                 <input
@@ -399,11 +442,15 @@ const PurchaseOrder: React.FC = () => {
           onKeyDown={e => { if (e.key === 'Enter') handleFilter(); }}
           style={{ minWidth: 120 }}
         />
-        <button className="bg-yellow-500 text-white px-3 py-1 rounded mr-2" onClick={handleFilter}>Filter</button>
-        <button className="bg-red-500 text-white px-3 py-1 rounded" onClick={handleClear} disabled={!search && !filteredRows}>Clear</button>
+        <button className="bg-yellow-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleFilter}>
+          <FilterIcon className="w-4 h-4 mr-1" /> Filter
+        </button>
+        <button className="bg-red-500 text-white px-3 py-1 rounded flex items-center gap-1" onClick={handleClear} disabled={!search && !filteredRows}>
+          <X className="w-4 h-4 mr-1" /> Clear
+        </button>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200 rounded-lg text-xs">
+        <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs">
           <thead>
             <tr>
               {renderHeaderRows()[0]}
@@ -509,127 +556,366 @@ const PurchaseOrder: React.FC = () => {
                         {/* Subtable Content */}
                         <div className="max-w-4xl w-full">
                           {activeSubTab === 'PO Details' && (
-                            <table className="text-sm border border-blue-200 rounded mb-2 w-full">
-                              <thead className="bg-blue-100">
-                                <tr>
-                                  {poDetailsColumns.map(col => (
-                                    <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
-                                  ))}
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {mockPODetails.map((detail, i) => (
-                                  <tr key={i} className="border-b border-blue-100">
-                                    <td className="px-2 py-1">{detail.line}</td>
-                                    <td className="px-2 py-1">{detail.item}</td>
-                                    <td className="px-2 py-1">{detail.description}</td>
-                                    <td className="px-2 py-1">{detail.qty}</td>
-                                    <td className="px-2 py-1">{detail.unitPrice}</td>
-                                    <td className="px-2 py-1">{detail.total}</td>
+                            <div>
+                              <div className="font-semibold text-blue-700 mb-2">Purchase Order Details</div>
+                              <table className="text-sm border border-blue-200 rounded-md mb-2 w-full">
+                                <thead className="bg-blue-100">
+                                  <tr>
+                                    {poDetailsColumns.map(col => (
+                                      <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                    ))}
                                   </tr>
-                                ))}
-                              </tbody>
-                            </table>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    {poDetailsColumns.map(col => (
+                                      <td key={col} className="px-2 py-1">
+                                        {poDetailsEditMode ? (
+                                          <input
+                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            value={poDetailsForm?.[col] ?? (col === 'Order Reference' ? displayRows[expandedIndex]?.['Order References'] || '' : displayRows[expandedIndex]?.[col] || '')}
+                                            onChange={e => setPoDetailsForm(f => ({ ...(f || {}), [col]: e.target.value }))}
+                                          />
+                                        ) : (
+                                          col === 'Order Reference'
+                                            ? displayRows[expandedIndex]?.['Order References'] || ''
+                                            : displayRows[expandedIndex]?.[col] || ''
+                                        )}
+                                      </td>
+                                    ))}
+                                  </tr>
+                                </tbody>
+                              </table>
+                              <div className="flex gap-2 mt-2">
+                                {!poDetailsEditMode && (
+                                  <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                    setPoDetailsEditMode(true);
+                                    setPoDetailsForm({ ...(displayRows[expandedIndex] || {}) });
+                                  }}>Edit</button>
+                                )}
+                                {poDetailsEditMode && (
+                                  <>
+                                    <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                      // Save edits
+                                      const updatedRows = [...rows];
+                                      const idx = expandedIndex;
+                                      if (idx !== null && poDetailsForm) {
+                                        // Map 'Order Reference' to 'Order References' in the row
+                                        updatedRows[idx] = {
+                                          ...updatedRows[idx],
+                                          'Order References': poDetailsForm['Order Reference'],
+                                          'Supplier': poDetailsForm['Supplier'],
+                                          'Purchase Currency': poDetailsForm['Purchase Currency'],
+                                          'Status': poDetailsForm['Status'],
+                                          'Production': poDetailsForm['Production'],
+                                          'MLA- Purchasing': poDetailsForm['MLA- Purchasing'],
+                                          'China -QC': poDetailsForm['China -QC'],
+                                          'MLA-Planning': poDetailsForm['MLA-Planning'],
+                                          'MLA-Shipping': poDetailsForm['MLA-Shipping'],
+                                          'Closed Date': poDetailsForm['Closed Date'],
+                                          'Selling Currency': poDetailsForm['Selling Currency'],
+                                        };
+                                        setRows(updatedRows);
+                                      }
+                                      setPoDetailsEditMode(false);
+                                      setPoDetailsForm(null);
+                                    }}>Save</button>
+                                    <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => {
+                                      setPoDetailsEditMode(false);
+                                      setPoDetailsForm(null);
+                                    }}>Cancel</button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
                           )}
                           {activeSubTab === 'Delivery' && (
-                            <table className="text-sm border border-blue-200 rounded mb-2 w-full">
-                              <thead className="bg-blue-100">
-                                <tr>
-                                  {deliveryDetailsColumns.map(col => (
-                                    <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
-                                  ))}
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {mockDeliveryDetails.map((detail, i) => (
-                                  <tr key={i} className="border-b border-blue-100">
-                                    <td className="px-2 py-1">{detail.date}</td>
-                                    <td className="px-2 py-1">{detail.location}</td>
-                                    <td className="px-2 py-1">{detail.status}</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
+                            <div>
+                              <div className="font-semibold text-blue-700 mb-2">Delivery</div>
+                              <div className="overflow-x-auto w-full">
+                                <table className="text-sm border border-blue-200 rounded-md mb-2 min-w-[600px]">
+                                  <thead className="bg-blue-100">
+                                    <tr>
+                                      {deliveryDetailsColumns.map(col => (
+                                        <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td key="Customer" className="px-2 py-1">{deliveryEditMode ? (
+                                        <input className="border px-1 py-0.5 rounded w-full text-xs" value={deliveryForm?.['Customer'] ?? (displayRows[expandedIndex]?.['Customer'] || '')} onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Customer': e.target.value }))} />
+                                      ) : (displayRows[expandedIndex]?.['Customer'] || '')}</td>
+                                      <td key="Deliver To" className="px-2 py-1">{deliveryEditMode ? (
+                                        <input className="border px-1 py-0.5 rounded w-full text-xs" value={deliveryForm?.['Deliver to'] ?? (displayRows[expandedIndex]?.['Deliver to'] || '')} onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Deliver to': e.target.value }))} />
+                                      ) : (displayRows[expandedIndex]?.['Deliver to'] || '')}</td>
+                                      <td key="Transport Method" className="px-2 py-1">{deliveryEditMode ? (
+                                        <input className="border px-1 py-0.5 rounded w-full text-xs" value={deliveryForm?.['Transport Method'] ?? (displayRows[expandedIndex]?.['Transport Method'] || '')} onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Transport Method': e.target.value }))} />
+                                      ) : (displayRows[expandedIndex]?.['Transport Method'] || '')}</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                              <div className="flex gap-2 mt-2">
+                                {!deliveryEditMode && (
+                                  <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                    setDeliveryEditMode(true);
+                                    setDeliveryForm({ ...(displayRows[expandedIndex] || {}) });
+                                  }}>Edit</button>
+                                )}
+                                {deliveryEditMode && (
+                                  <>
+                                    <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                      const updatedRows = [...rows];
+                                      const idx = expandedIndex;
+                                      if (idx !== null && deliveryForm) {
+                                        updatedRows[idx] = {
+                                          ...updatedRows[idx],
+                                          'Customer': deliveryForm['Customer'],
+                                          'Deliver to': deliveryForm['Deliver to'],
+                                          'Transport Method': deliveryForm['Transport Method'],
+                                        };
+                                        setRows(updatedRows);
+                                      }
+                                      setDeliveryEditMode(false);
+                                      setDeliveryForm(null);
+                                    }}>Save</button>
+                                    <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => {
+                                      setDeliveryEditMode(false);
+                                      setDeliveryForm(null);
+                                    }}>Cancel</button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
                           )}
                           {activeSubTab === 'Critical Path' && (
-                            <table className="text-sm border border-blue-200 rounded mb-2 w-full">
-                              <thead className="bg-blue-100">
-                                <tr>
-                                  {criticalPathColumns.map(col => (
-                                    <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
-                                  ))}
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {mockCriticalPath.map((detail, i) => (
-                                  <tr key={i} className="border-b border-blue-100">
-                                    <td className="px-2 py-1">{detail.milestone}</td>
-                                    <td className="px-2 py-1">{detail.target}</td>
-                                    <td className="px-2 py-1">{detail.completed}</td>
-                                    <td className="px-2 py-1">{detail.status}</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
+                            <div>
+                              <div className="font-semibold text-blue-700 mb-2">Critical Path</div>
+                              <div className="overflow-x-auto w-full">
+                                <table className="text-sm border border-blue-200 rounded-md mb-2 min-w-[400px]">
+                                  <thead className="bg-blue-100">
+                                    <tr>
+                                      {criticalPathColumns.map(col => (
+                                        <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td key="Template" className="px-2 py-1">{criticalPathEditMode ? (
+                                        <input className="border px-1 py-0.5 rounded w-full text-xs" value={criticalPathForm?.['Template'] ?? (displayRows[expandedIndex]?.['Template'] || '')} onChange={e => setCriticalPathForm(f => ({ ...(f || {}), 'Template': e.target.value }))} />
+                                      ) : (displayRows[expandedIndex]?.['Template'] || '')}</td>
+                                      <td key="PO Issue Date" className="px-2 py-1">{criticalPathEditMode ? (
+                                        <input className="border px-1 py-0.5 rounded w-full text-xs" value={criticalPathForm?.['PO Issue Date'] ?? (displayRows[expandedIndex]?.['PO Issue Date'] || '')} onChange={e => setCriticalPathForm(f => ({ ...(f || {}), 'PO Issue Date': e.target.value }))} />
+                                      ) : (displayRows[expandedIndex]?.['PO Issue Date'] || '')}</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                              <div className="flex gap-2 mt-2">
+                                {!criticalPathEditMode && (
+                                  <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                    setCriticalPathEditMode(true);
+                                    setCriticalPathForm({ ...(displayRows[expandedIndex] || {}) });
+                                  }}>Edit</button>
+                                )}
+                                {criticalPathEditMode && (
+                                  <>
+                                    <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                      const updatedRows = [...rows];
+                                      const idx = expandedIndex;
+                                      if (idx !== null && criticalPathForm) {
+                                        updatedRows[idx] = {
+                                          ...updatedRows[idx],
+                                          'Template': criticalPathForm['Template'],
+                                          'PO Issue Date': criticalPathForm['PO Issue Date'],
+                                        };
+                                        setRows(updatedRows);
+                                      }
+                                      setCriticalPathEditMode(false);
+                                      setCriticalPathForm(null);
+                                    }}>Save</button>
+                                    <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => {
+                                      setCriticalPathEditMode(false);
+                                      setCriticalPathForm(null);
+                                    }}>Cancel</button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
                           )}
                           {activeSubTab === 'Audit' && (
-                            <table className="text-sm border border-blue-200 rounded mb-2 w-full">
-                              <thead className="bg-blue-100">
-                                <tr>
-                                  {auditColumns.map(col => (
-                                    <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
-                                  ))}
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {mockAudit.map((detail, i) => (
-                                  <tr key={i} className="border-b border-blue-100">
-                                    <td className="px-2 py-1">{detail.type}</td>
-                                    <td className="px-2 py-1">{detail.date}</td>
-                                    <td className="px-2 py-1">{detail.result}</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
+                            <div>
+                              <div className="font-semibold text-blue-700 mb-2">Audit</div>
+                              <div className="overflow-x-auto w-full">
+                                <table className="text-sm border border-blue-200 rounded-md mb-2 min-w-[400px]">
+                                  <thead className="bg-blue-100">
+                                    <tr>
+                                      {auditColumns.map(col => (
+                                        <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td key="Created By" className="px-2 py-1">{auditEditMode ? (
+                                        <input className="border px-1 py-0.5 rounded w-full text-xs" value={auditForm?.['Created By'] ?? (displayRows[expandedIndex]?.['Created By'] || '')} onChange={e => setAuditForm(f => ({ ...(f || {}), 'Created By': e.target.value }))} />
+                                      ) : (displayRows[expandedIndex]?.['Created By'] || '')}</td>
+                                      <td key="Created" className="px-2 py-1">{auditEditMode ? (
+                                        <input className="border px-1 py-0.5 rounded w-full text-xs" value={auditForm?.['Created'] ?? (displayRows[expandedIndex]?.['Created'] || '')} onChange={e => setAuditForm(f => ({ ...(f || {}), 'Created': e.target.value }))} />
+                                      ) : (displayRows[expandedIndex]?.['Created'] || '')}</td>
+                                      <td key="Last Edited" className="px-2 py-1">{auditEditMode ? (
+                                        <input className="border px-1 py-0.5 rounded w-full text-xs" value={auditForm?.['Last Edited'] ?? (displayRows[expandedIndex]?.['Last Edited'] || '')} onChange={e => setAuditForm(f => ({ ...(f || {}), 'Last Edited': e.target.value }))} />
+                                      ) : (displayRows[expandedIndex]?.['Last Edited'] || '')}</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                              <div className="flex gap-2 mt-2">
+                                {!auditEditMode && (
+                                  <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                    setAuditEditMode(true);
+                                    setAuditForm({ ...(displayRows[expandedIndex] || {}) });
+                                  }}>Edit</button>
+                                )}
+                                {auditEditMode && (
+                                  <>
+                                    <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                      const updatedRows = [...rows];
+                                      const idx = expandedIndex;
+                                      if (idx !== null && auditForm) {
+                                        updatedRows[idx] = {
+                                          ...updatedRows[idx],
+                                          'Created By': auditForm['Created By'],
+                                          'Created': auditForm['Created'],
+                                          'Last Edited': auditForm['Last Edited'],
+                                        };
+                                        setRows(updatedRows);
+                                      }
+                                      setAuditEditMode(false);
+                                      setAuditForm(null);
+                                    }}>Save</button>
+                                    <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => {
+                                      setAuditEditMode(false);
+                                      setAuditForm(null);
+                                    }}>Cancel</button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
                           )}
                           {activeSubTab === 'Totals' && (
-                            <table className="text-sm border border-blue-200 rounded mb-2 w-full">
-                              <thead className="bg-blue-100">
-                                <tr>
-                                  {totalsColumns.map(col => (
-                                    <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
-                                  ))}
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {mockTotals.map((detail, i) => (
-                                  <tr key={i} className="border-b border-blue-100">
-                                    <td className="px-2 py-1">{detail.label}</td>
-                                    <td className="px-2 py-1">{detail.value}</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
+                            <div>
+                              <div className="font-semibold text-blue-700 mb-2">Totals</div>
+                              <div className="overflow-x-auto w-full">
+                                <table className="text-sm border border-blue-200 rounded-md mb-2 min-w-[400px]">
+                                  <thead className="bg-blue-100">
+                                    <tr>
+                                      {totalsColumns.map(col => (
+                                        <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td key="Total Qty" className="px-2 py-1">{totalsEditMode ? (
+                                        <input className="border px-1 py-0.5 rounded w-full text-xs" value={totalsForm?.['Total Qty'] ?? (displayRows[expandedIndex]?.['Total Qty'] || '')} onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Total Qty': e.target.value }))} />
+                                      ) : (displayRows[expandedIndex]?.['Total Qty'] || '')}</td>
+                                      <td key="Total Cost" className="px-2 py-1">{totalsEditMode ? (
+                                        <input className="border px-1 py-0.5 rounded w-full text-xs" value={totalsForm?.['Total Cost'] ?? (displayRows[expandedIndex]?.['Total Cost'] || '')} onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Total Cost': e.target.value }))} />
+                                      ) : (displayRows[expandedIndex]?.['Total Cost'] || '')}</td>
+                                      <td key="Total Value" className="px-2 py-1">{totalsEditMode ? (
+                                        <input className="border px-1 py-0.5 rounded w-full text-xs" value={totalsForm?.['Total Value'] ?? (displayRows[expandedIndex]?.['Total Value'] || '')} onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Total Value': e.target.value }))} />
+                                      ) : (displayRows[expandedIndex]?.['Total Value'] || '')}</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                              <div className="flex gap-2 mt-2">
+                                {!totalsEditMode && (
+                                  <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                    setTotalsEditMode(true);
+                                    setTotalsForm({ ...(displayRows[expandedIndex] || {}) });
+                                  }}>Edit</button>
+                                )}
+                                {totalsEditMode && (
+                                  <>
+                                    <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                      const updatedRows = [...rows];
+                                      const idx = expandedIndex;
+                                      if (idx !== null && totalsForm) {
+                                        updatedRows[idx] = {
+                                          ...updatedRows[idx],
+                                          'Total Qty': totalsForm['Total Qty'],
+                                          'Total Cost': totalsForm['Total Cost'],
+                                          'Total Value': totalsForm['Total Value'],
+                                        };
+                                        setRows(updatedRows);
+                                      }
+                                      setTotalsEditMode(false);
+                                      setTotalsForm(null);
+                                    }}>Save</button>
+                                    <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => {
+                                      setTotalsEditMode(false);
+                                      setTotalsForm(null);
+                                    }}>Cancel</button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
                           )}
                           {activeSubTab === 'Comments' && (
-                            <table className="text-sm border border-blue-200 rounded mb-2 w-full">
-                              <thead className="bg-blue-100">
-                                <tr>
-                                  {commentsColumns.map(col => (
-                                    <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
-                                  ))}
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {mockComments.map((detail, i) => (
-                                  <tr key={i} className="border-b border-blue-100">
-                                    <td className="px-2 py-1">{detail.user}</td>
-                                    <td className="px-2 py-1">{detail.date}</td>
-                                    <td className="px-2 py-1">{detail.comment}</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
+                            <div>
+                              <div className="font-semibold text-blue-700 mb-2">Comments</div>
+                              <div className="overflow-x-auto w-full">
+                                <table className="text-sm border border-blue-200 rounded-md mb-2 min-w-[200px]">
+                                  <thead className="bg-blue-100">
+                                    <tr>
+                                      {commentsColumns.map(col => (
+                                        <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td key="Comments" className="px-2 py-1">{commentsEditMode ? (
+                                        <input className="border px-1 py-0.5 rounded w-full text-xs" value={commentsForm?.['Comments'] ?? (displayRows[expandedIndex]?.['Comments'] || '')} onChange={e => setCommentsForm(f => ({ ...(f || {}), 'Comments': e.target.value }))} />
+                                      ) : (displayRows[expandedIndex]?.['Comments'] || '')}</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                              <div className="flex gap-2 mt-2">
+                                {!commentsEditMode && (
+                                  <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                    setCommentsEditMode(true);
+                                    setCommentsForm({ ...(displayRows[expandedIndex] || {}) });
+                                  }}>Edit</button>
+                                )}
+                                {commentsEditMode && (
+                                  <>
+                                    <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                      const updatedRows = [...rows];
+                                      const idx = expandedIndex;
+                                      if (idx !== null && commentsForm) {
+                                        updatedRows[idx] = {
+                                          ...updatedRows[idx],
+                                          'Comments': commentsForm['Comments'],
+                                        };
+                                        setRows(updatedRows);
+                                      }
+                                      setCommentsEditMode(false);
+                                      setCommentsForm(null);
+                                    }}>Save</button>
+                                    <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => {
+                                      setCommentsEditMode(false);
+                                      setCommentsForm(null);
+                                    }}>Cancel</button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
                           )}
                         </div>
                       </div>

@@ -417,7 +417,13 @@ const PurchaseOrders: React.FC = () => {
       col.isGroup ? (
         <th key={col.key + '-group'} colSpan={2} className={`px-2 py-1 border-b text-center whitespace-nowrap${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
       ) : (
-        <th key={col.key + '-single'} rowSpan={2} className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
+        col.key === 'Order' ? (
+          <th key={col.key + '-single'} rowSpan={2} className="sticky left-0 z-20 bg-white px-2 py-1 border-b text-left whitespace-nowrap align-middle border-r-2 border-gray-200">{col.label}</th>
+        ) : col.key === 'Product' ? (
+          <th key={col.key + '-single'} rowSpan={2} className="sticky left-[120px] z-20 bg-white px-2 py-1 border-b text-left whitespace-nowrap align-middle border-r-2 border-gray-200">{col.label}</th>
+        ) : (
+          <th key={col.key + '-single'} rowSpan={2} className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
+        )
       )
     );
     // Second row: subheaders
@@ -573,7 +579,7 @@ const PurchaseOrders: React.FC = () => {
                     // Only render columns that are in renderColumns (already filtered by visibleColumns)
                     if (col.key === 'Order' && safeVisibleColumns.includes('Order')) {
                       return [
-                        <td key={col.key} className={`px-2 py-1 border-b align-top whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}> 
+                        <td key={col.key} className="sticky left-0 z-10 bg-white px-2 py-1 border-b align-top whitespace-nowrap border-r-2 border-gray-200">
                           <button 
                             className="mr-2 align-middle"
                             onClick={e => {
@@ -599,7 +605,7 @@ const PurchaseOrders: React.FC = () => {
                     // Add Product subtable dropdown
                     if (col.key === 'Product' && safeVisibleColumns.includes('Product')) {
                       return [
-                        <td key={col.key} className={`px-2 py-1 border-b align-top whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}> 
+                        <td key={col.key} className="sticky left-[120px] z-10 bg-white px-2 py-1 border-b align-top whitespace-nowrap border-r-2 border-gray-200">
                           <button
                             className="mr-2 align-middle"
                             onClick={e => {

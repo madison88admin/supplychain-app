@@ -329,7 +329,11 @@ const PurchaseOrder: React.FC = () => {
       col.isGroup ? (
         <th key={col.key} colSpan={2} className={`px-2 py-1 border-b text-center whitespace-nowrap${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
       ) : (
-        <th key={col.key} rowSpan={2} className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
+        col.key === 'Order References' ? (
+          <th key={col.key} rowSpan={2} className="sticky left-0 z-20 bg-white px-2 py-1 border-b text-left whitespace-nowrap align-middle border-r-2 border-gray-200">{col.label}</th>
+        ) : (
+          <th key={col.key} rowSpan={2} className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
+        )
       )
     );
     // Second row: subheaders
@@ -424,7 +428,7 @@ const PurchaseOrder: React.FC = () => {
                   {renderColumns().flatMap((col, colIdx, arr) => {
                     if (col.key === 'Order References') {
                       return [
-                        <td key={col.key} className={`px-2 py-1 border-b align-top whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}> 
+                        <td key={col.key} className="sticky left-0 z-0 bg-white px-2 py-1 border-b align-top whitespace-nowrap border-r-2 border-gray-200"> 
                           <button
                             className="mr-2 align-middle"
                             onClick={e => {

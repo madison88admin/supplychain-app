@@ -188,6 +188,10 @@ const PurchaseOrder: React.FC = () => {
   const [commentsEditMode, setCommentsEditMode] = useState(false);
   const [commentsForm, setCommentsForm] = useState<Record<string, any> | null>(null);
 
+  // Add edit state for PO Lines
+  const [poLinesEditMode, setPoLinesEditMode] = useState(false);
+  const [poLinesForm, setPoLinesForm] = useState<typeof mockPOLines | null>(null);
+
   const handleEdit = () => {
     setEditIndex(selectedIndex);
     setEditRow({ ...JSON.parse(JSON.stringify((filteredRows ?? rows)[selectedIndex])) });
@@ -349,12 +353,21 @@ const PurchaseOrder: React.FC = () => {
   // For rendering, expand grouped columns into subcolumns
   const renderColumns = () => {
     const cols: { label: string; key: string; isGroup?: boolean; children?: string[] }[] = [];
+    
+    // Always add Order References first if it's in visibleColumns
+    if (visibleColumns.includes('Order References')) {
+      cols.push({ label: 'Order References', key: 'Order References' });
+    }
+    
+    // Add all other columns except Order References (since we already added it)
     visibleColumns.forEach(col => {
-      const group = groupedColumns.find(g => g.key === col);
-      if (group) {
-        cols.push({ label: group.label, key: group.key, isGroup: true, children: group.children });
-      } else {
-        cols.push({ label: col, key: col });
+      if (col !== 'Order References') {
+        const group = groupedColumns.find(g => g.key === col);
+        if (group) {
+          cols.push({ label: group.label, key: group.key, isGroup: true, children: group.children });
+        } else {
+          cols.push({ label: col, key: col });
+        }
       }
     });
     return cols;
@@ -386,6 +399,200 @@ const PurchaseOrder: React.FC = () => {
 
   const subTabs = ['PO Details', 'Delivery', 'Critical Path', 'Audit', 'Totals', 'Comments'];
   const [activeSubTab, setActiveSubTab] = useState('PO Details');
+
+  // Helper functions for subtable editing
+  const handleSubTableEdit = (tableType: string) => {
+    switch (tableType) {
+      case 'poDetails':
+        setPoDetailsForm({
+          'Order Reference': displayRows[expandedIndex!]?.['Order References'] || '',
+          'Supplier': displayRows[expandedIndex!]?.['Supplier'] || '',
+          'Purchase Currency': displayRows[expandedIndex!]?.['Purchase Currency'] || '',
+          'Status': displayRows[expandedIndex!]?.['Status'] || '',
+          'Production': displayRows[expandedIndex!]?.['Production'] || '',
+          'MLA- Purchasing': displayRows[expandedIndex!]?.['MLA- Purchasing'] || '',
+          'China -QC': displayRows[expandedIndex!]?.['China -QC'] || '',
+          'MLA-Planning': displayRows[expandedIndex!]?.['MLA-Planning'] || '',
+          'MLA-Shipping': displayRows[expandedIndex!]?.['MLA-Shipping'] || '',
+          'Closed Date': displayRows[expandedIndex!]?.['Closed Date'] || '',
+          'Selling Currency': displayRows[expandedIndex!]?.['Selling Currency'] || '',
+        });
+        setPoDetailsEditMode(true);
+        break;
+      case 'delivery':
+        setDeliveryForm({
+          'Customer': displayRows[expandedIndex!]?.['Customer'] || '',
+          'Deliver To': displayRows[expandedIndex!]?.['Deliver to'] || '',
+          'Transport Method': displayRows[expandedIndex!]?.['Transport Method'] || '',
+        });
+        setDeliveryEditMode(true);
+        break;
+      case 'criticalPath':
+        setCriticalPathForm({
+          'Template': displayRows[expandedIndex!]?.['Template'] || '',
+          'PO Issue Date': displayRows[expandedIndex!]?.['PO Issue Date'] || '',
+        });
+        setCriticalPathEditMode(true);
+        break;
+      case 'audit':
+        setAuditForm({
+          'Created By': displayRows[expandedIndex!]?.['Created By'] || '',
+          'Created': displayRows[expandedIndex!]?.['Created'] || '',
+          'Last Edited': displayRows[expandedIndex!]?.['Last Edited'] || '',
+        });
+        setAuditEditMode(true);
+        break;
+      case 'totals':
+        setTotalsForm({
+          'Total Qty': displayRows[expandedIndex!]?.['Total Qty'] || '',
+          'Total Cost': displayRows[expandedIndex!]?.['Total Cost'] || '',
+          'Total Value': displayRows[expandedIndex!]?.['Total Value'] || '',
+        });
+        setTotalsEditMode(true);
+        break;
+      case 'comments':
+        setCommentsForm({
+          'Comments': displayRows[expandedIndex!]?.['Comments'] || '',
+        });
+        setCommentsEditMode(true);
+        break;
+      case 'poLines':
+        setPoLinesForm([...mockPOLines]);
+        setPoLinesEditMode(true);
+        break;
+    }
+  };
+
+  const handleSubTableSave = (tableType: string) => {
+    if (expandedIndex === null) return;
+
+    const newRows = [...(filteredRows ?? rows)];
+    const currentRow = { ...newRows[expandedIndex] };
+
+    switch (tableType) {
+      case 'poDetails':
+        if (poDetailsForm) {
+          // Update the main row with form data
+          Object.keys(poDetailsForm).forEach(key => {
+            if (key === 'Order Reference') {
+              currentRow['Order References'] = poDetailsForm[key];
+            } else {
+              currentRow[key] = poDetailsForm[key];
+            }
+          });
+        }
+        setPoDetailsEditMode(false);
+        setPoDetailsForm(null);
+        break;
+      case 'delivery':
+        if (deliveryForm) {
+          Object.keys(deliveryForm).forEach(key => {
+            if (key === 'Deliver To') {
+              currentRow['Deliver to'] = deliveryForm[key];
+            } else {
+              currentRow[key] = deliveryForm[key];
+            }
+          });
+        }
+        setDeliveryEditMode(false);
+        setDeliveryForm(null);
+        break;
+      case 'criticalPath':
+        if (criticalPathForm) {
+          Object.keys(criticalPathForm).forEach(key => {
+            currentRow[key] = criticalPathForm[key];
+          });
+        }
+        setCriticalPathEditMode(false);
+        setCriticalPathForm(null);
+        break;
+      case 'audit':
+        if (auditForm) {
+          Object.keys(auditForm).forEach(key => {
+            currentRow[key] = auditForm[key];
+          });
+        }
+        setAuditEditMode(false);
+        setAuditForm(null);
+        break;
+      case 'totals':
+        if (totalsForm) {
+          Object.keys(totalsForm).forEach(key => {
+            currentRow[key] = totalsForm[key];
+          });
+        }
+        setTotalsEditMode(false);
+        setTotalsForm(null);
+        break;
+      case 'comments':
+        if (commentsForm) {
+          Object.keys(commentsForm).forEach(key => {
+            currentRow[key] = commentsForm[key];
+          });
+        }
+        setCommentsEditMode(false);
+        setCommentsForm(null);
+        break;
+      case 'poLines':
+        // For PO Lines, we would typically update a separate data structure
+        // For now, we'll just close the edit mode
+        setPoLinesEditMode(false);
+        setPoLinesForm(null);
+        break;
+    }
+
+    // Update the rows
+    newRows[expandedIndex] = currentRow;
+    if (filteredRows) {
+      const mainRows = [...rows];
+      const idxInMain = rows.indexOf(filteredRows[expandedIndex]);
+      if (idxInMain !== -1) mainRows[idxInMain] = currentRow;
+      setRows(mainRows);
+      setFilteredRows(newRows);
+    } else {
+      setRows(newRows);
+    }
+  };
+
+  const handleSubTableCancel = (tableType: string) => {
+    switch (tableType) {
+      case 'poDetails':
+        setPoDetailsEditMode(false);
+        setPoDetailsForm(null);
+        break;
+      case 'delivery':
+        setDeliveryEditMode(false);
+        setDeliveryForm(null);
+        break;
+      case 'criticalPath':
+        setCriticalPathEditMode(false);
+        setCriticalPathForm(null);
+        break;
+      case 'audit':
+        setAuditEditMode(false);
+        setAuditForm(null);
+        break;
+      case 'totals':
+        setTotalsEditMode(false);
+        setTotalsForm(null);
+        break;
+      case 'comments':
+        setCommentsEditMode(false);
+        setCommentsForm(null);
+        break;
+      case 'poLines':
+        setPoLinesEditMode(false);
+        setPoLinesForm(null);
+        break;
+    }
+  };
+
+  const handlePoLinesChange = (lineIndex: number, field: string, value: string) => {
+    if (!poLinesForm) return;
+    const newPoLines = [...poLinesForm];
+    newPoLines[lineIndex] = { ...newPoLines[lineIndex], [field]: value };
+    setPoLinesForm(newPoLines);
+  };
 
   return (
     <div className="p-6">
@@ -476,23 +683,16 @@ const PurchaseOrder: React.FC = () => {
                     (selectedIndex === idx ? 'bg-blue-50 ' : '') +
                     (editIndex === idx ? 'bg-yellow-50' : '')
                   }
-                  onClick={() => setSelectedIndex(idx)}
+                  onClick={() => {
+                    setSelectedIndex(idx);
+                    setExpandedIndex(expandedIndex === idx ? null : idx);
+                  }}
                   style={{ cursor: 'pointer' }}
                 >
                   {renderColumns().flatMap((col, colIdx, arr) => {
                     if (col.key === 'Order References') {
                       return [
                         <td key={col.key} className="sticky left-0 z-0 bg-white px-2 py-1 border-b align-top whitespace-nowrap border-r-2 border-gray-200"> 
-                          <button
-                            className="mr-2 align-middle"
-                            onClick={e => {
-                              e.stopPropagation();
-                              setExpandedIndex(expandedIndex === idx ? null : idx);
-                            }}
-                            aria-label={expandedIndex === idx ? 'Collapse details' : 'Expand details'}
-                          >
-                            {expandedIndex === idx ? <ChevronDown className="inline h-4 w-4" /> : <ChevronRight className="inline h-4 w-4" />}
-                          </button>
                           {editIndex === idx ? (
                             <input
                               className="border px-1 py-0.5 rounded w-32 text-xs"
@@ -580,7 +780,7 @@ const PurchaseOrder: React.FC = () => {
                                           {poDetailsEditMode ? (
                                             <input
                                               className="border px-1 py-0.5 rounded w-full text-xs"
-                                              value={poDetailsForm?.[col] ?? (col === 'Order Reference' ? displayRows[expandedIndex]?.['Order References'] || '' : displayRows[expandedIndex]?.[col] || '')}
+                                              value={poDetailsForm?.[col] ?? ''}
                                               onChange={e => setPoDetailsForm(f => ({ ...(f || {}), [col]: e.target.value }))}
                                             />
                                           ) : (
@@ -593,6 +793,31 @@ const PurchaseOrder: React.FC = () => {
                                     </tr>
                                   </tbody>
                                 </table>
+                                <div className="flex gap-2 mt-2">
+                                  {!poDetailsEditMode ? (
+                                    <button
+                                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                      onClick={() => handleSubTableEdit('poDetails')}
+                                    >
+                                      <EditIcon className="w-3 h-3" /> Edit
+                                    </button>
+                                  ) : (
+                                    <>
+                                      <button
+                                        className="bg-green-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        onClick={() => handleSubTableSave('poDetails')}
+                                      >
+                                        <SaveIcon className="w-3 h-3" /> Save
+                                      </button>
+                                      <button
+                                        className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        onClick={() => handleSubTableCancel('poDetails')}
+                                      >
+                                        <X className="w-3 h-3" /> Cancel
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
                               </>
                             )}
                             {activeSubTab === 'Delivery' && (
@@ -608,12 +833,67 @@ const PurchaseOrder: React.FC = () => {
                                   </thead>
                                   <tbody>
                                     <tr>
-                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Customer'] || ''}</td>
-                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Deliver to'] || ''}</td>
-                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Transport Method'] || ''}</td>
+                                      <td className="px-2 py-1">
+                                        {deliveryEditMode ? (
+                                          <input
+                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            value={deliveryForm?.['Customer'] ?? ''}
+                                            onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Customer': e.target.value }))}
+                                          />
+                                        ) : (
+                                          displayRows[expandedIndex]?.['Customer'] || ''
+                                        )}
+                                      </td>
+                                      <td className="px-2 py-1">
+                                        {deliveryEditMode ? (
+                                          <input
+                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            value={deliveryForm?.['Deliver To'] ?? ''}
+                                            onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Deliver To': e.target.value }))}
+                                          />
+                                        ) : (
+                                          displayRows[expandedIndex]?.['Deliver to'] || ''
+                                        )}
+                                      </td>
+                                      <td className="px-2 py-1">
+                                        {deliveryEditMode ? (
+                                          <input
+                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            value={deliveryForm?.['Transport Method'] ?? ''}
+                                            onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Transport Method': e.target.value }))}
+                                          />
+                                        ) : (
+                                          displayRows[expandedIndex]?.['Transport Method'] || ''
+                                        )}
+                                      </td>
                                     </tr>
                                   </tbody>
                                 </table>
+                                <div className="flex gap-2 mt-2">
+                                  {!deliveryEditMode ? (
+                                    <button
+                                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                      onClick={() => handleSubTableEdit('delivery')}
+                                    >
+                                      <EditIcon className="w-3 h-3" /> Edit
+                                    </button>
+                                  ) : (
+                                    <>
+                                      <button
+                                        className="bg-green-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        onClick={() => handleSubTableSave('delivery')}
+                                      >
+                                        <SaveIcon className="w-3 h-3" /> Save
+                                      </button>
+                                      <button
+                                        className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        onClick={() => handleSubTableCancel('delivery')}
+                                      >
+                                        <X className="w-3 h-3" /> Cancel
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
                               </>
                             )}
                             {activeSubTab === 'Critical Path' && (
@@ -629,11 +909,56 @@ const PurchaseOrder: React.FC = () => {
                                   </thead>
                                   <tbody>
                                     <tr>
-                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Template'] || ''}</td>
-                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['PO Issue Date'] || ''}</td>
+                                      <td className="px-2 py-1">
+                                        {criticalPathEditMode ? (
+                                          <input
+                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            value={criticalPathForm?.['Template'] ?? ''}
+                                            onChange={e => setCriticalPathForm(f => ({ ...(f || {}), 'Template': e.target.value }))}
+                                          />
+                                        ) : (
+                                          displayRows[expandedIndex]?.['Template'] || ''
+                                        )}
+                                      </td>
+                                      <td className="px-2 py-1">
+                                        {criticalPathEditMode ? (
+                                          <input
+                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            value={criticalPathForm?.['PO Issue Date'] ?? ''}
+                                            onChange={e => setCriticalPathForm(f => ({ ...(f || {}), 'PO Issue Date': e.target.value }))}
+                                          />
+                                        ) : (
+                                          displayRows[expandedIndex]?.['PO Issue Date'] || ''
+                                        )}
+                                      </td>
                                     </tr>
                                   </tbody>
                                 </table>
+                                <div className="flex gap-2 mt-2">
+                                  {!criticalPathEditMode ? (
+                                    <button
+                                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                      onClick={() => handleSubTableEdit('criticalPath')}
+                                    >
+                                      <EditIcon className="w-3 h-3" /> Edit
+                                    </button>
+                                  ) : (
+                                    <>
+                                      <button
+                                        className="bg-green-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        onClick={() => handleSubTableSave('criticalPath')}
+                                      >
+                                        <SaveIcon className="w-3 h-3" /> Save
+                                      </button>
+                                      <button
+                                        className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        onClick={() => handleSubTableCancel('criticalPath')}
+                                      >
+                                        <X className="w-3 h-3" /> Cancel
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
                               </>
                             )}
                             {activeSubTab === 'Audit' && (
@@ -649,12 +974,67 @@ const PurchaseOrder: React.FC = () => {
                                   </thead>
                                   <tbody>
                                     <tr>
-                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Created By'] || ''}</td>
-                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Created'] || ''}</td>
-                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Last Edited'] || ''}</td>
+                                      <td className="px-2 py-1">
+                                        {auditEditMode ? (
+                                          <input
+                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            value={auditForm?.['Created By'] ?? ''}
+                                            onChange={e => setAuditForm(f => ({ ...(f || {}), 'Created By': e.target.value }))}
+                                          />
+                                        ) : (
+                                          displayRows[expandedIndex]?.['Created By'] || ''
+                                        )}
+                                      </td>
+                                      <td className="px-2 py-1">
+                                        {auditEditMode ? (
+                                          <input
+                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            value={auditForm?.['Created'] ?? ''}
+                                            onChange={e => setAuditForm(f => ({ ...(f || {}), 'Created': e.target.value }))}
+                                          />
+                                        ) : (
+                                          displayRows[expandedIndex]?.['Created'] || ''
+                                        )}
+                                      </td>
+                                      <td className="px-2 py-1">
+                                        {auditEditMode ? (
+                                          <input
+                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            value={auditForm?.['Last Edited'] ?? ''}
+                                            onChange={e => setAuditForm(f => ({ ...(f || {}), 'Last Edited': e.target.value }))}
+                                          />
+                                        ) : (
+                                          displayRows[expandedIndex]?.['Last Edited'] || ''
+                                        )}
+                                      </td>
                                     </tr>
                                   </tbody>
                                 </table>
+                                <div className="flex gap-2 mt-2">
+                                  {!auditEditMode ? (
+                                    <button
+                                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                      onClick={() => handleSubTableEdit('audit')}
+                                    >
+                                      <EditIcon className="w-3 h-3" /> Edit
+                                    </button>
+                                  ) : (
+                                    <>
+                                      <button
+                                        className="bg-green-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        onClick={() => handleSubTableSave('audit')}
+                                      >
+                                        <SaveIcon className="w-3 h-3" /> Save
+                                      </button>
+                                      <button
+                                        className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        onClick={() => handleSubTableCancel('audit')}
+                                      >
+                                        <X className="w-3 h-3" /> Cancel
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
                               </>
                             )}
                             {activeSubTab === 'Totals' && (
@@ -670,12 +1050,67 @@ const PurchaseOrder: React.FC = () => {
                                   </thead>
                                   <tbody>
                                     <tr>
-                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Total Qty'] || ''}</td>
-                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Total Cost'] || ''}</td>
-                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Total Value'] || ''}</td>
+                                      <td className="px-2 py-1">
+                                        {totalsEditMode ? (
+                                          <input
+                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            value={totalsForm?.['Total Qty'] ?? ''}
+                                            onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Total Qty': e.target.value }))}
+                                          />
+                                        ) : (
+                                          displayRows[expandedIndex]?.['Total Qty'] || ''
+                                        )}
+                                      </td>
+                                      <td className="px-2 py-1">
+                                        {totalsEditMode ? (
+                                          <input
+                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            value={totalsForm?.['Total Cost'] ?? ''}
+                                            onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Total Cost': e.target.value }))}
+                                          />
+                                        ) : (
+                                          displayRows[expandedIndex]?.['Total Cost'] || ''
+                                        )}
+                                      </td>
+                                      <td className="px-2 py-1">
+                                        {totalsEditMode ? (
+                                          <input
+                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            value={totalsForm?.['Total Value'] ?? ''}
+                                            onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Total Value': e.target.value }))}
+                                          />
+                                        ) : (
+                                          displayRows[expandedIndex]?.['Total Value'] || ''
+                                        )}
+                                      </td>
                                     </tr>
                                   </tbody>
                                 </table>
+                                <div className="flex gap-2 mt-2">
+                                  {!totalsEditMode ? (
+                                    <button
+                                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                      onClick={() => handleSubTableEdit('totals')}
+                                    >
+                                      <EditIcon className="w-3 h-3" /> Edit
+                                    </button>
+                                  ) : (
+                                    <>
+                                      <button
+                                        className="bg-green-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        onClick={() => handleSubTableSave('totals')}
+                                      >
+                                        <SaveIcon className="w-3 h-3" /> Save
+                                      </button>
+                                      <button
+                                        className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        onClick={() => handleSubTableCancel('totals')}
+                                      >
+                                        <X className="w-3 h-3" /> Cancel
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
                               </>
                             )}
                             {activeSubTab === 'Comments' && (
@@ -691,10 +1126,46 @@ const PurchaseOrder: React.FC = () => {
                                   </thead>
                                   <tbody>
                                     <tr>
-                                      <td className="px-2 py-1">{displayRows[expandedIndex]?.['Comments'] || ''}</td>
+                                      <td className="px-2 py-1">
+                                        {commentsEditMode ? (
+                                          <textarea
+                                            className="border px-1 py-0.5 rounded w-full text-xs resize-none"
+                                            rows={3}
+                                            value={commentsForm?.['Comments'] ?? ''}
+                                            onChange={e => setCommentsForm(f => ({ ...(f || {}), 'Comments': e.target.value }))}
+                                          />
+                                        ) : (
+                                          displayRows[expandedIndex]?.['Comments'] || ''
+                                        )}
+                                      </td>
                                     </tr>
                                   </tbody>
                                 </table>
+                                <div className="flex gap-2 mt-2">
+                                  {!commentsEditMode ? (
+                                    <button
+                                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                      onClick={() => handleSubTableEdit('comments')}
+                                    >
+                                      <EditIcon className="w-3 h-3" /> Edit
+                                    </button>
+                                  ) : (
+                                    <>
+                                      <button
+                                        className="bg-green-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        onClick={() => handleSubTableSave('comments')}
+                                      >
+                                        <SaveIcon className="w-3 h-3" /> Save
+                                      </button>
+                                      <button
+                                        className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        onClick={() => handleSubTableCancel('comments')}
+                                      >
+                                        <X className="w-3 h-3" /> Cancel
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
                               </>
                             )}
                           </div>
@@ -710,15 +1181,70 @@ const PurchaseOrder: React.FC = () => {
                                 </tr>
                               </thead>
                               <tbody>
-                                {mockPOLines.map(line => (
+                                {(poLinesEditMode ? poLinesForm : mockPOLines)?.map((line, index) => (
                                   <tr key={line.line}>
-                                    <td className="px-2 py-1">{line.line}</td>
-                                    <td className="px-2 py-1">{line.product}</td>
-                                    <td className="px-2 py-1">{line.quantity}</td>
+                                    <td className="px-2 py-1">
+                                      {poLinesEditMode ? (
+                                        <input
+                                          className="border px-1 py-0.5 rounded w-full text-xs"
+                                          value={line.line}
+                                          onChange={e => handlePoLinesChange(index, 'line', e.target.value)}
+                                        />
+                                      ) : (
+                                        line.line
+                                      )}
+                                    </td>
+                                    <td className="px-2 py-1">
+                                      {poLinesEditMode ? (
+                                        <input
+                                          className="border px-1 py-0.5 rounded w-full text-xs"
+                                          value={line.product}
+                                          onChange={e => handlePoLinesChange(index, 'product', e.target.value)}
+                                        />
+                                      ) : (
+                                        line.product
+                                      )}
+                                    </td>
+                                    <td className="px-2 py-1">
+                                      {poLinesEditMode ? (
+                                        <input
+                                          className="border px-1 py-0.5 rounded w-full text-xs"
+                                          value={line.quantity}
+                                          onChange={e => handlePoLinesChange(index, 'quantity', e.target.value)}
+                                        />
+                                      ) : (
+                                        line.quantity
+                                      )}
+                                    </td>
                                   </tr>
                                 ))}
                               </tbody>
                             </table>
+                            <div className="flex gap-2 mt-2">
+                              {!poLinesEditMode ? (
+                                <button
+                                  className="bg-blue-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                  onClick={() => handleSubTableEdit('poLines')}
+                                >
+                                  <EditIcon className="w-3 h-3" /> Edit
+                                </button>
+                              ) : (
+                                <>
+                                  <button
+                                    className="bg-green-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                    onClick={() => handleSubTableSave('poLines')}
+                                  >
+                                    <SaveIcon className="w-3 h-3" /> Save
+                                  </button>
+                                  <button
+                                    className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                    onClick={() => handleSubTableCancel('poLines')}
+                                  >
+                                    <X className="w-3 h-3" /> Cancel
+                                  </button>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>

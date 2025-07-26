@@ -546,8 +546,8 @@ const PurchaseOrder: React.FC = () => {
                 {expandedIndex === idx && (
                   <tr>
                     <td colSpan={visibleColumns.length} className="bg-transparent p-0 border-none">
-                      <div className="sticky left-0 z-30 bg-white w-full shadow-lg p-6 mt-2">
-                        <div className="flex flex-col md:flex-row gap-8">
+                      <div className="sticky left-0 z-30 bg-white w-full shadow-lg p-6 mt-2 overflow-x-auto" style={{ maxWidth: '100vw' }}>
+                        <div className="flex flex-col md:flex-row gap-8" style={{ minWidth: '1200px' }}>
                           {/* Left: Tab bar and tab content */}
                           <div className="flex-1 min-w-0 max-w-[800px] w-full overflow-x-auto">
                             <div className="mb-4 flex gap-2 border-b border-blue-200">

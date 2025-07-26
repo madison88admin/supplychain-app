@@ -349,12 +349,21 @@ const PurchaseOrder: React.FC = () => {
   // For rendering, expand grouped columns into subcolumns
   const renderColumns = () => {
     const cols: { label: string; key: string; isGroup?: boolean; children?: string[] }[] = [];
+    
+    // Always add Order References first if it's in visibleColumns
+    if (visibleColumns.includes('Order References')) {
+      cols.push({ label: 'Order References', key: 'Order References' });
+    }
+    
+    // Add all other columns except Order References (since we already added it)
     visibleColumns.forEach(col => {
-      const group = groupedColumns.find(g => g.key === col);
-      if (group) {
-        cols.push({ label: group.label, key: group.key, isGroup: true, children: group.children });
-      } else {
-        cols.push({ label: col, key: col });
+      if (col !== 'Order References') {
+        const group = groupedColumns.find(g => g.key === col);
+        if (group) {
+          cols.push({ label: group.label, key: group.key, isGroup: true, children: group.children });
+        } else {
+          cols.push({ label: col, key: col });
+        }
       }
     });
     return cols;
@@ -476,23 +485,16 @@ const PurchaseOrder: React.FC = () => {
                     (selectedIndex === idx ? 'bg-blue-50 ' : '') +
                     (editIndex === idx ? 'bg-yellow-50' : '')
                   }
-                  onClick={() => setSelectedIndex(idx)}
+                  onClick={() => {
+                    setSelectedIndex(idx);
+                    setExpandedIndex(expandedIndex === idx ? null : idx);
+                  }}
                   style={{ cursor: 'pointer' }}
                 >
                   {renderColumns().flatMap((col, colIdx, arr) => {
                     if (col.key === 'Order References') {
                       return [
                         <td key={col.key} className="sticky left-0 z-0 bg-white px-2 py-1 border-b align-top whitespace-nowrap border-r-2 border-gray-200"> 
-                          <button
-                            className="mr-2 align-middle"
-                            onClick={e => {
-                              e.stopPropagation();
-                              setExpandedIndex(expandedIndex === idx ? null : idx);
-                            }}
-                            aria-label={expandedIndex === idx ? 'Collapse details' : 'Expand details'}
-                          >
-                            {expandedIndex === idx ? <ChevronDown className="inline h-4 w-4" /> : <ChevronRight className="inline h-4 w-4" />}
-                          </button>
                           {editIndex === idx ? (
                             <input
                               className="border px-1 py-0.5 rounded w-32 text-xs"

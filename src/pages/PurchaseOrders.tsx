@@ -254,6 +254,13 @@ const PurchaseOrders: React.FC = () => {
   const [productForm, setProductForm] = useState<any>(null);
   // Add state for Product subtable tab
   const [productEditTab, setProductEditTab] = useState('Product Details');
+  // Add state for Tech Packs subtable tab
+  const [techPacksEditTab, setTechPacksEditTab] = useState('Tech Pack Version');
+  // Add state for Tech Pack Version edit mode and form
+  const [techPackVersionEdit, setTechPackVersionEdit] = useState(false);
+  const [techPackVersionForm, setTechPackVersionForm] = useState<any>(null);
+  const [fibreCompositionEdit, setFibreCompositionEdit] = useState(false);
+  const [fibreCompositionForm, setFibreCompositionForm] = useState<any>(null);
   // Add state for Product Images Table edit mode and form
   const [productImagesEdit, setProductImagesEdit] = useState(false);
   const [productImagesForm, setProductImagesForm] = useState<any>(null);
@@ -295,6 +302,8 @@ const PurchaseOrders: React.FC = () => {
   // Add state for Product Colorways Table edit mode and form
   const [productColorwaysEdit, setProductColorwaysEdit] = useState(false);
   const [productColorwaysForm, setProductColorwaysForm] = useState<any[]>([]);
+
+
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
@@ -413,13 +422,20 @@ const PurchaseOrders: React.FC = () => {
   const renderHeaderRows = () => {
     const cols = renderColumns();
     // First row: group headers
-    const firstRow = cols.map((col, i) =>
-      col.isGroup ? (
-        <th key={`${col.key}-group-${i}`} colSpan={2} className={`px-2 py-1 border-b text-center whitespace-nowrap${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
+    const firstRow = cols.map((col, i) => {
+      let stickyClass = '';
+      if (col.key === 'Order') {
+        stickyClass = 'sticky left-0 bg-white z-20';
+      } else if (col.key === 'Product') {
+        stickyClass = 'sticky left-12 bg-white z-20';
+      }
+      
+      return col.isGroup ? (
+        <th key={`${col.key}-group-${i}`} colSpan={2} className={`px-2 py-1 border-b text-center whitespace-nowrap ${stickyClass}${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
       ) : (
-                                <th key={`${col.key}-single-${i}`} rowSpan={2} className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
-      )
-    );
+                                <th key={`${col.key}-single-${i}`} rowSpan={2} className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle ${stickyClass}${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
+      );
+    });
     // Second row: subheaders
     const secondRow = cols.flatMap((col, idx) =>
       col.isGroup
@@ -573,7 +589,7 @@ const PurchaseOrders: React.FC = () => {
                     // Only render columns that are in renderColumns (already filtered by visibleColumns)
                     if (col.key === 'Order' && safeVisibleColumns.includes('Order')) {
                       return [
-                        <td key={col.key} className={`px-2 py-1 border-b align-top whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}> 
+                        <td key={col.key} className={`px-2 py-1 border-b align-top whitespace-nowrap sticky left-0 bg-white z-10${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}> 
                           <button 
                             className="mr-2 align-middle"
                             onClick={e => {
@@ -599,7 +615,7 @@ const PurchaseOrders: React.FC = () => {
                     // Add Product subtable dropdown
                     if (col.key === 'Product' && safeVisibleColumns.includes('Product')) {
                       return [
-                        <td key={col.key} className={`px-2 py-1 border-b align-top whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}> 
+                        <td key={col.key} className={`px-2 py-1 border-b align-top whitespace-nowrap sticky left-12 bg-white z-10${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}> 
                           <button
                             className="mr-2 align-middle"
                             onClick={e => {
@@ -662,7 +678,7 @@ const PurchaseOrders: React.FC = () => {
                 </tr>
                 {expandedIndex === idx && safeVisibleColumns.includes('Order') && (
                   <tr>
-                    <td colSpan={renderColumns().reduce((acc, col) => acc + (col.isGroup ? 2 : 1), 0)} className="bg-blue-50 px-6 py-4">
+                    <td colSpan={renderColumns().reduce((acc, col) => acc + (col.isGroup ? 2 : 1), 0)} className="bg-blue-50 px-6 py-4 sticky left-0 z-10">
                       <div>
                         <div className="font-semibold text-blue-700 mb-2">Purchase Order Details</div>
                         {/* Horizontal Tabs */}
@@ -892,14 +908,16 @@ const PurchaseOrders: React.FC = () => {
                               </div>
                             </>
                           )}
-                        </div>
+                                                </div>
                       </div>
+                      
+
                     </td>
                   </tr>
                 )}
                 {expandedProductIndex === idx && safeVisibleColumns.includes('Product') && (
                   <tr>
-                    <td colSpan={renderColumns().reduce((acc, col) => acc + (col.isGroup ? 2 : 1), 0)} className="bg-blue-50 px-6 py-4">
+                    <td colSpan={renderColumns().reduce((acc, col) => acc + (col.isGroup ? 2 : 1), 0)} className="bg-blue-50 px-6 py-4 sticky left-0 z-10">
                       <div>
                         <div className="font-semibold text-blue-700 mb-2">Product Details</div>
                         {/* Product subtable tabs */}
@@ -966,6 +984,9 @@ const PurchaseOrders: React.FC = () => {
                                 }); }}>Edit</button>
                               )}
                             </div>
+                            
+
+
                           </div>
                         )}
                         {/* Critical Path Tab */}
@@ -1154,7 +1175,7 @@ const PurchaseOrders: React.FC = () => {
                         )}
                         {/* Bill Of Materials Tab */}
                         {productEditTab === 'Bill Of Materials' && (
-                          <div className="inline-block max-w-5xl min-w-fit overflow-x-auto">
+                          <div className="inline-block max-w-5xl min-w-fit overflow-x-auto sticky left-0 z-10">
                             <table className="text-sm border border-blue-200 rounded my-2 min-w-fit" style={{ marginBottom: '12px' }}>
                               <thead>
                                 <tr>
@@ -1240,7 +1261,7 @@ const PurchaseOrders: React.FC = () => {
                         )}
                         {/* Activities Tab */}
                         {productEditTab === 'Activities' && (
-                          <div className="inline-block max-w-3xl min-w-fit overflow-x-auto">
+                          <div className="inline-block max-w-3xl min-w-fit overflow-x-auto sticky left-0 z-10">
                             <table className="text-sm border border-blue-200 rounded my-2 min-w-fit" style={{ marginBottom: '12px' }}>
                               <thead>
                                 <tr>
@@ -1393,7 +1414,7 @@ const PurchaseOrders: React.FC = () => {
                         )}
                         {/* Colorways Tab */}
                         {productEditTab === 'Colorways' && (
-                          <div className="inline-block max-w-5xl min-w-fit overflow-x-auto">
+                          <div className="inline-block max-w-5xl min-w-fit overflow-x-auto sticky left-0 z-10">
                             <table className="text-sm border border-blue-200 rounded my-2 min-w-fit" style={{ marginBottom: '12px' }}>
                               <thead>
                                 <tr>
@@ -1521,6 +1542,746 @@ const PurchaseOrders: React.FC = () => {
                             </div>
                           </div>
                         )}
+                        
+                        {/* Tech Packs Section */}
+                        <div className="mt-8">
+                          <div className="font-semibold text-blue-700 mb-2">Tech Packs</div>
+                                                  {/* Tech Packs subtable tabs */}
+                        <div className="mb-4 flex gap-2 border-b border-blue-200">
+                          {(['Tech Pack Version', 'Bill Of Materials', 'Size Specifications', 'Fit Log', 'Fibre Composition', 'Care Instructions', 'Labels'] as string[]).map((tab: string) => (
+                            <button
+                              key={tab}
+                              className={`px-4 py-2 -mb-px rounded-t font-medium transition-colors border-b-2 ${techPacksEditTab === tab ? 'bg-white border-blue-500 text-blue-700' : 'bg-blue-50 border-transparent text-gray-600 hover:text-blue-600'}`}
+                              onClick={() => setTechPacksEditTab(tab)}
+                            >
+                              {tab}
+                            </button>
+                          ))}
+                        </div>
+                        
+
+                          
+                          {/* Tech Pack Version Tab */}
+                          {(!techPacksEditTab || techPacksEditTab === 'Tech Pack Version') && (
+                            <div className="inline-block">
+                              <p className="text-gray-600 mb-4">Tech Pack Version details will be displayed here.</p>
+                            </div>
+                          )}
+                          
+                          {/* Bill Of Materials Tab */}
+                          {techPacksEditTab === 'Bill Of Materials' && (
+                            <div className="inline-block">
+                              <table className="text-sm border border-blue-200 rounded mb-2 table-fixed">
+                                <tbody>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Material</td><td className="px-2 py-1">{row['BOM Material'] || ''}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Description</td><td className="px-2 py-1">{row['BOM Description'] || ''}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Quantity</td><td className="px-2 py-1">{row['BOM Quantity'] || ''}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Unit</td><td className="px-2 py-1">{row['BOM Unit'] || ''}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Cost</td><td className="px-2 py-1">{row['BOM Cost'] || ''}</td></tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                          
+                          {/* Size Specifications Tab */}
+                          {techPacksEditTab === 'Size Specifications' && (
+                            <div className="inline-block">
+                              <table className="text-sm border border-blue-200 rounded mb-2 table-fixed">
+                                <tbody>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Size</td><td className="px-2 py-1">{row['Size Spec'] || ''}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Chest</td><td className="px-2 py-1">{row['Size Chest'] || ''}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Waist</td><td className="px-2 py-1">{row['Size Waist'] || ''}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Hip</td><td className="px-2 py-1">{row['Size Hip'] || ''}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Length</td><td className="px-2 py-1">{row['Size Length'] || ''}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Sleeve</td><td className="px-2 py-1">{row['Size Sleeve'] || ''}</td></tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                          
+                          {/* Fit Log Tab */}
+                          {techPacksEditTab === 'Fit Log' && (
+                            <div className="inline-block">
+                              <table className="text-sm border border-blue-200 rounded mb-2 table-fixed">
+                                <tbody>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Date</td><td className="px-2 py-1">{row['Fit Log Date'] || ''}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Type</td><td className="px-2 py-1">{row['Fit Log Type'] || ''}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Status</td><td className="px-2 py-1">{row['Fit Log Status'] || ''}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Comments</td><td className="px-2 py-1">{row['Fit Log Comments'] || ''}</td></tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                          
+                          {/* Fibre Composition Tab */}
+                          {techPacksEditTab === 'Fibre Composition' && (
+                            <div className="inline-block">
+                              {/* Version Control Table */}
+                              <div className="mb-3">
+                                <h4 className="font-semibold text-gray-700 mb-1 text-sm">Version Control</h4>
+                                <table className="text-xs border border-blue-200 rounded mb-1 table-fixed">
+                                  <thead>
+                                    <tr className="bg-blue-50">
+                                      <th className="px-1 py-0.5 text-left font-semibold w-20">Version Number</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold w-24">Comment</th>
+                                      <th className="px-1 py-0.5 text-center font-semibold w-16">Current Version</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold w-20">Created By</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold w-32">Created</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td className="px-1 py-0.5 border">{techPackVersionEdit ? (
+                                        <input className="border px-1 py-0.5 rounded text-xs w-full" value={techPackVersionForm?.['Version Number'] || ''} onChange={e => setTechPackVersionForm({...techPackVersionForm, 'Version Number': e.target.value})} />
+                                      ) : (row['Version Number'] || '')}</td>
+                                      <td className="px-1 py-0.5 border">{techPackVersionEdit ? (
+                                        <input className="border px-1 py-0.5 rounded text-xs w-full" value={techPackVersionForm?.['Comment'] || ''} onChange={e => setTechPackVersionForm({...techPackVersionForm, 'Comment': e.target.value})} />
+                                      ) : (row['Comment'] || '')}</td>
+                                      <td className="px-1 py-0.5 border text-center">{techPackVersionEdit ? (
+                                        <input type="checkbox" checked={!!techPackVersionForm?.['Current Version']} onChange={e => setTechPackVersionForm({...techPackVersionForm, 'Current Version': e.target.checked})} />
+                                      ) : (row['Current Version'] ? (
+                                        <div className="w-3 h-3 bg-gray-300 border rounded flex items-center justify-center">
+                                          <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                          </svg>
+                                        </div>
+                                      ) : (
+                                        <div className="w-3 h-3 bg-gray-300 border rounded"></div>
+                                      ))}</td>
+                                      <td className="px-1 py-0.5 border">{techPackVersionEdit ? (
+                                        <input className="border px-1 py-0.5 rounded text-xs w-full" value={techPackVersionForm?.['Created By'] || ''} onChange={e => setTechPackVersionForm({...techPackVersionForm, 'Created By': e.target.value})} />
+                                      ) : (row['Created By'] || '')}</td>
+                                      <td className="px-1 py-0.5 border">{techPackVersionEdit ? (
+                                        <input type="datetime-local" className="border px-1 py-0.5 rounded text-xs w-full" value={techPackVersionForm?.['Created'] || ''} onChange={e => setTechPackVersionForm({...techPackVersionForm, 'Created': e.target.value})} />
+                                      ) : (row['Created'] || '')}</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                                <div className="flex gap-1 mt-1">
+                                  {techPackVersionEdit ? (
+                                    <>
+                                      <button className="bg-green-600 text-white px-2 py-0.5 rounded text-xs" onClick={() => {
+                                        const newRows = [...rows];
+                                        newRows[idx] = { ...row, ...techPackVersionForm };
+                                        setRows(newRows);
+                                        setTechPackVersionEdit(false);
+                                        setTechPackVersionForm(null);
+                                      }}>Save</button>
+                                      <button className="bg-gray-500 text-white px-2 py-0.5 rounded text-xs" onClick={() => { setTechPackVersionEdit(false); setTechPackVersionForm(null); }}>Cancel</button>
+                                    </>
+                                  ) : (
+                                    <button className="bg-blue-600 text-white px-2 py-0.5 rounded text-xs" onClick={() => {
+                                      setTechPackVersionEdit(true);
+                                      setTechPackVersionForm({
+                                        'Version Number': row['Version Number'] || '',
+                                        'Comment': row['Comment'] || '',
+                                        'Current Version': row['Current Version'] || false,
+                                        'Created By': row['Created By'] || '',
+                                        'Created': row['Created'] || ''
+                                      });
+                                    }}>Edit</button>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-3 gap-4 mb-4">
+                                {/* Fibre Content Section */}
+                                {row['Fibre Content'] !== undefined && (
+                                <div className="border border-blue-200 rounded p-3">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold text-sm">Fibre Content</h4>
+                                    <button className="text-red-500 hover:text-red-700" onClick={() => {
+                                      // Remove fibre content section completely
+                                      const newRows = [...rows];
+                                      delete newRows[idx]['Fibre Content'];
+                                      setRows(newRows);
+                                    }}>
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                  <table className="text-xs w-full">
+                                    <thead>
+                                      <tr className="border-b">
+                                        <th className="text-left py-1">Fibre</th>
+                                        <th className="text-left py-1">%</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {[0, 1, 2, 3, 4, 5].map((index) => (
+                                        <tr key={index}>
+                                          <td className="py-1">
+                                            <select 
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Fibre Content']?.[index]?.type || ''}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Fibre Content']) newRows[idx]['Fibre Content'] = [];
+                                                if (!newRows[idx]['Fibre Content'][index]) newRows[idx]['Fibre Content'][index] = {};
+                                                newRows[idx]['Fibre Content'][index].type = e.target.value;
+                                                setRows(newRows);
+                                              }}
+                                            >
+                                              <option value="">Select</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Acrylic">Acrylic</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Silk">Silk</option>
+                                              <option value="Linen">Linen</option>
+                                              <option value="Nylon">Nylon</option>
+                                              <option value="Spandex">Spandex</option>
+                                            </select>
+                                          </td>
+                                          <td className="py-1">
+                                            <input 
+                                              type="number" 
+                                              step="0.1"
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Fibre Content']?.[index]?.percentage || '0.0'}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Fibre Content']) newRows[idx]['Fibre Content'] = [];
+                                                if (!newRows[idx]['Fibre Content'][index]) newRows[idx]['Fibre Content'][index] = {};
+                                                newRows[idx]['Fibre Content'][index].percentage = parseFloat(e.target.value) || 0;
+                                                setRows(newRows);
+                                              }}
+                                            />
+                                          </td>
+                                        </tr>
+                                      ))}
+                                      <tr className="border-t font-semibold">
+                                        <td className="py-1">Total</td>
+                                        <td className="py-1">
+                                          {(row['Fibre Content']?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                                )}
+
+                                {/* Shell Section */}
+                                {row['Shell'] !== undefined && (
+                                <div className="border border-blue-200 rounded p-3">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold text-sm">Shell</h4>
+                                    <button className="text-red-500 hover:text-red-700" onClick={() => {
+                                      const newRows = [...rows];
+                                      delete newRows[idx]['Shell'];
+                                      setRows(newRows);
+                                    }}>
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                  <table className="text-xs w-full">
+                                    <thead>
+                                      <tr className="border-b">
+                                        <th className="text-left py-1">Fibre</th>
+                                        <th className="text-left py-1">%</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {[0, 1, 2, 3, 4, 5].map((index) => (
+                                        <tr key={index}>
+                                          <td className="py-1">
+                                            <select 
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Shell']?.[index]?.type || ''}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Shell']) newRows[idx]['Shell'] = [];
+                                                if (!newRows[idx]['Shell'][index]) newRows[idx]['Shell'][index] = {};
+                                                newRows[idx]['Shell'][index].type = e.target.value;
+                                                setRows(newRows);
+                                              }}
+                                            >
+                                              <option value="">Select</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Acrylic">Acrylic</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Silk">Silk</option>
+                                              <option value="Linen">Linen</option>
+                                              <option value="Nylon">Nylon</option>
+                                              <option value="Spandex">Spandex</option>
+                                            </select>
+                                          </td>
+                                          <td className="py-1">
+                                            <input 
+                                              type="number" 
+                                              step="0.1"
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Shell']?.[index]?.percentage || '0.0'}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Shell']) newRows[idx]['Shell'] = [];
+                                                if (!newRows[idx]['Shell'][index]) newRows[idx]['Shell'][index] = {};
+                                                newRows[idx]['Shell'][index].percentage = parseFloat(e.target.value) || 0;
+                                                setRows(newRows);
+                                              }}
+                                            />
+                                          </td>
+                                        </tr>
+                                      ))}
+                                      <tr className="border-t font-semibold">
+                                        <td className="py-1">Total</td>
+                                        <td className="py-1">
+                                          {(row['Shell']?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                                )}
+
+                                {/* Body Section */}
+                                {row['Body'] !== undefined && (
+                                <div className="border border-blue-200 rounded p-3">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold text-sm">Body</h4>
+                                    <button className="text-red-500 hover:text-red-700" onClick={() => {
+                                      const newRows = [...rows];
+                                      delete newRows[idx]['Body'];
+                                      setRows(newRows);
+                                    }}>
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                  <table className="text-xs w-full">
+                                    <thead>
+                                      <tr className="border-b">
+                                        <th className="text-left py-1">Fibre</th>
+                                        <th className="text-left py-1">%</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {[0, 1, 2, 3, 4, 5].map((index) => (
+                                        <tr key={index}>
+                                          <td className="py-1">
+                                            <select 
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Body']?.[index]?.type || ''}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Body']) newRows[idx]['Body'] = [];
+                                                if (!newRows[idx]['Body'][index]) newRows[idx]['Body'][index] = {};
+                                                newRows[idx]['Body'][index].type = e.target.value;
+                                                setRows(newRows);
+                                              }}
+                                            >
+                                              <option value="">Select</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Acrylic">Acrylic</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Silk">Silk</option>
+                                              <option value="Linen">Linen</option>
+                                              <option value="Nylon">Nylon</option>
+                                              <option value="Spandex">Spandex</option>
+                                            </select>
+                                          </td>
+                                          <td className="py-1">
+                                            <input 
+                                              type="number" 
+                                              step="0.1"
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Body']?.[index]?.percentage || '0.0'}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Body']) newRows[idx]['Body'] = [];
+                                                if (!newRows[idx]['Body'][index]) newRows[idx]['Body'][index] = {};
+                                                newRows[idx]['Body'][index].percentage = parseFloat(e.target.value) || 0;
+                                                setRows(newRows);
+                                              }}
+                                            />
+                                          </td>
+                                        </tr>
+                                      ))}
+                                      <tr className="border-t font-semibold">
+                                        <td className="py-1">Total</td>
+                                        <td className="py-1">
+                                          {(row['Body']?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                                )}
+
+                                {/* Upper Section */}
+                                {row['Upper'] !== undefined && (
+                                <div className="border border-blue-200 rounded p-3">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold text-sm">Upper</h4>
+                                    <button className="text-red-500 hover:text-red-700" onClick={() => {
+                                      const newRows = [...rows];
+                                      delete newRows[idx]['Upper'];
+                                      setRows(newRows);
+                                    }}>
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                  <table className="text-xs w-full">
+                                    <thead>
+                                      <tr className="border-b">
+                                        <th className="text-left py-1">Fibre</th>
+                                        <th className="text-left py-1">%</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {[0, 1, 2, 3, 4, 5].map((index) => (
+                                        <tr key={index}>
+                                          <td className="py-1">
+                                            <select 
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Upper']?.[index]?.type || ''}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Upper']) newRows[idx]['Upper'] = [];
+                                                if (!newRows[idx]['Upper'][index]) newRows[idx]['Upper'][index] = {};
+                                                newRows[idx]['Upper'][index].type = e.target.value;
+                                                setRows(newRows);
+                                              }}
+                                            >
+                                              <option value="">Select</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Acrylic">Acrylic</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Silk">Silk</option>
+                                              <option value="Linen">Linen</option>
+                                              <option value="Nylon">Nylon</option>
+                                              <option value="Spandex">Spandex</option>
+                                            </select>
+                                          </td>
+                                          <td className="py-1">
+                                            <input 
+                                              type="number" 
+                                              step="0.1"
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Upper']?.[index]?.percentage || '0.0'}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Upper']) newRows[idx]['Upper'] = [];
+                                                if (!newRows[idx]['Upper'][index]) newRows[idx]['Upper'][index] = {};
+                                                newRows[idx]['Upper'][index].percentage = parseFloat(e.target.value) || 0;
+                                                setRows(newRows);
+                                              }}
+                                            />
+                                          </td>
+                                        </tr>
+                                      ))}
+                                      <tr className="border-t font-semibold">
+                                        <td className="py-1">Total</td>
+                                        <td className="py-1">
+                                          {(row['Upper']?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                                )}
+
+                                {/* Faux Fur Shell Section */}
+                                {row['Faux Fur Shell'] !== undefined && (
+                                <div className="border border-blue-200 rounded p-3">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold text-sm">Faux Fur Shell</h4>
+                                    <button className="text-red-500 hover:text-red-700" onClick={() => {
+                                      const newRows = [...rows];
+                                      delete newRows[idx]['Faux Fur Shell'];
+                                      setRows(newRows);
+                                    }}>
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                  <table className="text-xs w-full">
+                                    <thead>
+                                      <tr className="border-b">
+                                        <th className="text-left py-1">Fibre</th>
+                                        <th className="text-left py-1">%</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {[0, 1, 2, 3, 4, 5].map((index) => (
+                                        <tr key={index}>
+                                          <td className="py-1">
+                                            <select 
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Faux Fur Shell']?.[index]?.type || ''}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Faux Fur Shell']) newRows[idx]['Faux Fur Shell'] = [];
+                                                if (!newRows[idx]['Faux Fur Shell'][index]) newRows[idx]['Faux Fur Shell'][index] = {};
+                                                newRows[idx]['Faux Fur Shell'][index].type = e.target.value;
+                                                setRows(newRows);
+                                              }}
+                                            >
+                                              <option value="">Select</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Acrylic">Acrylic</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Silk">Silk</option>
+                                              <option value="Linen">Linen</option>
+                                              <option value="Nylon">Nylon</option>
+                                              <option value="Spandex">Spandex</option>
+                                            </select>
+                                          </td>
+                                          <td className="py-1">
+                                            <input 
+                                              type="number" 
+                                              step="0.1"
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Faux Fur Shell']?.[index]?.percentage || '0.0'}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Faux Fur Shell']) newRows[idx]['Faux Fur Shell'] = [];
+                                                if (!newRows[idx]['Faux Fur Shell'][index]) newRows[idx]['Faux Fur Shell'][index] = {};
+                                                newRows[idx]['Faux Fur Shell'][index].percentage = parseFloat(e.target.value) || 0;
+                                                setRows(newRows);
+                                              }}
+                                            />
+                                          </td>
+                                        </tr>
+                                      ))}
+                                      <tr className="border-t font-semibold">
+                                        <td className="py-1">Total</td>
+                                        <td className="py-1">
+                                          {(row['Faux Fur Shell']?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                                )}
+
+                                {/* Lining Section */}
+                                {row['Lining'] !== undefined && (
+                                <div className="border border-blue-200 rounded p-3">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold text-sm">Lining</h4>
+                                    <button className="text-red-500 hover:text-red-700" onClick={() => {
+                                      const newRows = [...rows];
+                                      delete newRows[idx]['Lining'];
+                                      setRows(newRows);
+                                    }}>
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                  <table className="text-xs w-full">
+                                    <thead>
+                                      <tr className="border-b">
+                                        <th className="text-left py-1">Fibre</th>
+                                        <th className="text-left py-1">%</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {[0, 1, 2, 3, 4, 5].map((index) => (
+                                        <tr key={index}>
+                                          <td className="py-1">
+                                            <select 
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Lining']?.[index]?.type || ''}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Lining']) newRows[idx]['Lining'] = [];
+                                                if (!newRows[idx]['Lining'][index]) newRows[idx]['Lining'][index] = {};
+                                                newRows[idx]['Lining'][index].type = e.target.value;
+                                                setRows(newRows);
+                                              }}
+                                            >
+                                              <option value="">Select</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Acrylic">Acrylic</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Silk">Silk</option>
+                                              <option value="Linen">Linen</option>
+                                              <option value="Nylon">Nylon</option>
+                                              <option value="Spandex">Spandex</option>
+                                            </select>
+                                          </td>
+                                          <td className="py-1">
+                                            <input 
+                                              type="number" 
+                                              step="0.1"
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Lining']?.[index]?.percentage || '0.0'}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Lining']) newRows[idx]['Lining'] = [];
+                                                if (!newRows[idx]['Lining'][index]) newRows[idx]['Lining'][index] = {};
+                                                newRows[idx]['Lining'][index].percentage = parseFloat(e.target.value) || 0;
+                                                setRows(newRows);
+                                              }}
+                                            />
+                                          </td>
+                                        </tr>
+                                      ))}
+                                      <tr className="border-t font-semibold">
+                                        <td className="py-1">Total</td>
+                                        <td className="py-1">
+                                          {(row['Lining']?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                                )}
+                              </div>
+                              
+                              {/* Add New Fibre Composition Button */}
+                              <div className="mb-3">
+                                <button 
+                                  className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 flex items-center gap-2"
+                                  onClick={() => {
+                                    const newRows = [...rows];
+                                    const existingSections = Object.keys(newRows[idx]).filter(key => key.startsWith('Fibre Section'));
+                                    const newSectionName = `Fibre Section ${existingSections.length + 1}`;
+                                    newRows[idx] = { ...newRows[idx], [newSectionName]: [] };
+                                    setRows(newRows);
+                                  }}
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                  </svg>
+                                  Add New Fibre Composition
+                                </button>
+                              </div>
+                              
+                              {/* Dynamic Fibre Sections */}
+                              <div className="grid grid-cols-3 gap-4">
+                                {Object.keys(row).filter(key => key.startsWith('Fibre Section')).map((sectionName, sectionIndex) => (
+                                  <div key={sectionName} className="border border-blue-200 rounded p-3">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <input 
+                                      type="text" 
+                                      className="font-semibold text-sm border-none bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-300 rounded px-1"
+                                      value={sectionName}
+                                      onChange={(e) => {
+                                        const newRows = [...rows];
+                                        const newSectionName = e.target.value;
+                                        // Copy data from old section name to new section name
+                                        newRows[idx][newSectionName] = newRows[idx][sectionName];
+                                        // Remove old section name
+                                        delete newRows[idx][sectionName];
+                                        setRows(newRows);
+                                      }}
+                                    />
+                                    <button className="text-red-500 hover:text-red-700" onClick={() => {
+                                      const newRows = [...rows];
+                                      delete newRows[idx][sectionName];
+                                      setRows(newRows);
+                                    }}>
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                  <table className="text-xs w-full">
+                                    <thead>
+                                      <tr className="border-b">
+                                        <th className="text-left py-1">Fibre</th>
+                                        <th className="text-left py-1">%</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {[0, 1, 2, 3, 4, 5].map((index) => (
+                                        <tr key={index}>
+                                          <td className="py-1">
+                                            <select 
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row[sectionName]?.[index]?.type || ''}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx][sectionName]) newRows[idx][sectionName] = [];
+                                                if (!newRows[idx][sectionName][index]) newRows[idx][sectionName][index] = {};
+                                                newRows[idx][sectionName][index].type = e.target.value;
+                                                setRows(newRows);
+                                              }}
+                                            >
+                                              <option value="">Select</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Acrylic">Acrylic</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Silk">Silk</option>
+                                              <option value="Linen">Linen</option>
+                                              <option value="Nylon">Nylon</option>
+                                              <option value="Spandex">Spandex</option>
+                                            </select>
+                                          </td>
+                                          <td className="py-1">
+                                            <input 
+                                              type="number" 
+                                              step="0.1"
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row[sectionName]?.[index]?.percentage || '0.0'}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx][sectionName]) newRows[idx][sectionName] = [];
+                                                if (!newRows[idx][sectionName][index]) newRows[idx][sectionName][index] = {};
+                                                newRows[idx][sectionName][index].percentage = parseFloat(e.target.value) || 0;
+                                                setRows(newRows);
+                                              }}
+                                            />
+                                          </td>
+                                        </tr>
+                                      ))}
+                                      <tr className="border-t font-semibold">
+                                        <td className="py-1">Total</td>
+                                        <td className="py-1">
+                                          {(row[sectionName]?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Care Instructions Tab */}
+                          {techPacksEditTab === 'Care Instructions' && (
+                            <div className="inline-block">
+                              <table className="text-sm border border-blue-200 rounded mb-2 table-fixed">
+                                <tbody>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Instruction</td><td className="px-2 py-1">{row['Care Instruction'] || ''}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Symbol</td><td className="px-2 py-1">{row['Care Symbol'] || ''}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Description</td><td className="px-2 py-1">{row['Care Description'] || ''}</td></tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                          
+                          {/* Labels Tab */}
+                          {techPacksEditTab === 'Labels' && (
+                            <div className="inline-block">
+                              <table className="text-sm border border-blue-200 rounded mb-2 table-fixed">
+                                <tbody>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Label Type</td><td className="px-2 py-1">{row['Label Type'] || ''}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Content</td><td className="px-2 py-1">{row['Label Content'] || ''}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Position</td><td className="px-2 py-1">{row['Label Position'] || ''}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold w-32">Size</td><td className="px-2 py-1">{row['Label Size'] || ''}</td></tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                        </div>
+
                       </div>
                     </td>
                   </tr>

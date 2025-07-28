@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Plus, Search, Filter, Eye, Edit, ShoppingCart, Calendar, DollarSign, TrendingUp, Package, Truck } from 'lucide-react';
+import { useContextMenu } from '../hooks/useContextMenu';
+import { buildContextMenu } from '../utils/contextMenuBuilder';
+import ContextMenu from '../components/ContextMenu';
 
 const ProductManager: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterCustomer, setFilterCustomer] = useState('all');
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+
+  // Context menu state
+  const { isOpen, context, menuItems, openMenu, closeMenu } = useContextMenu();
 
   const purchaseOrders = [
     {
@@ -113,6 +120,143 @@ const ProductManager: React.FC = () => {
       progress: 40
     },
   ];
+
+  // Table context for context menu actions
+  const tableContext = {
+    data: purchaseOrders,
+    selectedRows,
+    columns: [
+      { key: 'poNumber', label: 'PO Number', sortable: true },
+      { key: 'styleName', label: 'Product', sortable: true },
+      { key: 'customer', label: 'Customer', sortable: true },
+      { key: 'quantity', label: 'Quantity', sortable: true },
+      { key: 'totalValue', label: 'Total Value', sortable: true },
+      { key: 'status', label: 'Status', sortable: true },
+      { key: 'exFactoryDate', label: 'Ex-Factory', sortable: true },
+      { key: 'progress', label: 'Progress', sortable: true }
+    ],
+    onEditRow: useCallback((row: any) => {
+      console.log('Edit purchase order:', row);
+      // Implement your edit logic here
+    }, []),
+    onDeleteRow: useCallback((row: any) => {
+      console.log('Delete purchase order:', row);
+      if (confirm(`Are you sure you want to delete PO "${row.poNumber}"?`)) {
+        // Implement your delete logic here
+        console.log('Purchase order deleted:', row);
+      }
+    }, []),
+    onDuplicateRow: useCallback((row: any) => {
+      console.log('Duplicate purchase order:', row);
+      // Implement your duplicate logic here
+    }, []),
+    onViewDetails: useCallback((row: any) => {
+      console.log('View purchase order details:', row);
+      // Implement your view details logic here
+    }, []),
+    onAddNote: useCallback((row: any) => {
+      console.log('Add note to purchase order:', row);
+      // Implement your add note logic here
+    }, []),
+    onExport: useCallback((format: string, rows?: any[]) => {
+      console.log('Export purchase orders as', format, ':', rows || selectedRows);
+      // Implement your export logic here
+    }, [selectedRows]),
+    onAssignUser: useCallback((rows: any[]) => {
+      console.log('Assign users to purchase orders:', rows);
+      // Implement your assign user logic here
+    }, []),
+    onChangeStatus: useCallback((rows: any[], status: string) => {
+      console.log('Change status to', status, 'for purchase orders:', rows);
+      // Implement your change status logic here
+    }, []),
+    onBulkUpdate: useCallback((rows: any[], field: string, value: any) => {
+      console.log('Bulk update', field, 'to', value, 'for purchase orders:', rows);
+      // Implement your bulk update logic here
+    }, []),
+    onSort: useCallback((column: string, direction: 'asc' | 'desc') => {
+      console.log('Sort purchase orders by', column, direction);
+      // Implement your sort logic here
+    }, []),
+    onHideColumn: useCallback((column: string) => {
+      console.log('Hide column:', column);
+      // Implement your hide column logic here
+    }, []),
+    onShowColumn: useCallback((column: string) => {
+      console.log('Show column:', column);
+      // Implement your show column logic here
+    }, []),
+    onFilterByColumn: useCallback((column: string, value: any) => {
+      console.log('Filter by', column, '=', value);
+      // Implement your filter logic here
+    }, []),
+    onGroupByColumn: useCallback((column: string) => {
+      console.log('Group by:', column);
+      // Implement your group logic here
+    }, []),
+    onResizeColumn: useCallback((column: string, width: number) => {
+      console.log('Resize column', column, 'to', width);
+      // Implement your resize logic here
+    }, []),
+    onRefresh: useCallback(() => {
+      console.log('Refresh purchase orders table');
+      // Implement your refresh logic here
+    }, []),
+    onTogglePagination: useCallback(() => {
+      console.log('Toggle pagination');
+      // Implement your pagination toggle logic here
+    }, []),
+    onCustomizeColumns: useCallback(() => {
+      console.log('Customize columns');
+      // Implement your customize columns logic here
+    }, []),
+    onSaveView: useCallback(() => {
+      console.log('Save current view');
+      // Implement your save view logic here
+    }, []),
+    isRowLocked: useCallback((row: any) => {
+      return row.status === 'Shipped' || row.status === 'Completed';
+    }, []),
+    canEdit: useCallback((row: any) => {
+      return row.status !== 'Shipped' && row.status !== 'Completed';
+    }, []),
+    canDelete: useCallback((row: any) => {
+      return row.status === 'Draft' || row.status === 'Approved';
+    }, [])
+  };
+
+  // Right-click handlers
+  const handleRowContextMenu = useCallback((event: React.MouseEvent, row: any) => {
+    event.preventDefault();
+    const context = {
+      target: 'row' as const,
+      data: row,
+      position: { x: event.clientX, y: event.clientY }
+    };
+    const items = buildContextMenu(context, tableContext);
+    openMenu(event, context, items);
+  }, [openMenu, tableContext]);
+
+  const handleColumnContextMenu = useCallback((event: React.MouseEvent, columnKey: string) => {
+    event.preventDefault();
+    const context = {
+      target: 'column' as const,
+      columnKey,
+      position: { x: event.clientX, y: event.clientY }
+    };
+    const items = buildContextMenu(context, tableContext);
+    openMenu(event, context, items);
+  }, [openMenu, tableContext]);
+
+  const handleTableContextMenu = useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    const context = {
+      target: 'table' as const,
+      position: { x: event.clientX, y: event.clientY }
+    };
+    const items = buildContextMenu(context, tableContext);
+    openMenu(event, context, items);
+  }, [openMenu, tableContext]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -257,25 +401,25 @@ const ProductManager: React.FC = () => {
       </div>
 
       {/* Purchase Orders Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" onContextMenu={handleTableContextMenu}>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">PO Number</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Product</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Customer</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Quantity</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Total Value</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Status</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Ex-Factory</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Progress</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'poNumber')}>PO Number</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'styleName')}>Product</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'customer')}>Customer</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'quantity')}>Quantity</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'totalValue')}>Total Value</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'status')}>Status</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'exFactoryDate')}>Ex-Factory</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'progress')}>Progress</th>
                 <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50">
+                <tr key={order.id} className="hover:bg-gray-50" onContextMenu={(e) => handleRowContextMenu(e, order)}>
                   <td className="py-4 px-6">
                     <div>
                       <div className="font-medium text-gray-900">{order.poNumber}</div>
@@ -363,6 +507,16 @@ const ProductManager: React.FC = () => {
             Create New Purchase Order
           </button>
         </div>
+      )}
+
+      {/* Context Menu */}
+      {isOpen && context && (
+        <ContextMenu
+          items={menuItems}
+          x={context.position.x}
+          y={context.position.y}
+          onClose={closeMenu}
+        />
       )}
     </div>
   );

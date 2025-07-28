@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Plus, Search, Filter, Package, Calendar, DollarSign, TrendingUp, Eye, Edit, Truck } from 'lucide-react';
+import { useContextMenu } from '../hooks/useContextMenu';
+import { buildContextMenu } from '../utils/contextMenuBuilder';
+import ContextMenu from '../components/ContextMenu';
 
 const MaterialManager: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterType, setFilterType] = useState('all');
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+
+  // Context menu state
+  const { isOpen, context, menuItems, openMenu, closeMenu } = useContextMenu();
 
   const materialOrders = [
     {
@@ -113,6 +120,143 @@ const MaterialManager: React.FC = () => {
       materialType: 'Padding'
     },
   ];
+
+  // Table context for context menu actions
+  const tableContext = {
+    data: materialOrders,
+    selectedRows,
+    columns: [
+      { key: 'mpoNumber', label: 'MPO Number', sortable: true },
+      { key: 'materialItem', label: 'Material', sortable: true },
+      { key: 'supplier', label: 'Supplier', sortable: true },
+      { key: 'quantity', label: 'Quantity', sortable: true },
+      { key: 'totalValue', label: 'Total Value', sortable: true },
+      { key: 'status', label: 'Status', sortable: true },
+      { key: 'orderDate', label: 'Order Date', sortable: true },
+      { key: 'invoiceStatus', label: 'Invoice Status', sortable: true }
+    ],
+    onEditRow: useCallback((row: any) => {
+      console.log('Edit material order:', row);
+      // Implement your edit logic here
+    }, []),
+    onDeleteRow: useCallback((row: any) => {
+      console.log('Delete material order:', row);
+      if (confirm(`Are you sure you want to delete MPO "${row.mpoNumber}"?`)) {
+        // Implement your delete logic here
+        console.log('Material order deleted:', row);
+      }
+    }, []),
+    onDuplicateRow: useCallback((row: any) => {
+      console.log('Duplicate material order:', row);
+      // Implement your duplicate logic here
+    }, []),
+    onViewDetails: useCallback((row: any) => {
+      console.log('View material order details:', row);
+      // Implement your view details logic here
+    }, []),
+    onAddNote: useCallback((row: any) => {
+      console.log('Add note to material order:', row);
+      // Implement your add note logic here
+    }, []),
+    onExport: useCallback((format: string, rows?: any[]) => {
+      console.log('Export material orders as', format, ':', rows || selectedRows);
+      // Implement your export logic here
+    }, [selectedRows]),
+    onAssignUser: useCallback((rows: any[]) => {
+      console.log('Assign users to material orders:', rows);
+      // Implement your assign user logic here
+    }, []),
+    onChangeStatus: useCallback((rows: any[], status: string) => {
+      console.log('Change status to', status, 'for material orders:', rows);
+      // Implement your change status logic here
+    }, []),
+    onBulkUpdate: useCallback((rows: any[], field: string, value: any) => {
+      console.log('Bulk update', field, 'to', value, 'for material orders:', rows);
+      // Implement your bulk update logic here
+    }, []),
+    onSort: useCallback((column: string, direction: 'asc' | 'desc') => {
+      console.log('Sort material orders by', column, direction);
+      // Implement your sort logic here
+    }, []),
+    onHideColumn: useCallback((column: string) => {
+      console.log('Hide column:', column);
+      // Implement your hide column logic here
+    }, []),
+    onShowColumn: useCallback((column: string) => {
+      console.log('Show column:', column);
+      // Implement your show column logic here
+    }, []),
+    onFilterByColumn: useCallback((column: string, value: any) => {
+      console.log('Filter by', column, '=', value);
+      // Implement your filter logic here
+    }, []),
+    onGroupByColumn: useCallback((column: string) => {
+      console.log('Group by:', column);
+      // Implement your group logic here
+    }, []),
+    onResizeColumn: useCallback((column: string, width: number) => {
+      console.log('Resize column', column, 'to', width);
+      // Implement your resize logic here
+    }, []),
+    onRefresh: useCallback(() => {
+      console.log('Refresh material orders table');
+      // Implement your refresh logic here
+    }, []),
+    onTogglePagination: useCallback(() => {
+      console.log('Toggle pagination');
+      // Implement your pagination toggle logic here
+    }, []),
+    onCustomizeColumns: useCallback(() => {
+      console.log('Customize columns');
+      // Implement your customize columns logic here
+    }, []),
+    onSaveView: useCallback(() => {
+      console.log('Save current view');
+      // Implement your save view logic here
+    }, []),
+    isRowLocked: useCallback((row: any) => {
+      return row.status === 'Received' || row.status === 'Completed';
+    }, []),
+    canEdit: useCallback((row: any) => {
+      return row.status !== 'Received' && row.status !== 'Completed';
+    }, []),
+    canDelete: useCallback((row: any) => {
+      return row.status === 'Ordered' || row.status === 'Processing';
+    }, [])
+  };
+
+  // Right-click handlers
+  const handleRowContextMenu = useCallback((event: React.MouseEvent, row: any) => {
+    event.preventDefault();
+    const context = {
+      target: 'row' as const,
+      data: row,
+      position: { x: event.clientX, y: event.clientY }
+    };
+    const items = buildContextMenu(context, tableContext);
+    openMenu(event, context, items);
+  }, [openMenu, tableContext]);
+
+  const handleColumnContextMenu = useCallback((event: React.MouseEvent, columnKey: string) => {
+    event.preventDefault();
+    const context = {
+      target: 'column' as const,
+      columnKey,
+      position: { x: event.clientX, y: event.clientY }
+    };
+    const items = buildContextMenu(context, tableContext);
+    openMenu(event, context, items);
+  }, [openMenu, tableContext]);
+
+  const handleTableContextMenu = useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    const context = {
+      target: 'table' as const,
+      position: { x: event.clientX, y: event.clientY }
+    };
+    const items = buildContextMenu(context, tableContext);
+    openMenu(event, context, items);
+  }, [openMenu, tableContext]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -257,25 +401,25 @@ const MaterialManager: React.FC = () => {
       </div>
 
       {/* Material Orders Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" onContextMenu={handleTableContextMenu}>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">MPO Number</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Material</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Supplier</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Quantity</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Total Value</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Status</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Dates</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Invoice</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'mpoNumber')}>MPO Number</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'materialItem')}>Material</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'supplier')}>Supplier</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'quantity')}>Quantity</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'totalValue')}>Total Value</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'status')}>Status</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'orderDate')}>Dates</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'invoiceStatus')}>Invoice</th>
                 <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50">
+                <tr key={order.id} className="hover:bg-gray-50" onContextMenu={(e) => handleRowContextMenu(e, order)}>
                   <td className="py-4 px-6">
                     <div>
                       <div className="font-medium text-gray-900">{order.mpoNumber}</div>
@@ -359,6 +503,16 @@ const MaterialManager: React.FC = () => {
             Create New Material Order
           </button>
         </div>
+      )}
+
+      {/* Context Menu */}
+      {isOpen && context && (
+        <ContextMenu
+          items={menuItems}
+          x={context.position.x}
+          y={context.position.y}
+          onClose={closeMenu}
+        />
       )}
     </div>
   );

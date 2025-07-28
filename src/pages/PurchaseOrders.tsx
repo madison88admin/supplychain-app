@@ -431,17 +431,17 @@ const PurchaseOrders: React.FC = () => {
       }
       
       return col.isGroup ? (
-        <th key={col.key + '-group'} colSpan={2} className={`px-2 py-1 border-b text-center whitespace-nowrap ${stickyClass}${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
+        <th key={`${col.key}-group-${i}`} colSpan={2} className={`px-2 py-1 border-b text-center whitespace-nowrap ${stickyClass}${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
       ) : (
-        <th key={col.key + '-single'} rowSpan={2} className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle ${stickyClass}${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
+                                <th key={`${col.key}-single-${i}`} rowSpan={2} className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle ${stickyClass}${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
       );
     });
     // Second row: subheaders
     const secondRow = cols.flatMap((col, idx) =>
       col.isGroup
         ? [
-            <th key={col.key + '-target'} className={`px-2 py-1 border-b text-center whitespace-nowrap border-r-2 border-gray-200`}>Target Date</th>,
-            <th key={col.key + '-completed'} className={`${idx < cols.length - 1 ? 'border-r-2 border-gray-200' : ''} px-2 py-1 border-b text-center whitespace-nowrap`}>Completed Date</th>,
+                                    <th key={`${col.key}-target-${idx}`} className={`px-2 py-1 border-b text-center whitespace-nowrap border-r-2 border-gray-200`}>Target Date</th>,
+                        <th key={`${col.key}-completed-${idx}`} className={`${idx < cols.length - 1 ? 'border-r-2 border-gray-200' : ''} px-2 py-1 border-b text-center whitespace-nowrap`}>Completed Date</th>,
           ]
         : []
     );
@@ -576,7 +576,7 @@ const PurchaseOrders: React.FC = () => {
           </thead>
           <tbody>
             {displayRows.map((row, idx) => (
-              <React.Fragment key={idx}>
+              <React.Fragment key={`row-${idx}-${row.Order || row.Balance || idx}`}>
                 <tr
                   className={
                     (selectedIndex === idx ? 'bg-blue-50 ' : '') +
@@ -641,7 +641,7 @@ const PurchaseOrders: React.FC = () => {
                     if (col.isGroup) {
                       return col.children!.map((subCol, subIdx) => (
                         <td
-                          key={col.key + '-' + subCol}
+                          key={`${col.key}-${subCol}-${idx}`}
                           className={
                             `px-2 py-1 border-b align-top whitespace-nowrap` +
                             ((subIdx === 0 || subCol === 'Target Date') ? ' border-r-2 border-gray-200' : '') +

@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
+import Breadcrumb from './components/Breadcrumb';
+import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import TestQuickWins from './components/TestQuickWins';
+import SearchPage from './pages/SearchPage';
 import MyTasks from './pages/MyTasks';
 import ProductManager from './pages/ProductManager';
 import Techpacks from './pages/Techpacks';
@@ -24,6 +28,7 @@ import MaterialPurchaseOrderLines from './pages/MaterialPurchaseOrderLines';
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
     <UserProvider>
@@ -35,31 +40,45 @@ function App() {
               path="/*"
               element={
                 <ProtectedRoute>
-                  <div className="flex h-screen bg-gray-50">
-                    <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-                    <div className="flex-1 flex flex-col overflow-hidden">
-                      <Header setSidebarOpen={setSidebarOpen} />
-                      <main className="flex-1 overflow-x-hidden overflow-y-auto">
-                        <Routes>
-                          <Route path="/" element={<Dashboard />} />
-                          <Route path="/my-tasks" element={<MyTasks />} />
-                          <Route path="/product-manager" element={<ProductManager />} />
-                          <Route path="/techpacks" element={<Techpacks />} />
-                          <Route path="/sample-requests" element={<SampleRequests />} />
-                          <Route path="/purchase-orders" element={<PurchaseOrders />} />
-                          <Route path="/material-manager" element={<MaterialManager />} />
-                          <Route path="/supplier-loading" element={<SupplierLoading />} />
-                          <Route path="/pivot-reports" element={<PivotReports />} />
-                          <Route path="/documents" element={<Documents />} />
-                          <Route path="/user-administration" element={<UserAdministration />} />
-                          <Route path="/purchase-order" element={<PurchaseOrder />} />
-                          <Route path="/data-bank" element={<DataBank />} />
-                          <Route path="/material-purchase-order" element={<MaterialPurchaseOrder />} />
-                          <Route path="/material-purchase-order-lines" element={<MaterialPurchaseOrderLines />} />
-                        </Routes>
-                      </main>
+                  <ErrorBoundary>
+                    <div className="flex h-screen bg-gray-50">
+                      <Sidebar 
+                        open={sidebarOpen} 
+                        setOpen={setSidebarOpen}
+                        collapsed={sidebarCollapsed}
+                        setCollapsed={setSidebarCollapsed}
+                      />
+                      <div className="flex-1 flex flex-col overflow-hidden">
+                        <Header 
+                          setSidebarOpen={setSidebarOpen}
+                          sidebarCollapsed={sidebarCollapsed}
+                          setSidebarCollapsed={setSidebarCollapsed}
+                        />
+                        <Breadcrumb />
+                        <main id="main-content" className="flex-1 overflow-x-hidden overflow-y-auto">
+                          <Routes>
+                            <Route path="/" element={<Dashboard />} />
+                            <Route path="/my-tasks" element={<MyTasks />} />
+                            <Route path="/product-manager" element={<ProductManager />} />
+                            <Route path="/techpacks" element={<Techpacks />} />
+                            <Route path="/sample-requests" element={<SampleRequests />} />
+                            <Route path="/purchase-orders" element={<PurchaseOrders />} />
+                            <Route path="/material-manager" element={<MaterialManager />} />
+                            <Route path="/supplier-loading" element={<SupplierLoading />} />
+                            <Route path="/pivot-reports" element={<PivotReports />} />
+                            <Route path="/documents" element={<Documents />} />
+                            <Route path="/user-administration" element={<UserAdministration />} />
+                            <Route path="/purchase-order" element={<PurchaseOrder />} />
+                            <Route path="/data-bank" element={<DataBank />} />
+                            <Route path="/material-purchase-order" element={<MaterialPurchaseOrder />} />
+                            <Route path="/material-purchase-order-lines" element={<MaterialPurchaseOrderLines />} />
+                            <Route path="/test-quick-wins" element={<TestQuickWins />} />
+                            <Route path="/search" element={<SearchPage />} />
+                          </Routes>
+                        </main>
+                      </div>
                     </div>
-                  </div>
+                  </ErrorBoundary>
                 </ProtectedRoute>
               }
             />

@@ -1,16 +1,112 @@
-import React from 'react';
-import { Menu, Bell, Search, User, Settings, LogOut } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Menu, Bell, User, Settings, LogOut, CheckCircle, AlertTriangle, Info, Clock } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
+import { Link } from 'react-router-dom';
+import darkLogo from '../images/darklogo.png';
+import AdvancedSearch from './AdvancedSearch';
 
 interface HeaderProps {
   setSidebarOpen: (open: boolean) => void;
+  sidebarCollapsed?: boolean;
+  setSidebarCollapsed?: (collapsed: boolean) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
+const Header: React.FC<HeaderProps> = ({ 
+  setSidebarOpen, 
+  sidebarCollapsed = false, 
+  setSidebarCollapsed 
+}) => {
   const { user, logout } = useUser();
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+
+  // Mock notifications data
+  const notifications = [
+    {
+      id: 1,
+      type: 'success',
+      title: 'Purchase Order Approved',
+      message: 'PO-2024-001 has been approved by management',
+      time: '2 minutes ago',
+      read: false
+    },
+    {
+      id: 2,
+      type: 'warning',
+      title: 'Low Stock Alert',
+      message: 'Material XYZ is running low on stock',
+      time: '15 minutes ago',
+      read: false
+    },
+    {
+      id: 3,
+      type: 'info',
+      title: 'New Supplier Added',
+      message: 'Supplier ABC has been added to the system',
+      time: '1 hour ago',
+      read: true
+    },
+    {
+      id: 4,
+      type: 'success',
+      title: 'Sample Request Completed',
+      message: 'Sample request SR-2024-005 has been completed',
+      time: '2 hours ago',
+      read: true
+    },
+    {
+      id: 5,
+      type: 'warning',
+      title: 'Delivery Delayed',
+      message: 'Delivery for PO-2024-002 has been delayed',
+      time: '3 hours ago',
+      read: true
+    }
+  ];
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+  const notificationsRef = useRef<HTMLDivElement>(null);
+
+  // Close notifications when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+        setNotificationsOpen(false);
+      }
+    };
+
+    if (notificationsOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [notificationsOpen]);
+
+  // Keyboard shortcut for search (Ctrl/Cmd + K)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+        event.preventDefault();
+        window.location.href = '/search';
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   return (
-    <header className="bg-white border-b border-gray-200 px-4 py-3">
+    <>
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded z-50"
+      >
+        Skip to main content
+      </a>
+      <header className="bg-white border-b border-gray-200 px-4 py-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <button
@@ -19,33 +115,164 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
           >
             <Menu className="h-6 w-6 text-gray-600" />
           </button>
+    
           
-          <div className="flex items-center space-x-3">
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">Madison 88</h1>
-              <p className="text-sm text-gray-500">Supply Chain Management</p>
-            </div>
+          <div className="flex items-center space-x-4">
+            <Link 
+              to="/" 
+              className="flex items-center space-x-4 hover:opacity-80 transition-opacity duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+              aria-label="Go to dashboard"
+            >
+              <div className="flex items-center">
+                <img
+                  src={darkLogo}
+                  alt="Madison 88 Logo"
+                  className="h-12 w-auto"
+                />
+              </div>
+              <div className="hidden md:block">
+                <p className="text-sm text-gray-600 font-medium">Supply Chain Management System</p>
+              </div>
+            </Link>
           </div>
         </div>
 
         <div className="flex-1 max-w-2xl mx-8">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search products, POs, suppliers..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
+          <AdvancedSearch />
         </div>
 
         <div className="flex items-center space-x-4">
-          <button className="relative p-2 text-gray-600 hover:text-blue-600 transition-colors">
-            <Bell className="h-6 w-6" />
-            <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-xs font-medium">3</span>
-            </span>
-          </button>
+          <div className="relative" ref={notificationsRef}>
+            <button 
+              onClick={() => setNotificationsOpen(!notificationsOpen)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setNotificationsOpen(!notificationsOpen);
+                }
+              }}
+              className="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-all duration-200 ease-in-out"
+              aria-label="Notifications"
+              aria-expanded={notificationsOpen}
+            >
+              <Bell className={`h-6 w-6 transition-transform duration-200 ease-in-out ${
+                notificationsOpen ? 'scale-110' : 'scale-100'
+              }`} />
+              {unreadCount > 0 && (
+                <span 
+                  className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full flex items-center justify-center animate-pulse"
+                  style={{
+                    animation: 'bounceIn 0.6s ease-out, pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                  }}
+                >
+                  <span className="text-white text-xs font-medium">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                </span>
+              )}
+            </button>
+
+            {/* Notifications Dropdown */}
+            <div className={`absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 transition-all duration-200 ease-in-out transform ${
+              notificationsOpen 
+                ? 'opacity-100 scale-100 translate-y-0' 
+                : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
+            }`}>
+                <div className="px-4 py-2 border-b border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
+                    {unreadCount > 0 && (
+                      <button className="text-xs text-blue-600 hover:text-blue-800 transition-colors duration-200">
+                        Mark all as read
+                      </button>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="max-h-96 overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="px-4 py-8 text-center text-gray-500">
+                      <Bell className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                      <p className="text-sm">No notifications</p>
+                    </div>
+                  ) : (
+                    notifications.map((notification, index) => {
+                      const getIcon = () => {
+                        switch (notification.type) {
+                          case 'success':
+                            return <CheckCircle className="h-4 w-4 text-green-500" />;
+                          case 'warning':
+                            return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+                          case 'error':
+                            return <AlertTriangle className="h-4 w-4 text-red-500" />;
+                          default:
+                            return <Info className="h-4 w-4 text-blue-500" />;
+                        }
+                      };
+
+                      const getTypeColor = () => {
+                        switch (notification.type) {
+                          case 'success':
+                            return 'border-l-green-500';
+                          case 'warning':
+                            return 'border-l-yellow-500';
+                          case 'error':
+                            return 'border-l-red-500';
+                          default:
+                            return 'border-l-blue-500';
+                        }
+                      };
+
+                      return (
+                        <div
+                          key={notification.id}
+                          className={`px-4 py-3 hover:bg-gray-50 cursor-pointer border-l-4 transition-all duration-200 ease-in-out ${getTypeColor()} ${
+                            !notification.read ? 'bg-blue-50' : ''
+                          }`}
+                          style={{
+                            animationDelay: `${index * 50}ms`,
+                            animation: notificationsOpen ? 'slideInFromTop 0.3s ease-out forwards' : 'none'
+                          }}
+                        >
+                          <div className="flex items-start space-x-3">
+                            <div className="flex-shrink-0 mt-0.5">
+                              {getIcon()}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <p className={`text-sm font-medium ${
+                                  !notification.read ? 'text-gray-900' : 'text-gray-700'
+                                }`}>
+                                  {notification.title}
+                                </p>
+                                <div className="flex items-center space-x-1">
+                                  <Clock className="h-3 w-3 text-gray-400" />
+                                  <span className="text-xs text-gray-500">{notification.time}</span>
+                                </div>
+                              </div>
+                              <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                {notification.message}
+                              </p>
+                              {!notification.read && (
+                                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {notifications.length > 0 && (
+                  <div className="px-4 py-2 border-t border-gray-100">
+                    <button className="w-full text-center text-sm text-blue-600 hover:text-blue-800 py-1 transition-colors duration-200">
+                      View all notifications
+                    </button>
+                  </div>
+                )}
+              </div>
+          </div>
 
           <div className="flex items-center space-x-3">
             <div className="text-right">
@@ -83,6 +310,7 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
         </div>
       </div>
     </header>
+    </>
   );
 };
 

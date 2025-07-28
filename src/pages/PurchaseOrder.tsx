@@ -153,11 +153,357 @@ const mockComments = [
   { user: 'Editor', date: '2024-07-02', comment: 'Checked delivery schedule.' },
 ];
 
-// Add mock PO Lines data
+// Add mock PO Lines data with comprehensive structure from PurchaseOrders.tsx
 const mockPOLines = [
-  { line: 1, product: 'Widget A', quantity: 100 },
-  { line: 2, product: 'Widget B', quantity: 50 },
-  { line: 3, product: 'Widget C', quantity: 200 },
+  {
+    'Order': 'PO-2024-001',
+    'Product': 'Widget X',
+    'PO Line': '1',
+    'Fit Comment': 'Fits well',
+    'Fit Log Status': 'Approved',
+    'Fit Log Type': 'Initial',
+    'Fit Log Name': 'Spring Fit',
+    'Customer': 'Acme Corp',
+    'Collection': 'Spring 2024',
+    'Division': 'Menswear',
+    'Group': 'A',
+    'Transport Method': 'Air',
+    'Deliver To': 'Warehouse 5',
+    'Status': 'Open',
+    'Delivery Date': '2024-08-01',
+    'Comments': 'Urgent',
+    'Quantity': 500,
+    'Selling Quantity': 500,
+    'Line Purchase Price': '$10',
+    'Line Selling Price': '$15',
+    'Supplier': 'Best Supplier',
+    'Purchase Currency': 'USD',
+    'Selling Currency': 'EUR',
+    'Production': 'In Progress',
+    'MLA-Purchasing': 'Jane Smith',
+    'China-QC': 'Passed',
+    'MLA-Planning': 'Planned',
+    'MLA-Shipping': 'Pending',
+    'Template': 'Standard',
+    'Ex-Factory': '2024-07-15',
+    'Purchase Order Status': 'Confirmed',
+    'Supplier Purchase Currency': 'USD',
+    'Customer Selling Currency': 'EUR',
+    'Minimum Order Quantity': 100,
+    'Purchase Description': 'Cotton T-shirt',
+    'Product Type': 'Apparel',
+    'Product Sub Type': 'T-shirt',
+    'Product Status': 'Active',
+    'Product Buyer Style Name': 'Classic Tee',
+    'Product Buyer Style Number': 'CT-2024',
+    'Standard Minute Value': 12,
+    'Costing': '$8',
+    'Costing Status': 'Final',
+    'Supplier Payment Term': 'Net 30',
+    'Supplier Payment Term Description': '30 days',
+    'Order Purchase Payment Term': 'Net 30',
+    'Order Purchase Payment Term Description': '30 days',
+    'Product Supplier Purchase Payment Term': 'Net 30',
+    'Product Supplier Purhcase Payment Term Description': '30 days',
+    'Order Selling Payment Term': 'Net 60',
+    'Order Selling Payment Term Description': '60 days',
+    'Product Supplier Selling Payment Term': 'Net 60',
+    'Product Supplier Selling Payment Term Description': '60 days',
+    'Purchase Price': '$10',
+    'Selling Price': '$15',
+    'Season': 'Spring',
+    'Department': 'Production',
+    'Customer Parent': 'Acme Group',
+    'RECIPIENT PRODUCT SUPPLIER-NUMBER': 'RPS-001',
+    'FG PO Number': 'FG-2024-001',
+    'Received': 0,
+    'Balance': 500,
+    'Over Received': 0,
+    'Size': 'L',
+    'Main Material': 'Cotton',
+    'Main Material Description': '100% Cotton',
+    'Delivery Contact': 'John Doe',
+    'PO Key User 6': 'User6',
+    'PO Key User 7': 'User7',
+    'PO Key User 8': 'User8',
+    'PO Key Working Group 1': 'WG1',
+    'PO Key Working Group 2': 'WG2',
+    'PO Key Working Group 3': 'WG3',
+    'PO Key Working Group 4': 'WG4',
+    'Created By': 'Admin',
+    'Last Edited': '2024-06-30',
+    'Last Edited By': 'Editor',
+    'Color': 'Blue',
+    'Vessel Schedule': 'VS-2024',
+    'Buyer PO Number': 'BPO-2024-001',
+    'Shipment ID': 'SHIP-001',
+    'Factory Invoiced': 'No',
+    'Supplier Invoice': 'INV-001',
+    'QuickBooks Invoice': 'QB-001',
+    'Shipment Noted': 'No',
+    'Buy Information': 'Standard',
+    'Handling Charges': '$50',
+    'Original Forecasts Quantity': 500,
+    'Start Date': '2024-06-01',
+    'Cancelled Date': '',
+    'Factory Date Paid': '',
+    'Date Invoice Raised': '',
+    'Submitted Inspection Date': '',
+    'Remarks': '',
+    'Inspection Results': '',
+    'Report Type': '',
+    'Inspector': '',
+    'Approval Status': '',
+    'Shipment Status': '',
+    'QC Comment': '',
+    'Delay Shipment Code': '',
+    'Discount Percentage': '',
+    'SELL INC COMM': '',
+    'Buyer Surcharge': '',
+    'Buyer Surchage Percentage': '',
+    'MOQ': '',
+    'Discount Cost': '',
+    'Factory Surcharge': '',
+    'Factory Surchage Percentage': '',
+    'Buyer Season': 'Spring',
+    'Lookbook': '',
+    'Finished Good Testing Status': '',
+  },
+  {
+    'Order': 'PO-2024-002',
+    'Product': 'Widget Y',
+    'PO Line': '2',
+    'Fit Comment': 'Needs adjustment',
+    'Fit Log Status': 'Pending',
+    'Fit Log Type': 'Revision',
+    'Fit Log Name': 'Summer Fit',
+    'Customer': 'Beta Corp',
+    'Collection': 'Summer 2024',
+    'Division': 'Womenswear',
+    'Group': 'B',
+    'Transport Method': 'Sea',
+    'Deliver To': 'Warehouse 3',
+    'Status': 'Confirmed',
+    'Delivery Date': '2024-09-15',
+    'Comments': 'Standard order',
+    'Quantity': 300,
+    'Selling Quantity': 300,
+    'Line Purchase Price': '$12',
+    'Line Selling Price': '$18',
+    'Supplier': 'Premium Supplier',
+    'Purchase Currency': 'USD',
+    'Selling Currency': 'EUR',
+    'Production': 'Planned',
+    'MLA-Purchasing': 'John Doe',
+    'China-QC': 'Pending',
+    'MLA-Planning': 'In Progress',
+    'MLA-Shipping': 'Not Started',
+    'Template': 'Premium',
+    'Ex-Factory': '2024-08-20',
+    'Purchase Order Status': 'Confirmed',
+    'Supplier Purchase Currency': 'USD',
+    'Customer Selling Currency': 'EUR',
+    'Minimum Order Quantity': 100,
+    'Purchase Description': 'Silk Blouse',
+    'Product Type': 'Apparel',
+    'Product Sub Type': 'Blouse',
+    'Product Status': 'Active',
+    'Product Buyer Style Name': 'Elegant Blouse',
+    'Product Buyer Style Number': 'EB-2024',
+    'Standard Minute Value': 15,
+    'Costing': '$10',
+    'Costing Status': 'Final',
+    'Supplier Payment Term': 'Net 30',
+    'Supplier Payment Term Description': '30 days',
+    'Order Purchase Payment Term': 'Net 30',
+    'Order Purchase Payment Term Description': '30 days',
+    'Product Supplier Purchase Payment Term': 'Net 30',
+    'Product Supplier Purhcase Payment Term Description': '30 days',
+    'Order Selling Payment Term': 'Net 60',
+    'Order Selling Payment Term Description': '60 days',
+    'Product Supplier Selling Payment Term': 'Net 60',
+    'Product Supplier Selling Payment Term Description': '60 days',
+    'Purchase Price': '$12',
+    'Selling Price': '$18',
+    'Season': 'Summer',
+    'Department': 'Production',
+    'Customer Parent': 'Beta Group',
+    'RECIPIENT PRODUCT SUPPLIER-NUMBER': 'RPS-002',
+    'FG PO Number': 'FG-2024-002',
+    'Received': 0,
+    'Balance': 300,
+    'Over Received': 0,
+    'Size': 'M',
+    'Main Material': 'Silk',
+    'Main Material Description': '100% Silk',
+    'Delivery Contact': 'Jane Smith',
+    'PO Key User 6': 'User6',
+    'PO Key User 7': 'User7',
+    'PO Key User 8': 'User8',
+    'PO Key Working Group 1': 'WG1',
+    'PO Key Working Group 2': 'WG2',
+    'PO Key Working Group 3': 'WG3',
+    'PO Key Working Group 4': 'WG4',
+    'Created By': 'Admin',
+    'Last Edited': '2024-06-30',
+    'Last Edited By': 'Editor',
+    'Color': 'Red',
+    'Vessel Schedule': 'VS-2024',
+    'Buyer PO Number': 'BPO-2024-002',
+    'Shipment ID': 'SHIP-002',
+    'Factory Invoiced': 'No',
+    'Supplier Invoice': 'INV-002',
+    'QuickBooks Invoice': 'QB-002',
+    'Shipment Noted': 'No',
+    'Buy Information': 'Standard',
+    'Handling Charges': '$40',
+    'Original Forecasts Quantity': 300,
+    'Start Date': '2024-07-01',
+    'Cancelled Date': '',
+    'Factory Date Paid': '',
+    'Date Invoice Raised': '',
+    'Submitted Inspection Date': '',
+    'Remarks': '',
+    'Inspection Results': '',
+    'Report Type': '',
+    'Inspector': '',
+    'Approval Status': '',
+    'Shipment Status': '',
+    'QC Comment': '',
+    'Delay Shipment Code': '',
+    'Discount Percentage': '',
+    'SELL INC COMM': '',
+    'Buyer Surcharge': '',
+    'Buyer Surchage Percentage': '',
+    'MOQ': '',
+    'Discount Cost': '',
+    'Factory Surcharge': '',
+    'Factory Surchage Percentage': '',
+    'Buyer Season': 'Summer',
+    'Lookbook': '',
+    'Finished Good Testing Status': '',
+  },
+  {
+    'Order': 'PO-2024-003',
+    'Product': 'Widget Z',
+    'PO Line': '3',
+    'Fit Comment': 'Perfect fit',
+    'Fit Log Status': 'Approved',
+    'Fit Log Type': 'Final',
+    'Fit Log Name': 'Fall Fit',
+    'Customer': 'Gamma Corp',
+    'Collection': 'Fall 2024',
+    'Division': 'Accessories',
+    'Group': 'C',
+    'Transport Method': 'Air',
+    'Deliver To': 'Warehouse 1',
+    'Status': 'Open',
+    'Delivery Date': '2024-10-01',
+    'Comments': 'High priority',
+    'Quantity': 200,
+    'Selling Quantity': 200,
+    'Line Purchase Price': '$8',
+    'Line Selling Price': '$12',
+    'Supplier': 'Fast Supplier',
+    'Purchase Currency': 'USD',
+    'Selling Currency': 'EUR',
+    'Production': 'Completed',
+    'MLA-Purchasing': 'Mike Johnson',
+    'China-QC': 'Passed',
+    'MLA-Planning': 'Completed',
+    'MLA-Shipping': 'In Progress',
+    'Template': 'Express',
+    'Ex-Factory': '2024-09-10',
+    'Purchase Order Status': 'Confirmed',
+    'Supplier Purchase Currency': 'USD',
+    'Customer Selling Currency': 'EUR',
+    'Minimum Order Quantity': 50,
+    'Purchase Description': 'Leather Bag',
+    'Product Type': 'Accessories',
+    'Product Sub Type': 'Bag',
+    'Product Status': 'Active',
+    'Product Buyer Style Name': 'Classic Bag',
+    'Product Buyer Style Number': 'CB-2024',
+    'Standard Minute Value': 8,
+    'Costing': '$6',
+    'Costing Status': 'Final',
+    'Supplier Payment Term': 'Net 30',
+    'Supplier Payment Term Description': '30 days',
+    'Order Purchase Payment Term': 'Net 30',
+    'Order Purchase Payment Term Description': '30 days',
+    'Product Supplier Purchase Payment Term': 'Net 30',
+    'Product Supplier Purhcase Payment Term Description': '30 days',
+    'Order Selling Payment Term': 'Net 60',
+    'Order Selling Payment Term Description': '60 days',
+    'Product Supplier Selling Payment Term': 'Net 60',
+    'Product Supplier Selling Payment Term Description': '60 days',
+    'Purchase Price': '$8',
+    'Selling Price': '$12',
+    'Season': 'Fall',
+    'Department': 'Production',
+    'Customer Parent': 'Gamma Group',
+    'RECIPIENT PRODUCT SUPPLIER-NUMBER': 'RPS-003',
+    'FG PO Number': 'FG-2024-003',
+    'Received': 0,
+    'Balance': 200,
+    'Over Received': 0,
+    'Size': 'Standard',
+    'Main Material': 'Leather',
+    'Main Material Description': 'Genuine Leather',
+    'Delivery Contact': 'Sarah Wilson',
+    'PO Key User 6': 'User6',
+    'PO Key User 7': 'User7',
+    'PO Key User 8': 'User8',
+    'PO Key Working Group 1': 'WG1',
+    'PO Key Working Group 2': 'WG2',
+    'PO Key Working Group 3': 'WG3',
+    'PO Key Working Group 4': 'WG4',
+    'Created By': 'Admin',
+    'Last Edited': '2024-06-30',
+    'Last Edited By': 'Editor',
+    'Color': 'Brown',
+    'Vessel Schedule': 'VS-2024',
+    'Buyer PO Number': 'BPO-2024-003',
+    'Shipment ID': 'SHIP-003',
+    'Factory Invoiced': 'No',
+    'Supplier Invoice': 'INV-003',
+    'QuickBooks Invoice': 'QB-003',
+    'Shipment Noted': 'No',
+    'Buy Information': 'Standard',
+    'Handling Charges': '$30',
+    'Original Forecasts Quantity': 200,
+    'Start Date': '2024-08-01',
+    'Cancelled Date': '',
+    'Factory Date Paid': '',
+    'Date Invoice Raised': '',
+    'Submitted Inspection Date': '',
+    'Remarks': '',
+    'Inspection Results': '',
+    'Report Type': '',
+    'Inspector': '',
+    'Approval Status': '',
+    'Shipment Status': '',
+    'QC Comment': '',
+    'Delay Shipment Code': '',
+    'Discount Percentage': '',
+    'SELL INC COMM': '',
+    'Buyer Surcharge': '',
+    'Buyer Surchage Percentage': '',
+    'MOQ': '',
+    'Discount Cost': '',
+    'Factory Surcharge': '',
+    'Factory Surchage Percentage': '',
+    'Buyer Season': 'Fall',
+    'Lookbook': '',
+    'Finished Good Testing Status': '',
+  }
+];
+
+// Define the columns to show in the PO Lines table (limited to match the original size)
+const poLinesColumns = [
+  'Order', 'Product', 'PO Line', 'Fit Comment', 'Fit Log Status', 'Fit Log Type', 'Fit Log Name', 
+  'Customer', 'Collection', 'Division', 'Group', 'Transport Method', 'Deliver To', 'Status', 
+  'Delivery Date', 'Comments', 'Quantity'
 ];
 
 const PurchaseOrder: React.FC = () => {
@@ -190,7 +536,9 @@ const PurchaseOrder: React.FC = () => {
 
   // Add edit state for PO Lines
   const [poLinesEditMode, setPoLinesEditMode] = useState(false);
-  const [poLinesForm, setPoLinesForm] = useState<typeof mockPOLines | null>(null);
+  const [poLinesForm, setPoLinesForm] = useState<Record<string, any>[] | null>(null);
+  const [selectedProductDetails, setSelectedProductDetails] = useState<Record<string, any> | null>(null);
+  const [activeProductTab, setActiveProductTab] = useState('Product Details');
 
   const handleEdit = () => {
     setEditIndex(selectedIndex);
@@ -594,6 +942,17 @@ const PurchaseOrder: React.FC = () => {
     setPoLinesForm(newPoLines);
   };
 
+  const handleProductClick = (productData: Record<string, any>) => {
+    // If the same product is already selected, close it
+    if (selectedProductDetails && selectedProductDetails['PO Line'] === productData['PO Line']) {
+      setSelectedProductDetails(null);
+    } else {
+      // Otherwise, select the new product
+      setSelectedProductDetails(productData);
+      setActiveProductTab('Product Details');
+    }
+  };
+
   return (
     <div className="p-6">
       <div className="flex flex-wrap items-center mb-4 gap-2 relative">
@@ -685,7 +1044,12 @@ const PurchaseOrder: React.FC = () => {
                   }
                   onClick={() => {
                     setSelectedIndex(idx);
-                    setExpandedIndex(expandedIndex === idx ? null : idx);
+                    const newExpandedIndex = expandedIndex === idx ? null : idx;
+                    setExpandedIndex(newExpandedIndex);
+                    // Close product details when subtable is closed
+                    if (newExpandedIndex === null) {
+                      setSelectedProductDetails(null);
+                    }
                   }}
                   style={{ cursor: 'pointer' }}
                 >
@@ -746,15 +1110,15 @@ const PurchaseOrder: React.FC = () => {
                 {expandedIndex === idx && (
                   <tr>
                     <td colSpan={visibleColumns.length} className="bg-transparent p-0 border-none">
-                      <div className="sticky left-0 z-30 bg-white w-full shadow-lg p-6 mt-2 overflow-x-auto" style={{ maxWidth: '100vw' }}>
-                        <div className="flex flex-col md:flex-row gap-8" style={{ minWidth: '1200px' }}>
+                      <div className="sticky left-0 z-30 bg-white w-full shadow-lg p-3 mt-1 overflow-x-auto" style={{ maxWidth: '100vw' }}>
+                        <div className="flex flex-row gap-4" style={{ minWidth: '1200px' }}>
                           {/* Left: Tab bar and tab content */}
-                          <div className="flex-1 min-w-0 max-w-[800px] w-full overflow-x-auto">
-                            <div className="mb-4 flex gap-2 border-b border-blue-200">
+                          <div className="flex-1 min-w-0 overflow-x-auto">
+                            <div className="mb-2 flex gap-1 border-b border-blue-200">
                               {subTabs.map(tab => (
                                 <button
                                   key={tab}
-                                  className={`px-4 py-2 -mb-px rounded-t font-medium transition-colors border-b-2 ${activeSubTab === tab ? 'bg-white border-blue-500 text-blue-700' : 'bg-blue-50 border-transparent text-gray-600 hover:text-blue-600'}`}
+                                  className={`px-2 py-1 -mb-px rounded-t text-xs font-medium transition-colors border-b-2 ${activeSubTab === tab ? 'bg-white border-blue-500 text-blue-700' : 'bg-blue-50 border-transparent text-gray-600 hover:text-blue-600'}`}
                                   onClick={() => setActiveSubTab(tab)}
                                 >
                                   {tab}
@@ -764,22 +1128,23 @@ const PurchaseOrder: React.FC = () => {
                             {/* Tab content */}
                             {activeSubTab === 'PO Details' && (
                               <>
-                                <div className="font-semibold text-blue-700 mb-2">Purchase Order Details</div>
-                                <table className="text-sm border border-blue-200 rounded-md mb-2 w-full">
+                                <div className="font-semibold text-blue-700 mb-1 text-xs">Purchase Order Details</div>
+                                <div className="overflow-x-auto" style={{ maxWidth: '800px' }}>
+                                  <table className="text-xs border border-blue-200 rounded-md mb-1" style={{ minWidth: '600px' }}>
                                   <thead className="bg-blue-100">
                                     <tr>
                                       {poDetailsColumns.map(col => (
-                                        <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                        <th key={col} className="px-1 py-0.5 text-left font-semibold text-xs">{col}</th>
                                       ))}
                                     </tr>
                                   </thead>
                                   <tbody>
                                     <tr>
                                       {poDetailsColumns.map(col => (
-                                        <td key={col} className="px-2 py-1">
+                                        <td key={col} className="px-1 py-0.5">
                                           {poDetailsEditMode ? (
                                             <input
-                                              className="border px-1 py-0.5 rounded w-full text-xs"
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
                                               value={poDetailsForm?.[col] ?? ''}
                                               onChange={e => setPoDetailsForm(f => ({ ...(f || {}), [col]: e.target.value }))}
                                             />
@@ -793,27 +1158,28 @@ const PurchaseOrder: React.FC = () => {
                                     </tr>
                                   </tbody>
                                 </table>
-                                <div className="flex gap-2 mt-2">
+                                </div>
+                                <div className="flex gap-1 mt-1">
                                   {!poDetailsEditMode ? (
                                     <button
-                                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                      className="bg-blue-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                       onClick={() => handleSubTableEdit('poDetails')}
                                     >
-                                      <EditIcon className="w-3 h-3" /> Edit
+                                      <EditIcon className="w-2 h-2" /> Edit
                                     </button>
                                   ) : (
                                     <>
                                       <button
-                                        className="bg-green-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        className="bg-green-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                         onClick={() => handleSubTableSave('poDetails')}
                                       >
-                                        <SaveIcon className="w-3 h-3" /> Save
+                                        <SaveIcon className="w-2 h-2" /> Save
                                       </button>
                                       <button
-                                        className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        className="bg-red-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                         onClick={() => handleSubTableCancel('poDetails')}
                                       >
-                                        <X className="w-3 h-3" /> Cancel
+                                        <X className="w-2 h-2" /> Cancel
                                       </button>
                                     </>
                                   )}
@@ -822,21 +1188,22 @@ const PurchaseOrder: React.FC = () => {
                             )}
                             {activeSubTab === 'Delivery' && (
                               <>
-                                <div className="font-semibold text-blue-700 mb-2">Delivery</div>
-                                <table className="text-sm border border-blue-200 rounded-md mb-2 w-full">
+                                <div className="font-semibold text-blue-700 mb-1 text-xs">Delivery</div>
+                                <div className="overflow-x-auto" style={{ maxWidth: '500px' }}>
+                                  <table className="text-xs border border-blue-200 rounded-md mb-1" style={{ minWidth: '400px' }}>
                                   <thead className="bg-blue-100">
                                     <tr>
                                       {deliveryDetailsColumns.map(col => (
-                                        <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                        <th key={col} className="px-1 py-0.5 text-left font-semibold text-xs">{col}</th>
                                       ))}
                                     </tr>
                                   </thead>
                                   <tbody>
                                     <tr>
-                                      <td className="px-2 py-1">
+                                      <td className="px-1 py-0.5">
                                         {deliveryEditMode ? (
                                           <input
-                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            className="border px-0.5 py-0 rounded w-full text-xs"
                                             value={deliveryForm?.['Customer'] ?? ''}
                                             onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Customer': e.target.value }))}
                                           />
@@ -844,10 +1211,10 @@ const PurchaseOrder: React.FC = () => {
                                           displayRows[expandedIndex]?.['Customer'] || ''
                                         )}
                                       </td>
-                                      <td className="px-2 py-1">
+                                      <td className="px-1 py-0.5">
                                         {deliveryEditMode ? (
                                           <input
-                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            className="border px-0.5 py-0 rounded w-full text-xs"
                                             value={deliveryForm?.['Deliver To'] ?? ''}
                                             onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Deliver To': e.target.value }))}
                                           />
@@ -855,10 +1222,10 @@ const PurchaseOrder: React.FC = () => {
                                           displayRows[expandedIndex]?.['Deliver to'] || ''
                                         )}
                                       </td>
-                                      <td className="px-2 py-1">
+                                      <td className="px-1 py-0.5">
                                         {deliveryEditMode ? (
                                           <input
-                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            className="border px-0.5 py-0 rounded w-full text-xs"
                                             value={deliveryForm?.['Transport Method'] ?? ''}
                                             onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Transport Method': e.target.value }))}
                                           />
@@ -869,27 +1236,28 @@ const PurchaseOrder: React.FC = () => {
                                     </tr>
                                   </tbody>
                                 </table>
-                                <div className="flex gap-2 mt-2">
+                                </div>
+                                <div className="flex gap-1 mt-1">
                                   {!deliveryEditMode ? (
                                     <button
-                                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                      className="bg-blue-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                       onClick={() => handleSubTableEdit('delivery')}
                                     >
-                                      <EditIcon className="w-3 h-3" /> Edit
+                                      <EditIcon className="w-2 h-2" /> Edit
                                     </button>
                                   ) : (
                                     <>
                                       <button
-                                        className="bg-green-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        className="bg-green-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                         onClick={() => handleSubTableSave('delivery')}
                                       >
-                                        <SaveIcon className="w-3 h-3" /> Save
+                                        <SaveIcon className="w-2 h-2" /> Save
                                       </button>
                                       <button
-                                        className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        className="bg-red-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                         onClick={() => handleSubTableCancel('delivery')}
                                       >
-                                        <X className="w-3 h-3" /> Cancel
+                                        <X className="w-2 h-2" /> Cancel
                                       </button>
                                     </>
                                   )}
@@ -898,21 +1266,22 @@ const PurchaseOrder: React.FC = () => {
                             )}
                             {activeSubTab === 'Critical Path' && (
                               <>
-                                <div className="font-semibold text-blue-700 mb-2">Critical Path</div>
-                                <table className="text-sm border border-blue-200 rounded-md mb-2 w-full">
+                                <div className="font-semibold text-blue-700 mb-1 text-xs">Critical Path</div>
+                                <div className="overflow-x-auto" style={{ maxWidth: '500px' }}>
+                                  <table className="text-xs border border-blue-200 rounded-md mb-1" style={{ minWidth: '300px' }}>
                                   <thead className="bg-blue-100">
                                     <tr>
                                       {criticalPathColumns.map(col => (
-                                        <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                        <th key={col} className="px-1 py-0.5 text-left font-semibold text-xs">{col}</th>
                                       ))}
                                     </tr>
                                   </thead>
                                   <tbody>
                                     <tr>
-                                      <td className="px-2 py-1">
+                                      <td className="px-1 py-0.5">
                                         {criticalPathEditMode ? (
                                           <input
-                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            className="border px-0.5 py-0 rounded w-full text-xs"
                                             value={criticalPathForm?.['Template'] ?? ''}
                                             onChange={e => setCriticalPathForm(f => ({ ...(f || {}), 'Template': e.target.value }))}
                                           />
@@ -920,10 +1289,10 @@ const PurchaseOrder: React.FC = () => {
                                           displayRows[expandedIndex]?.['Template'] || ''
                                         )}
                                       </td>
-                                      <td className="px-2 py-1">
+                                      <td className="px-1 py-0.5">
                                         {criticalPathEditMode ? (
                                           <input
-                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            className="border px-0.5 py-0 rounded w-full text-xs"
                                             value={criticalPathForm?.['PO Issue Date'] ?? ''}
                                             onChange={e => setCriticalPathForm(f => ({ ...(f || {}), 'PO Issue Date': e.target.value }))}
                                           />
@@ -934,27 +1303,28 @@ const PurchaseOrder: React.FC = () => {
                                     </tr>
                                   </tbody>
                                 </table>
-                                <div className="flex gap-2 mt-2">
+                                </div>
+                                <div className="flex gap-1 mt-1">
                                   {!criticalPathEditMode ? (
                                     <button
-                                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                      className="bg-blue-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                       onClick={() => handleSubTableEdit('criticalPath')}
                                     >
-                                      <EditIcon className="w-3 h-3" /> Edit
+                                      <EditIcon className="w-2 h-2" /> Edit
                                     </button>
                                   ) : (
                                     <>
                                       <button
-                                        className="bg-green-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        className="bg-green-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                         onClick={() => handleSubTableSave('criticalPath')}
                                       >
-                                        <SaveIcon className="w-3 h-3" /> Save
+                                        <SaveIcon className="w-2 h-2" /> Save
                                       </button>
                                       <button
-                                        className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        className="bg-red-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                         onClick={() => handleSubTableCancel('criticalPath')}
                                       >
-                                        <X className="w-3 h-3" /> Cancel
+                                        <X className="w-2 h-2" /> Cancel
                                       </button>
                                     </>
                                   )}
@@ -963,21 +1333,21 @@ const PurchaseOrder: React.FC = () => {
                             )}
                             {activeSubTab === 'Audit' && (
                               <>
-                                <div className="font-semibold text-blue-700 mb-2">Audit</div>
-                                <table className="text-sm border border-blue-200 rounded-md mb-2 w-full">
+                                <div className="font-semibold text-blue-700 mb-1 text-xs">Audit</div>
+                                <table className="text-xs border border-blue-200 rounded-md mb-1 w-full">
                                   <thead className="bg-blue-100">
                                     <tr>
                                       {auditColumns.map(col => (
-                                        <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                        <th key={col} className="px-1 py-0.5 text-left font-semibold text-xs">{col}</th>
                                       ))}
                                     </tr>
                                   </thead>
                                   <tbody>
                                     <tr>
-                                      <td className="px-2 py-1">
+                                      <td className="px-1 py-0.5">
                                         {auditEditMode ? (
                                           <input
-                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            className="border px-0.5 py-0 rounded w-full text-xs"
                                             value={auditForm?.['Created By'] ?? ''}
                                             onChange={e => setAuditForm(f => ({ ...(f || {}), 'Created By': e.target.value }))}
                                           />
@@ -985,10 +1355,10 @@ const PurchaseOrder: React.FC = () => {
                                           displayRows[expandedIndex]?.['Created By'] || ''
                                         )}
                                       </td>
-                                      <td className="px-2 py-1">
+                                      <td className="px-1 py-0.5">
                                         {auditEditMode ? (
                                           <input
-                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            className="border px-0.5 py-0 rounded w-full text-xs"
                                             value={auditForm?.['Created'] ?? ''}
                                             onChange={e => setAuditForm(f => ({ ...(f || {}), 'Created': e.target.value }))}
                                           />
@@ -996,10 +1366,10 @@ const PurchaseOrder: React.FC = () => {
                                           displayRows[expandedIndex]?.['Created'] || ''
                                         )}
                                       </td>
-                                      <td className="px-2 py-1">
+                                      <td className="px-1 py-0.5">
                                         {auditEditMode ? (
                                           <input
-                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            className="border px-0.5 py-0 rounded w-full text-xs"
                                             value={auditForm?.['Last Edited'] ?? ''}
                                             onChange={e => setAuditForm(f => ({ ...(f || {}), 'Last Edited': e.target.value }))}
                                           />
@@ -1010,27 +1380,27 @@ const PurchaseOrder: React.FC = () => {
                                     </tr>
                                   </tbody>
                                 </table>
-                                <div className="flex gap-2 mt-2">
+                                <div className="flex gap-1 mt-1">
                                   {!auditEditMode ? (
                                     <button
-                                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                      className="bg-blue-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                       onClick={() => handleSubTableEdit('audit')}
                                     >
-                                      <EditIcon className="w-3 h-3" /> Edit
+                                      <EditIcon className="w-2 h-2" /> Edit
                                     </button>
                                   ) : (
                                     <>
                                       <button
-                                        className="bg-green-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        className="bg-green-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                         onClick={() => handleSubTableSave('audit')}
                                       >
-                                        <SaveIcon className="w-3 h-3" /> Save
+                                        <SaveIcon className="w-2 h-2" /> Save
                                       </button>
                                       <button
-                                        className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        className="bg-red-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                         onClick={() => handleSubTableCancel('audit')}
                                       >
-                                        <X className="w-3 h-3" /> Cancel
+                                        <X className="w-2 h-2" /> Cancel
                                       </button>
                                     </>
                                   )}
@@ -1039,21 +1409,21 @@ const PurchaseOrder: React.FC = () => {
                             )}
                             {activeSubTab === 'Totals' && (
                               <>
-                                <div className="font-semibold text-blue-700 mb-2">Totals</div>
-                                <table className="text-sm border border-blue-200 rounded-md mb-2 w-full">
+                                <div className="font-semibold text-blue-700 mb-1 text-xs">Totals</div>
+                                <table className="text-xs border border-blue-200 rounded-md mb-1 w-full">
                                   <thead className="bg-blue-100">
                                     <tr>
                                       {totalsColumns.map(col => (
-                                        <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                        <th key={col} className="px-1 py-0.5 text-left font-semibold text-xs">{col}</th>
                                       ))}
                                     </tr>
                                   </thead>
                                   <tbody>
                                     <tr>
-                                      <td className="px-2 py-1">
+                                      <td className="px-1 py-0.5">
                                         {totalsEditMode ? (
                                           <input
-                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            className="border px-0.5 py-0 rounded w-full text-xs"
                                             value={totalsForm?.['Total Qty'] ?? ''}
                                             onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Total Qty': e.target.value }))}
                                           />
@@ -1061,10 +1431,10 @@ const PurchaseOrder: React.FC = () => {
                                           displayRows[expandedIndex]?.['Total Qty'] || ''
                                         )}
                                       </td>
-                                      <td className="px-2 py-1">
+                                      <td className="px-1 py-0.5">
                                         {totalsEditMode ? (
                                           <input
-                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            className="border px-0.5 py-0 rounded w-full text-xs"
                                             value={totalsForm?.['Total Cost'] ?? ''}
                                             onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Total Cost': e.target.value }))}
                                           />
@@ -1072,10 +1442,10 @@ const PurchaseOrder: React.FC = () => {
                                           displayRows[expandedIndex]?.['Total Cost'] || ''
                                         )}
                                       </td>
-                                      <td className="px-2 py-1">
+                                      <td className="px-1 py-0.5">
                                         {totalsEditMode ? (
                                           <input
-                                            className="border px-1 py-0.5 rounded w-full text-xs"
+                                            className="border px-0.5 py-0 rounded w-full text-xs"
                                             value={totalsForm?.['Total Value'] ?? ''}
                                             onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Total Value': e.target.value }))}
                                           />
@@ -1086,27 +1456,27 @@ const PurchaseOrder: React.FC = () => {
                                     </tr>
                                   </tbody>
                                 </table>
-                                <div className="flex gap-2 mt-2">
+                                <div className="flex gap-1 mt-1">
                                   {!totalsEditMode ? (
                                     <button
-                                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                      className="bg-blue-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                       onClick={() => handleSubTableEdit('totals')}
                                     >
-                                      <EditIcon className="w-3 h-3" /> Edit
+                                      <EditIcon className="w-2 h-2" /> Edit
                                     </button>
                                   ) : (
                                     <>
                                       <button
-                                        className="bg-green-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        className="bg-green-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                         onClick={() => handleSubTableSave('totals')}
                                       >
-                                        <SaveIcon className="w-3 h-3" /> Save
+                                        <SaveIcon className="w-2 h-2" /> Save
                                       </button>
                                       <button
-                                        className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        className="bg-red-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                         onClick={() => handleSubTableCancel('totals')}
                                       >
-                                        <X className="w-3 h-3" /> Cancel
+                                        <X className="w-2 h-2" /> Cancel
                                       </button>
                                     </>
                                   )}
@@ -1115,22 +1485,22 @@ const PurchaseOrder: React.FC = () => {
                             )}
                             {activeSubTab === 'Comments' && (
                               <>
-                                <div className="font-semibold text-blue-700 mb-2">Comments</div>
-                                <table className="text-sm border border-blue-200 rounded-md mb-2 w-full">
+                                <div className="font-semibold text-blue-700 mb-1 text-xs">Comments</div>
+                                <table className="text-xs border border-blue-200 rounded-md mb-1 w-full">
                                   <thead className="bg-blue-100">
                                     <tr>
                                       {commentsColumns.map(col => (
-                                        <th key={col} className="px-2 py-1 text-left font-semibold">{col}</th>
+                                        <th key={col} className="px-1 py-0.5 text-left font-semibold text-xs">{col}</th>
                                       ))}
                                     </tr>
                                   </thead>
                                   <tbody>
                                     <tr>
-                                      <td className="px-2 py-1">
+                                      <td className="px-1 py-0.5">
                                         {commentsEditMode ? (
                                           <textarea
-                                            className="border px-1 py-0.5 rounded w-full text-xs resize-none"
-                                            rows={3}
+                                            className="border px-0.5 py-0 rounded w-full text-xs resize-none"
+                                            rows={2}
                                             value={commentsForm?.['Comments'] ?? ''}
                                             onChange={e => setCommentsForm(f => ({ ...(f || {}), 'Comments': e.target.value }))}
                                           />
@@ -1141,27 +1511,27 @@ const PurchaseOrder: React.FC = () => {
                                     </tr>
                                   </tbody>
                                 </table>
-                                <div className="flex gap-2 mt-2">
+                                <div className="flex gap-1 mt-1">
                                   {!commentsEditMode ? (
                                     <button
-                                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                      className="bg-blue-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                       onClick={() => handleSubTableEdit('comments')}
                                     >
-                                      <EditIcon className="w-3 h-3" /> Edit
+                                      <EditIcon className="w-2 h-2" /> Edit
                                     </button>
                                   ) : (
                                     <>
                                       <button
-                                        className="bg-green-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        className="bg-green-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                         onClick={() => handleSubTableSave('comments')}
                                       >
-                                        <SaveIcon className="w-3 h-3" /> Save
+                                        <SaveIcon className="w-2 h-2" /> Save
                                       </button>
                                       <button
-                                        className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                        className="bg-red-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                         onClick={() => handleSubTableCancel('comments')}
                                       >
-                                        <X className="w-3 h-3" /> Cancel
+                                        <X className="w-2 h-2" /> Cancel
                                       </button>
                                     </>
                                   )}
@@ -1170,77 +1540,66 @@ const PurchaseOrder: React.FC = () => {
                             )}
                           </div>
                           {/* Right: PO Lines table */}
-                          <div className="min-w-[360px] max-w-[400px]">
-                            <div className="font-semibold text-blue-700 mb-2">PO Lines</div>
-                            <table className="text-sm border border-blue-200 rounded-md mb-2 w-full">
-                              <thead className="bg-blue-100">
-                                <tr>
-                                  <th className="px-2 py-1 text-left font-semibold">PO Line</th>
-                                  <th className="px-2 py-1 text-left font-semibold">Product</th>
-                                  <th className="px-2 py-1 text-left font-semibold">Quantity</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {(poLinesEditMode ? poLinesForm : mockPOLines)?.map((line, index) => (
-                                  <tr key={line.line}>
-                                    <td className="px-2 py-1">
-                                      {poLinesEditMode ? (
-                                        <input
-                                          className="border px-1 py-0.5 rounded w-full text-xs"
-                                          value={line.line}
-                                          onChange={e => handlePoLinesChange(index, 'line', e.target.value)}
-                                        />
-                                      ) : (
-                                        line.line
-                                      )}
-                                    </td>
-                                    <td className="px-2 py-1">
-                                      {poLinesEditMode ? (
-                                        <input
-                                          className="border px-1 py-0.5 rounded w-full text-xs"
-                                          value={line.product}
-                                          onChange={e => handlePoLinesChange(index, 'product', e.target.value)}
-                                        />
-                                      ) : (
-                                        line.product
-                                      )}
-                                    </td>
-                                    <td className="px-2 py-1">
-                                      {poLinesEditMode ? (
-                                        <input
-                                          className="border px-1 py-0.5 rounded w-full text-xs"
-                                          value={line.quantity}
-                                          onChange={e => handlePoLinesChange(index, 'quantity', e.target.value)}
-                                        />
-                                      ) : (
-                                        line.quantity
-                                      )}
-                                    </td>
+                          <div className="flex-1 min-w-0 overflow-x-auto">
+                            <div className="font-semibold text-blue-700 mb-1 text-xs">PO Lines</div>
+                            <div className="overflow-x-auto" style={{ maxWidth: '600px' }}>
+                              <table className="text-xs border border-blue-200 rounded-md mb-1" style={{ minWidth: '800px' }}>
+                                <thead className="bg-blue-100">
+                                  <tr>
+                                    {poLinesColumns.map(col => (
+                                      <th key={col} className="px-1 py-0.5 text-left font-semibold text-xs whitespace-nowrap">{col}</th>
+                                    ))}
                                   </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                            <div className="flex gap-2 mt-2">
+                                </thead>
+                                <tbody>
+                                  {(poLinesEditMode ? poLinesForm : mockPOLines)?.map((line, index) => (
+                                    <tr key={line['PO Line']}>
+                                      {poLinesColumns.map(col => (
+                                        <td key={col} className="px-1 py-0.5 whitespace-nowrap">
+                                          {poLinesEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={(line as any)[col] || ''}
+                                              onChange={e => handlePoLinesChange(index, col, e.target.value)}
+                                            />
+                                          ) : col === 'Product' ? (
+                                            <button
+                                              className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer text-xs"
+                                              onClick={() => handleProductClick(line)}
+                                            >
+                                              {(line as any)[col] || ''}
+                                            </button>
+                                          ) : (
+                                            (line as any)[col] || ''
+                                          )}
+                                        </td>
+                                      ))}
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                            <div className="flex gap-1 mt-1">
                               {!poLinesEditMode ? (
                                 <button
-                                  className="bg-blue-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                  className="bg-blue-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                   onClick={() => handleSubTableEdit('poLines')}
                                 >
-                                  <EditIcon className="w-3 h-3" /> Edit
+                                  <EditIcon className="w-2 h-2" /> Edit
                                 </button>
                               ) : (
                                 <>
                                   <button
-                                    className="bg-green-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                    className="bg-green-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                     onClick={() => handleSubTableSave('poLines')}
                                   >
-                                    <SaveIcon className="w-3 h-3" /> Save
+                                    <SaveIcon className="w-2 h-2" /> Save
                                   </button>
                                   <button
-                                    className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                    className="bg-red-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
                                     onClick={() => handleSubTableCancel('poLines')}
                                   >
-                                    <X className="w-3 h-3" /> Cancel
+                                    <X className="w-2 h-2" /> Cancel
                                   </button>
                                 </>
                               )}
@@ -1253,6 +1612,221 @@ const PurchaseOrder: React.FC = () => {
                 )}
               </React.Fragment>
             ))}
+            {/* Product Details Table */}
+            {selectedProductDetails && (
+              <tr>
+                <td colSpan={visibleColumns.length} className="bg-transparent p-0 border-none">
+                  <div className="bg-white w-full shadow-lg p-3 mt-2">
+                    <div className="font-semibold text-blue-700 mb-2 text-sm">Product Details</div>
+                    <div className="mb-2 flex gap-1 border-b border-blue-200">
+                      {['Product Details', 'Critical Path', 'Images', 'Comments', 'Bill Of Materials', 'Activities', 'Colorways'].map(tab => (
+                        <button
+                          key={tab}
+                          className={`px-2 py-1 -mb-px rounded-t text-xs font-medium transition-colors border-b-2 ${activeProductTab === tab ? 'bg-white border-blue-500 text-blue-700' : 'bg-blue-50 border-transparent text-gray-600 hover:text-blue-600'}`}
+                          onClick={() => setActiveProductTab(tab)}
+                        >
+                          {tab}
+                        </button>
+                      ))}
+                    </div>
+                    {/* Tab content */}
+                    {activeProductTab === 'Product Details' && (
+                      <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
+                        <table className="text-xs border border-blue-200 rounded-md w-full">
+                          <thead className="bg-blue-100">
+                            <tr>
+                              <th className="px-2 py-1 text-left font-semibold text-xs">Field</th>
+                              <th className="px-2 py-1 text-left font-semibold text-xs">Value</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">M88 Ref</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['RECIPIENT PRODUCT SUPPLIER-NUMBER'] || ''}</td>
+                            </tr>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Buyer Style Number</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Product Buyer Style Number'] || ''}</td>
+                            </tr>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Buyer Style Name</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Product Buyer Style Name'] || ''}</td>
+                            </tr>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Customer</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Customer'] || ''}</td>
+                            </tr>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Department</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Department'] || ''}</td>
+                            </tr>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Status</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Product Status'] || ''}</td>
+                            </tr>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Description</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Purchase Description'] || ''}</td>
+                            </tr>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Product Type</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Product Type'] || ''}</td>
+                            </tr>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Season</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Season'] || ''}</td>
+                            </tr>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Product Development</td>
+                              <td className="px-2 py-1 border-t border-blue-100">-</td>
+                            </tr>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Tech Design</td>
+                              <td className="px-2 py-1 border-t border-blue-100">-</td>
+                            </tr>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">China - QC</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['China-QC'] || ''}</td>
+                            </tr>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Lookbook</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Lookbook'] || '-'}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                    {activeProductTab === 'Critical Path' && (
+                      <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
+                        <table className="text-xs border border-blue-200 rounded-md w-full">
+                          <thead className="bg-blue-100">
+                            <tr>
+                              <th className="px-2 py-1 text-left font-semibold text-xs">Milestone</th>
+                              <th className="px-2 py-1 text-left font-semibold text-xs">Target Date</th>
+                              <th className="px-2 py-1 text-left font-semibold text-xs">Completed Date</th>
+                              <th className="px-2 py-1 text-left font-semibold text-xs">Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Order Placement</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Order Placement']?.['Target Date'] || ''}</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Order Placement']?.['Completed Date'] || ''}</td>
+                              <td className="px-2 py-1 border-t border-blue-100">-</td>
+                            </tr>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Production Start</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Production'] || ''}</td>
+                              <td className="px-2 py-1 border-t border-blue-100">-</td>
+                              <td className="px-2 py-1 border-t border-blue-100">-</td>
+                            </tr>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Ex-Factory</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Ex-Factory'] || ''}</td>
+                              <td className="px-2 py-1 border-t border-blue-100">-</td>
+                              <td className="px-2 py-1 border-t border-blue-100">-</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                    {activeProductTab === 'Images' && (
+                      <div className="p-4 text-center text-gray-500">
+                        <p>No images available for this product.</p>
+                      </div>
+                    )}
+                    {activeProductTab === 'Comments' && (
+                      <div className="p-4">
+                        <textarea
+                          className="w-full border border-blue-200 rounded-md p-2 text-xs"
+                          rows={4}
+                          placeholder="Add comments about this product..."
+                          defaultValue={selectedProductDetails['Comments'] || ''}
+                        />
+                      </div>
+                    )}
+                    {activeProductTab === 'Bill Of Materials' && (
+                      <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
+                        <table className="text-xs border border-blue-200 rounded-md w-full">
+                          <thead className="bg-blue-100">
+                            <tr>
+                              <th className="px-2 py-1 text-left font-semibold text-xs">Material</th>
+                              <th className="px-2 py-1 text-left font-semibold text-xs">Description</th>
+                              <th className="px-2 py-1 text-left font-semibold text-xs">Quantity</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">{selectedProductDetails['Main Material'] || ''}</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Main Material Description'] || ''}</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Quantity'] || ''}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                    {activeProductTab === 'Activities' && (
+                      <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
+                        <table className="text-xs border border-blue-200 rounded-md w-full">
+                          <thead className="bg-blue-100">
+                            <tr>
+                              <th className="px-2 py-1 text-left font-semibold text-xs">Activity</th>
+                              <th className="px-2 py-1 text-left font-semibold text-xs">Status</th>
+                              <th className="px-2 py-1 text-left font-semibold text-xs">Date</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">MLA-Purchasing</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['MLA-Purchasing'] || ''}</td>
+                              <td className="px-2 py-1 border-t border-blue-100">-</td>
+                            </tr>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">MLA-Planning</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['MLA-Planning'] || ''}</td>
+                              <td className="px-2 py-1 border-t border-blue-100">-</td>
+                            </tr>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">MLA-Shipping</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['MLA-Shipping'] || ''}</td>
+                              <td className="px-2 py-1 border-t border-blue-100">-</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                    {activeProductTab === 'Colorways' && (
+                      <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
+                        <table className="text-xs border border-blue-200 rounded-md w-full">
+                          <thead className="bg-blue-100">
+                            <tr>
+                              <th className="px-2 py-1 text-left font-semibold text-xs">Color</th>
+                              <th className="px-2 py-1 text-left font-semibold text-xs">Size</th>
+                              <th className="px-2 py-1 text-left font-semibold text-xs">Quantity</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td className="px-2 py-1 border-t border-blue-100 font-medium">{selectedProductDetails['Color'] || ''}</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Size'] || ''}</td>
+                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Quantity'] || ''}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                    <div className="flex justify-end mt-2">
+                      <button
+                        className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                        onClick={() => setSelectedProductDetails(null)}
+                      >
+                        Close Details
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            )}
             {displayRows.length === 0 && (
               <tr><td colSpan={visibleColumns.reduce((acc, col) => {
                 const group = groupedColumns.find(g => g.key === col);

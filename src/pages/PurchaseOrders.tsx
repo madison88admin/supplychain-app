@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, Copy as CopyIcon, Plus, Filter as FilterIcon, Download, X } from 'lucide-react';
 
 // Define grouped columns
 const groupedColumns = [
@@ -489,7 +489,9 @@ const PurchaseOrders: React.FC = () => {
     <div className="p-6">
       <div className="flex flex-wrap items-center mb-4 gap-2 relative">
         <h1 className="text-2xl font-bold mr-4">Purchase Orders Lines</h1>
-        <button className="bg-blue-700 text-white px-3 py-1 rounded mr-2" onClick={handleImportClick}>Import</button>
+        <button className="bg-blue-700 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleImportClick}>
+          <Upload className="w-4 h-4 mr-1" /> Import
+        </button>
           <input
           type="file"
           accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
@@ -497,12 +499,24 @@ const PurchaseOrders: React.FC = () => {
           onChange={handleFileChange}
           className="hidden"
         />
-        <button className="bg-blue-500 text-white px-3 py-1 rounded mr-2" onClick={handleEdit} disabled={editIndex !== null || displayRows.length === 0}>Edit</button>
-        <button className="bg-green-500 text-white px-3 py-1 rounded mr-2" onClick={handleSave} disabled={editIndex === null}>Save</button>
-        <button className="bg-gray-500 text-white px-3 py-1 rounded mr-2" onClick={handleCopy} disabled={displayRows.length === 0}>Copy</button>
-        <button className="bg-purple-500 text-white px-3 py-1 rounded mr-2" onClick={handleAdd} disabled={editIndex !== null}>Add</button>
-        <button className="bg-indigo-500 text-white px-3 py-1 rounded mr-2" onClick={() => setShowColumnSelector(v => !v)}>Filter Columns</button>
-        <button className="bg-green-700 text-white px-3 py-1 rounded mr-2" onClick={handleExport} disabled={displayRows.length === 0}>Export to XLSX</button>
+        <button className="bg-blue-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleEdit} disabled={editIndex !== null || displayRows.length === 0}>
+          <EditIcon className="w-4 h-4 mr-1" /> Edit
+        </button>
+        <button className="bg-green-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleSave} disabled={editIndex === null}>
+          <SaveIcon className="w-4 h-4 mr-1" /> Save
+        </button>
+        <button className="bg-gray-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleCopy} disabled={displayRows.length === 0}>
+          <CopyIcon className="w-4 h-4 mr-1" /> Copy
+        </button>
+        <button className="bg-purple-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleAdd} disabled={editIndex !== null}>
+          <Plus className="w-4 h-4 mr-1" /> Add
+        </button>
+        <button className="bg-indigo-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={() => setShowColumnSelector(v => !v)}>
+          <FilterIcon className="w-4 h-4 mr-1" /> Filter Columns
+        </button>
+        <button className="bg-green-700 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleExport} disabled={displayRows.length === 0}>
+          <Download className="w-4 h-4 mr-1" /> Export to XLSX
+        </button>
         {showColumnSelector && (
           <div className="absolute z-10 bg-white border rounded shadow p-3 top-12 left-0 max-h-72 overflow-y-auto w-64">
             <div className="font-bold mb-2">Select Columns</div>
@@ -559,8 +573,12 @@ const PurchaseOrders: React.FC = () => {
           onKeyDown={e => { if (e.key === 'Enter') handleFilter(); }}
           style={{ minWidth: 120 }}
         />
-        <button className="bg-yellow-500 text-white px-3 py-1 rounded mr-2" onClick={handleFilter}>Filter</button>
-        <button className="bg-red-500 text-white px-3 py-1 rounded" onClick={handleClear} disabled={!search && !filteredRows}>Clear</button>
+        <button className="bg-yellow-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleFilter}>
+          <FilterIcon className="w-4 h-4 mr-1" /> Filter
+        </button>
+        <button className="bg-red-500 text-white px-3 py-1 rounded flex items-center gap-1" onClick={handleClear} disabled={!search && !filteredRows}>
+          <X className="w-4 h-4 mr-1" /> Clear
+        </button>
           </div>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-200 rounded-lg text-xs">

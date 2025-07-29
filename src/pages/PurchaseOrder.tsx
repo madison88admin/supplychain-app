@@ -1143,7 +1143,7 @@ const PurchaseOrder: React.FC = () => {
 
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-[70vh]">
       {/* Main Content */}
       <div className="p-4 pb-20">
         <div className="flex flex-wrap items-center mb-4 gap-2 relative">
@@ -1213,8 +1213,8 @@ const PurchaseOrder: React.FC = () => {
           <X className="w-4 h-4 mr-1" /> Clear
         </button>
       </div>
-      <div className="overflow-x-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
-        <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
+      <div className="overflow-x-auto" style={{ maxHeight: 'calc(92vh - 220px)' }}>
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(92vh - 220px)' }}>
           <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs">
           <thead>
             <tr>
@@ -2074,6 +2074,7 @@ const PurchaseOrder: React.FC = () => {
         activeContent={activeContent}
         setActiveContent={setActiveContent}
         sidebarCollapsed={sidebarCollapsed}
+        pageData={displayRows[selectedIndex] || {}}
       />
     </div>
   );

@@ -7,6 +7,7 @@ interface ReportBarProps {
   activeContent: string;
   setActiveContent: (content: string) => void;
   sidebarCollapsed?: boolean;
+  pageData?: Record<string, any>;
 }
 
 const ReportBar: React.FC<ReportBarProps> = ({
@@ -14,7 +15,8 @@ const ReportBar: React.FC<ReportBarProps> = ({
   setShowSlideUpContainer,
   activeContent,
   setActiveContent,
-  sidebarCollapsed = false
+  sidebarCollapsed = false,
+  pageData = {}
 }) => {
   // Simple table components for each button
   const ActivitiesTable = () => (
@@ -25,19 +27,24 @@ const ReportBar: React.FC<ReportBarProps> = ({
           <tr>
             <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Date</th>
             <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Action</th>
-            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">User</th>
+            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Status</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">2023-10-26</td>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">Created PO #123</td>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">John Doe</td>
+            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Created'] || 'N/A'}</td>
+            <td className="py-1 px-2 border-b text-xs text-gray-700">Created PO {pageData['Order References'] || 'N/A'}</td>
+            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Status'] || 'N/A'}</td>
           </tr>
           <tr>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">2023-10-25</td>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">Approved PO #122</td>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">Jane Smith</td>
+            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Last Edited'] || 'N/A'}</td>
+            <td className="py-1 px-2 border-b text-xs text-gray-700">Updated PO {pageData['Order References'] || 'N/A'}</td>
+            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Production'] || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['PO Issue Date'] || 'N/A'}</td>
+            <td className="py-1 px-2 border-b text-xs text-gray-700">PO Issued</td>
+            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Purchase Order Status'] || 'N/A'}</td>
           </tr>
         </tbody>
       </table>
@@ -50,18 +57,16 @@ const ReportBar: React.FC<ReportBarProps> = ({
       <table className="min-w-full bg-white border border-gray-200">
         <thead>
           <tr>
-            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Timestamp</th>
-            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Event</th>
+            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Created By</th>
+            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Created</th>
+            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Last Edited</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">2023-10-26 10:30</td>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">Data Exported</td>
-          </tr>
-          <tr>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">2023-10-26 09:15</td>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">User Login</td>
+            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Created By'] || 'N/A'}</td>
+            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Created'] || 'N/A'}</td>
+            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Last Edited'] || 'N/A'}</td>
           </tr>
         </tbody>
       </table>
@@ -74,18 +79,16 @@ const ReportBar: React.FC<ReportBarProps> = ({
       <table className="min-w-full bg-white border border-gray-200">
         <thead>
           <tr>
-            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Date</th>
-            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Note</th>
+            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Note Count</th>
+            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Latest Note</th>
+            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Comments</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">2023-10-26</td>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">Follow-up with Supplier X</td>
-          </tr>
-          <tr>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">2023-10-24</td>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">Discussed new terms</td>
+            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Note Count'] || '0'}</td>
+            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Latest Note'] || 'N/A'}</td>
+            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Comments'] || 'N/A'}</td>
           </tr>
         </tbody>
       </table>
@@ -122,18 +125,16 @@ const ReportBar: React.FC<ReportBarProps> = ({
       <table className="min-w-full bg-white border border-gray-200">
         <thead>
           <tr>
-            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Name</th>
-            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Size</th>
+            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Template</th>
+            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Default Template</th>
+            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Status</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">Contract_2023.pdf</td>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">1.2 MB</td>
-          </tr>
-          <tr>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">Specs_V2.docx</td>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">500 KB</td>
+            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Template'] || 'N/A'}</td>
+            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Default PO Line Template'] || 'N/A'}</td>
+            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Status'] || 'N/A'}</td>
           </tr>
         </tbody>
       </table>
@@ -166,25 +167,33 @@ const ReportBar: React.FC<ReportBarProps> = ({
 
   const ReportTable = () => (
     <div>
-      <h3 className="font-semibold text-gray-800 mb-2">Reports</h3>
-      <table className="min-w-full bg-white border border-gray-200">
-        <thead>
-          <tr>
-            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Report Name</th>
-            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Generated By</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">Monthly Summary</td>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">System</td>
-          </tr>
-          <tr>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">Daily Sales</td>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">Admin User</td>
-          </tr>
-        </tbody>
-      </table>
+      <h3 className="font-semibold text-gray-800 mb-2">Report Actions</h3>
+      <div className="space-y-2">
+        <button 
+          className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors duration-200 uppercase font-medium"
+          onClick={() => console.log('EMAIL clicked')}
+        >
+          EMAIL
+        </button>
+        <button 
+          className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors duration-200 uppercase font-medium"
+          onClick={() => console.log('REPORT clicked')}
+        >
+          REPORT
+        </button>
+        <button 
+          className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors duration-200 uppercase font-medium"
+          onClick={() => console.log('DOCUMENT EXPORT clicked')}
+        >
+          DOCUMENT EXPORT
+        </button>
+        <button 
+          className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors duration-200 uppercase font-medium"
+          onClick={() => console.log('EXPORT PACKAGE clicked')}
+        >
+          EXPORT PACKAGE
+        </button>
+      </div>
     </div>
   );
 

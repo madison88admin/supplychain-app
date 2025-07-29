@@ -1,14 +1,36 @@
 import React, { useState, useCallback } from 'react';
-import { Plus, Search, Filter, Eye, Edit, ShoppingCart, Calendar, DollarSign, TrendingUp, Package, Truck } from 'lucide-react';
+import { 
+  Plus, 
+  Search, 
+  Filter, 
+  Eye, 
+  Edit, 
+  ShoppingCart, 
+  Calendar, 
+  DollarSign, 
+  TrendingUp, 
+  Package, 
+  Truck,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  XCircle,
+  Ship,
+  FileText,
+  MoreHorizontal
+} from 'lucide-react';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { buildContextMenu } from '../utils/contextMenuBuilder';
 import ContextMenu from '../components/ContextMenu';
+import ProductDetailsModal from '../components/modals/ProductDetailsModal';
 
 const ProductManager: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterCustomer, setFilterCustomer] = useState('all');
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
   // Context menu state
   const { isOpen, context, menuItems, openMenu, closeMenu } = useContextMenu();
@@ -33,7 +55,10 @@ const ProductManager: React.FC = () => {
       createdDate: '2024-01-10',
       lastUpdated: '2024-01-14',
       bulkApprovalStatus: 'Approved',
-      progress: 85
+      progress: 85,
+      priority: 'High',
+      riskLevel: 'Low',
+      qualityScore: 95
     },
     {
       id: 2,
@@ -54,7 +79,10 @@ const ProductManager: React.FC = () => {
       createdDate: '2024-01-12',
       lastUpdated: '2024-01-13',
       bulkApprovalStatus: 'Pending',
-      progress: 60
+      progress: 60,
+      priority: 'Medium',
+      riskLevel: 'Medium',
+      qualityScore: 87
     },
     {
       id: 3,
@@ -75,7 +103,10 @@ const ProductManager: React.FC = () => {
       createdDate: '2024-01-14',
       lastUpdated: '2024-01-14',
       bulkApprovalStatus: 'Not Required',
-      progress: 25
+      progress: 25,
+      priority: 'Low',
+      riskLevel: 'High',
+      qualityScore: 72
     },
     {
       id: 4,
@@ -96,7 +127,10 @@ const ProductManager: React.FC = () => {
       createdDate: '2024-01-08',
       lastUpdated: '2024-01-11',
       bulkApprovalStatus: 'Approved',
-      progress: 100
+      progress: 100,
+      priority: 'High',
+      riskLevel: 'Low',
+      qualityScore: 98
     },
     {
       id: 5,
@@ -117,7 +151,10 @@ const ProductManager: React.FC = () => {
       createdDate: '2024-01-11',
       lastUpdated: '2024-01-12',
       bulkApprovalStatus: 'Approved',
-      progress: 40
+      progress: 40,
+      priority: 'Medium',
+      riskLevel: 'Medium',
+      qualityScore: 91
     },
   ];
 
@@ -151,8 +188,8 @@ const ProductManager: React.FC = () => {
       // Implement your duplicate logic here
     }, []),
     onViewDetails: useCallback((row: any) => {
-      console.log('View purchase order details:', row);
-      // Implement your view details logic here
+      setSelectedOrder(row);
+      setIsDetailsModalOpen(true);
     }, []),
     onAddNote: useCallback((row: any) => {
       console.log('Add note to purchase order:', row);
@@ -258,23 +295,85 @@ const ProductManager: React.FC = () => {
     openMenu(event, context, items);
   }, [openMenu, tableContext]);
 
-  const getStatusColor = (status: string) => {
+  const getStatusConfig = (status: string) => {
     switch (status) {
-      case 'Confirmed': return 'bg-green-100 text-green-800 border-green-200';
-      case 'In Production': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'Draft': return 'bg-gray-100 text-gray-800 border-gray-200';
-      case 'Shipped': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'Approved': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'Confirmed':
+        return {
+          color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          icon: CheckCircle,
+          bgColor: 'bg-emerald-100',
+          iconColor: 'text-emerald-600',
+          description: 'Order confirmed and ready for production'
+        };
+      case 'In Production':
+        return {
+          color: 'bg-blue-50 text-blue-700 border-blue-200',
+          icon: Package,
+          bgColor: 'bg-blue-100',
+          iconColor: 'text-blue-600',
+          description: 'Currently being manufactured'
+        };
+      case 'Draft':
+        return {
+          color: 'bg-gray-50 text-gray-700 border-gray-200',
+          icon: FileText,
+          bgColor: 'bg-gray-100',
+          iconColor: 'text-gray-600',
+          description: 'Draft order pending approval'
+        };
+      case 'Shipped':
+        return {
+          color: 'bg-purple-50 text-purple-700 border-purple-200',
+          icon: Ship,
+          bgColor: 'bg-purple-100',
+          iconColor: 'text-purple-600',
+          description: 'Order shipped to destination'
+        };
+      case 'Approved':
+        return {
+          color: 'bg-green-50 text-green-700 border-green-200',
+          icon: CheckCircle,
+          bgColor: 'bg-green-100',
+          iconColor: 'text-green-600',
+          description: 'Order approved and confirmed'
+        };
+      default:
+        return {
+          color: 'bg-gray-50 text-gray-700 border-gray-200',
+          icon: AlertCircle,
+          bgColor: 'bg-gray-100',
+          iconColor: 'text-gray-600',
+          description: 'Unknown status'
+        };
     }
   };
 
-  const getBulkApprovalColor = (status: string) => {
+  const getBulkApprovalConfig = (status: string) => {
     switch (status) {
-      case 'Approved': return 'bg-green-100 text-green-800 border-green-200';
-      case 'Pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'Not Required': return 'bg-gray-100 text-gray-800 border-gray-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'Approved':
+        return {
+          color: 'bg-green-50 text-green-700 border-green-200',
+          icon: CheckCircle,
+          iconColor: 'text-green-600'
+        };
+      case 'Pending':
+        return {
+          color: 'bg-amber-50 text-amber-700 border-amber-200',
+          icon: Clock,
+          iconColor: 'text-amber-600'
+        };
+      case 'Not Required':
+        return {
+          color: 'bg-gray-50 text-gray-700 border-gray-200',
+          icon: XCircle,
+          iconColor: 'text-gray-600'
+        };
+      default:
+        return {
+          color: 'bg-gray-50 text-gray-700 border-gray-200',
+          icon: AlertCircle,
+          iconColor: 'text-gray-600'
+        };
     }
   };
 
@@ -289,6 +388,11 @@ const ProductManager: React.FC = () => {
 
   const totalValue = filteredOrders.reduce((sum, order) => sum + order.totalValue, 0);
   const averageOrderValue = filteredOrders.length > 0 ? totalValue / filteredOrders.length : 0;
+
+  const handleCloseModal = () => {
+    setIsDetailsModalOpen(false);
+    setSelectedOrder(null);
+  };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -418,81 +522,118 @@ const ProductManager: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50" onContextMenu={(e) => handleRowContextMenu(e, order)}>
-                  <td className="py-4 px-6">
-                    <div>
-                      <div className="font-medium text-gray-900">{order.poNumber}</div>
-                      <div className="text-sm text-gray-500">{order.version}</div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div>
-                      <div className="font-medium text-gray-900">{order.styleName}</div>
-                      <div className="text-sm text-gray-500">{order.styleNumber} • {order.colorway}</div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6 text-sm text-gray-900">{order.customer}</td>
-                  <td className="py-4 px-6">
-                    <div>
-                      <div className="text-sm text-gray-900">{order.quantity.toLocaleString()}</div>
-                      <div className="text-sm text-gray-500">{order.sizes}</div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">${order.totalValue.toLocaleString()}</div>
-                      <div className="text-sm text-gray-500">${order.unitPrice}/unit</div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="space-y-1">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
-                        {order.status}
-                      </span>
+              {filteredOrders.map((order) => {
+                const statusConfig = getStatusConfig(order.status);
+                const bulkApprovalConfig = getBulkApprovalConfig(order.bulkApprovalStatus);
+                const StatusIcon = statusConfig.icon;
+                const BulkApprovalIcon = bulkApprovalConfig.icon;
+
+                return (
+                  <tr key={order.id} className="hover:bg-gray-50" onContextMenu={(e) => handleRowContextMenu(e, order)}>
+                    <td className="py-4 px-6">
                       <div>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getBulkApprovalColor(order.bulkApprovalStatus)}`}>
-                          {order.bulkApprovalStatus}
-                        </span>
+                        <div className="font-medium text-gray-900">{order.poNumber}</div>
+                        <div className="text-sm text-gray-500">{order.version}</div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm text-gray-900">{new Date(order.exFactoryDate).toLocaleDateString()}</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="w-20">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-gray-600">{order.progress}%</span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div>
+                        <div className="font-medium text-gray-900">{order.styleName}</div>
+                        <div className="text-sm text-gray-500">{order.styleNumber} • {order.colorway}</div>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className={`h-2 rounded-full ${order.progress === 100 ? 'bg-green-500' : 'bg-blue-500'}`}
-                          style={{ width: `${order.progress}%` }}
-                        />
+                    </td>
+                    <td className="py-4 px-6 text-sm text-gray-900">{order.customer}</td>
+                    <td className="py-4 px-6">
+                      <div>
+                        <div className="text-sm text-gray-900">{order.quantity.toLocaleString()}</div>
+                        <div className="text-sm text-gray-500">{order.sizes}</div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center space-x-2">
-                      <button className="p-1 text-blue-600 hover:text-blue-800 transition-colors">
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button className="p-1 text-gray-600 hover:text-gray-800 transition-colors">
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      {order.status === 'Shipped' && (
-                        <button className="p-1 text-purple-600 hover:text-purple-800 transition-colors">
-                          <Truck className="h-4 w-4" />
+                    </td>
+                    <td className="py-4 px-6">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">${order.totalValue.toLocaleString()}</div>
+                        <div className="text-sm text-gray-500">${order.unitPrice}/unit</div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="space-y-2">
+                        {/* Main Status */}
+                        <div className="flex items-center space-x-2">
+                          <div className={`p-1 rounded-full ${statusConfig.bgColor}`}>
+                            <StatusIcon className={`h-3 w-3 ${statusConfig.iconColor}`} />
+                          </div>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium border ${statusConfig.color}`}>
+                            {order.status}
+                          </span>
+                        </div>
+                        
+                        {/* Bulk Approval Status */}
+                        <div className="flex items-center space-x-2">
+                          <div className={`p-1 rounded-full ${bulkApprovalConfig.iconColor.replace('text-', 'bg-').replace('-600', '-100')}`}>
+                            <BulkApprovalIcon className={`h-3 w-3 ${bulkApprovalConfig.iconColor}`} />
+                          </div>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium border ${bulkApprovalConfig.color}`}>
+                            {order.bulkApprovalStatus}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm text-gray-900">{new Date(order.exFactoryDate).toLocaleDateString()}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="w-20">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-gray-600">{order.progress}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div 
+                            className={`h-2 rounded-full ${order.progress === 100 ? 'bg-green-500' : 'bg-blue-500'}`}
+                            style={{ width: `${order.progress}%` }}
+                          />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center space-x-2">
+                        <button 
+                          className="p-1 text-blue-600 hover:text-blue-800 transition-colors"
+                          title="View details"
+                          onClick={() => {
+                            setSelectedOrder(order);
+                            setIsDetailsModalOpen(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
                         </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        <button 
+                          className="p-1 text-gray-600 hover:text-gray-800 transition-colors"
+                          title="Edit order"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        {order.status === 'Shipped' && (
+                          <button 
+                            className="p-1 text-purple-600 hover:text-purple-800 transition-colors"
+                            title="Track shipment"
+                          >
+                            <Truck className="h-4 w-4" />
+                          </button>
+                        )}
+                        <button 
+                          className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                          title="More options"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -518,6 +659,13 @@ const ProductManager: React.FC = () => {
           onClose={closeMenu}
         />
       )}
+
+      {/* Details Modal */}
+      <ProductDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={handleCloseModal}
+        order={selectedOrder}
+      />
     </div>
   );
 };

@@ -1,14 +1,17 @@
 import React, { useState, useCallback } from 'react';
-import { Plus, Search, Filter, Package, Calendar, DollarSign, TrendingUp, Eye, Edit, Truck } from 'lucide-react';
+import { Plus, Search, Filter, Package, Calendar, DollarSign, TrendingUp, Eye, Edit, Truck, MoreHorizontal } from 'lucide-react';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { buildContextMenu } from '../utils/contextMenuBuilder';
 import ContextMenu from '../components/ContextMenu';
+import MaterialDetailsModal from '../components/modals/MaterialDetailsModal';
 
 const MaterialManager: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterType, setFilterType] = useState('all');
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
   // Context menu state
   const { isOpen, context, menuItems, openMenu, closeMenu } = useContextMenu();
@@ -151,8 +154,8 @@ const MaterialManager: React.FC = () => {
       // Implement your duplicate logic here
     }, []),
     onViewDetails: useCallback((row: any) => {
-      console.log('View material order details:', row);
-      // Implement your view details logic here
+      setSelectedOrder(row);
+      setIsDetailsModalOpen(true);
     }, []),
     onAddNote: useCallback((row: any) => {
       console.log('Add note to material order:', row);
@@ -258,14 +261,50 @@ const MaterialManager: React.FC = () => {
     openMenu(event, context, items);
   }, [openMenu, tableContext]);
 
-  const getStatusColor = (status: string) => {
+  const getStatusConfig = (status: string) => {
     switch (status) {
-      case 'Confirmed': return 'bg-green-100 text-green-800 border-green-200';
-      case 'In Transit': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'Received': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'Processing': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'Ordered': return 'bg-gray-100 text-gray-800 border-gray-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'Confirmed':
+        return {
+          color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+          icon: '✓',
+          bgColor: 'bg-emerald-100',
+          iconColor: 'text-emerald-600'
+        };
+      case 'In Transit':
+        return {
+          color: 'bg-blue-50 text-blue-700 border-blue-200',
+          icon: '🚚',
+          bgColor: 'bg-blue-100',
+          iconColor: 'text-blue-600'
+        };
+      case 'Received':
+        return {
+          color: 'bg-purple-50 text-purple-700 border-purple-200',
+          icon: '📦',
+          bgColor: 'bg-purple-100',
+          iconColor: 'text-purple-600'
+        };
+      case 'Processing':
+        return {
+          color: 'bg-amber-50 text-amber-700 border-amber-200',
+          icon: '⏳',
+          bgColor: 'bg-amber-100',
+          iconColor: 'text-amber-600'
+        };
+      case 'Ordered':
+        return {
+          color: 'bg-gray-50 text-gray-700 border-gray-200',
+          icon: '📋',
+          bgColor: 'bg-gray-100',
+          iconColor: 'text-gray-600'
+        };
+      default:
+        return {
+          color: 'bg-gray-50 text-gray-700 border-gray-200',
+          icon: '❓',
+          bgColor: 'bg-gray-100',
+          iconColor: 'text-gray-600'
+        };
     }
   };
 
@@ -290,6 +329,11 @@ const MaterialManager: React.FC = () => {
   const totalValue = filteredOrders.reduce((sum, order) => sum + order.totalValue, 0);
   const averageLeadTime = filteredOrders.length > 0 ? 
     filteredOrders.reduce((sum, order) => sum + order.leadTime, 0) / filteredOrders.length : 0;
+
+  const handleCloseModal = () => {
+    setIsDetailsModalOpen(false);
+    setSelectedOrder(null);
+  };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -418,77 +462,105 @@ const MaterialManager: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50" onContextMenu={(e) => handleRowContextMenu(e, order)}>
-                  <td className="py-4 px-6">
-                    <div>
-                      <div className="font-medium text-gray-900">{order.mpoNumber}</div>
-                      <div className="text-sm text-gray-500">{order.relatedPO}</div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div>
-                      <div className="font-medium text-gray-900">{order.materialItem}</div>
-                      <div className="text-sm text-gray-500">{order.color} • {order.materialType}</div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6 text-sm text-gray-900">{order.supplier}</td>
-                  <td className="py-4 px-6">
-                    <div>
-                      <div className="text-sm text-gray-900">{order.quantity.toLocaleString()}</div>
-                      <div className="text-sm text-gray-500">{order.unit}</div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">${order.totalValue.toLocaleString()}</div>
-                      <div className="text-sm text-gray-500">${order.unitPrice}/{order.unit}</div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="text-xs text-gray-500 space-y-1">
-                      <div>Order: {new Date(order.orderDate).toLocaleDateString()}</div>
-                      <div>Ship: {new Date(order.shipDate).toLocaleDateString()}</div>
-                      <div>Receive: {new Date(order.receiveDate).toLocaleDateString()}</div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="space-y-1">
-                      <div className="text-xs text-gray-500">
-                        {order.invoiceNumber || 'Not Issued'}
+              {filteredOrders.map((order) => {
+                const statusConfig = getStatusConfig(order.status);
+                
+                return (
+                  <tr key={order.id} className="hover:bg-gray-50" onContextMenu={(e) => handleRowContextMenu(e, order)}>
+                    <td className="py-4 px-6">
+                      <div>
+                        <div className="font-medium text-gray-900">{order.mpoNumber}</div>
+                        <div className="text-sm text-gray-500">{order.relatedPO}</div>
                       </div>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getInvoiceStatusColor(order.invoiceStatus)}`}>
-                        {order.invoiceStatus}
-                      </span>
-                      {order.awb && (
-                        <div className="text-xs text-gray-500">
-                          AWB: {order.awb}
+                    </td>
+                    <td className="py-4 px-6">
+                      <div>
+                        <div className="font-medium text-gray-900">{order.materialItem}</div>
+                        <div className="text-sm text-gray-500">{order.color} • {order.materialType}</div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-sm text-gray-900">{order.supplier}</td>
+                    <td className="py-4 px-6">
+                      <div>
+                        <div className="text-sm text-gray-900">{order.quantity.toLocaleString()}</div>
+                        <div className="text-sm text-gray-500">{order.unit}</div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">${order.totalValue.toLocaleString()}</div>
+                        <div className="text-sm text-gray-500">${order.unitPrice}/{order.unit}</div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center space-x-2">
+                        <div className={`p-1 rounded-full ${statusConfig.bgColor}`}>
+                          <span className={`text-xs ${statusConfig.iconColor}`}>{statusConfig.icon}</span>
                         </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center space-x-2">
-                      <button className="p-1 text-blue-600 hover:text-blue-800 transition-colors">
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button className="p-1 text-gray-600 hover:text-gray-800 transition-colors">
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      {order.status === 'In Transit' && (
-                        <button className="p-1 text-purple-600 hover:text-purple-800 transition-colors">
-                          <Truck className="h-4 w-4" />
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${statusConfig.color}`}>
+                          {order.status}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="text-xs text-gray-500 space-y-1">
+                        <div>Order: {new Date(order.orderDate).toLocaleDateString()}</div>
+                        <div>Ship: {new Date(order.shipDate).toLocaleDateString()}</div>
+                        <div>Receive: {new Date(order.receiveDate).toLocaleDateString()}</div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="space-y-1">
+                        <div className="text-xs text-gray-500">
+                          {order.invoiceNumber || 'Not Issued'}
+                        </div>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getInvoiceStatusColor(order.invoiceStatus)}`}>
+                          {order.invoiceStatus}
+                        </span>
+                        {order.awb && (
+                          <div className="text-xs text-gray-500">
+                            AWB: {order.awb}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center space-x-2">
+                        <button 
+                          className="p-1 text-blue-600 hover:text-blue-800 transition-colors"
+                          title="View details"
+                          onClick={() => {
+                            setSelectedOrder(order);
+                            setIsDetailsModalOpen(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
                         </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        <button 
+                          className="p-1 text-gray-600 hover:text-gray-800 transition-colors"
+                          title="Edit order"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        {order.status === 'In Transit' && (
+                          <button 
+                            className="p-1 text-purple-600 hover:text-purple-800 transition-colors"
+                            title="Track shipment"
+                          >
+                            <Truck className="h-4 w-4" />
+                          </button>
+                        )}
+                        <button 
+                          className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                          title="More options"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -514,6 +586,13 @@ const MaterialManager: React.FC = () => {
           onClose={closeMenu}
         />
       )}
+
+      {/* Details Modal */}
+      <MaterialDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={handleCloseModal}
+        order={selectedOrder}
+      />
     </div>
   );
 };

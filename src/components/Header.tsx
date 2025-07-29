@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { Menu, Bell, User, Settings, LogOut, CheckCircle, AlertTriangle, Info, Clock } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
 import { Link } from 'react-router-dom';
-import whiteLogo from '../images/whitelogo.png';
+import darkLogo from '../images/darklogo.png';
 import AdvancedSearch from './AdvancedSearch';
 
 interface HeaderProps {
@@ -107,18 +106,14 @@ const Header: React.FC<HeaderProps> = ({
       >
         Skip to main content
       </a>
-      <header className="px-4 py-3 relative overflow-hidden" style={{ 
-        background: 'linear-gradient(135deg, #2C5A7A 0%, #3D75A3 100%)',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-      }}>
-        <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 pointer-events-none"></div>
-        <div className="flex items-center justify-between relative z-10">
+      <header className="bg-white border-b border-gray-200 px-4 py-3">
+      <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 rounded-lg hover:bg-white/20 transition-colors"
+            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <Menu className="h-6 w-6 text-white" />
+            <Menu className="h-6 w-6 text-gray-600" />
           </button>
     
           
@@ -130,13 +125,13 @@ const Header: React.FC<HeaderProps> = ({
             >
               <div className="flex items-center">
                 <img
-                  src={whiteLogo}
+                  src={darkLogo}
                   alt="Madison 88 Logo"
                   className="h-12 w-auto"
                 />
               </div>
               <div className="hidden md:block">
-                <p className="text-sm text-white font-medium">Supply Chain Management System</p>
+                <p className="text-sm text-gray-600 font-medium">Supply Chain Management System</p>
               </div>
             </Link>
           </div>
@@ -156,7 +151,7 @@ const Header: React.FC<HeaderProps> = ({
                   setNotificationsOpen(!notificationsOpen);
                 }
               }}
-              className="relative p-2 text-white hover:text-blue-200 hover:bg-white/20 rounded-lg transition-all duration-200 ease-in-out"
+              className="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-all duration-200 ease-in-out"
               aria-label="Notifications"
               aria-expanded={notificationsOpen}
             >
@@ -178,8 +173,11 @@ const Header: React.FC<HeaderProps> = ({
             </button>
 
             {/* Notifications Dropdown */}
-            {notificationsOpen && createPortal(
-              <div className={`fixed right-4 top-20 w-80 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-[9999999] transition-all duration-200 ease-in-out transform opacity-100 scale-100 translate-y-0`}>
+            <div className={`absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 transition-all duration-200 ease-in-out transform ${
+              notificationsOpen 
+                ? 'opacity-100 scale-100 translate-y-0' 
+                : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
+            }`}>
                 <div className="px-4 py-2 border-b border-gray-100">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
@@ -233,7 +231,7 @@ const Header: React.FC<HeaderProps> = ({
                           }`}
                           style={{
                             animationDelay: `${index * 50}ms`,
-                            animation: 'slideInFromTop 0.3s ease-out forwards'
+                            animation: notificationsOpen ? 'slideInFromTop 0.3s ease-out forwards' : 'none'
                           }}
                         >
                           <div className="flex items-start space-x-3">
@@ -273,18 +271,16 @@ const Header: React.FC<HeaderProps> = ({
                     </button>
                   </div>
                 )}
-              </div>,
-              document.body
-            )}
+              </div>
           </div>
 
           <div className="flex items-center space-x-3">
             <div className="text-right">
-              <p className="text-sm font-medium text-white">{user?.name}</p>
-              <p className="text-xs text-white/80">{user?.role}</p>
+              <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+              <p className="text-xs text-gray-500">{user?.role}</p>
             </div>
             <div className="relative group">
-              <button className="flex items-center space-x-2 p-2 rounded-lg hover:bg-white/20 transition-colors">
+              <button className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors">
                 <img
                   src={user?.avatar}
                   alt={user?.name}
@@ -312,8 +308,8 @@ const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
         </div>
-        </div>
-      </header>
+      </div>
+    </header>
     </>
   );
 };

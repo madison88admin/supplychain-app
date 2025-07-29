@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState } from 'react';
 import LoadingSpinner from './LoadingSpinner';
 
 interface OptimizedImageProps {
@@ -24,25 +24,19 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
-  const handleError = useCallback(() => {
+  const handleError = () => {
     if (imageSrc !== fallbackSrc) {
       setImageSrc(fallbackSrc);
       setHasError(false);
     } else {
       setHasError(true);
     }
-  }, [imageSrc, fallbackSrc]);
+  };
 
-  const handleLoad = useCallback(() => {
+  const handleLoad = () => {
     setIsLoading(false);
     setHasError(false);
-  }, []);
-
-  // Memoized image styles for better performance
-  const imageStyles = useMemo(() => ({
-    transition: 'opacity 0.3s ease-in-out',
-    opacity: isLoading ? 0 : 1
-  }), [isLoading]);
+  };
 
   if (hasError) {
     return (
@@ -69,8 +63,9 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
         height={height}
         onError={handleError}
         onLoad={handleLoad}
-        style={imageStyles}
-        className="w-full h-full object-cover"
+        className={`w-full h-full object-cover transition-opacity duration-300 ${
+          isLoading ? 'opacity-0' : 'opacity-100'
+        }`}
         loading={loading}
         decoding="async"
       />
@@ -78,4 +73,4 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   );
 };
 
-export default React.memo(OptimizedImage); 
+export default OptimizedImage; 

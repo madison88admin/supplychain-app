@@ -1,20 +1,10 @@
-import React, { useState, useCallback } from 'react';
-import { Plus, Search, Filter, Package, Calendar, DollarSign, TrendingUp, Eye, Edit, Truck, MoreHorizontal } from 'lucide-react';
-import { useContextMenu } from '../hooks/useContextMenu';
-import { buildContextMenu } from '../utils/contextMenuBuilder';
-import ContextMenu from '../components/ContextMenu';
-import MaterialDetailsModal from '../components/modals/MaterialDetailsModal';
+import React, { useState } from 'react';
+import { Plus, Search, Filter, Package, Calendar, DollarSign, TrendingUp, Eye, Edit, Truck } from 'lucide-react';
 
 const MaterialManager: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterType, setFilterType] = useState('all');
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
-
-  // Context menu state
-  const { isOpen, context, menuItems, openMenu, closeMenu } = useContextMenu();
 
   const materialOrders = [
     {
@@ -124,187 +114,14 @@ const MaterialManager: React.FC = () => {
     },
   ];
 
-  // Table context for context menu actions
-  const tableContext = {
-    data: materialOrders,
-    selectedRows,
-    columns: [
-      { key: 'mpoNumber', label: 'MPO Number', sortable: true },
-      { key: 'materialItem', label: 'Material', sortable: true },
-      { key: 'supplier', label: 'Supplier', sortable: true },
-      { key: 'quantity', label: 'Quantity', sortable: true },
-      { key: 'totalValue', label: 'Total Value', sortable: true },
-      { key: 'status', label: 'Status', sortable: true },
-      { key: 'orderDate', label: 'Order Date', sortable: true },
-      { key: 'invoiceStatus', label: 'Invoice Status', sortable: true }
-    ],
-    onEditRow: useCallback((row: any) => {
-      console.log('Edit material order:', row);
-      // Implement your edit logic here
-    }, []),
-    onDeleteRow: useCallback((row: any) => {
-      console.log('Delete material order:', row);
-      if (confirm(`Are you sure you want to delete MPO "${row.mpoNumber}"?`)) {
-        // Implement your delete logic here
-        console.log('Material order deleted:', row);
-      }
-    }, []),
-    onDuplicateRow: useCallback((row: any) => {
-      console.log('Duplicate material order:', row);
-      // Implement your duplicate logic here
-    }, []),
-    onViewDetails: useCallback((row: any) => {
-      setSelectedOrder(row);
-      setIsDetailsModalOpen(true);
-    }, []),
-    onAddNote: useCallback((row: any) => {
-      console.log('Add note to material order:', row);
-      // Implement your add note logic here
-    }, []),
-    onExport: useCallback((format: string, rows?: any[]) => {
-      console.log('Export material orders as', format, ':', rows || selectedRows);
-      // Implement your export logic here
-    }, [selectedRows]),
-    onAssignUser: useCallback((rows: any[]) => {
-      console.log('Assign users to material orders:', rows);
-      // Implement your assign user logic here
-    }, []),
-    onChangeStatus: useCallback((rows: any[], status: string) => {
-      console.log('Change status to', status, 'for material orders:', rows);
-      // Implement your change status logic here
-    }, []),
-    onBulkUpdate: useCallback((rows: any[], field: string, value: any) => {
-      console.log('Bulk update', field, 'to', value, 'for material orders:', rows);
-      // Implement your bulk update logic here
-    }, []),
-    onSort: useCallback((column: string, direction: 'asc' | 'desc') => {
-      console.log('Sort material orders by', column, direction);
-      // Implement your sort logic here
-    }, []),
-    onHideColumn: useCallback((column: string) => {
-      console.log('Hide column:', column);
-      // Implement your hide column logic here
-    }, []),
-    onShowColumn: useCallback((column: string) => {
-      console.log('Show column:', column);
-      // Implement your show column logic here
-    }, []),
-    onFilterByColumn: useCallback((column: string, value: any) => {
-      console.log('Filter by', column, '=', value);
-      // Implement your filter logic here
-    }, []),
-    onGroupByColumn: useCallback((column: string) => {
-      console.log('Group by:', column);
-      // Implement your group logic here
-    }, []),
-    onResizeColumn: useCallback((column: string, width: number) => {
-      console.log('Resize column', column, 'to', width);
-      // Implement your resize logic here
-    }, []),
-    onRefresh: useCallback(() => {
-      console.log('Refresh material orders table');
-      // Implement your refresh logic here
-    }, []),
-    onTogglePagination: useCallback(() => {
-      console.log('Toggle pagination');
-      // Implement your pagination toggle logic here
-    }, []),
-    onCustomizeColumns: useCallback(() => {
-      console.log('Customize columns');
-      // Implement your customize columns logic here
-    }, []),
-    onSaveView: useCallback(() => {
-      console.log('Save current view');
-      // Implement your save view logic here
-    }, []),
-    isRowLocked: useCallback((row: any) => {
-      return row.status === 'Received' || row.status === 'Completed';
-    }, []),
-    canEdit: useCallback((row: any) => {
-      return row.status !== 'Received' && row.status !== 'Completed';
-    }, []),
-    canDelete: useCallback((row: any) => {
-      return row.status === 'Ordered' || row.status === 'Processing';
-    }, [])
-  };
-
-  // Right-click handlers
-  const handleRowContextMenu = useCallback((event: React.MouseEvent, row: any) => {
-    event.preventDefault();
-    const context = {
-      target: 'row' as const,
-      data: row,
-      position: { x: event.clientX, y: event.clientY }
-    };
-    const items = buildContextMenu(context, tableContext);
-    openMenu(event, context, items);
-  }, [openMenu, tableContext]);
-
-  const handleColumnContextMenu = useCallback((event: React.MouseEvent, columnKey: string) => {
-    event.preventDefault();
-    const context = {
-      target: 'column' as const,
-      columnKey,
-      position: { x: event.clientX, y: event.clientY }
-    };
-    const items = buildContextMenu(context, tableContext);
-    openMenu(event, context, items);
-  }, [openMenu, tableContext]);
-
-  const handleTableContextMenu = useCallback((event: React.MouseEvent) => {
-    event.preventDefault();
-    const context = {
-      target: 'table' as const,
-      position: { x: event.clientX, y: event.clientY }
-    };
-    const items = buildContextMenu(context, tableContext);
-    openMenu(event, context, items);
-  }, [openMenu, tableContext]);
-
-  const getStatusConfig = (status: string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Confirmed':
-        return {
-          color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-          icon: '✓',
-          bgColor: 'bg-emerald-100',
-          iconColor: 'text-emerald-600'
-        };
-      case 'In Transit':
-        return {
-          color: 'bg-blue-50 text-blue-700 border-blue-200',
-          icon: '🚚',
-          bgColor: 'bg-blue-100',
-          iconColor: 'text-blue-600'
-        };
-      case 'Received':
-        return {
-          color: 'bg-purple-50 text-purple-700 border-purple-200',
-          icon: '📦',
-          bgColor: 'bg-purple-100',
-          iconColor: 'text-purple-600'
-        };
-      case 'Processing':
-        return {
-          color: 'bg-amber-50 text-amber-700 border-amber-200',
-          icon: '⏳',
-          bgColor: 'bg-amber-100',
-          iconColor: 'text-amber-600'
-        };
-      case 'Ordered':
-        return {
-          color: 'bg-gray-50 text-gray-700 border-gray-200',
-          icon: '📋',
-          bgColor: 'bg-gray-100',
-          iconColor: 'text-gray-600'
-        };
-      default:
-        return {
-          color: 'bg-gray-50 text-gray-700 border-gray-200',
-          icon: '❓',
-          bgColor: 'bg-gray-100',
-          iconColor: 'text-gray-600'
-        };
+      case 'Confirmed': return 'bg-green-100 text-green-800 border-green-200';
+      case 'In Transit': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'Received': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'Processing': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'Ordered': return 'bg-gray-100 text-gray-800 border-gray-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -329,11 +146,6 @@ const MaterialManager: React.FC = () => {
   const totalValue = filteredOrders.reduce((sum, order) => sum + order.totalValue, 0);
   const averageLeadTime = filteredOrders.length > 0 ? 
     filteredOrders.reduce((sum, order) => sum + order.leadTime, 0) / filteredOrders.length : 0;
-
-  const handleCloseModal = () => {
-    setIsDetailsModalOpen(false);
-    setSelectedOrder(null);
-  };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -445,122 +257,94 @@ const MaterialManager: React.FC = () => {
       </div>
 
       {/* Material Orders Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" onContextMenu={handleTableContextMenu}>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'mpoNumber')}>MPO Number</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'materialItem')}>Material</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'supplier')}>Supplier</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'quantity')}>Quantity</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'totalValue')}>Total Value</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'status')}>Status</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'orderDate')}>Dates</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'invoiceStatus')}>Invoice</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">MPO Number</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Material</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Supplier</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Quantity</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Total Value</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Status</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Dates</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Invoice</th>
                 <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredOrders.map((order) => {
-                const statusConfig = getStatusConfig(order.status);
-                
-                return (
-                  <tr key={order.id} className="hover:bg-gray-50" onContextMenu={(e) => handleRowContextMenu(e, order)}>
-                    <td className="py-4 px-6">
-                      <div>
-                        <div className="font-medium text-gray-900">{order.mpoNumber}</div>
-                        <div className="text-sm text-gray-500">{order.relatedPO}</div>
+              {filteredOrders.map((order) => (
+                <tr key={order.id} className="hover:bg-gray-50">
+                  <td className="py-4 px-6">
+                    <div>
+                      <div className="font-medium text-gray-900">{order.mpoNumber}</div>
+                      <div className="text-sm text-gray-500">{order.relatedPO}</div>
+                    </div>
+                  </td>
+                  <td className="py-4 px-6">
+                    <div>
+                      <div className="font-medium text-gray-900">{order.materialItem}</div>
+                      <div className="text-sm text-gray-500">{order.color} • {order.materialType}</div>
+                    </div>
+                  </td>
+                  <td className="py-4 px-6 text-sm text-gray-900">{order.supplier}</td>
+                  <td className="py-4 px-6">
+                    <div>
+                      <div className="text-sm text-gray-900">{order.quantity.toLocaleString()}</div>
+                      <div className="text-sm text-gray-500">{order.unit}</div>
+                    </div>
+                  </td>
+                  <td className="py-4 px-6">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">${order.totalValue.toLocaleString()}</div>
+                      <div className="text-sm text-gray-500">${order.unitPrice}/{order.unit}</div>
+                    </div>
+                  </td>
+                  <td className="py-4 px-6">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="py-4 px-6">
+                    <div className="text-xs text-gray-500 space-y-1">
+                      <div>Order: {new Date(order.orderDate).toLocaleDateString()}</div>
+                      <div>Ship: {new Date(order.shipDate).toLocaleDateString()}</div>
+                      <div>Receive: {new Date(order.receiveDate).toLocaleDateString()}</div>
+                    </div>
+                  </td>
+                  <td className="py-4 px-6">
+                    <div className="space-y-1">
+                      <div className="text-xs text-gray-500">
+                        {order.invoiceNumber || 'Not Issued'}
                       </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div>
-                        <div className="font-medium text-gray-900">{order.materialItem}</div>
-                        <div className="text-sm text-gray-500">{order.color} • {order.materialType}</div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6 text-sm text-gray-900">{order.supplier}</td>
-                    <td className="py-4 px-6">
-                      <div>
-                        <div className="text-sm text-gray-900">{order.quantity.toLocaleString()}</div>
-                        <div className="text-sm text-gray-500">{order.unit}</div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">${order.totalValue.toLocaleString()}</div>
-                        <div className="text-sm text-gray-500">${order.unitPrice}/{order.unit}</div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center space-x-2">
-                        <div className={`p-1 rounded-full ${statusConfig.bgColor}`}>
-                          <span className={`text-xs ${statusConfig.iconColor}`}>{statusConfig.icon}</span>
-                        </div>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${statusConfig.color}`}>
-                          {order.status}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="text-xs text-gray-500 space-y-1">
-                        <div>Order: {new Date(order.orderDate).toLocaleDateString()}</div>
-                        <div>Ship: {new Date(order.shipDate).toLocaleDateString()}</div>
-                        <div>Receive: {new Date(order.receiveDate).toLocaleDateString()}</div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="space-y-1">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getInvoiceStatusColor(order.invoiceStatus)}`}>
+                        {order.invoiceStatus}
+                      </span>
+                      {order.awb && (
                         <div className="text-xs text-gray-500">
-                          {order.invoiceNumber || 'Not Issued'}
+                          AWB: {order.awb}
                         </div>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getInvoiceStatusColor(order.invoiceStatus)}`}>
-                          {order.invoiceStatus}
-                        </span>
-                        {order.awb && (
-                          <div className="text-xs text-gray-500">
-                            AWB: {order.awb}
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center space-x-2">
-                        <button 
-                          className="p-1 text-blue-600 hover:text-blue-800 transition-colors"
-                          title="View details"
-                          onClick={() => {
-                            setSelectedOrder(order);
-                            setIsDetailsModalOpen(true);
-                          }}
-                        >
-                          <Eye className="h-4 w-4" />
+                      )}
+                    </div>
+                  </td>
+                  <td className="py-4 px-6">
+                    <div className="flex items-center space-x-2">
+                      <button className="p-1 text-blue-600 hover:text-blue-800 transition-colors">
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button className="p-1 text-gray-600 hover:text-gray-800 transition-colors">
+                        <Edit className="h-4 w-4" />
+                      </button>
+                      {order.status === 'In Transit' && (
+                        <button className="p-1 text-purple-600 hover:text-purple-800 transition-colors">
+                          <Truck className="h-4 w-4" />
                         </button>
-                        <button 
-                          className="p-1 text-gray-600 hover:text-gray-800 transition-colors"
-                          title="Edit order"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        {order.status === 'In Transit' && (
-                          <button 
-                            className="p-1 text-purple-600 hover:text-purple-800 transition-colors"
-                            title="Track shipment"
-                          >
-                            <Truck className="h-4 w-4" />
-                          </button>
-                        )}
-                        <button 
-                          className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-                          title="More options"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -576,23 +360,6 @@ const MaterialManager: React.FC = () => {
           </button>
         </div>
       )}
-
-      {/* Context Menu */}
-      {isOpen && context && (
-        <ContextMenu
-          items={menuItems}
-          x={context.position.x}
-          y={context.position.y}
-          onClose={closeMenu}
-        />
-      )}
-
-      {/* Details Modal */}
-      <MaterialDetailsModal
-        isOpen={isDetailsModalOpen}
-        onClose={handleCloseModal}
-        order={selectedOrder}
-      />
     </div>
   );
 };

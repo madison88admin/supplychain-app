@@ -21,19 +21,18 @@ import UserAdministration from './pages/UserAdministration';
 import ProtectedRoute from './components/ProtectedRoute';
 import { UserProvider } from './contexts/UserContext';
 import { DataProvider } from './contexts/DataContext';
+import { SidebarProvider, useSidebar } from './contexts/SidebarContext';
 import PurchaseOrder from './pages/PurchaseOrder';
 import DataBank from './pages/DataBank';
 import MaterialPurchaseOrder from './pages/MaterialPurchaseOrder';
 import MaterialPurchaseOrderLines from './pages/MaterialPurchaseOrderLines';
 
-function App() {
+function AppContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed, setSidebarCollapsed } = useSidebar();
 
   return (
-    <UserProvider>
-      <DataProvider>
-        <Router>
+    <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route
@@ -84,6 +83,16 @@ function App() {
             />
           </Routes>
         </Router>
+  );
+}
+
+function App() {
+  return (
+    <UserProvider>
+      <DataProvider>
+        <SidebarProvider>
+          <AppContent />
+        </SidebarProvider>
       </DataProvider>
     </UserProvider>
   );

@@ -1,4 +1,6 @@
 import React, { useRef, useState } from 'react';
+import ReportBar from '../components/ReportBar';
+import { useSidebar } from '../contexts/SidebarContext';
 import * as XLSX from 'xlsx';
 import { ChevronDown, ChevronUp, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, Copy as CopyIcon, Plus, Filter as FilterIcon, Download, X } from 'lucide-react';
 import logo from '../images/logo no bg.png';
@@ -559,6 +561,7 @@ const poLinesColumns = [
 ];
 
 const PurchaseOrder: React.FC = () => {
+  const { sidebarCollapsed } = useSidebar();
   const [rows, setRows] = useState([initialRow]);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [editRow, setEditRow] = useState<Record<string, any> | null>(null);
@@ -657,6 +660,10 @@ const PurchaseOrder: React.FC = () => {
   const [poLinesEditMode, setPoLinesEditMode] = useState(false);
   const [poLinesForm, setPoLinesForm] = useState<Record<string, any>[] | null>(null);
   const [selectedProductDetails, setSelectedProductDetails] = useState<Record<string, any> | null>(null);
+  
+  // State for slide-up container
+  const [showSlideUpContainer, setShowSlideUpContainer] = useState(false);
+  const [activeContent, setActiveContent] = useState('');
   const [activeProductTab, setActiveProductTab] = useState('Product Details');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -1133,10 +1140,12 @@ const PurchaseOrder: React.FC = () => {
     }
   };
 
+
+
   return (
     <div className="flex flex-col h-screen">
       {/* Main Content */}
-      <div className="p-4">
+      <div className="p-4 pb-20">
         <div className="flex flex-wrap items-center mb-4 gap-2 relative">
         <h1 className="text-2xl font-bold mr-4">Purchase Orders</h1>
         <button className="bg-blue-700 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleImportClick}>
@@ -1204,8 +1213,8 @@ const PurchaseOrder: React.FC = () => {
           <X className="w-4 h-4 mr-1" /> Clear
         </button>
       </div>
-      <div className="overflow-x-auto" style={{ maxHeight: 'calc(100vh - 260px)' }}>
-        <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 260px)' }}>
+      <div className="overflow-x-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
           <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs">
           <thead>
             <tr>
@@ -2058,33 +2067,14 @@ const PurchaseOrder: React.FC = () => {
       )}
       </div>
 
-      {/* Navigation Bar Below Table */}
-      <div className="mt-1 bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-2">
-        <div className="flex items-center justify-center space-x-4">
-          <button className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors">
-            ACTIVITIES
-          </button>
-          <button className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors">
-            AUDIT
-          </button>
-          <button className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors">
-            NOTES
-          </button>
-          <button className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors">
-            IMAGES
-          </button>
-          <button className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors">
-            DOCUMENTS
-          </button>
-          <button className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors">
-            FR REMOTE PACKAGES
-          </button>
-          <button className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors flex items-center gap-1">
-            REPORT
-            <ChevronUp className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
+      {/* Report Bar Component */}
+      <ReportBar 
+        showSlideUpContainer={showSlideUpContainer}
+        setShowSlideUpContainer={setShowSlideUpContainer}
+        activeContent={activeContent}
+        setActiveContent={setActiveContent}
+        sidebarCollapsed={sidebarCollapsed}
+      />
     </div>
   );
 };

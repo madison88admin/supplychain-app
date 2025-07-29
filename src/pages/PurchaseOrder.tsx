@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
-import { ChevronDown, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, Copy as CopyIcon, Plus, Filter as FilterIcon, Download, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, Copy as CopyIcon, Plus, Filter as FilterIcon, Download, X } from 'lucide-react';
 import logo from '../images/logo no bg.png';
 
 // Define grouped columns
@@ -1134,8 +1134,10 @@ const PurchaseOrder: React.FC = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex flex-wrap items-center mb-4 gap-2 relative">
+    <div className="flex flex-col h-screen">
+      {/* Main Content */}
+      <div className="p-4">
+        <div className="flex flex-wrap items-center mb-4 gap-2 relative">
         <h1 className="text-2xl font-bold mr-4">Purchase Orders</h1>
         <button className="bg-blue-700 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleImportClick}>
           <Upload className="w-4 h-4 mr-1" /> Import
@@ -1202,8 +1204,9 @@ const PurchaseOrder: React.FC = () => {
           <X className="w-4 h-4 mr-1" /> Clear
         </button>
       </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs">
+      <div className="overflow-x-auto" style={{ maxHeight: 'calc(100vh - 260px)' }}>
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 260px)' }}>
+          <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs">
           <thead>
             <tr>
               {renderHeaderRows()[0]}
@@ -2016,6 +2019,7 @@ const PurchaseOrder: React.FC = () => {
             )}
           </tbody>
         </table>
+        </div>
       </div>
       
       {/* Delete Confirmation Modal */}
@@ -2052,6 +2056,35 @@ const PurchaseOrder: React.FC = () => {
           </div>
         </div>
       )}
+      </div>
+
+      {/* Navigation Bar Below Table */}
+      <div className="mt-1 bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-2">
+        <div className="flex items-center justify-center space-x-4">
+          <button className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors">
+            ACTIVITIES
+          </button>
+          <button className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors">
+            AUDIT
+          </button>
+          <button className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors">
+            NOTES
+          </button>
+          <button className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors">
+            IMAGES
+          </button>
+          <button className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors">
+            DOCUMENTS
+          </button>
+          <button className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors">
+            FR REMOTE PACKAGES
+          </button>
+          <button className="px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors flex items-center gap-1">
+            REPORT
+            <ChevronUp className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

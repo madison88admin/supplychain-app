@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, Copy as CopyIcon, Plus, Filter as FilterIcon, Download, X } from 'lucide-react';
 
 // Define grouped columns
 const groupedColumns = [
@@ -431,17 +431,17 @@ const PurchaseOrders: React.FC = () => {
       }
       
       return col.isGroup ? (
-        <th key={col.key + '-group'} colSpan={2} className={`px-2 py-1 border-b text-center whitespace-nowrap ${stickyClass}${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
+        <th key={`${col.key}-group-${i}`} colSpan={2} className={`px-2 py-1 border-b text-center whitespace-nowrap ${stickyClass}${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
       ) : (
-        <th key={col.key + '-single'} rowSpan={2} className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle ${stickyClass}${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
+                                <th key={`${col.key}-single-${i}`} rowSpan={2} className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle ${stickyClass}${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
       );
     });
     // Second row: subheaders
     const secondRow = cols.flatMap((col, idx) =>
       col.isGroup
         ? [
-            <th key={col.key + '-target'} className={`px-2 py-1 border-b text-center whitespace-nowrap border-r-2 border-gray-200`}>Target Date</th>,
-            <th key={col.key + '-completed'} className={`${idx < cols.length - 1 ? 'border-r-2 border-gray-200' : ''} px-2 py-1 border-b text-center whitespace-nowrap`}>Completed Date</th>,
+                                    <th key={`${col.key}-target-${idx}`} className={`px-2 py-1 border-b text-center whitespace-nowrap border-r-2 border-gray-200`}>Target Date</th>,
+                        <th key={`${col.key}-completed-${idx}`} className={`${idx < cols.length - 1 ? 'border-r-2 border-gray-200' : ''} px-2 py-1 border-b text-center whitespace-nowrap`}>Completed Date</th>,
           ]
         : []
     );
@@ -489,7 +489,9 @@ const PurchaseOrders: React.FC = () => {
     <div className="p-6">
       <div className="flex flex-wrap items-center mb-4 gap-2 relative">
         <h1 className="text-2xl font-bold mr-4">Purchase Orders Lines</h1>
-        <button className="bg-blue-700 text-white px-3 py-1 rounded mr-2" onClick={handleImportClick}>Import</button>
+        <button className="bg-blue-700 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleImportClick}>
+          <Upload className="w-4 h-4 mr-1" /> Import
+        </button>
           <input
           type="file"
           accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
@@ -497,12 +499,24 @@ const PurchaseOrders: React.FC = () => {
           onChange={handleFileChange}
           className="hidden"
         />
-        <button className="bg-blue-500 text-white px-3 py-1 rounded mr-2" onClick={handleEdit} disabled={editIndex !== null || displayRows.length === 0}>Edit</button>
-        <button className="bg-green-500 text-white px-3 py-1 rounded mr-2" onClick={handleSave} disabled={editIndex === null}>Save</button>
-        <button className="bg-gray-500 text-white px-3 py-1 rounded mr-2" onClick={handleCopy} disabled={displayRows.length === 0}>Copy</button>
-        <button className="bg-purple-500 text-white px-3 py-1 rounded mr-2" onClick={handleAdd} disabled={editIndex !== null}>Add</button>
-        <button className="bg-indigo-500 text-white px-3 py-1 rounded mr-2" onClick={() => setShowColumnSelector(v => !v)}>Filter Columns</button>
-        <button className="bg-green-700 text-white px-3 py-1 rounded mr-2" onClick={handleExport} disabled={displayRows.length === 0}>Export to XLSX</button>
+        <button className="bg-blue-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleEdit} disabled={editIndex !== null || displayRows.length === 0}>
+          <EditIcon className="w-4 h-4 mr-1" /> Edit
+        </button>
+        <button className="bg-green-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleSave} disabled={editIndex === null}>
+          <SaveIcon className="w-4 h-4 mr-1" /> Save
+        </button>
+        <button className="bg-gray-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleCopy} disabled={displayRows.length === 0}>
+          <CopyIcon className="w-4 h-4 mr-1" /> Copy
+        </button>
+        <button className="bg-purple-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleAdd} disabled={editIndex !== null}>
+          <Plus className="w-4 h-4 mr-1" /> Add
+        </button>
+        <button className="bg-indigo-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={() => setShowColumnSelector(v => !v)}>
+          <FilterIcon className="w-4 h-4 mr-1" /> Filter Columns
+        </button>
+        <button className="bg-green-700 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleExport} disabled={displayRows.length === 0}>
+          <Download className="w-4 h-4 mr-1" /> Export to XLSX
+        </button>
         {showColumnSelector && (
           <div className="absolute z-10 bg-white border rounded shadow p-3 top-12 left-0 max-h-72 overflow-y-auto w-64">
             <div className="font-bold mb-2">Select Columns</div>
@@ -559,8 +573,12 @@ const PurchaseOrders: React.FC = () => {
           onKeyDown={e => { if (e.key === 'Enter') handleFilter(); }}
           style={{ minWidth: 120 }}
         />
-        <button className="bg-yellow-500 text-white px-3 py-1 rounded mr-2" onClick={handleFilter}>Filter</button>
-        <button className="bg-red-500 text-white px-3 py-1 rounded" onClick={handleClear} disabled={!search && !filteredRows}>Clear</button>
+        <button className="bg-yellow-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleFilter}>
+          <FilterIcon className="w-4 h-4 mr-1" /> Filter
+        </button>
+        <button className="bg-red-500 text-white px-3 py-1 rounded flex items-center gap-1" onClick={handleClear} disabled={!search && !filteredRows}>
+          <X className="w-4 h-4 mr-1" /> Clear
+        </button>
           </div>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-200 rounded-lg text-xs">
@@ -576,7 +594,7 @@ const PurchaseOrders: React.FC = () => {
           </thead>
           <tbody>
             {displayRows.map((row, idx) => (
-              <React.Fragment key={idx}>
+              <React.Fragment key={`row-${idx}-${row.Order || row.Balance || idx}`}>
                 <tr
                   className={
                     (selectedIndex === idx ? 'bg-blue-50 ' : '') +
@@ -641,7 +659,7 @@ const PurchaseOrders: React.FC = () => {
                     if (col.isGroup) {
                       return col.children!.map((subCol, subIdx) => (
                         <td
-                          key={col.key + '-' + subCol}
+                          key={`${col.key}-${subCol}-${idx}`}
                           className={
                             `px-2 py-1 border-b align-top whitespace-nowrap` +
                             ((subIdx === 0 || subCol === 'Target Date') ? ' border-r-2 border-gray-200' : '') +
@@ -1570,16 +1588,393 @@ const PurchaseOrders: React.FC = () => {
                           
                           {/* Bill Of Materials Tab */}
                           {techPacksEditTab === 'Bill Of Materials' && (
-                            <div className="inline-block">
-                              <table className="text-sm border border-blue-200 rounded mb-2 table-fixed">
-                                <tbody>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Material</td><td className="px-2 py-1">{row['BOM Material'] || ''}</td></tr>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Description</td><td className="px-2 py-1">{row['BOM Description'] || ''}</td></tr>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Quantity</td><td className="px-2 py-1">{row['BOM Quantity'] || ''}</td></tr>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Unit</td><td className="px-2 py-1">{row['BOM Unit'] || ''}</td></tr>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Cost</td><td className="px-2 py-1">{row['BOM Cost'] || ''}</td></tr>
-                                </tbody>
-                              </table>
+                            <div className="inline-block w-full">
+                              {/* Bill of Materials Details Panel */}
+                              <div className="flex gap-4 mb-4">
+                                <div className="border border-blue-200 rounded p-3 bg-blue-50 w-80">
+                                  <h4 className="font-semibold text-gray-700 mb-2 text-sm">Bill Of Materials Details</h4>
+                                  <div className="space-y-2">
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Name:</span>
+                                      <input type="text" className="border rounded px-2 py-1 text-sm ml-2 flex-1" value="000125 M8836207 v1" />
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Source Bill of Material:</span>
+                                      <input type="checkbox" className="ml-2" />
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Status:</span>
+                                      <input type="text" className="border rounded px-2 py-1 text-sm ml-2 flex-1" placeholder="" />
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                <div className="border border-gray-300 rounded p-3 bg-white w-80">
+                                  <h4 className="font-semibold text-gray-700 mb-2 text-sm">Product Details</h4>
+                                  <div className="space-y-2">
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Product Name:</span>
+                                      <span className="text-sm text-blue-600">M8836207</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Product Description:</span>
+                                      <span className="text-sm">MACHINE KNIT BEANIE</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Product Buyer Style Number:</span>
+                                      <span className="text-sm">U53180654</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Season:</span>
+                                      <span className="text-sm">FH:2018</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Bill of Materials Line Items Table */}
+                              <div className="overflow-x-auto">
+                                <table className="text-xs border border-gray-300 rounded max-w-4xl">
+                                  <thead>
+                                    <tr className="bg-gray-50">
+
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20">
+                                        Material
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                        Material Description
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20">
+                                        Material Status
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20">
+                                        Material Category
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                        Comment
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                        Custom Text 1
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                        Custom Text 2
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                        Custom Text 3
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                        Custom Text 4
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                        Season
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                        Note Count
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20">
+                                        Latest Note
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20">
+                                        Main Material
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20">
+                                        Category Sequence
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                        Default Material Color
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20">
+                                        Composition
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                        Buyer Style Name
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20">
+                                        Supplier Ref.
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                        Buyer Style Number
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                        ARC- Merbau/Aurora
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                        ARC- Nightshadow/lolite
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                        ARC- Orion/Olive Amber
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                        ARC- Nocturne/Deep Cove
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                        ARC- Red Beach/Flare
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                        ARC- Shorepine/Titanite
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                        ARC- Tui/Stellar
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                        BLACK
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20">
+                                        Blackbird
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                        Default
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                        - Size
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                        - Rating
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                        One Size
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                        - Size
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                        - Rating
+                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td className="px-1 py-0.5 border">Regular Spu...</td>
+                                      <td className="px-1 py-0.5 border">(UJ-001 Solid) 1...</td>
+                                                                              <td className="px-1 py-0.5 border">
+                                          <div className="flex items-center">
+                                            <div className="w-2 h-2 bg-black rounded mr-1"></div>
+                                            Approved
+                                          </div>
+                                        </td>
+                                        <td className="px-1 py-0.5 border">1</td>
+                                        <td className="px-1 py-0.5 border">Yarn</td>
+                                        <td className="px-1 py-0.5 border">Yarn</td>
+                                        <td className="px-1 py-0.5 border"></td>
+                                        <td className="px-1 py-0.5 border"></td>
+                                        <td className="px-1 py-0.5 border"></td>
+                                        <td className="px-1 py-0.5 border"></td>
+                                        <td className="px-1 py-0.5 border"></td>
+                                        <td className="px-1 py-0.5 border">FH:2017</td>
+                                        <td className="px-1 py-0.5 border">0</td>
+                                    </tr>
+                                    <tr>
+                                      <td className="px-1 py-0.5 border">333MTOT12</td>
+                                      <td className="px-2 py-1 border">WOMENS LOG...</td>
+                                      <td className="px-2 py-1 border">
+                                        <div className="flex items-center">
+                                          <div className="w-2 h-2 bg-black rounded mr-1"></div>
+                                          Approved
+                                        </div>
+                                      </td>
+                                      <td className="px-2 py-1 border">7</td>
+                                      <td className="px-2 py-1 border">Logo Brand</td>
+                                      <td className="px-2 py-1 border">Logo Brand</td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border">FH:2018</td>
+                                      <td className="px-2 py-1 border">0</td>
+                                    </tr>
+                                    <tr>
+                                      <td className="px-1 py-0.5 border">UPCT1512</td>
+                                      <td className="px-2 py-1 border">Prana UPC Stick...</td>
+                                      <td className="px-2 py-1 border">
+                                        <div className="flex items-center">
+                                          <div className="w-2 h-2 bg-black rounded mr-1"></div>
+                                          Approved
+                                        </div>
+                                      </td>
+                                      <td className="px-2 py-1 border">2</td>
+                                      <td className="px-2 py-1 border">Packaging</td>
+                                      <td className="px-2 py-1 border">Packaging</td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border">FH:2018</td>
+                                      <td className="px-2 py-1 border">0</td>
+                                    </tr>
+                                    <tr>
+                                      <td className="px-1 py-0.5 border">CALB12</td>
+                                      <td className="px-2 py-1 border">PRANA CARE L...</td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border">3</td>
+                                      <td className="px-2 py-1 border">Packaging</td>
+                                      <td className="px-2 py-1 border">Packaging</td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border">FH:2018</td>
+                                      <td className="px-2 py-1 border">0</td>
+                                    </tr>
+                                    <tr>
+                                      <td className="px-1 py-0.5 border">333PRNT27...</td>
+                                      <td className="px-2 py-1 border">Prana Hangtags...</td>
+                                      <td className="px-2 py-1 border">
+                                        <div className="flex items-center">
+                                          <div className="w-2 h-2 bg-black rounded mr-1"></div>
+                                          Approved
+                                        </div>
+                                      </td>
+                                      <td className="px-2 py-1 border">4</td>
+                                      <td className="px-2 py-1 border">Packaging</td>
+                                      <td className="px-2 py-1 border">Packaging</td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border">FH:2019</td>
+                                      <td className="px-2 py-1 border">0</td>
+                                    </tr>
+                                    <tr>
+                                      <td className="px-2 py-1 border"><input type="checkbox" /></td>
+                                      <td className="px-2 py-1 border">CALB13 ID L...</td>
+                                      <td className="px-2 py-1 border">PRANA PO ID L...</td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border">5</td>
+                                      <td className="px-2 py-1 border">Packaging</td>
+                                      <td className="px-2 py-1 border">Packaging</td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border">FH:2019</td>
+                                      <td className="px-2 py-1 border">0</td>
+                                    </tr>
+                                    <tr>
+                                      <td className="px-2 py-1 border"><input type="checkbox" /></td>
+                                      <td className="px-2 py-1 border">333BLTH1NAT</td>
+                                      <td className="px-2 py-1 border">Prana J-Hook</td>
+                                      <td className="px-2 py-1 border">
+                                        <div className="flex items-center">
+                                          <div className="w-2 h-2 bg-black rounded mr-1"></div>
+                                          Approved
+                                        </div>
+                                      </td>
+                                      <td className="px-2 py-1 border">6</td>
+                                      <td className="px-2 py-1 border">Packaging</td>
+                                      <td className="px-2 py-1 border">Packaging</td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border"></td>
+                                      <td className="px-2 py-1 border">0</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+
                             </div>
                           )}
                           
@@ -1723,14 +2118,75 @@ const PurchaseOrders: React.FC = () => {
                                               }}
                                             >
                                               <option value="">Select</option>
-                                              <option value="Cotton">Cotton</option>
-                                              <option value="Polyester">Polyester</option>
+                                              <option value="(Faux fur) Polyester">(Faux fur) Polyester</option>
+                                              <option value="Acetate">Acetate</option>
                                               <option value="Acrylic">Acrylic</option>
-                                              <option value="Wool">Wool</option>
-                                              <option value="Silk">Silk</option>
-                                              <option value="Linen">Linen</option>
+                                              <option value="Alpaca">Alpaca</option>
+                                              <option value="Angora">Angora</option>
+                                              <option value="Cashmere">Cashmere</option>
+                                              <option value="Contains Non-Textile Parts of Animal Origin">Contains Non-Textile Parts of Animal Origin</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Elastane">Elastane</option>
+                                              <option value="Elasterell-P">Elasterell-P</option>
+                                              <option value="Elastodiene">Elastodiene</option>
+                                              <option value="Exclusive of Decoration">Exclusive of Decoration</option>
+                                              <option value="Exclusive of Elastic">Exclusive of Elastic</option>
+                                              <option value="Exclusive of Ornamentation">Exclusive of Ornamentation</option>
+                                              <option value="Exclusive of Trim">Exclusive of Trim</option>
+                                              <option value="Exclusive of Trimming">Exclusive of Trimming</option>
+                                              <option value="Faux Fur">Faux Fur</option>
+                                              <option value="Faux Suede Patch">Faux Suede Patch</option>
+                                              <option value="Finished Piece Washed (for Testing only)">Finished Piece Washed (for Testing only)</option>
+                                              <option value="Imitation Suede">Imitation Suede</option>
+                                              <option value="Lambswool">Lambswool</option>
+                                              <option value="Leather">Leather</option>
+                                              <option value="Lurex">Lurex</option>
+                                              <option value="Lycra">Lycra</option>
+                                              <option value="Lyocell">Lyocell</option>
+                                              <option value="Merino Wool">Merino Wool</option>
+                                              <option value="Metallic">Metallic</option>
+                                              <option value="Metallic fibre">Metallic fibre</option>
+                                              <option value="Metallised Fibre">Metallised Fibre</option>
+                                              <option value="Modacrylic">Modacrylic</option>
                                               <option value="Nylon">Nylon</option>
+                                              <option value="Olefin">Olefin</option>
+                                              <option value="Organic cotton">Organic cotton</option>
+                                              <option value="Other Fiber">Other Fiber</option>
+                                              <option value="Other Fibers">Other Fibers</option>
+                                              <option value="Paper">Paper</option>
+                                              <option value="Pig suede">Pig suede</option>
+                                              <option value="Polyamide">Polyamide</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Polyester (Recycled)">Polyester (Recycled)</option>
+                                              <option value="Polyester Recycled">Polyester Recycled</option>
+                                              <option value="Polypropylene">Polypropylene</option>
+                                              <option value="Polyurethane">Polyurethane</option>
+                                              <option value="Polyurethane Foam">Polyurethane Foam</option>
+                                              <option value="Rayon">Rayon</option>
+                                              <option value="Recycled">Recycled</option>
+                                              <option value="Recycled Nylon">Recycled Nylon</option>
+                                              <option value="Recycled Other Fibers">Recycled Other Fibers</option>
+                                              <option value="Recycled Polyester">Recycled Polyester</option>
+                                              <option value="Recycled Wool">Recycled Wool</option>
+                                              <option value="Recycled Wool/ Reprocessed Wool">Recycled Wool/ Reprocessed Wool</option>
+                                              <option value="Recycled/Reclaimed Wool">Recycled/Reclaimed Wool</option>
+                                              <option value="Rubber">Rubber</option>
+                                              <option value="Rubber/Elastodiene">Rubber/Elastodiene</option>
+                                              <option value="Silk">Silk</option>
                                               <option value="Spandex">Spandex</option>
+                                              <option value="Straw">Straw</option>
+                                              <option value="True Hemp">True Hemp</option>
+                                              <option value="Viscose">Viscose</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Wool - Merino">Wool - Merino</option>
+                                              <option value="Wool (Merino)">Wool (Merino)</option>
+                                              <option value="Wool Merino">Wool Merino</option>
+                                              <option value="Yak">Yak</option>
+                                              <option value="Yarn & Finished Piece Washed (for Testing only)">Yarn & Finished Piece Washed (for Testing only)</option>
+                                              <option value="Yarn Washed (for Testing only)">Yarn Washed (for Testing only)</option>
+                                              <option value="Excluding Trims">Excluding Trims</option>
+                                              <option value="Exclusive of Decoration and Elastic">Exclusive of Decoration and Elastic</option>
+                                              <option value="Recycled Acrylic">Recycled Acrylic</option>
                                             </select>
                                           </td>
                                           <td className="py-1">
@@ -1799,14 +2255,75 @@ const PurchaseOrders: React.FC = () => {
                                               }}
                                             >
                                               <option value="">Select</option>
-                                              <option value="Cotton">Cotton</option>
-                                              <option value="Polyester">Polyester</option>
+                                              <option value="(Faux fur) Polyester">(Faux fur) Polyester</option>
+                                              <option value="Acetate">Acetate</option>
                                               <option value="Acrylic">Acrylic</option>
-                                              <option value="Wool">Wool</option>
-                                              <option value="Silk">Silk</option>
-                                              <option value="Linen">Linen</option>
+                                              <option value="Alpaca">Alpaca</option>
+                                              <option value="Angora">Angora</option>
+                                              <option value="Cashmere">Cashmere</option>
+                                              <option value="Contains Non-Textile Parts of Animal Origin">Contains Non-Textile Parts of Animal Origin</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Elastane">Elastane</option>
+                                              <option value="Elasterell-P">Elasterell-P</option>
+                                              <option value="Elastodiene">Elastodiene</option>
+                                              <option value="Exclusive of Decoration">Exclusive of Decoration</option>
+                                              <option value="Exclusive of Elastic">Exclusive of Elastic</option>
+                                              <option value="Exclusive of Ornamentation">Exclusive of Ornamentation</option>
+                                              <option value="Exclusive of Trim">Exclusive of Trim</option>
+                                              <option value="Exclusive of Trimming">Exclusive of Trimming</option>
+                                              <option value="Faux Fur">Faux Fur</option>
+                                              <option value="Faux Suede Patch">Faux Suede Patch</option>
+                                              <option value="Finished Piece Washed (for Testing only)">Finished Piece Washed (for Testing only)</option>
+                                              <option value="Imitation Suede">Imitation Suede</option>
+                                              <option value="Lambswool">Lambswool</option>
+                                              <option value="Leather">Leather</option>
+                                              <option value="Lurex">Lurex</option>
+                                              <option value="Lycra">Lycra</option>
+                                              <option value="Lyocell">Lyocell</option>
+                                              <option value="Merino Wool">Merino Wool</option>
+                                              <option value="Metallic">Metallic</option>
+                                              <option value="Metallic fibre">Metallic fibre</option>
+                                              <option value="Metallised Fibre">Metallised Fibre</option>
+                                              <option value="Modacrylic">Modacrylic</option>
                                               <option value="Nylon">Nylon</option>
+                                              <option value="Olefin">Olefin</option>
+                                              <option value="Organic cotton">Organic cotton</option>
+                                              <option value="Other Fiber">Other Fiber</option>
+                                              <option value="Other Fibers">Other Fibers</option>
+                                              <option value="Paper">Paper</option>
+                                              <option value="Pig suede">Pig suede</option>
+                                              <option value="Polyamide">Polyamide</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Polyester (Recycled)">Polyester (Recycled)</option>
+                                              <option value="Polyester Recycled">Polyester Recycled</option>
+                                              <option value="Polypropylene">Polypropylene</option>
+                                              <option value="Polyurethane">Polyurethane</option>
+                                              <option value="Polyurethane Foam">Polyurethane Foam</option>
+                                              <option value="Rayon">Rayon</option>
+                                              <option value="Recycled">Recycled</option>
+                                              <option value="Recycled Nylon">Recycled Nylon</option>
+                                              <option value="Recycled Other Fibers">Recycled Other Fibers</option>
+                                              <option value="Recycled Polyester">Recycled Polyester</option>
+                                              <option value="Recycled Wool">Recycled Wool</option>
+                                              <option value="Recycled Wool/ Reprocessed Wool">Recycled Wool/ Reprocessed Wool</option>
+                                              <option value="Recycled/Reclaimed Wool">Recycled/Reclaimed Wool</option>
+                                              <option value="Rubber">Rubber</option>
+                                              <option value="Rubber/Elastodiene">Rubber/Elastodiene</option>
+                                              <option value="Silk">Silk</option>
                                               <option value="Spandex">Spandex</option>
+                                              <option value="Straw">Straw</option>
+                                              <option value="True Hemp">True Hemp</option>
+                                              <option value="Viscose">Viscose</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Wool - Merino">Wool - Merino</option>
+                                              <option value="Wool (Merino)">Wool (Merino)</option>
+                                              <option value="Wool Merino">Wool Merino</option>
+                                              <option value="Yak">Yak</option>
+                                              <option value="Yarn & Finished Piece Washed (for Testing only)">Yarn & Finished Piece Washed (for Testing only)</option>
+                                              <option value="Yarn Washed (for Testing only)">Yarn Washed (for Testing only)</option>
+                                              <option value="Excluding Trims">Excluding Trims</option>
+                                              <option value="Exclusive of Decoration and Elastic">Exclusive of Decoration and Elastic</option>
+                                              <option value="Recycled Acrylic">Recycled Acrylic</option>
                                             </select>
                                           </td>
                                           <td className="py-1">
@@ -1875,14 +2392,75 @@ const PurchaseOrders: React.FC = () => {
                                               }}
                                             >
                                               <option value="">Select</option>
-                                              <option value="Cotton">Cotton</option>
-                                              <option value="Polyester">Polyester</option>
+                                              <option value="(Faux fur) Polyester">(Faux fur) Polyester</option>
+                                              <option value="Acetate">Acetate</option>
                                               <option value="Acrylic">Acrylic</option>
-                                              <option value="Wool">Wool</option>
-                                              <option value="Silk">Silk</option>
-                                              <option value="Linen">Linen</option>
+                                              <option value="Alpaca">Alpaca</option>
+                                              <option value="Angora">Angora</option>
+                                              <option value="Cashmere">Cashmere</option>
+                                              <option value="Contains Non-Textile Parts of Animal Origin">Contains Non-Textile Parts of Animal Origin</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Elastane">Elastane</option>
+                                              <option value="Elasterell-P">Elasterell-P</option>
+                                              <option value="Elastodiene">Elastodiene</option>
+                                              <option value="Exclusive of Decoration">Exclusive of Decoration</option>
+                                              <option value="Exclusive of Elastic">Exclusive of Elastic</option>
+                                              <option value="Exclusive of Ornamentation">Exclusive of Ornamentation</option>
+                                              <option value="Exclusive of Trim">Exclusive of Trim</option>
+                                              <option value="Exclusive of Trimming">Exclusive of Trimming</option>
+                                              <option value="Faux Fur">Faux Fur</option>
+                                              <option value="Faux Suede Patch">Faux Suede Patch</option>
+                                              <option value="Finished Piece Washed (for Testing only)">Finished Piece Washed (for Testing only)</option>
+                                              <option value="Imitation Suede">Imitation Suede</option>
+                                              <option value="Lambswool">Lambswool</option>
+                                              <option value="Leather">Leather</option>
+                                              <option value="Lurex">Lurex</option>
+                                              <option value="Lycra">Lycra</option>
+                                              <option value="Lyocell">Lyocell</option>
+                                              <option value="Merino Wool">Merino Wool</option>
+                                              <option value="Metallic">Metallic</option>
+                                              <option value="Metallic fibre">Metallic fibre</option>
+                                              <option value="Metallised Fibre">Metallised Fibre</option>
+                                              <option value="Modacrylic">Modacrylic</option>
                                               <option value="Nylon">Nylon</option>
+                                              <option value="Olefin">Olefin</option>
+                                              <option value="Organic cotton">Organic cotton</option>
+                                              <option value="Other Fiber">Other Fiber</option>
+                                              <option value="Other Fibers">Other Fibers</option>
+                                              <option value="Paper">Paper</option>
+                                              <option value="Pig suede">Pig suede</option>
+                                              <option value="Polyamide">Polyamide</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Polyester (Recycled)">Polyester (Recycled)</option>
+                                              <option value="Polyester Recycled">Polyester Recycled</option>
+                                              <option value="Polypropylene">Polypropylene</option>
+                                              <option value="Polyurethane">Polyurethane</option>
+                                              <option value="Polyurethane Foam">Polyurethane Foam</option>
+                                              <option value="Rayon">Rayon</option>
+                                              <option value="Recycled">Recycled</option>
+                                              <option value="Recycled Nylon">Recycled Nylon</option>
+                                              <option value="Recycled Other Fibers">Recycled Other Fibers</option>
+                                              <option value="Recycled Polyester">Recycled Polyester</option>
+                                              <option value="Recycled Wool">Recycled Wool</option>
+                                              <option value="Recycled Wool/ Reprocessed Wool">Recycled Wool/ Reprocessed Wool</option>
+                                              <option value="Recycled/Reclaimed Wool">Recycled/Reclaimed Wool</option>
+                                              <option value="Rubber">Rubber</option>
+                                              <option value="Rubber/Elastodiene">Rubber/Elastodiene</option>
+                                              <option value="Silk">Silk</option>
                                               <option value="Spandex">Spandex</option>
+                                              <option value="Straw">Straw</option>
+                                              <option value="True Hemp">True Hemp</option>
+                                              <option value="Viscose">Viscose</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Wool - Merino">Wool - Merino</option>
+                                              <option value="Wool (Merino)">Wool (Merino)</option>
+                                              <option value="Wool Merino">Wool Merino</option>
+                                              <option value="Yak">Yak</option>
+                                              <option value="Yarn & Finished Piece Washed (for Testing only)">Yarn & Finished Piece Washed (for Testing only)</option>
+                                              <option value="Yarn Washed (for Testing only)">Yarn Washed (for Testing only)</option>
+                                              <option value="Excluding Trims">Excluding Trims</option>
+                                              <option value="Exclusive of Decoration and Elastic">Exclusive of Decoration and Elastic</option>
+                                              <option value="Recycled Acrylic">Recycled Acrylic</option>
                                             </select>
                                           </td>
                                           <td className="py-1">
@@ -1951,14 +2529,75 @@ const PurchaseOrders: React.FC = () => {
                                               }}
                                             >
                                               <option value="">Select</option>
-                                              <option value="Cotton">Cotton</option>
-                                              <option value="Polyester">Polyester</option>
+                                              <option value="(Faux fur) Polyester">(Faux fur) Polyester</option>
+                                              <option value="Acetate">Acetate</option>
                                               <option value="Acrylic">Acrylic</option>
-                                              <option value="Wool">Wool</option>
-                                              <option value="Silk">Silk</option>
-                                              <option value="Linen">Linen</option>
+                                              <option value="Alpaca">Alpaca</option>
+                                              <option value="Angora">Angora</option>
+                                              <option value="Cashmere">Cashmere</option>
+                                              <option value="Contains Non-Textile Parts of Animal Origin">Contains Non-Textile Parts of Animal Origin</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Elastane">Elastane</option>
+                                              <option value="Elasterell-P">Elasterell-P</option>
+                                              <option value="Elastodiene">Elastodiene</option>
+                                              <option value="Exclusive of Decoration">Exclusive of Decoration</option>
+                                              <option value="Exclusive of Elastic">Exclusive of Elastic</option>
+                                              <option value="Exclusive of Ornamentation">Exclusive of Ornamentation</option>
+                                              <option value="Exclusive of Trim">Exclusive of Trim</option>
+                                              <option value="Exclusive of Trimming">Exclusive of Trimming</option>
+                                              <option value="Faux Fur">Faux Fur</option>
+                                              <option value="Faux Suede Patch">Faux Suede Patch</option>
+                                              <option value="Finished Piece Washed (for Testing only)">Finished Piece Washed (for Testing only)</option>
+                                              <option value="Imitation Suede">Imitation Suede</option>
+                                              <option value="Lambswool">Lambswool</option>
+                                              <option value="Leather">Leather</option>
+                                              <option value="Lurex">Lurex</option>
+                                              <option value="Lycra">Lycra</option>
+                                              <option value="Lyocell">Lyocell</option>
+                                              <option value="Merino Wool">Merino Wool</option>
+                                              <option value="Metallic">Metallic</option>
+                                              <option value="Metallic fibre">Metallic fibre</option>
+                                              <option value="Metallised Fibre">Metallised Fibre</option>
+                                              <option value="Modacrylic">Modacrylic</option>
                                               <option value="Nylon">Nylon</option>
+                                              <option value="Olefin">Olefin</option>
+                                              <option value="Organic cotton">Organic cotton</option>
+                                              <option value="Other Fiber">Other Fiber</option>
+                                              <option value="Other Fibers">Other Fibers</option>
+                                              <option value="Paper">Paper</option>
+                                              <option value="Pig suede">Pig suede</option>
+                                              <option value="Polyamide">Polyamide</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Polyester (Recycled)">Polyester (Recycled)</option>
+                                              <option value="Polyester Recycled">Polyester Recycled</option>
+                                              <option value="Polypropylene">Polypropylene</option>
+                                              <option value="Polyurethane">Polyurethane</option>
+                                              <option value="Polyurethane Foam">Polyurethane Foam</option>
+                                              <option value="Rayon">Rayon</option>
+                                              <option value="Recycled">Recycled</option>
+                                              <option value="Recycled Nylon">Recycled Nylon</option>
+                                              <option value="Recycled Other Fibers">Recycled Other Fibers</option>
+                                              <option value="Recycled Polyester">Recycled Polyester</option>
+                                              <option value="Recycled Wool">Recycled Wool</option>
+                                              <option value="Recycled Wool/ Reprocessed Wool">Recycled Wool/ Reprocessed Wool</option>
+                                              <option value="Recycled/Reclaimed Wool">Recycled/Reclaimed Wool</option>
+                                              <option value="Rubber">Rubber</option>
+                                              <option value="Rubber/Elastodiene">Rubber/Elastodiene</option>
+                                              <option value="Silk">Silk</option>
                                               <option value="Spandex">Spandex</option>
+                                              <option value="Straw">Straw</option>
+                                              <option value="True Hemp">True Hemp</option>
+                                              <option value="Viscose">Viscose</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Wool - Merino">Wool - Merino</option>
+                                              <option value="Wool (Merino)">Wool (Merino)</option>
+                                              <option value="Wool Merino">Wool Merino</option>
+                                              <option value="Yak">Yak</option>
+                                              <option value="Yarn & Finished Piece Washed (for Testing only)">Yarn & Finished Piece Washed (for Testing only)</option>
+                                              <option value="Yarn Washed (for Testing only)">Yarn Washed (for Testing only)</option>
+                                              <option value="Excluding Trims">Excluding Trims</option>
+                                              <option value="Exclusive of Decoration and Elastic">Exclusive of Decoration and Elastic</option>
+                                              <option value="Recycled Acrylic">Recycled Acrylic</option>
                                             </select>
                                           </td>
                                           <td className="py-1">
@@ -2027,14 +2666,75 @@ const PurchaseOrders: React.FC = () => {
                                               }}
                                             >
                                               <option value="">Select</option>
-                                              <option value="Cotton">Cotton</option>
-                                              <option value="Polyester">Polyester</option>
+                                              <option value="(Faux fur) Polyester">(Faux fur) Polyester</option>
+                                              <option value="Acetate">Acetate</option>
                                               <option value="Acrylic">Acrylic</option>
-                                              <option value="Wool">Wool</option>
-                                              <option value="Silk">Silk</option>
-                                              <option value="Linen">Linen</option>
+                                              <option value="Alpaca">Alpaca</option>
+                                              <option value="Angora">Angora</option>
+                                              <option value="Cashmere">Cashmere</option>
+                                              <option value="Contains Non-Textile Parts of Animal Origin">Contains Non-Textile Parts of Animal Origin</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Elastane">Elastane</option>
+                                              <option value="Elasterell-P">Elasterell-P</option>
+                                              <option value="Elastodiene">Elastodiene</option>
+                                              <option value="Exclusive of Decoration">Exclusive of Decoration</option>
+                                              <option value="Exclusive of Elastic">Exclusive of Elastic</option>
+                                              <option value="Exclusive of Ornamentation">Exclusive of Ornamentation</option>
+                                              <option value="Exclusive of Trim">Exclusive of Trim</option>
+                                              <option value="Exclusive of Trimming">Exclusive of Trimming</option>
+                                              <option value="Faux Fur">Faux Fur</option>
+                                              <option value="Faux Suede Patch">Faux Suede Patch</option>
+                                              <option value="Finished Piece Washed (for Testing only)">Finished Piece Washed (for Testing only)</option>
+                                              <option value="Imitation Suede">Imitation Suede</option>
+                                              <option value="Lambswool">Lambswool</option>
+                                              <option value="Leather">Leather</option>
+                                              <option value="Lurex">Lurex</option>
+                                              <option value="Lycra">Lycra</option>
+                                              <option value="Lyocell">Lyocell</option>
+                                              <option value="Merino Wool">Merino Wool</option>
+                                              <option value="Metallic">Metallic</option>
+                                              <option value="Metallic fibre">Metallic fibre</option>
+                                              <option value="Metallised Fibre">Metallised Fibre</option>
+                                              <option value="Modacrylic">Modacrylic</option>
                                               <option value="Nylon">Nylon</option>
+                                              <option value="Olefin">Olefin</option>
+                                              <option value="Organic cotton">Organic cotton</option>
+                                              <option value="Other Fiber">Other Fiber</option>
+                                              <option value="Other Fibers">Other Fibers</option>
+                                              <option value="Paper">Paper</option>
+                                              <option value="Pig suede">Pig suede</option>
+                                              <option value="Polyamide">Polyamide</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Polyester (Recycled)">Polyester (Recycled)</option>
+                                              <option value="Polyester Recycled">Polyester Recycled</option>
+                                              <option value="Polypropylene">Polypropylene</option>
+                                              <option value="Polyurethane">Polyurethane</option>
+                                              <option value="Polyurethane Foam">Polyurethane Foam</option>
+                                              <option value="Rayon">Rayon</option>
+                                              <option value="Recycled">Recycled</option>
+                                              <option value="Recycled Nylon">Recycled Nylon</option>
+                                              <option value="Recycled Other Fibers">Recycled Other Fibers</option>
+                                              <option value="Recycled Polyester">Recycled Polyester</option>
+                                              <option value="Recycled Wool">Recycled Wool</option>
+                                              <option value="Recycled Wool/ Reprocessed Wool">Recycled Wool/ Reprocessed Wool</option>
+                                              <option value="Recycled/Reclaimed Wool">Recycled/Reclaimed Wool</option>
+                                              <option value="Rubber">Rubber</option>
+                                              <option value="Rubber/Elastodiene">Rubber/Elastodiene</option>
+                                              <option value="Silk">Silk</option>
                                               <option value="Spandex">Spandex</option>
+                                              <option value="Straw">Straw</option>
+                                              <option value="True Hemp">True Hemp</option>
+                                              <option value="Viscose">Viscose</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Wool - Merino">Wool - Merino</option>
+                                              <option value="Wool (Merino)">Wool (Merino)</option>
+                                              <option value="Wool Merino">Wool Merino</option>
+                                              <option value="Yak">Yak</option>
+                                              <option value="Yarn & Finished Piece Washed (for Testing only)">Yarn & Finished Piece Washed (for Testing only)</option>
+                                              <option value="Yarn Washed (for Testing only)">Yarn Washed (for Testing only)</option>
+                                              <option value="Excluding Trims">Excluding Trims</option>
+                                              <option value="Exclusive of Decoration and Elastic">Exclusive of Decoration and Elastic</option>
+                                              <option value="Recycled Acrylic">Recycled Acrylic</option>
                                             </select>
                                           </td>
                                           <td className="py-1">
@@ -2103,14 +2803,75 @@ const PurchaseOrders: React.FC = () => {
                                               }}
                                             >
                                               <option value="">Select</option>
-                                              <option value="Cotton">Cotton</option>
-                                              <option value="Polyester">Polyester</option>
+                                              <option value="(Faux fur) Polyester">(Faux fur) Polyester</option>
+                                              <option value="Acetate">Acetate</option>
                                               <option value="Acrylic">Acrylic</option>
-                                              <option value="Wool">Wool</option>
-                                              <option value="Silk">Silk</option>
-                                              <option value="Linen">Linen</option>
+                                              <option value="Alpaca">Alpaca</option>
+                                              <option value="Angora">Angora</option>
+                                              <option value="Cashmere">Cashmere</option>
+                                              <option value="Contains Non-Textile Parts of Animal Origin">Contains Non-Textile Parts of Animal Origin</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Elastane">Elastane</option>
+                                              <option value="Elasterell-P">Elasterell-P</option>
+                                              <option value="Elastodiene">Elastodiene</option>
+                                              <option value="Exclusive of Decoration">Exclusive of Decoration</option>
+                                              <option value="Exclusive of Elastic">Exclusive of Elastic</option>
+                                              <option value="Exclusive of Ornamentation">Exclusive of Ornamentation</option>
+                                              <option value="Exclusive of Trim">Exclusive of Trim</option>
+                                              <option value="Exclusive of Trimming">Exclusive of Trimming</option>
+                                              <option value="Faux Fur">Faux Fur</option>
+                                              <option value="Faux Suede Patch">Faux Suede Patch</option>
+                                              <option value="Finished Piece Washed (for Testing only)">Finished Piece Washed (for Testing only)</option>
+                                              <option value="Imitation Suede">Imitation Suede</option>
+                                              <option value="Lambswool">Lambswool</option>
+                                              <option value="Leather">Leather</option>
+                                              <option value="Lurex">Lurex</option>
+                                              <option value="Lycra">Lycra</option>
+                                              <option value="Lyocell">Lyocell</option>
+                                              <option value="Merino Wool">Merino Wool</option>
+                                              <option value="Metallic">Metallic</option>
+                                              <option value="Metallic fibre">Metallic fibre</option>
+                                              <option value="Metallised Fibre">Metallised Fibre</option>
+                                              <option value="Modacrylic">Modacrylic</option>
                                               <option value="Nylon">Nylon</option>
+                                              <option value="Olefin">Olefin</option>
+                                              <option value="Organic cotton">Organic cotton</option>
+                                              <option value="Other Fiber">Other Fiber</option>
+                                              <option value="Other Fibers">Other Fibers</option>
+                                              <option value="Paper">Paper</option>
+                                              <option value="Pig suede">Pig suede</option>
+                                              <option value="Polyamide">Polyamide</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Polyester (Recycled)">Polyester (Recycled)</option>
+                                              <option value="Polyester Recycled">Polyester Recycled</option>
+                                              <option value="Polypropylene">Polypropylene</option>
+                                              <option value="Polyurethane">Polyurethane</option>
+                                              <option value="Polyurethane Foam">Polyurethane Foam</option>
+                                              <option value="Rayon">Rayon</option>
+                                              <option value="Recycled">Recycled</option>
+                                              <option value="Recycled Nylon">Recycled Nylon</option>
+                                              <option value="Recycled Other Fibers">Recycled Other Fibers</option>
+                                              <option value="Recycled Polyester">Recycled Polyester</option>
+                                              <option value="Recycled Wool">Recycled Wool</option>
+                                              <option value="Recycled Wool/ Reprocessed Wool">Recycled Wool/ Reprocessed Wool</option>
+                                              <option value="Recycled/Reclaimed Wool">Recycled/Reclaimed Wool</option>
+                                              <option value="Rubber">Rubber</option>
+                                              <option value="Rubber/Elastodiene">Rubber/Elastodiene</option>
+                                              <option value="Silk">Silk</option>
                                               <option value="Spandex">Spandex</option>
+                                              <option value="Straw">Straw</option>
+                                              <option value="True Hemp">True Hemp</option>
+                                              <option value="Viscose">Viscose</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Wool - Merino">Wool - Merino</option>
+                                              <option value="Wool (Merino)">Wool (Merino)</option>
+                                              <option value="Wool Merino">Wool Merino</option>
+                                              <option value="Yak">Yak</option>
+                                              <option value="Yarn & Finished Piece Washed (for Testing only)">Yarn & Finished Piece Washed (for Testing only)</option>
+                                              <option value="Yarn Washed (for Testing only)">Yarn Washed (for Testing only)</option>
+                                              <option value="Excluding Trims">Excluding Trims</option>
+                                              <option value="Exclusive of Decoration and Elastic">Exclusive of Decoration and Elastic</option>
+                                              <option value="Recycled Acrylic">Recycled Acrylic</option>
                                             </select>
                                           </td>
                                           <td className="py-1">
@@ -2213,14 +2974,75 @@ const PurchaseOrders: React.FC = () => {
                                               }}
                                             >
                                               <option value="">Select</option>
-                                              <option value="Cotton">Cotton</option>
-                                              <option value="Polyester">Polyester</option>
+                                              <option value="(Faux fur) Polyester">(Faux fur) Polyester</option>
+                                              <option value="Acetate">Acetate</option>
                                               <option value="Acrylic">Acrylic</option>
-                                              <option value="Wool">Wool</option>
-                                              <option value="Silk">Silk</option>
-                                              <option value="Linen">Linen</option>
+                                              <option value="Alpaca">Alpaca</option>
+                                              <option value="Angora">Angora</option>
+                                              <option value="Cashmere">Cashmere</option>
+                                              <option value="Contains Non-Textile Parts of Animal Origin">Contains Non-Textile Parts of Animal Origin</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Elastane">Elastane</option>
+                                              <option value="Elasterell-P">Elasterell-P</option>
+                                              <option value="Elastodiene">Elastodiene</option>
+                                              <option value="Exclusive of Decoration">Exclusive of Decoration</option>
+                                              <option value="Exclusive of Elastic">Exclusive of Elastic</option>
+                                              <option value="Exclusive of Ornamentation">Exclusive of Ornamentation</option>
+                                              <option value="Exclusive of Trim">Exclusive of Trim</option>
+                                              <option value="Exclusive of Trimming">Exclusive of Trimming</option>
+                                              <option value="Faux Fur">Faux Fur</option>
+                                              <option value="Faux Suede Patch">Faux Suede Patch</option>
+                                              <option value="Finished Piece Washed (for Testing only)">Finished Piece Washed (for Testing only)</option>
+                                              <option value="Imitation Suede">Imitation Suede</option>
+                                              <option value="Lambswool">Lambswool</option>
+                                              <option value="Leather">Leather</option>
+                                              <option value="Lurex">Lurex</option>
+                                              <option value="Lycra">Lycra</option>
+                                              <option value="Lyocell">Lyocell</option>
+                                              <option value="Merino Wool">Merino Wool</option>
+                                              <option value="Metallic">Metallic</option>
+                                              <option value="Metallic fibre">Metallic fibre</option>
+                                              <option value="Metallised Fibre">Metallised Fibre</option>
+                                              <option value="Modacrylic">Modacrylic</option>
                                               <option value="Nylon">Nylon</option>
+                                              <option value="Olefin">Olefin</option>
+                                              <option value="Organic cotton">Organic cotton</option>
+                                              <option value="Other Fiber">Other Fiber</option>
+                                              <option value="Other Fibers">Other Fibers</option>
+                                              <option value="Paper">Paper</option>
+                                              <option value="Pig suede">Pig suede</option>
+                                              <option value="Polyamide">Polyamide</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Polyester (Recycled)">Polyester (Recycled)</option>
+                                              <option value="Polyester Recycled">Polyester Recycled</option>
+                                              <option value="Polypropylene">Polypropylene</option>
+                                              <option value="Polyurethane">Polyurethane</option>
+                                              <option value="Polyurethane Foam">Polyurethane Foam</option>
+                                              <option value="Rayon">Rayon</option>
+                                              <option value="Recycled">Recycled</option>
+                                              <option value="Recycled Nylon">Recycled Nylon</option>
+                                              <option value="Recycled Other Fibers">Recycled Other Fibers</option>
+                                              <option value="Recycled Polyester">Recycled Polyester</option>
+                                              <option value="Recycled Wool">Recycled Wool</option>
+                                              <option value="Recycled Wool/ Reprocessed Wool">Recycled Wool/ Reprocessed Wool</option>
+                                              <option value="Recycled/Reclaimed Wool">Recycled/Reclaimed Wool</option>
+                                              <option value="Rubber">Rubber</option>
+                                              <option value="Rubber/Elastodiene">Rubber/Elastodiene</option>
+                                              <option value="Silk">Silk</option>
                                               <option value="Spandex">Spandex</option>
+                                              <option value="Straw">Straw</option>
+                                              <option value="True Hemp">True Hemp</option>
+                                              <option value="Viscose">Viscose</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Wool - Merino">Wool - Merino</option>
+                                              <option value="Wool (Merino)">Wool (Merino)</option>
+                                              <option value="Wool Merino">Wool Merino</option>
+                                              <option value="Yak">Yak</option>
+                                              <option value="Yarn & Finished Piece Washed (for Testing only)">Yarn & Finished Piece Washed (for Testing only)</option>
+                                              <option value="Yarn Washed (for Testing only)">Yarn Washed (for Testing only)</option>
+                                              <option value="Excluding Trims">Excluding Trims</option>
+                                              <option value="Exclusive of Decoration and Elastic">Exclusive of Decoration and Elastic</option>
+                                              <option value="Recycled Acrylic">Recycled Acrylic</option>
                                             </select>
                                           </td>
                                           <td className="py-1">

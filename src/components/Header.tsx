@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Menu, Bell, User, Settings, LogOut, CheckCircle, AlertTriangle, Info, Clock } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
 import { Link } from 'react-router-dom';
@@ -177,11 +178,8 @@ const Header: React.FC<HeaderProps> = ({
             </button>
 
             {/* Notifications Dropdown */}
-            <div className={`fixed right-4 top-20 w-80 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-[99999] transition-all duration-200 ease-in-out transform ${
-              notificationsOpen 
-                ? 'opacity-100 scale-100 translate-y-0' 
-                : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
-            }`}>
+            {notificationsOpen && createPortal(
+              <div className={`fixed right-4 top-20 w-80 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-[9999999] transition-all duration-200 ease-in-out transform opacity-100 scale-100 translate-y-0`}>
                 <div className="px-4 py-2 border-b border-gray-100">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
@@ -235,7 +233,7 @@ const Header: React.FC<HeaderProps> = ({
                           }`}
                           style={{
                             animationDelay: `${index * 50}ms`,
-                            animation: notificationsOpen ? 'slideInFromTop 0.3s ease-out forwards' : 'none'
+                            animation: 'slideInFromTop 0.3s ease-out forwards'
                           }}
                         >
                           <div className="flex items-start space-x-3">
@@ -275,7 +273,9 @@ const Header: React.FC<HeaderProps> = ({
                     </button>
                   </div>
                 )}
-              </div>
+              </div>,
+              document.body
+            )}
           </div>
 
           <div className="flex items-center space-x-3">

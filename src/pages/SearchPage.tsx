@@ -18,6 +18,8 @@ interface SearchResult {
   relevance: number;
   lastModified?: string;
   tags?: string[];
+  icon?: string;
+  quickAction?: string;
 }
 
 const SearchPage: React.FC = () => {
@@ -69,7 +71,9 @@ const SearchPage: React.FC = () => {
       path: '/purchase-orders',
       relevance: 95,
       lastModified: '2 hours ago',
-      tags: ['approved', 'cotton', 'supplier-abc']
+      tags: ['approved', 'cotton', 'supplier-abc'],
+      icon: '📄',
+      quickAction: 'View Details'
     },
     {
       id: '2',
@@ -79,7 +83,9 @@ const SearchPage: React.FC = () => {
       path: '/sample-requests',
       relevance: 88,
       lastModified: '1 day ago',
-      tags: ['fabric', 'summer-collection', 'pending']
+      tags: ['fabric', 'summer-collection', 'pending'],
+      icon: '🧪',
+      quickAction: 'Track Status'
     },
     {
       id: '3',
@@ -89,7 +95,9 @@ const SearchPage: React.FC = () => {
       path: '/material-manager',
       relevance: 82,
       lastModified: '3 days ago',
-      tags: ['dashboard', 'materials', 'inventory']
+      tags: ['dashboard', 'materials', 'inventory'],
+      icon: '🏷️',
+      quickAction: 'Open Dashboard'
     },
     {
       id: '4',
@@ -99,7 +107,9 @@ const SearchPage: React.FC = () => {
       path: '/supplier-loading',
       relevance: 75,
       lastModified: '1 week ago',
-      tags: ['report', 'performance', 'q1-2024']
+      tags: ['report', 'performance', 'q1-2024'],
+      icon: '📊',
+      quickAction: 'View Report'
     },
     {
       id: '5',
@@ -109,7 +119,45 @@ const SearchPage: React.FC = () => {
       path: '/techpacks',
       relevance: 70,
       lastModified: '2 weeks ago',
-      tags: ['techpack', 'specifications', 'production']
+      tags: ['techpack', 'specifications', 'production'],
+      icon: '📋',
+      quickAction: 'Open Techpack'
+    },
+    {
+      id: '6',
+      title: 'User Administration Panel',
+      description: 'Manage user accounts, roles, and permissions across the supply chain system.',
+      type: 'user-administration',
+      path: '/user-administration',
+      relevance: 65,
+      lastModified: '1 week ago',
+      tags: ['admin', 'users', 'permissions'],
+      icon: '👥',
+      quickAction: 'Manage Users'
+    },
+    {
+      id: '7',
+      title: 'Data Bank Repository',
+      description: 'Central repository for all supply chain data including materials, suppliers, and product information.',
+      type: 'data-bank',
+      path: '/data-bank',
+      relevance: 60,
+      lastModified: '2 weeks ago',
+      tags: ['data', 'repository', 'central'],
+      icon: '🗄️',
+      quickAction: 'Browse Data'
+    },
+    {
+      id: '8',
+      title: 'Pivot Reports Dashboard',
+      description: 'Interactive reports and analytics dashboard for supply chain performance metrics.',
+      type: 'pivot-reports',
+      path: '/pivot-reports',
+      relevance: 55,
+      lastModified: '3 weeks ago',
+      tags: ['analytics', 'reports', 'performance'],
+      icon: '📈',
+      quickAction: 'View Analytics'
     }
   ];
 
@@ -288,52 +336,61 @@ const SearchPage: React.FC = () => {
                         <span>Sorted by relevance</span>
                       </div>
                     </div>
-                    <div className="space-y-4">
-                      {searchResults.map((result) => (
-                        <Link
-                          key={result.id}
-                          to={result.path}
-                          className="block bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
-                        >
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-3 mb-2">
-                                <h3 className="text-lg font-semibold text-gray-900">{result.title}</h3>
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                  {result.type.replace('-', ' ')}
-                                </span>
-                              </div>
-                              <p className="text-gray-600 mb-3">{result.description}</p>
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-4">
-                                  {result.tags && (
-                                    <div className="flex items-center space-x-2">
-                                      {result.tags.slice(0, 3).map((tag) => (
-                                        <span
-                                          key={tag}
-                                          className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700"
-                                        >
-                                          {tag}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  )}
-                                  <div className="flex items-center text-sm text-gray-500">
-                                    <Clock className="h-4 w-4 mr-1" />
-                                    {result.lastModified}
-                                  </div>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  <span className="text-sm text-gray-500">{result.relevance}% match</span>
-                                  <ArrowRight className="h-4 w-4 text-gray-400" />
-                                </div>
-                              </div>
-                            </div>
-                            <Sparkles className="h-5 w-5 text-gray-300 ml-4" />
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
+                                         <div className="max-h-96 overflow-y-auto space-y-4 pr-2">
+                       {searchResults.map((result) => (
+                         <Link
+                           key={result.id}
+                           to={result.path}
+                           className="block bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200 hover:border-blue-200"
+                         >
+                           <div className="flex items-start space-x-4">
+                             <div className="flex-shrink-0 mt-1">
+                               <span className="text-2xl">{result.icon}</span>
+                             </div>
+                             <div className="flex-1 min-w-0">
+                               <div className="flex items-center justify-between mb-2">
+                                 <div className="flex items-center space-x-3">
+                                   <h3 className="text-lg font-semibold text-gray-900">{result.title}</h3>
+                                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                     {result.type.replace('-', ' ')}
+                                   </span>
+                                 </div>
+                                 <div className="flex items-center space-x-2">
+                                   <span className="text-sm text-gray-500">{result.relevance}% match</span>
+                                   <ArrowRight className="h-4 w-4 text-gray-400" />
+                                 </div>
+                               </div>
+                               <p className="text-gray-600 mb-3 line-clamp-2">{result.description}</p>
+                               <div className="flex items-center justify-between">
+                                 <div className="flex items-center space-x-4">
+                                   {result.tags && (
+                                     <div className="flex items-center space-x-2">
+                                       {result.tags.slice(0, 3).map((tag) => (
+                                         <span
+                                           key={tag}
+                                           className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700"
+                                         >
+                                           {tag}
+                                         </span>
+                                       ))}
+                                     </div>
+                                   )}
+                                   <div className="flex items-center text-sm text-gray-500">
+                                     <Clock className="h-4 w-4 mr-1" />
+                                     {result.lastModified}
+                                   </div>
+                                 </div>
+                                 {result.quickAction && (
+                                   <span className="text-sm text-blue-600 font-medium">
+                                     {result.quickAction}
+                                   </span>
+                                 )}
+                               </div>
+                             </div>
+                           </div>
+                         </Link>
+                       ))}
+                     </div>
                   </div>
                 ) : (
                   <div className="text-center py-16">

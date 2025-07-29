@@ -1,10 +1,20 @@
-import React, { useState } from 'react';
-import { Plus, Search, Filter, Truck, Calendar, Package, MapPin, Eye, Edit, Ship, Plane } from 'lucide-react';
+import React, { useState, useCallback } from 'react';
+import { Plus, Search, Filter, Truck, Calendar, Package, MapPin, Eye, Edit, Ship, Plane, MoreHorizontal } from 'lucide-react';
+import { useContextMenu } from '../hooks/useContextMenu';
+import { buildContextMenu } from '../utils/contextMenuBuilder';
+import ContextMenu from '../components/ContextMenu';
+import SupplierLoadingModal from '../components/modals/SupplierLoadingModal';
 
 const SupplierLoading: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterSupplier, setFilterSupplier] = useState('all');
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedShipment, setSelectedShipment] = useState<any>(null);
+
+  // Context menu state
+  const { isOpen, context, menuItems, openMenu, closeMenu } = useContextMenu();
 
   const shipments = [
     {
@@ -104,14 +114,187 @@ const SupplierLoading: React.FC = () => {
     },
   ];
 
-  const getStatusColor = (status: string) => {
+  // Table context for context menu actions
+  const tableContext = {
+    data: shipments,
+    selectedRows,
+    columns: [
+      { key: 'shipmentId', label: 'Shipment ID', sortable: true },
+      { key: 'customer', label: 'Customer', sortable: true },
+      { key: 'supplier', label: 'Supplier', sortable: true },
+      { key: 'poNumber', label: 'PO Number', sortable: true },
+      { key: 'quantity', label: 'Quantity', sortable: true },
+      { key: 'status', label: 'Status', sortable: true },
+      { key: 'shippingMethod', label: 'Shipping', sortable: true },
+      { key: 'progress', label: 'Progress', sortable: true }
+    ],
+    onEditRow: useCallback((row: any) => {
+      console.log('Edit shipment:', row);
+      // Implement your edit logic here
+    }, []),
+    onDeleteRow: useCallback((row: any) => {
+      console.log('Delete shipment:', row);
+      if (confirm(`Are you sure you want to delete shipment "${row.shipmentId}"?`)) {
+        // Implement your delete logic here
+        console.log('Shipment deleted:', row);
+      }
+    }, []),
+    onDuplicateRow: useCallback((row: any) => {
+      console.log('Duplicate shipment:', row);
+      // Implement your duplicate logic here
+    }, []),
+    onViewDetails: useCallback((row: any) => {
+      setSelectedShipment(row);
+      setIsDetailsModalOpen(true);
+    }, []),
+    onAddNote: useCallback((row: any) => {
+      console.log('Add note to shipment:', row);
+      // Implement your add note logic here
+    }, []),
+    onExport: useCallback((format: string, rows?: any[]) => {
+      console.log('Export shipments as', format, ':', rows || selectedRows);
+      // Implement your export logic here
+    }, [selectedRows]),
+    onAssignUser: useCallback((rows: any[]) => {
+      console.log('Assign users to shipments:', rows);
+      // Implement your assign user logic here
+    }, []),
+    onChangeStatus: useCallback((rows: any[], status: string) => {
+      console.log('Change status to', status, 'for shipments:', rows);
+      // Implement your change status logic here
+    }, []),
+    onBulkUpdate: useCallback((rows: any[], field: string, value: any) => {
+      console.log('Bulk update', field, 'to', value, 'for shipments:', rows);
+      // Implement your bulk update logic here
+    }, []),
+    onSort: useCallback((column: string, direction: 'asc' | 'desc') => {
+      console.log('Sort shipments by', column, direction);
+      // Implement your sort logic here
+    }, []),
+    onHideColumn: useCallback((column: string) => {
+      console.log('Hide column:', column);
+      // Implement your hide column logic here
+    }, []),
+    onShowColumn: useCallback((column: string) => {
+      console.log('Show column:', column);
+      // Implement your show column logic here
+    }, []),
+    onFilterByColumn: useCallback((column: string, value: any) => {
+      console.log('Filter by', column, '=', value);
+      // Implement your filter logic here
+    }, []),
+    onGroupByColumn: useCallback((column: string) => {
+      console.log('Group by:', column);
+      // Implement your group logic here
+    }, []),
+    onResizeColumn: useCallback((column: string, width: number) => {
+      console.log('Resize column', column, 'to', width);
+      // Implement your resize logic here
+    }, []),
+    onRefresh: useCallback(() => {
+      console.log('Refresh shipments table');
+      // Implement your refresh logic here
+    }, []),
+    onTogglePagination: useCallback(() => {
+      console.log('Toggle pagination');
+      // Implement your pagination toggle logic here
+    }, []),
+    onCustomizeColumns: useCallback(() => {
+      console.log('Customize columns');
+      // Implement your customize columns logic here
+    }, []),
+    onSaveView: useCallback(() => {
+      console.log('Save current view');
+      // Implement your save view logic here
+    }, []),
+    isRowLocked: useCallback((row: any) => {
+      return row.status === 'Delivered' || row.status === 'Completed';
+    }, []),
+    canEdit: useCallback((row: any) => {
+      return row.status !== 'Delivered' && row.status !== 'Completed';
+    }, []),
+    canDelete: useCallback((row: any) => {
+      return row.status === 'Preparing' || row.status === 'Booked';
+    }, [])
+  };
+
+  // Right-click handlers
+  const handleRowContextMenu = useCallback((event: React.MouseEvent, row: any) => {
+    event.preventDefault();
+    const context = {
+      target: 'row' as const,
+      data: row,
+      position: { x: event.clientX, y: event.clientY }
+    };
+    const items = buildContextMenu(context, tableContext);
+    openMenu(event, context, items);
+  }, [openMenu, tableContext]);
+
+  const handleColumnContextMenu = useCallback((event: React.MouseEvent, columnKey: string) => {
+    event.preventDefault();
+    const context = {
+      target: 'column' as const,
+      columnKey,
+      position: { x: event.clientX, y: event.clientY }
+    };
+    const items = buildContextMenu(context, tableContext);
+    openMenu(event, context, items);
+  }, [openMenu, tableContext]);
+
+  const handleTableContextMenu = useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    const context = {
+      target: 'table' as const,
+      position: { x: event.clientX, y: event.clientY }
+    };
+    const items = buildContextMenu(context, tableContext);
+    openMenu(event, context, items);
+  }, [openMenu, tableContext]);
+
+  const getStatusConfig = (status: string) => {
     switch (status) {
-      case 'Delivered': return 'bg-green-100 text-green-800 border-green-200';
-      case 'In Transit': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'Customs Clearance': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'Booked': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'Preparing': return 'bg-gray-100 text-gray-800 border-gray-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'Delivered':
+        return {
+          color: 'bg-green-50 text-green-700 border-green-200',
+          icon: '✓',
+          bgColor: 'bg-green-100',
+          iconColor: 'text-green-600'
+        };
+      case 'In Transit':
+        return {
+          color: 'bg-blue-50 text-blue-700 border-blue-200',
+          icon: '🚚',
+          bgColor: 'bg-blue-100',
+          iconColor: 'text-blue-600'
+        };
+      case 'Customs Clearance':
+        return {
+          color: 'bg-amber-50 text-amber-700 border-amber-200',
+          icon: '⏳',
+          bgColor: 'bg-amber-100',
+          iconColor: 'text-amber-600'
+        };
+      case 'Booked':
+        return {
+          color: 'bg-purple-50 text-purple-700 border-purple-200',
+          icon: '📦',
+          bgColor: 'bg-purple-100',
+          iconColor: 'text-purple-600'
+        };
+      case 'Preparing':
+        return {
+          color: 'bg-gray-50 text-gray-700 border-gray-200',
+          icon: '📋',
+          bgColor: 'bg-gray-100',
+          iconColor: 'text-gray-600'
+        };
+      default:
+        return {
+          color: 'bg-gray-50 text-gray-700 border-gray-200',
+          icon: '❓',
+          bgColor: 'bg-gray-100',
+          iconColor: 'text-gray-600'
+        };
     }
   };
 
@@ -136,6 +319,11 @@ const SupplierLoading: React.FC = () => {
   const inTransitCount = filteredShipments.filter(s => s.status === 'In Transit').length;
   const deliveredCount = filteredShipments.filter(s => s.status === 'Delivered').length;
   const totalValue = filteredShipments.reduce((sum, s) => sum + (s.invoiceAmount || 0), 0);
+
+  const handleCloseModal = () => {
+    setIsDetailsModalOpen(false);
+    setSelectedShipment(null);
+  };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -248,82 +436,110 @@ const SupplierLoading: React.FC = () => {
       </div>
 
       {/* Shipments Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" onContextMenu={handleTableContextMenu}>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Shipment ID</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Customer</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Supplier</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">PO Number</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Quantity</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Status</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Shipping</th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Progress</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'shipmentId')}>Shipment ID</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'customer')}>Customer</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'supplier')}>Supplier</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'poNumber')}>PO Number</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'quantity')}>Quantity</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'status')}>Status</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'shippingMethod')}>Shipping</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-gray-900" onContextMenu={(e) => handleColumnContextMenu(e, 'progress')}>Progress</th>
                 <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredShipments.map((shipment) => (
-                <tr key={shipment.id} className="hover:bg-gray-50">
-                  <td className="py-4 px-6">
-                    <div>
-                      <div className="font-medium text-gray-900">{shipment.shipmentId}</div>
-                      <div className="text-sm text-gray-500">{shipment.shipmentBooking}</div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6 text-sm text-gray-900">{shipment.customer}</td>
-                  <td className="py-4 px-6 text-sm text-gray-900">{shipment.supplier}</td>
-                  <td className="py-4 px-6 text-sm text-gray-900">{shipment.poNumber}</td>
-                  <td className="py-4 px-6 text-sm text-gray-900">{shipment.quantity.toLocaleString()}</td>
-                  <td className="py-4 px-6">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(shipment.status)}`}>
-                      {shipment.status}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="space-y-1">
+              {filteredShipments.map((shipment) => {
+                const statusConfig = getStatusConfig(shipment.status);
+                
+                return (
+                  <tr key={shipment.id} className="hover:bg-gray-50" onContextMenu={(e) => handleRowContextMenu(e, shipment)}>
+                    <td className="py-4 px-6">
+                      <div>
+                        <div className="font-medium text-gray-900">{shipment.shipmentId}</div>
+                        <div className="text-sm text-gray-500">{shipment.shipmentBooking}</div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-sm text-gray-900">{shipment.customer}</td>
+                    <td className="py-4 px-6 text-sm text-gray-900">{shipment.supplier}</td>
+                    <td className="py-4 px-6 text-sm text-gray-900">{shipment.poNumber}</td>
+                    <td className="py-4 px-6 text-sm text-gray-900">{shipment.quantity.toLocaleString()}</td>
+                    <td className="py-4 px-6">
                       <div className="flex items-center space-x-2">
-                        {getShippingIcon(shipment.shippingMethod)}
-                        <span className="text-sm text-gray-900">{shipment.shippingMethod}</span>
+                        <div className={`p-1 rounded-full ${statusConfig.bgColor}`}>
+                          <span className={`text-xs ${statusConfig.iconColor}`}>{statusConfig.icon}</span>
+                        </div>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${statusConfig.color}`}>
+                          {shipment.status}
+                        </span>
                       </div>
-                      <div className="text-xs text-gray-500">
-                        ETD: {new Date(shipment.vesselETD).toLocaleDateString()}
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          {getShippingIcon(shipment.shippingMethod)}
+                          <span className="text-sm text-gray-900">{shipment.shippingMethod}</span>
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          ETD: {new Date(shipment.vesselETD).toLocaleDateString()}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          ETA: {new Date(shipment.estimatedArrival).toLocaleDateString()}
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-500">
-                        ETA: {new Date(shipment.estimatedArrival).toLocaleDateString()}
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="w-20">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-gray-600">{shipment.progress}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div 
+                            className={`h-2 rounded-full ${shipment.progress === 100 ? 'bg-green-500' : 'bg-blue-500'}`}
+                            style={{ width: `${shipment.progress}%` }}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="w-20">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-gray-600">{shipment.progress}%</span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center space-x-2">
+                        <button 
+                          className="p-1 text-blue-600 hover:text-blue-800 transition-colors"
+                          title="View details"
+                          onClick={() => {
+                            setSelectedShipment(shipment);
+                            setIsDetailsModalOpen(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button 
+                          className="p-1 text-gray-600 hover:text-gray-800 transition-colors"
+                          title="Edit shipment"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button 
+                          className="p-1 text-purple-600 hover:text-purple-800 transition-colors"
+                          title="Track location"
+                        >
+                          <MapPin className="h-4 w-4" />
+                        </button>
+                        <button 
+                          className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                          title="More options"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </button>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className={`h-2 rounded-full ${shipment.progress === 100 ? 'bg-green-500' : 'bg-blue-500'}`}
-                          style={{ width: `${shipment.progress}%` }}
-                        />
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center space-x-2">
-                      <button className="p-1 text-blue-600 hover:text-blue-800 transition-colors">
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button className="p-1 text-gray-600 hover:text-gray-800 transition-colors">
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button className="p-1 text-purple-600 hover:text-purple-800 transition-colors">
-                        <MapPin className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -339,6 +555,23 @@ const SupplierLoading: React.FC = () => {
           </button>
         </div>
       )}
+
+      {/* Context Menu */}
+      {isOpen && context && (
+        <ContextMenu
+          items={menuItems}
+          x={context.position.x}
+          y={context.position.y}
+          onClose={closeMenu}
+        />
+      )}
+
+      {/* Details Modal */}
+      <SupplierLoadingModal
+        isOpen={isDetailsModalOpen}
+        onClose={handleCloseModal}
+        shipment={selectedShipment}
+      />
     </div>
   );
 };

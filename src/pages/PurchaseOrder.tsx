@@ -38,6 +38,57 @@ const baseColumns = [
   'Default Ex-Factory', 'Created By', 'Created', 'Last Edited', 'Last Edited By', 'PO Issue Date',
 ];
 
+// Define header mappings for flexible import
+const headerMapping: Record<string, string[]> = {
+  'Order References': ['Order References', 'PO Reference', 'Order Ref', 'Reference', 'PO Number', 'Order Number', 'PO ID'],
+  'Status': ['Status', 'PO Status', 'Order Status', 'State', 'Order State', 'Purchase Order Status', 'PO Line Status'],
+  'Total Qty': ['Total Qty', 'Total Quantity', 'Quantity', 'Qty', 'Total Units', 'Order Quantity'],
+  'Total Cost': ['Total Cost', 'Cost', 'Purchase Cost', 'Total Purchase Cost', 'Amount', 'Total Amount'],
+  'Total Value': ['Total Value', 'Value', 'Selling Value', 'Total Selling Value', 'Revenue'],
+  'Customer': ['Customer', 'Client', 'Buyer', 'Customer Name', 'Client Name', 'Buyer Name'],
+  'Supplier': ['Supplier', 'Vendor', 'Manufacturer', 'Supplier Name', 'Vendor Name', 'Factory'],
+  'Purchase Currency': ['Purchase Currency', 'Currency', 'PO Currency', 'Buy Currency', 'Purchase Curr'],
+  'Selling Currency': ['Selling Currency', 'Sale Currency', 'Sell Currency', 'Selling Curr'],
+  'Purchase Payment Term': ['Purchase Payment Term', 'Payment Term', 'PO Payment Term', 'Buy Payment Term'],
+  'Selling Payment Term': ['Selling Payment Term', 'Sale Payment Term', 'Sell Payment Term'],
+  'Supplier Parent': ['Supplier Parent', 'Parent Supplier', 'Parent Company', 'Parent Vendor'],
+  'Delivery Contact': ['Delivery Contact', 'Contact', 'Delivery Person', 'Contact Person'],
+  'Division': ['Division', 'Dept', 'Department', 'Business Unit'],
+  'Group': ['Group', 'Product Group', 'Category', 'Product Category'],
+  'Supplier Description': ['Supplier Description', 'Description', 'Supplier Info', 'Vendor Description'],
+  'Supplier Location': ['Supplier Location', 'Location', 'Factory Location', 'Vendor Location'],
+  'Supplier Country': ['Supplier Country', 'Country', 'Factory Country', 'Vendor Country'],
+  'Template': ['Template', 'PO Template', 'Order Template', 'Template Name'],
+  'Transport Method': ['Transport Method', 'Transport', 'Shipping Method', 'Delivery Method'],
+  'Deliver to': ['Deliver to', 'Delivery To', 'Delivery Address', 'Ship To', 'Delivery Location'],
+  'Closed Date': ['Closed Date', 'Close Date', 'Completion Date', 'End Date'],
+  'Delivery Date': ['Delivery Date', 'Ship Date', 'Expected Delivery', 'Target Delivery'],
+  'PO Issue Date': ['PO Issue Date', 'Issue Date', 'Order Date', 'Creation Date', 'PO Date'],
+  'Supplier Currency': ['Supplier Currency', 'Vendor Currency', 'Factory Currency'],
+  'Comments': ['Comments', 'Comment', 'Notes', 'Description', 'Remarks'],
+  'Production': ['Production', 'Production Status', 'Manufacturing', 'Production Stage'],
+  'MLA- Purchasing': ['MLA- Purchasing', 'MLA Purchasing', 'Purchasing', 'Buyer', 'Purchasing Agent'],
+  'China -QC': ['China -QC', 'China QC', 'QC', 'Quality Control', 'Quality Check'],
+  'MLA-Planning': ['MLA-Planning', 'MLA Planning', 'Planning', 'Production Planning'],
+  'MLA-Shipping': ['MLA-Shipping', 'MLA Shipping', 'Shipping', 'Logistics'],
+  'PO Key User 6': ['PO Key User 6', 'Key User 6', 'User 6', 'Custom Field 6'],
+  'PO Key User 7': ['PO Key User 7', 'Key User 7', 'User 7', 'Custom Field 7'],
+  'PO Key User 8': ['PO Key User 8', 'Key User 8', 'User 8', 'Custom Field 8'],
+  'PO Key Working Group 2': ['PO Key Working Group 2', 'Working Group 2', 'WG2', 'Team 2'],
+  'PO Key Working Group 3': ['PO Key Working Group 3', 'Working Group 3', 'WG3', 'Team 3'],
+  'PO Key Working Group 4': ['PO Key Working Group 4', 'Working Group 4', 'WG4', 'Team 4'],
+  'Purchase Payment Term Description': ['Purchase Payment Term Description', 'Payment Term Desc', 'Buy Payment Term Desc'],
+  'Selling Payment Term Description': ['Selling Payment Term Description', 'Sale Payment Term Desc'],
+  'Note Count': ['Note Count', 'Notes Count', 'Comment Count', 'Number of Notes'],
+  'Latest Note': ['Latest Note', 'Last Note', 'Recent Note', 'Latest Comment'],
+  'Default PO Line Template': ['Default PO Line Template', 'PO Line Template', 'Line Template'],
+  'Default Ex-Factory': ['Default Ex-Factory', 'Ex-Factory', 'Ex Factory', 'Factory Date'],
+  'Created By': ['Created By', 'Creator', 'Author', 'Created By User'],
+  'Created': ['Created', 'Creation Date', 'Created Date', 'Date Created'],
+  'Last Edited': ['Last Edited', 'Last Modified', 'Modified', 'Last Updated'],
+  'Last Edited By': ['Last Edited By', 'Editor', 'Modified By', 'Last Updated By'],
+};
+
 const allColumns = [
   ...baseColumns,
   ...groupedColumns.map(g => g.key),
@@ -519,6 +570,73 @@ const PurchaseOrder: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
+  // Helper function to find matching column headers
+  const findMatchingColumn = (importedHeaders: string[], targetColumn: string): string | null => {
+    const possibleHeaders = headerMapping[targetColumn] || [targetColumn];
+    
+    // First try exact match
+    const exactMatch = importedHeaders.find(header => 
+      possibleHeaders.includes(header)
+    );
+    if (exactMatch) return exactMatch;
+    
+    // Then try case-insensitive match
+    const caseInsensitiveMatch = importedHeaders.find(header => 
+      possibleHeaders.some((possible: string) => 
+        possible.toLowerCase() === header.toLowerCase()
+      )
+    );
+    if (caseInsensitiveMatch) return caseInsensitiveMatch;
+    
+    // Finally try partial match (header contains target or target contains header)
+    const partialMatch = importedHeaders.find(header => 
+      possibleHeaders.some((possible: string) => 
+        header.toLowerCase().includes(possible.toLowerCase()) ||
+        possible.toLowerCase().includes(header.toLowerCase())
+      )
+    );
+    
+    return partialMatch || null;
+  };
+
+  // Helper function to format dates to MM/DD/YYYY format
+  const formatDateToMMDDYYYY = (dateValue: any): string => {
+    if (!dateValue) return '';
+    
+    // If it's already a string in MM/DD/YYYY format
+    if (typeof dateValue === 'string' && /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateValue)) {
+      return dateValue;
+    }
+    
+    // If it's a Date object or Excel serial number
+    let date: Date;
+    if (typeof dateValue === 'number') {
+      // Excel serial number (days since 1900-01-01)
+      date = new Date((dateValue - 25569) * 86400 * 1000);
+    } else if (dateValue instanceof Date) {
+      date = dateValue;
+    } else {
+      // Try to parse as string
+      date = new Date(dateValue);
+    }
+    
+    // Check if valid date
+    if (isNaN(date.getTime())) return '';
+    
+    // Format as MM/DD/YYYY
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${month}/${day}/${year}`;
+  };
+
+  // Helper function to check if a column is a date column
+  const isDateColumn = (columnName: string): boolean => {
+    const dateKeywords = ['Date', 'Created', 'Last Edited', 'Closed', 'Delivery', 'Issue', 'Factory'];
+    return dateKeywords.some(keyword => columnName.includes(keyword));
+  };
+
   // Add state for PO Details edit mode and form
   const [poDetailsEditMode, setPoDetailsEditMode] = useState(false);
   const [poDetailsForm, setPoDetailsForm] = useState<Record<string, any> | null>(null);
@@ -719,22 +837,39 @@ const PurchaseOrder: React.FC = () => {
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       const json: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
-      // Map uploaded data to table columns
+      
+      // Map uploaded data to table columns with flexible header matching
       const mappedRows = json.map((row) => {
         const newRow: Record<string, any> = { ...blankRow };
-        // Map base columns
+        const importedHeaders = Object.keys(row);
+        
+        // Map base columns with flexible matching and date formatting
         baseColumns.forEach((col) => {
-          if (row[col] !== undefined) newRow[col] = row[col];
+          const matchingHeader = findMatchingColumn(importedHeaders, col);
+          if (matchingHeader && row[matchingHeader] !== undefined) {
+            // Check if this is a date column and format accordingly
+            if (isDateColumn(col)) {
+              newRow[col] = formatDateToMMDDYYYY(row[matchingHeader]);
+            } else {
+              newRow[col] = row[matchingHeader];
+            }
+          }
         });
-        // Map grouped columns
+        
+        // Map grouped columns with flexible matching and date formatting
         groupedColumns.forEach((group) => {
+          const targetDateHeader = findMatchingColumn(importedHeaders, `${group.label} - Target Date`);
+          const completedDateHeader = findMatchingColumn(importedHeaders, `${group.label} - Completed Date`);
+          
           newRow[group.key] = {
-            'Target Date': row[`${group.label} - Target Date`] || '',
-            'Completed Date': row[`${group.label} - Completed Date`] || '',
+            'Target Date': targetDateHeader ? formatDateToMMDDYYYY(row[targetDateHeader]) || '' : '',
+            'Completed Date': completedDateHeader ? formatDateToMMDDYYYY(row[completedDateHeader]) || '' : '',
           };
         });
+        
         return newRow;
       });
+      
       setRows((prev) => [...prev, ...mappedRows]);
     };
     reader.readAsArrayBuffer(file);

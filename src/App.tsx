@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import { UserProvider } from './contexts/UserContext';
 import { DataProvider } from './contexts/DataContext';
+import { SidebarProvider, useSidebar } from './contexts/SidebarContext';
 
 // Lazy load all other pages for better performance
 const TestQuickWins = lazy(() => import('./components/TestQuickWins'));
@@ -30,14 +31,12 @@ const DataBank = lazy(() => import('./pages/DataBank'));
 const MaterialPurchaseOrder = lazy(() => import('./pages/MaterialPurchaseOrder'));
 const MaterialPurchaseOrderLines = lazy(() => import('./pages/MaterialPurchaseOrderLines'));
 
-function App() {
+function AppContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed, setSidebarCollapsed } = useSidebar();
 
   return (
-    <UserProvider>
-      <DataProvider>
-        <Router>
+    <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route
@@ -95,6 +94,16 @@ function App() {
             />
           </Routes>
         </Router>
+  );
+}
+
+function App() {
+  return (
+    <UserProvider>
+      <DataProvider>
+        <SidebarProvider>
+          <AppContent />
+        </SidebarProvider>
       </DataProvider>
     </UserProvider>
   );

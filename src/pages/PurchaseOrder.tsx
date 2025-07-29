@@ -1,6 +1,9 @@
 import React, { useRef, useState } from 'react';
+import ReportBar from '../components/ReportBar';
+import { useSidebar } from '../contexts/SidebarContext';
 import * as XLSX from 'xlsx';
-import { ChevronDown, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, Copy as CopyIcon, Plus, Filter as FilterIcon, Download, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, Copy as CopyIcon, Plus, Filter as FilterIcon, Download, X } from 'lucide-react';
+import logo from '../images/logo no bg.png';
 
 // Define grouped columns
 const groupedColumns = [
@@ -36,6 +39,57 @@ const baseColumns = [
   'Purchase Payment Term Description', 'Selling Payment Term Description', 'Note Count', 'Latest Note', 'Default PO Line Template',
   'Default Ex-Factory', 'Created By', 'Created', 'Last Edited', 'Last Edited By', 'PO Issue Date',
 ];
+
+// Define header mappings for flexible import
+const headerMapping: Record<string, string[]> = {
+  'Order References': ['Order References', 'PO Reference', 'Order Ref', 'Reference', 'PO Number', 'Order Number', 'PO ID'],
+  'Status': ['Status', 'PO Status', 'Order Status', 'State', 'Order State', 'Purchase Order Status', 'PO Line Status'],
+  'Total Qty': ['Total Qty', 'Total Quantity', 'Quantity', 'Qty', 'Total Units', 'Order Quantity'],
+  'Total Cost': ['Total Cost', 'Cost', 'Purchase Cost', 'Total Purchase Cost', 'Amount', 'Total Amount'],
+  'Total Value': ['Total Value', 'Value', 'Selling Value', 'Total Selling Value', 'Revenue'],
+  'Customer': ['Customer', 'Client', 'Buyer', 'Customer Name', 'Client Name', 'Buyer Name'],
+  'Supplier': ['Supplier', 'Vendor', 'Manufacturer', 'Supplier Name', 'Vendor Name', 'Factory'],
+  'Purchase Currency': ['Purchase Currency', 'Currency', 'PO Currency', 'Buy Currency', 'Purchase Curr'],
+  'Selling Currency': ['Selling Currency', 'Sale Currency', 'Sell Currency', 'Selling Curr'],
+  'Purchase Payment Term': ['Purchase Payment Term', 'Payment Term', 'PO Payment Term', 'Buy Payment Term'],
+  'Selling Payment Term': ['Selling Payment Term', 'Sale Payment Term', 'Sell Payment Term'],
+  'Supplier Parent': ['Supplier Parent', 'Parent Supplier', 'Parent Company', 'Parent Vendor'],
+  'Delivery Contact': ['Delivery Contact', 'Contact', 'Delivery Person', 'Contact Person'],
+  'Division': ['Division', 'Dept', 'Department', 'Business Unit'],
+  'Group': ['Group', 'Product Group', 'Category', 'Product Category'],
+  'Supplier Description': ['Supplier Description', 'Description', 'Supplier Info', 'Vendor Description'],
+  'Supplier Location': ['Supplier Location', 'Location', 'Factory Location', 'Vendor Location'],
+  'Supplier Country': ['Supplier Country', 'Country', 'Factory Country', 'Vendor Country'],
+  'Template': ['Template', 'PO Template', 'Order Template', 'Template Name'],
+  'Transport Method': ['Transport Method', 'Transport', 'Shipping Method', 'Delivery Method'],
+  'Deliver to': ['Deliver to', 'Delivery To', 'Delivery Address', 'Ship To', 'Delivery Location'],
+  'Closed Date': ['Closed Date', 'Close Date', 'Completion Date', 'End Date'],
+  'Delivery Date': ['Delivery Date', 'Ship Date', 'Expected Delivery', 'Target Delivery'],
+  'PO Issue Date': ['PO Issue Date', 'Issue Date', 'Order Date', 'Creation Date', 'PO Date'],
+  'Supplier Currency': ['Supplier Currency', 'Vendor Currency', 'Factory Currency'],
+  'Comments': ['Comments', 'Comment', 'Notes', 'Description', 'Remarks'],
+  'Production': ['Production', 'Production Status', 'Manufacturing', 'Production Stage'],
+  'MLA- Purchasing': ['MLA- Purchasing', 'MLA Purchasing', 'Purchasing', 'Buyer', 'Purchasing Agent'],
+  'China -QC': ['China -QC', 'China QC', 'QC', 'Quality Control', 'Quality Check'],
+  'MLA-Planning': ['MLA-Planning', 'MLA Planning', 'Planning', 'Production Planning'],
+  'MLA-Shipping': ['MLA-Shipping', 'MLA Shipping', 'Shipping', 'Logistics'],
+  'PO Key User 6': ['PO Key User 6', 'Key User 6', 'User 6', 'Custom Field 6'],
+  'PO Key User 7': ['PO Key User 7', 'Key User 7', 'User 7', 'Custom Field 7'],
+  'PO Key User 8': ['PO Key User 8', 'Key User 8', 'User 8', 'Custom Field 8'],
+  'PO Key Working Group 2': ['PO Key Working Group 2', 'Working Group 2', 'WG2', 'Team 2'],
+  'PO Key Working Group 3': ['PO Key Working Group 3', 'Working Group 3', 'WG3', 'Team 3'],
+  'PO Key Working Group 4': ['PO Key Working Group 4', 'Working Group 4', 'WG4', 'Team 4'],
+  'Purchase Payment Term Description': ['Purchase Payment Term Description', 'Payment Term Desc', 'Buy Payment Term Desc'],
+  'Selling Payment Term Description': ['Selling Payment Term Description', 'Sale Payment Term Desc'],
+  'Note Count': ['Note Count', 'Notes Count', 'Comment Count', 'Number of Notes'],
+  'Latest Note': ['Latest Note', 'Last Note', 'Recent Note', 'Latest Comment'],
+  'Default PO Line Template': ['Default PO Line Template', 'PO Line Template', 'Line Template'],
+  'Default Ex-Factory': ['Default Ex-Factory', 'Ex-Factory', 'Ex Factory', 'Factory Date'],
+  'Created By': ['Created By', 'Creator', 'Author', 'Created By User'],
+  'Created': ['Created', 'Creation Date', 'Created Date', 'Date Created'],
+  'Last Edited': ['Last Edited', 'Last Modified', 'Modified', 'Last Updated'],
+  'Last Edited By': ['Last Edited By', 'Editor', 'Modified By', 'Last Updated By'],
+};
 
 const allColumns = [
   ...baseColumns,
@@ -507,6 +561,7 @@ const poLinesColumns = [
 ];
 
 const PurchaseOrder: React.FC = () => {
+  const { sidebarCollapsed } = useSidebar();
   const [rows, setRows] = useState([initialRow]);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [editRow, setEditRow] = useState<Record<string, any> | null>(null);
@@ -517,6 +572,73 @@ const PurchaseOrder: React.FC = () => {
   const [visibleColumns, setVisibleColumns] = useState<string[]>(allColumns);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+
+  // Helper function to find matching column headers
+  const findMatchingColumn = (importedHeaders: string[], targetColumn: string): string | null => {
+    const possibleHeaders = headerMapping[targetColumn] || [targetColumn];
+    
+    // First try exact match
+    const exactMatch = importedHeaders.find(header => 
+      possibleHeaders.includes(header)
+    );
+    if (exactMatch) return exactMatch;
+    
+    // Then try case-insensitive match
+    const caseInsensitiveMatch = importedHeaders.find(header => 
+      possibleHeaders.some((possible: string) => 
+        possible.toLowerCase() === header.toLowerCase()
+      )
+    );
+    if (caseInsensitiveMatch) return caseInsensitiveMatch;
+    
+    // Finally try partial match (header contains target or target contains header)
+    const partialMatch = importedHeaders.find(header => 
+      possibleHeaders.some((possible: string) => 
+        header.toLowerCase().includes(possible.toLowerCase()) ||
+        possible.toLowerCase().includes(header.toLowerCase())
+      )
+    );
+    
+    return partialMatch || null;
+  };
+
+  // Helper function to format dates to MM/DD/YYYY format
+  const formatDateToMMDDYYYY = (dateValue: any): string => {
+    if (!dateValue) return '';
+    
+    // If it's already a string in MM/DD/YYYY format
+    if (typeof dateValue === 'string' && /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateValue)) {
+      return dateValue;
+    }
+    
+    // If it's a Date object or Excel serial number
+    let date: Date;
+    if (typeof dateValue === 'number') {
+      // Excel serial number (days since 1900-01-01)
+      date = new Date((dateValue - 25569) * 86400 * 1000);
+    } else if (dateValue instanceof Date) {
+      date = dateValue;
+    } else {
+      // Try to parse as string
+      date = new Date(dateValue);
+    }
+    
+    // Check if valid date
+    if (isNaN(date.getTime())) return '';
+    
+    // Format as MM/DD/YYYY
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${month}/${day}/${year}`;
+  };
+
+  // Helper function to check if a column is a date column
+  const isDateColumn = (columnName: string): boolean => {
+    const dateKeywords = ['Date', 'Created', 'Last Edited', 'Closed', 'Delivery', 'Issue', 'Factory'];
+    return dateKeywords.some(keyword => columnName.includes(keyword));
+  };
 
   // Add state for PO Details edit mode and form
   const [poDetailsEditMode, setPoDetailsEditMode] = useState(false);
@@ -538,7 +660,12 @@ const PurchaseOrder: React.FC = () => {
   const [poLinesEditMode, setPoLinesEditMode] = useState(false);
   const [poLinesForm, setPoLinesForm] = useState<Record<string, any>[] | null>(null);
   const [selectedProductDetails, setSelectedProductDetails] = useState<Record<string, any> | null>(null);
+  
+  // State for slide-up container
+  const [showSlideUpContainer, setShowSlideUpContainer] = useState(false);
+  const [activeContent, setActiveContent] = useState('');
   const [activeProductTab, setActiveProductTab] = useState('Product Details');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleEdit = () => {
     setEditIndex(selectedIndex);
@@ -625,9 +752,51 @@ const PurchaseOrder: React.FC = () => {
   };
 
   const handleClear = () => {
-    setSearch('');
-    setFilteredRows(null);
+    // If a row is selected, show confirmation dialog
+    if (selectedIndex >= 0 && displayRows.length > 0) {
+      setShowDeleteConfirm(true);
+    }
+    // If no row is selected, clear search and filters
+    else {
+      setSearch('');
+      setFilteredRows(null);
+      setSelectedIndex(0);
+    }
+  };
+
+  const handleConfirmDelete = () => {
+    const newRows = [...(filteredRows ?? rows)];
+    newRows.splice(selectedIndex, 1);
+    
+    if (filteredRows) {
+      const mainRows = [...rows];
+      const idxInMain = rows.indexOf(filteredRows[selectedIndex]);
+      if (idxInMain !== -1) mainRows.splice(idxInMain, 1);
+      setRows(mainRows);
+      setFilteredRows(newRows);
+    } else {
+      setRows(newRows);
+    }
+    
+    // Reset selection and edit states
     setSelectedIndex(0);
+    setEditIndex(null);
+    setEditRow(null);
+    setExpandedIndex(null);
+    setSelectedProductDetails(null);
+    
+    // If we deleted the last row, reset to empty state
+    if (newRows.length === 0) {
+      setSelectedIndex(-1);
+    } else if (selectedIndex >= newRows.length) {
+      setSelectedIndex(newRows.length - 1);
+    }
+    
+    setShowDeleteConfirm(false);
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteConfirm(false);
   };
 
   const handleColumnToggle = (col: string) => {
@@ -675,22 +844,39 @@ const PurchaseOrder: React.FC = () => {
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       const json: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
-      // Map uploaded data to table columns
+      
+      // Map uploaded data to table columns with flexible header matching
       const mappedRows = json.map((row) => {
         const newRow: Record<string, any> = { ...blankRow };
-        // Map base columns
+        const importedHeaders = Object.keys(row);
+        
+        // Map base columns with flexible matching and date formatting
         baseColumns.forEach((col) => {
-          if (row[col] !== undefined) newRow[col] = row[col];
+          const matchingHeader = findMatchingColumn(importedHeaders, col);
+          if (matchingHeader && row[matchingHeader] !== undefined) {
+            // Check if this is a date column and format accordingly
+            if (isDateColumn(col)) {
+              newRow[col] = formatDateToMMDDYYYY(row[matchingHeader]);
+            } else {
+              newRow[col] = row[matchingHeader];
+            }
+          }
         });
-        // Map grouped columns
+        
+        // Map grouped columns with flexible matching and date formatting
         groupedColumns.forEach((group) => {
+          const targetDateHeader = findMatchingColumn(importedHeaders, `${group.label} - Target Date`);
+          const completedDateHeader = findMatchingColumn(importedHeaders, `${group.label} - Completed Date`);
+          
           newRow[group.key] = {
-            'Target Date': row[`${group.label} - Target Date`] || '',
-            'Completed Date': row[`${group.label} - Completed Date`] || '',
+            'Target Date': targetDateHeader ? formatDateToMMDDYYYY(row[targetDateHeader]) || '' : '',
+            'Completed Date': completedDateHeader ? formatDateToMMDDYYYY(row[completedDateHeader]) || '' : '',
           };
         });
+        
         return newRow;
       });
+      
       setRows((prev) => [...prev, ...mappedRows]);
     };
     reader.readAsArrayBuffer(file);
@@ -745,7 +931,7 @@ const PurchaseOrder: React.FC = () => {
     return [firstRow, secondRow];
   };
 
-  const subTabs = ['PO Details', 'Delivery', 'Critical Path', 'Audit', 'Totals', 'Comments'];
+  const subTabs = ['PO Details', 'Delivery', 'Critical Path', 'Audit', 'Totals', 'Comments', 'Product Details'];
   const [activeSubTab, setActiveSubTab] = useState('PO Details');
 
   // Helper functions for subtable editing
@@ -947,15 +1133,20 @@ const PurchaseOrder: React.FC = () => {
     if (selectedProductDetails && selectedProductDetails['PO Line'] === productData['PO Line']) {
       setSelectedProductDetails(null);
     } else {
-      // Otherwise, select the new product
+      // Otherwise, select the new product and switch to Product Details tab
       setSelectedProductDetails(productData);
       setActiveProductTab('Product Details');
+      setActiveSubTab('Product Details');
     }
   };
 
+
+
   return (
-    <div className="p-6">
-      <div className="flex flex-wrap items-center mb-4 gap-2 relative">
+    <div className="flex flex-col h-[70vh]">
+      {/* Main Content */}
+      <div className="p-4 pb-20">
+        <div className="flex flex-wrap items-center mb-4 gap-2 relative">
         <h1 className="text-2xl font-bold mr-4">Purchase Orders</h1>
         <button className="bg-blue-700 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleImportClick}>
           <Upload className="w-4 h-4 mr-1" /> Import
@@ -1018,12 +1209,13 @@ const PurchaseOrder: React.FC = () => {
         <button className="bg-yellow-500 text-white px-3 py-1 rounded mr-2 flex items-center gap-1" onClick={handleFilter}>
           <FilterIcon className="w-4 h-4 mr-1" /> Filter
         </button>
-        <button className="bg-red-500 text-white px-3 py-1 rounded flex items-center gap-1" onClick={handleClear} disabled={!search && !filteredRows}>
+        <button className="bg-red-500 text-white px-3 py-1 rounded flex items-center gap-1" onClick={handleClear} disabled={selectedIndex < 0 && !search && !filteredRows}>
           <X className="w-4 h-4 mr-1" /> Clear
         </button>
       </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs">
+      <div className="overflow-x-auto" style={{ maxHeight: 'calc(92vh - 220px)' }}>
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(92vh - 220px)' }}>
+          <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs">
           <thead>
             <tr>
               {renderHeaderRows()[0]}
@@ -1538,6 +1730,221 @@ const PurchaseOrder: React.FC = () => {
                                 </div>
                               </>
                             )}
+                            {activeSubTab === 'Product Details' && selectedProductDetails && (
+                              <>
+                                <div className="font-semibold text-blue-700 mb-1 text-xs">Product Details</div>
+                                <div className="mb-2 flex gap-1 border-b border-blue-200">
+                                  {['Product Details', 'Critical Path', 'Images', 'Comments', 'Bill Of Materials', 'Activities', 'Colorways'].map(tab => (
+                                    <button
+                                      key={tab}
+                                      className={`px-2 py-1 -mb-px rounded-t text-xs font-medium transition-colors border-b-2 ${activeProductTab === tab ? 'bg-white border-blue-500 text-blue-700' : 'bg-blue-50 border-transparent text-gray-600 hover:text-blue-600'}`}
+                                      onClick={() => setActiveProductTab(tab)}
+                                    >
+                                      {tab}
+                                    </button>
+                                  ))}
+                                </div>
+                                {/* Product Details Tab content */}
+                                {activeProductTab === 'Product Details' && (
+                                  <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
+                                    <table className="text-xs border border-blue-200 rounded-md w-full">
+                                      <thead className="bg-blue-100">
+                                        <tr>
+                                          <th className="px-2 py-1 text-left font-semibold text-xs">Field</th>
+                                          <th className="px-2 py-1 text-left font-semibold text-xs">Value</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">M88 Ref</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['RECIPIENT PRODUCT SUPPLIER-NUMBER'] || ''}</td>
+                                        </tr>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">Buyer Style Number</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Product Buyer Style Number'] || ''}</td>
+                                        </tr>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">Buyer Style Name</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Product Buyer Style Name'] || ''}</td>
+                                        </tr>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">Customer</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Customer'] || ''}</td>
+                                        </tr>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">Department</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Department'] || ''}</td>
+                                        </tr>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">Status</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Product Status'] || ''}</td>
+                                        </tr>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">Description</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Purchase Description'] || ''}</td>
+                                        </tr>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">Product Type</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Product Type'] || ''}</td>
+                                        </tr>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">Season</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Season'] || ''}</td>
+                                        </tr>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">Product Development</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                        </tr>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">Tech Design</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                        </tr>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">China - QC</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['China-QC'] || ''}</td>
+                                        </tr>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">Lookbook</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Lookbook'] || '-'}</td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                                {activeProductTab === 'Critical Path' && (
+                                  <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
+                                    <table className="text-xs border border-blue-200 rounded-md w-full">
+                                      <thead className="bg-blue-100">
+                                        <tr>
+                                          <th className="px-2 py-1 text-left font-semibold text-xs">Milestone</th>
+                                          <th className="px-2 py-1 text-left font-semibold text-xs">Target Date</th>
+                                          <th className="px-2 py-1 text-left font-semibold text-xs">Completed Date</th>
+                                          <th className="px-2 py-1 text-left font-semibold text-xs">Status</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">Order Placement</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Order Placement']?.['Target Date'] || ''}</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Order Placement']?.['Completed Date'] || ''}</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                        </tr>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">Production Start</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Production'] || ''}</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                        </tr>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">Ex-Factory</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Ex-Factory'] || ''}</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                                {activeProductTab === 'Images' && (
+                                  <div className="p-4 text-center text-gray-500">
+                                    <p>No images available for this product.</p>
+                                  </div>
+                                )}
+                                {activeProductTab === 'Comments' && (
+                                  <div className="p-4">
+                                    <textarea
+                                      className="w-full border border-blue-200 rounded-md p-2 text-xs"
+                                      rows={4}
+                                      placeholder="Add comments about this product..."
+                                      defaultValue={selectedProductDetails['Comments'] || ''}
+                                    />
+                                  </div>
+                                )}
+                                {activeProductTab === 'Bill Of Materials' && (
+                                  <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
+                                    <table className="text-xs border border-blue-200 rounded-md w-full">
+                                      <thead className="bg-blue-100">
+                                        <tr>
+                                          <th className="px-2 py-1 text-left font-semibold text-xs">Material</th>
+                                          <th className="px-2 py-1 text-left font-semibold text-xs">Description</th>
+                                          <th className="px-2 py-1 text-left font-semibold text-xs">Quantity</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">{selectedProductDetails['Main Material'] || ''}</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Main Material Description'] || ''}</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Quantity'] || ''}</td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                                {activeProductTab === 'Activities' && (
+                                  <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
+                                    <table className="text-xs border border-blue-200 rounded-md w-full">
+                                      <thead className="bg-blue-100">
+                                        <tr>
+                                          <th className="px-2 py-1 text-left font-semibold text-xs">Activity</th>
+                                          <th className="px-2 py-1 text-left font-semibold text-xs">Status</th>
+                                          <th className="px-2 py-1 text-left font-semibold text-xs">Date</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">MLA-Purchasing</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['MLA-Purchasing'] || ''}</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                        </tr>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">MLA-Planning</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['MLA-Planning'] || ''}</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                        </tr>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">MLA-Shipping</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['MLA-Shipping'] || ''}</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                                {activeProductTab === 'Colorways' && (
+                                  <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
+                                    <table className="text-xs border border-blue-200 rounded-md w-full">
+                                      <thead className="bg-blue-100">
+                                        <tr>
+                                          <th className="px-2 py-1 text-left font-semibold text-xs">Color</th>
+                                          <th className="px-2 py-1 text-left font-semibold text-xs">Size</th>
+                                          <th className="px-2 py-1 text-left font-semibold text-xs">Quantity</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr>
+                                          <td className="px-2 py-1 border-t border-blue-100 font-medium">{selectedProductDetails['Color'] || ''}</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Size'] || ''}</td>
+                                          <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Quantity'] || ''}</td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                                <div className="flex justify-end mt-2">
+                                  <button
+                                    className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                    onClick={() => setSelectedProductDetails(null)}
+                                  >
+                                    Close Details
+                                  </button>
+                                </div>
+                              </>
+                            )}
+                            {activeSubTab === 'Product Details' && !selectedProductDetails && (
+                              <div className="p-4 text-center text-gray-500">
+                                <p>Click on a product in the PO Lines table to view its details.</p>
+                              </div>
+                            )}
                           </div>
                           {/* Right: PO Lines table */}
                           <div className="flex-1 min-w-0 overflow-x-auto">
@@ -1607,226 +2014,12 @@ const PurchaseOrder: React.FC = () => {
                           </div>
                         </div>
                       </div>
+
                     </td>
                   </tr>
                 )}
               </React.Fragment>
             ))}
-            {/* Product Details Table */}
-            {selectedProductDetails && (
-              <tr>
-                <td colSpan={visibleColumns.length} className="bg-transparent p-0 border-none">
-                  <div className="bg-white w-full shadow-lg p-3 mt-2">
-                    <div className="font-semibold text-blue-700 mb-2 text-sm">Product Details</div>
-                    <div className="mb-2 flex gap-1 border-b border-blue-200">
-                      {['Product Details', 'Critical Path', 'Images', 'Comments', 'Bill Of Materials', 'Activities', 'Colorways'].map(tab => (
-                        <button
-                          key={tab}
-                          className={`px-2 py-1 -mb-px rounded-t text-xs font-medium transition-colors border-b-2 ${activeProductTab === tab ? 'bg-white border-blue-500 text-blue-700' : 'bg-blue-50 border-transparent text-gray-600 hover:text-blue-600'}`}
-                          onClick={() => setActiveProductTab(tab)}
-                        >
-                          {tab}
-                        </button>
-                      ))}
-                    </div>
-                    {/* Tab content */}
-                    {activeProductTab === 'Product Details' && (
-                      <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
-                        <table className="text-xs border border-blue-200 rounded-md w-full">
-                          <thead className="bg-blue-100">
-                            <tr>
-                              <th className="px-2 py-1 text-left font-semibold text-xs">Field</th>
-                              <th className="px-2 py-1 text-left font-semibold text-xs">Value</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">M88 Ref</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['RECIPIENT PRODUCT SUPPLIER-NUMBER'] || ''}</td>
-                            </tr>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Buyer Style Number</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Product Buyer Style Number'] || ''}</td>
-                            </tr>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Buyer Style Name</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Product Buyer Style Name'] || ''}</td>
-                            </tr>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Customer</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Customer'] || ''}</td>
-                            </tr>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Department</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Department'] || ''}</td>
-                            </tr>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Status</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Product Status'] || ''}</td>
-                            </tr>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Description</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Purchase Description'] || ''}</td>
-                            </tr>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Product Type</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Product Type'] || ''}</td>
-                            </tr>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Season</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Season'] || ''}</td>
-                            </tr>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Product Development</td>
-                              <td className="px-2 py-1 border-t border-blue-100">-</td>
-                            </tr>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Tech Design</td>
-                              <td className="px-2 py-1 border-t border-blue-100">-</td>
-                            </tr>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">China - QC</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['China-QC'] || ''}</td>
-                            </tr>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Lookbook</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Lookbook'] || '-'}</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                    {activeProductTab === 'Critical Path' && (
-                      <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
-                        <table className="text-xs border border-blue-200 rounded-md w-full">
-                          <thead className="bg-blue-100">
-                            <tr>
-                              <th className="px-2 py-1 text-left font-semibold text-xs">Milestone</th>
-                              <th className="px-2 py-1 text-left font-semibold text-xs">Target Date</th>
-                              <th className="px-2 py-1 text-left font-semibold text-xs">Completed Date</th>
-                              <th className="px-2 py-1 text-left font-semibold text-xs">Status</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Order Placement</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Order Placement']?.['Target Date'] || ''}</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Order Placement']?.['Completed Date'] || ''}</td>
-                              <td className="px-2 py-1 border-t border-blue-100">-</td>
-                            </tr>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Production Start</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Production'] || ''}</td>
-                              <td className="px-2 py-1 border-t border-blue-100">-</td>
-                              <td className="px-2 py-1 border-t border-blue-100">-</td>
-                            </tr>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">Ex-Factory</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Ex-Factory'] || ''}</td>
-                              <td className="px-2 py-1 border-t border-blue-100">-</td>
-                              <td className="px-2 py-1 border-t border-blue-100">-</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                    {activeProductTab === 'Images' && (
-                      <div className="p-4 text-center text-gray-500">
-                        <p>No images available for this product.</p>
-                      </div>
-                    )}
-                    {activeProductTab === 'Comments' && (
-                      <div className="p-4">
-                        <textarea
-                          className="w-full border border-blue-200 rounded-md p-2 text-xs"
-                          rows={4}
-                          placeholder="Add comments about this product..."
-                          defaultValue={selectedProductDetails['Comments'] || ''}
-                        />
-                      </div>
-                    )}
-                    {activeProductTab === 'Bill Of Materials' && (
-                      <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
-                        <table className="text-xs border border-blue-200 rounded-md w-full">
-                          <thead className="bg-blue-100">
-                            <tr>
-                              <th className="px-2 py-1 text-left font-semibold text-xs">Material</th>
-                              <th className="px-2 py-1 text-left font-semibold text-xs">Description</th>
-                              <th className="px-2 py-1 text-left font-semibold text-xs">Quantity</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">{selectedProductDetails['Main Material'] || ''}</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Main Material Description'] || ''}</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Quantity'] || ''}</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                    {activeProductTab === 'Activities' && (
-                      <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
-                        <table className="text-xs border border-blue-200 rounded-md w-full">
-                          <thead className="bg-blue-100">
-                            <tr>
-                              <th className="px-2 py-1 text-left font-semibold text-xs">Activity</th>
-                              <th className="px-2 py-1 text-left font-semibold text-xs">Status</th>
-                              <th className="px-2 py-1 text-left font-semibold text-xs">Date</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">MLA-Purchasing</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['MLA-Purchasing'] || ''}</td>
-                              <td className="px-2 py-1 border-t border-blue-100">-</td>
-                            </tr>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">MLA-Planning</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['MLA-Planning'] || ''}</td>
-                              <td className="px-2 py-1 border-t border-blue-100">-</td>
-                            </tr>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">MLA-Shipping</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['MLA-Shipping'] || ''}</td>
-                              <td className="px-2 py-1 border-t border-blue-100">-</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                    {activeProductTab === 'Colorways' && (
-                      <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
-                        <table className="text-xs border border-blue-200 rounded-md w-full">
-                          <thead className="bg-blue-100">
-                            <tr>
-                              <th className="px-2 py-1 text-left font-semibold text-xs">Color</th>
-                              <th className="px-2 py-1 text-left font-semibold text-xs">Size</th>
-                              <th className="px-2 py-1 text-left font-semibold text-xs">Quantity</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td className="px-2 py-1 border-t border-blue-100 font-medium">{selectedProductDetails['Color'] || ''}</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Size'] || ''}</td>
-                              <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Quantity'] || ''}</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                    <div className="flex justify-end mt-2">
-                      <button
-                        className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
-                        onClick={() => setSelectedProductDetails(null)}
-                      >
-                        Close Details
-                      </button>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            )}
             {displayRows.length === 0 && (
               <tr><td colSpan={visibleColumns.reduce((acc, col) => {
                 const group = groupedColumns.find(g => g.key === col);
@@ -1835,7 +2028,54 @@ const PurchaseOrder: React.FC = () => {
             )}
           </tbody>
         </table>
+        </div>
       </div>
+      
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center mb-4">
+              <div className="flex-shrink-0">
+                <img src={logo} alt="Logo" className="w-8 h-8" />
+              </div>
+              <div className="ml-3">
+                <h3 className="text-lg font-medium text-gray-900">Delete Purchase Order</h3>
+              </div>
+            </div>
+            <div className="mb-6">
+              <p className="text-sm text-gray-500">
+                Are you sure you want to delete the selected Purchase Order? This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={handleCancelDelete}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              >
+                No, Cancel
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      </div>
+
+      {/* Report Bar Component */}
+      <ReportBar 
+        showSlideUpContainer={showSlideUpContainer}
+        setShowSlideUpContainer={setShowSlideUpContainer}
+        activeContent={activeContent}
+        setActiveContent={setActiveContent}
+        sidebarCollapsed={sidebarCollapsed}
+        pageData={displayRows[selectedIndex] || {}}
+      />
     </div>
   );
 };

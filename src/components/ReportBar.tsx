@@ -54,44 +54,82 @@ const ReportBar: React.FC<ReportBarProps> = ({
   const AuditTable = () => (
     <div>
       <h3 className="font-semibold text-gray-800 mb-2">Audit Log</h3>
-      <table className="min-w-full bg-white border border-gray-200">
-        <thead>
-          <tr>
-            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Created By</th>
-            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Created</th>
-            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Last Edited</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Created By'] || 'N/A'}</td>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Created'] || 'N/A'}</td>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Last Edited'] || 'N/A'}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <table className="min-w-full">
+          <thead className="bg-blue-600 text-white">
+            <tr>
+              <th className="py-2 px-3 border-b text-left text-xs font-medium cursor-pointer hover:bg-blue-700 transition-colors">
+                Change State
+                <span className="ml-1">▼</span>
+              </th>
+              <th className="py-2 px-3 border-b text-left text-xs font-medium cursor-pointer hover:bg-blue-700 transition-colors">
+                Time Occurred
+                <span className="ml-1">▼</span>
+              </th>
+              <th className="py-2 px-3 border-b text-left text-xs font-medium cursor-pointer hover:bg-blue-700 transition-colors">
+                Username
+                <span className="ml-1">▼</span>
+              </th>
+              <th className="py-2 px-3 border-b text-left text-xs font-medium cursor-pointer hover:bg-blue-700 transition-colors">
+                Property
+                <span className="ml-1">▼</span>
+              </th>
+              <th className="py-2 px-3 border-b text-left text-xs font-medium cursor-pointer hover:bg-blue-700 transition-colors">
+                Value
+                <span className="ml-1">▼</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {/* Empty rows for now - will be populated with actual data */}
+            {Array.from({ length: 10 }, (_, index) => (
+              <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                <td className="py-2 px-3 text-xs text-gray-700"></td>
+                <td className="py-2 px-3 text-xs text-gray-700"></td>
+                <td className="py-2 px-3 text-xs text-gray-700"></td>
+                <td className="py-2 px-3 text-xs text-gray-700"></td>
+                <td className="py-2 px-3 text-xs text-gray-700"></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 
   const NotesTable = () => (
     <div>
       <h3 className="font-semibold text-gray-800 mb-2">Notes</h3>
-      <table className="min-w-full bg-white border border-gray-200">
-        <thead>
-          <tr>
-            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Note Count</th>
-            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Latest Note</th>
-            <th className="py-1 px-2 border-b text-left text-xs font-medium text-gray-600">Comments</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Note Count'] || '0'}</td>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Latest Note'] || 'N/A'}</td>
-            <td className="py-1 px-2 border-b text-xs text-gray-700">{pageData['Comments'] || 'N/A'}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <table className="min-w-full">
+          <thead>
+            <tr>
+              <th className="py-2 px-3 border-b text-left text-xs font-medium text-blue-700 cursor-pointer hover:bg-blue-50 transition-colors">
+                Date
+                <span className="ml-1 text-gray-600">▼</span>
+              </th>
+              <th className="py-2 px-3 border-b text-left text-xs font-medium text-blue-700 cursor-pointer hover:bg-blue-50 transition-colors">
+                User
+                <span className="ml-1 text-gray-600">▼</span>
+              </th>
+              <th className="py-2 px-3 border-b text-left text-xs font-medium text-blue-700 cursor-pointer hover:bg-blue-50 transition-colors">
+                Note
+                <span className="ml-1 text-gray-600">▼</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {/* Empty rows for now - will be populated with actual data */}
+            {Array.from({ length: 5 }, (_, index) => (
+              <tr key={index} className="bg-white">
+                <td className="py-2 px-3 text-xs text-gray-700"></td>
+                <td className="py-2 px-3 text-xs text-gray-700"></td>
+                <td className="py-2 px-3 text-xs text-gray-700"></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 

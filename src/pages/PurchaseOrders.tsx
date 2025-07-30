@@ -303,11 +303,10 @@ const PurchaseOrders: React.FC = () => {
   const [productBOMForm, setProductBOMForm] = useState<any[]>([]);
   const [productActivitiesEdit, setProductActivitiesEdit] = useState(false);
   const [productActivitiesForm, setProductActivitiesForm] = useState<any[]>([]);
-  const [productColorwaysEdit, setProductColorwaysEdit] = useState(false);
+    const [productColorwaysEdit, setProductColorwaysEdit] = useState(false);
   const [productColorwaysForm, setProductColorwaysForm] = useState<any[]>([]);
 
-  // Additional subtable states for all columns
-  const [expandedColumns, setExpandedColumns] = useState<Record<string, number | null>>({});
+  // Comments state for Order subtable
   const [commentsValue, setCommentsValue] = useState('');
   const [commentsEdit, setCommentsEdit] = useState(false);
 
@@ -567,16 +566,6 @@ const PurchaseOrders: React.FC = () => {
     if (!safeVisibleColumns.includes('Product')) {
       setExpandedProductIndex(null);
     }
-    // Collapse any expanded columns that are no longer visible
-    setExpandedColumns(prev => {
-      const newExpandedColumns = { ...prev };
-      Object.keys(newExpandedColumns).forEach(colKey => {
-        if (!safeVisibleColumns.includes(colKey)) {
-          delete newExpandedColumns[colKey];
-        }
-      });
-      return newExpandedColumns;
-    });
   }, [safeVisibleColumns]);
 
 
@@ -866,24 +855,10 @@ const PurchaseOrders: React.FC = () => {
                           </td>
                       ];
                     }
-                    // Add expandable subtables for all other columns
+                    // Regular columns without expandable subtables
                     if (!col.isGroup) {
-                      const isExpanded = expandedColumns[col.key] === idx;
                       return [
                         <td key={col.key} className={`px-3 py-3 border-b align-top whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>
-                          <button
-                            className="mr-2 align-middle p-1 hover:bg-gray-100 rounded transition-colors"
-                            onClick={e => {
-                              e.stopPropagation();
-                              setExpandedColumns(prev => ({
-                                ...prev,
-                                [col.key]: isExpanded ? null : idx
-                              }));
-                            }}
-                            aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
-                          >
-                            {isExpanded ? <ChevronDown className="inline h-4 w-4" /> : <ChevronRight className="inline h-4 w-4" />}
-                          </button>
                           <span className="font-medium text-gray-900">{row[col.key] || ''}</span>
                         </td>
                       ];
@@ -1358,73 +1333,7 @@ const PurchaseOrders: React.FC = () => {
                     </td>
                   </tr>
                 )}
-                {/* Expanded subtables for all other columns */}
-                {Object.entries(expandedColumns).map(([columnKey, expandedIdx]) => {
-                  if (expandedIdx === idx && safeVisibleColumns.includes(columnKey)) {
-                    return (
-                      <tr key={`expanded-${columnKey}-${idx}`}>
-                        <td colSpan={renderColumns().reduce((acc, col) => acc + (col.isGroup ? 2 : 1), 0) + 1} className="bg-blue-50 px-6 py-4 sticky left-0 z-10">
-                          <div>
-                            <div className="font-semibold text-blue-700 mb-2">{columnKey} Details</div>
-                            <div className="max-w-4xl w-full">
-                              <table className="text-sm border border-blue-200 rounded mb-2 w-full">
-                                <tbody>
-                                  <tr>
-                                    <td className="px-2 py-1 font-semibold w-32">{columnKey}</td>
-                                    <td className="px-2 py-1">{row[columnKey] || ''}</td>
-                                  </tr>
-                                  <tr>
-                                    <td className="px-2 py-1 font-semibold w-32">Description</td>
-                                    <td className="px-2 py-1">
-                                      {commentsEdit && expandedColumns[columnKey] === idx ? (
-                                        <textarea
-                                          className="border px-1 py-0.5 rounded w-full min-h-[80px]"
-                                          value={commentsValue || ''}
-                                          onChange={e => setCommentsValue(e.target.value)}
-                                          placeholder={`Add description for ${columnKey}...`}
-                                        />
-                                      ) : (
-                                        row[`${columnKey} Description`] || <span className='text-gray-400'>No description available</span>
-                                      )}
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td className="px-2 py-1 font-semibold w-32">Status</td>
-                                    <td className="px-2 py-1">{row[`${columnKey} Status`] || 'N/A'}</td>
-                                  </tr>
-                                  <tr>
-                                    <td className="px-2 py-1 font-semibold w-32">Last Updated</td>
-                                    <td className="px-2 py-1">{row[`${columnKey} Last Updated`] || 'N/A'}</td>
-                                  </tr>
-                                </tbody>
-                              </table>
-                              <div className="flex gap-2 mt-2">
-                                {commentsEdit && expandedColumns[columnKey] === idx ? (
-                                  <>
-                                    <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
-                                      const newRows = [...rows];
-                                      newRows[idx] = { ...row, [`${columnKey} Description`]: commentsValue };
-                                      setRows(newRows);
-                                      setCommentsEdit(false);
-                                      setCommentsValue('');
-                                    }}>Save</button>
-                                    <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setCommentsEdit(false); setCommentsValue(''); }}>Cancel</button>
-                                  </>
-                                ) : (
-                                  <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => { 
-                                    setCommentsEdit(true); 
-                                    setCommentsValue(row[`${columnKey} Description`] || ''); 
-                                  }}>Edit Description</button>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  }
-                  return null;
-                })}
+
                 </React.Fragment>
               ))}
                               </tbody>

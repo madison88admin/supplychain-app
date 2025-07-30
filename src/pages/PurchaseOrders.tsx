@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
-import { ChevronDown, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, Plus, Filter as FilterIcon, Download, X, Trash2, Search, Eye } from 'lucide-react';
+import { ChevronDown, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, Copy as CopyIcon, Plus, Filter as FilterIcon, Download, X, Trash2, Search, Eye } from 'lucide-react';
 import PurchaseOrderEditModal from '../components/modals/PurchaseOrderEditModal';
 
-// Define grouped columns
+// Define grouped columns (from Downloads file)
 const groupedColumns = [
   { label: 'Packing & Label Instruction', children: ['Target Date', 'Completed Date'], key: 'Packing & Label Instruction' },
   { label: 'inline Inspection', children: ['Target Date', 'Completed Date'], key: 'inline Inspection' },
@@ -271,6 +271,46 @@ const PurchaseOrders: React.FC = () => {
   // Add state for expanded Product subtable and its edit state:
   const [expandedProductIndex, setExpandedProductIndex] = useState<number | null>(null);
 
+  // Subtable state variables (from Downloads file)
+  const [activeSubTab, setActiveSubTab] = useState('PO Details');
+  const [activeProductTab, setActiveProductTab] = useState('Product Details');
+  
+  // Order subtable edit states
+  const [poDetailsEditIdx, setPoDetailsEditIdx] = useState<number | null>(null);
+  const [poDetailsForm, setPoDetailsForm] = useState<Record<string, any> | null>(null);
+  const [deliveryEdit, setDeliveryEdit] = useState(false);
+  const [deliveryForm, setDeliveryForm] = useState<Record<string, any> | null>(null);
+  const [criticalPathEdit, setCriticalPathEdit] = useState(false);
+  const [criticalPathForm, setCriticalPathForm] = useState<Record<string, any> | null>(null);
+  const [auditEdit, setAuditEdit] = useState(false);
+  const [auditForm, setAuditForm] = useState<Record<string, any> | null>(null);
+  const [totalsEdit, setTotalsEdit] = useState(false);
+  const [totalsForm, setTotalsForm] = useState<Record<string, any> | null>(null);
+
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+
+  // Product subtable edit states
+  const [productEditTab, setProductEditTab] = useState('Product Details');
+  const [productDetailsEdit, setProductDetailsEdit] = useState(false);
+  const [productDetailsForm, setProductDetailsForm] = useState<Record<string, any> | null>(null);
+  const [productCriticalEdit, setProductCriticalEdit] = useState(false);
+  const [productCriticalForm, setProductCriticalForm] = useState<Record<string, any> | null>(null);
+  const [productImagesEdit, setProductImagesEdit] = useState(false);
+  const [productImagesForm, setProductImagesForm] = useState<Record<string, any> | null>(null);
+  const [productCommentsEdit, setProductCommentsEdit] = useState(false);
+  const [productCommentsForm, setProductCommentsForm] = useState<Record<string, any> | null>(null);
+  const [productBOMEdit, setProductBOMEdit] = useState(false);
+  const [productBOMForm, setProductBOMForm] = useState<any[]>([]);
+  const [productActivitiesEdit, setProductActivitiesEdit] = useState(false);
+  const [productActivitiesForm, setProductActivitiesForm] = useState<any[]>([]);
+  const [productColorwaysEdit, setProductColorwaysEdit] = useState(false);
+  const [productColorwaysForm, setProductColorwaysForm] = useState<any[]>([]);
+
+  // Additional subtable states for all columns
+  const [expandedColumns, setExpandedColumns] = useState<Record<string, number | null>>({});
+  const [commentsValue, setCommentsValue] = useState('');
+  const [commentsEdit, setCommentsEdit] = useState(false);
+
   // Multi-row selection states
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [selectAll, setSelectAll] = useState(false);
@@ -527,10 +567,19 @@ const PurchaseOrders: React.FC = () => {
     if (!safeVisibleColumns.includes('Product')) {
       setExpandedProductIndex(null);
     }
+    // Collapse any expanded columns that are no longer visible
+    setExpandedColumns(prev => {
+      const newExpandedColumns = { ...prev };
+      Object.keys(newExpandedColumns).forEach(colKey => {
+        if (!safeVisibleColumns.includes(colKey)) {
+          delete newExpandedColumns[colKey];
+        }
+      });
+      return newExpandedColumns;
+    });
   }, [safeVisibleColumns]);
 
-  // Add state for sub-table active tab
-  const [activeSubTab, setActiveSubTab] = useState('PO Details');
+
 
   // Add state for column selector search
   const [columnSearch, setColumnSearch] = useState('');
@@ -810,15 +859,33 @@ const PurchaseOrders: React.FC = () => {
                               e.stopPropagation();
                               setExpandedProductIndex(expandedProductIndex === idx ? null : idx);
                             }}
-                            title={expandedProductIndex === idx ? 'Click to collapse product details' : 'Click to expand product details'}
-                          > 
-                            <div className="flex items-center w-full">
-                              <div className="mr-2 align-middle flex-shrink-0">
-                                {expandedProductIndex === idx ? <ChevronDown className="inline h-4 w-4 text-blue-600" /> : <ChevronRight className="inline h-4 w-4 text-gray-500" />}
-                              </div>
-                              <span className="font-medium text-gray-900 truncate">{row[col.key] || ''}</span>
-                            </div>
+                            aria-label={expandedProductIndex === idx ? 'Collapse product details' : 'Expand product details'}
+                          >
+                            {expandedProductIndex === idx ? <ChevronDown className="inline h-4 w-4" /> : <ChevronRight className="inline h-4 w-4" />}
+                            <span className="font-medium text-gray-900">{row[col.key] || ''}</span>
                           </td>
+                      ];
+                    }
+                    // Add expandable subtables for all other columns
+                    if (!col.isGroup) {
+                      const isExpanded = expandedColumns[col.key] === idx;
+                      return [
+                        <td key={col.key} className={`px-3 py-3 border-b align-top whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>
+                          <button
+                            className="mr-2 align-middle p-1 hover:bg-gray-100 rounded transition-colors"
+                            onClick={e => {
+                              e.stopPropagation();
+                              setExpandedColumns(prev => ({
+                                ...prev,
+                                [col.key]: isExpanded ? null : idx
+                              }));
+                            }}
+                            aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
+                          >
+                            {isExpanded ? <ChevronDown className="inline h-4 w-4" /> : <ChevronRight className="inline h-4 w-4" />}
+                          </button>
+                          <span className="font-medium text-gray-900">{row[col.key] || ''}</span>
+                        </td>
                       ];
                     }
                     // Handle grouped columns
@@ -848,18 +915,516 @@ const PurchaseOrders: React.FC = () => {
                   {/* Expanded Details - Keep existing expanded row logic */}
                 {expandedIndex === idx && safeVisibleColumns.includes('Order') && (
                   <tr>
-                      <td colSpan={renderColumns().reduce((acc, col) => acc + (col.isGroup ? 2 : 1), 0) + 1} className="bg-blue-50 px-6 py-4 sticky left-0 z-10">
-                        {/* Keep existing expanded content */}
+                    <td colSpan={renderColumns().reduce((acc, col) => acc + (col.isGroup ? 2 : 1), 0) + 1} className="bg-blue-50 px-6 py-4 sticky left-0 z-10">
+                      <div>
+                        <div className="font-semibold text-blue-700 mb-2">Purchase Order Details</div>
+                        {/* Horizontal Tabs */}
+                        <div className="mb-4 flex gap-2 border-b border-blue-200">
+                          {['PO Details', 'Delivery', 'Critical Path', 'Audit', 'Totals', 'Comments'].map(tab => (
+                            <button
+                              key={tab}
+                              className={`px-4 py-2 -mb-px rounded-t font-medium transition-colors border-b-2 ${activeSubTab === tab ? 'bg-white border-blue-500 text-blue-700' : 'bg-blue-50 border-transparent text-gray-600 hover:text-blue-600'}`}
+                              onClick={() => setActiveSubTab(tab)}
+                            >
+                              {tab}
+                            </button>
+                          ))}
+                        </div>
+                        {/* Subtable Content */}
+                        <div className="max-w-4xl w-full">
+                          {activeSubTab === 'PO Details' && (
+                            <>
+                              <table className="text-sm border border-blue-200 rounded mb-2 w-full">
+                                <tbody>
+                                  <tr><td className="px-2 py-1 font-semibold">Order reference</td><td className="px-2 py-1">{poDetailsEditIdx === idx ? poDetailsForm?.['Order reference'] : row['Order']}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold">Supplier</td><td className="px-2 py-1">{poDetailsEditIdx === idx ? <input className="border px-1 py-0.5 rounded w-full" value={poDetailsForm?.['Supplier'] || ''} onChange={e => setPoDetailsForm(f => ({...f, 'Supplier': e.target.value}))} /> : row['Supplier']}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold">Purchase Currency</td><td className="px-2 py-1">{poDetailsEditIdx === idx ? <input className="border px-1 py-0.5 rounded w-full" value={poDetailsForm?.['Purchase Currency'] || ''} onChange={e => setPoDetailsForm(f => ({...f, 'Purchase Currency': e.target.value}))} /> : row['Purchase Currency']}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold">Status</td><td className="px-2 py-1">{poDetailsEditIdx === idx ? (
+                                    <div className="relative">
+                                      <button
+                                        type="button"
+                                        className="w-full border px-2 py-1 rounded flex items-center gap-2 bg-white"
+                                        onClick={() => setShowStatusDropdown(v => !v)}
+                                      >
+                                        <span className={`${statusOptions.find(opt => opt.value === (poDetailsForm?.['Status'] ?? ''))?.color || 'bg-gray-200'} w-4 h-4 inline-block rounded-sm border`}></span>
+                                        <span>{poDetailsForm?.['Status'] || 'Select status'}</span>
+                                        <svg className="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                                      </button>
+                                      {showStatusDropdown && (
+                                        <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-40 overflow-y-auto">
+                                          {statusOptions.map(opt => (
+                                            <div
+                                              key={opt.value}
+                                              className={`flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-blue-100 ${poDetailsForm?.['Status'] === opt.value ? 'bg-blue-50' : ''}`}
+                                              onClick={() => {
+                                                setPoDetailsForm(f => ({...f, 'Status': opt.value}));
+                                                setShowStatusDropdown(false);
+                                              }}
+                                            >
+                                              <span className={`${opt.color} w-4 h-4 inline-block rounded-sm border`}></span>
+                                              <span>{opt.label}</span>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-2">
+                                      <span className={`${statusOptions.find(opt => opt.value === row['Status'])?.color || 'bg-gray-200'} w-4 h-4 inline-block rounded-sm border`}></span>
+                                      <span>{row['Status']}</span>
+                                    </span>
+                                  )}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold">Production</td><td className="px-2 py-1">{poDetailsEditIdx === idx ? <input className="border px-1 py-0.5 rounded w-full" value={poDetailsForm?.['Production'] || ''} onChange={e => setPoDetailsForm(f => ({...f, 'Production': e.target.value}))} /> : row['Production']}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold">MLA-Purchasing</td><td className="px-2 py-1">{poDetailsEditIdx === idx ? <input className="border px-1 py-0.5 rounded w-full" value={poDetailsForm?.['MLA-Purchasing'] || ''} onChange={e => setPoDetailsForm(f => ({...f, 'MLA-Purchasing': e.target.value}))} /> : row['MLA-Purchasing']}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold">China-QC</td><td className="px-2 py-1">{poDetailsEditIdx === idx ? <input className="border px-1 py-0.5 rounded w-full" value={poDetailsForm?.['China-QC'] || ''} onChange={e => setPoDetailsForm(f => ({...f, 'China-QC': e.target.value}))} /> : row['China-QC']}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold">MLA-Planning</td><td className="px-2 py-1">{poDetailsEditIdx === idx ? <input className="border px-1 py-0.5 rounded w-full" value={poDetailsForm?.['MLA-Planning'] || ''} onChange={e => setPoDetailsForm(f => ({...f, 'MLA-Planning': e.target.value}))} /> : row['MLA-Planning']}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold">MLA-Shipping</td><td className="px-2 py-1">{poDetailsEditIdx === idx ? <input className="border px-1 py-0.5 rounded w-full" value={poDetailsForm?.['MLA-Shipping'] || ''} onChange={e => setPoDetailsForm(f => ({...f, 'MLA-Shipping': e.target.value}))} /> : row['MLA-Shipping']}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold">Closed Date</td><td className="px-2 py-1">{poDetailsEditIdx === idx ? <input className="border px-1 py-0.5 rounded w-full" value={poDetailsForm?.['Closed Date'] || ''} onChange={e => setPoDetailsForm(f => ({...f, 'Closed Date': e.target.value}))} /> : row['Closed Date']}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold">Selling Currency</td><td className="px-2 py-1">{poDetailsEditIdx === idx ? <input className="border px-1 py-0.5 rounded w-full" value={poDetailsForm?.['Selling Currency'] || ''} onChange={e => setPoDetailsForm(f => ({...f, 'Selling Currency': e.target.value}))} /> : row['Selling Currency']}</td></tr>
+                                </tbody>
+                              </table>
+                              <div className="flex gap-2 mt-2">
+                                {poDetailsEditIdx === idx ? (
+                                  <>
+                                    <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                      const newRows = [...rows];
+                                      newRows[idx] = { ...row, ...poDetailsForm };
+                                      setRows(newRows);
+                                      setPoDetailsEditIdx(null);
+                                      setPoDetailsForm(null);
+                                    }}>Save</button>
+                                    <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setPoDetailsEditIdx(null); setPoDetailsForm(null); }}>Cancel</button>
+                                  </>
+                                ) : (
+                                  <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => { setPoDetailsEditIdx(idx); setPoDetailsForm({ ...row }); }}>Edit</button>
+                                )}
+                              </div>
+                            </>
+                          )}
+                          {activeSubTab === 'Delivery' && (
+                            <>
+                              <table className="text-sm border border-blue-200 rounded mb-2 w-full">
+                                <tbody>
+                                  <tr><td className="px-2 py-1 font-semibold">Customer</td><td className="px-2 py-1">{deliveryEdit ? <input className="border px-1 py-0.5 rounded w-full" value={deliveryForm?.['Customer'] || ''} onChange={e => setDeliveryForm(f => ({...f, 'Customer': e.target.value}))} /> : row['Customer']}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold">Deliver To</td><td className="px-2 py-1">{deliveryEdit ? <input className="border px-1 py-0.5 rounded w-full" value={deliveryForm?.['Deliver To'] || ''} onChange={e => setDeliveryForm(f => ({...f, 'Deliver To': e.target.value}))} /> : row['Deliver To']}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold">Transport Method</td><td className="px-2 py-1">{deliveryEdit ? <input className="border px-1 py-0.5 rounded w-full" value={deliveryForm?.['Transport Method'] || ''} onChange={e => setDeliveryForm(f => ({...f, 'Transport Method': e.target.value}))} /> : row['Transport Method']}</td></tr>
+                                </tbody>
+                              </table>
+                              <div className="flex gap-2 mt-2">
+                                {deliveryEdit ? (
+                                  <>
+                                    <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                      const newRows = [...rows];
+                                      newRows[idx] = { ...row, ...deliveryForm };
+                                      setRows(newRows);
+                                      setDeliveryEdit(false);
+                                      setDeliveryForm(null);
+                                    }}>Save</button>
+                                    <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setDeliveryEdit(false); setDeliveryForm(null); }}>Cancel</button>
+                                  </>
+                                ) : (
+                                  <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => { setDeliveryEdit(true); setDeliveryForm({ ...row }); }}>Edit</button>
+                                )}
+                              </div>
+                            </>
+                          )}
+                          {activeSubTab === 'Critical Path' && (
+                            <>
+                              <table className="text-sm border border-blue-200 rounded mb-2 w-full">
+                                <tbody>
+                                  <tr><td className="px-2 py-1 font-semibold">Template</td><td className="px-2 py-1">{criticalPathEdit ? <input className="border px-1 py-0.5 rounded w-full" value={criticalPathForm?.['Template'] || ''} onChange={e => setCriticalPathForm(f => ({...f, 'Template': e.target.value}))} /> : row['Template']}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold">PO Issue Date</td><td className="px-2 py-1">{criticalPathEdit ? <input className="border px-1 py-0.5 rounded w-full" value={criticalPathForm?.['PO Issue Date'] || ''} onChange={e => setCriticalPathForm(f => ({...f, 'PO Issue Date': e.target.value}))} /> : row['PO Issue Date']}</td></tr>
+                                </tbody>
+                              </table>
+                              <div className="flex gap-2 mt-2">
+                                {criticalPathEdit ? (
+                                  <>
+                                    <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                      const newRows = [...rows];
+                                      newRows[idx] = { ...row, ...criticalPathForm };
+                                      setRows(newRows);
+                                      setCriticalPathEdit(false);
+                                      setCriticalPathForm(null);
+                                    }}>Save</button>
+                                    <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setCriticalPathEdit(false); setCriticalPathForm(null); }}>Cancel</button>
+                                  </>
+                                ) : (
+                                  <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => { setCriticalPathEdit(true); setCriticalPathForm({ ...row }); }}>Edit</button>
+                                )}
+                              </div>
+                            </>
+                          )}
+                          {activeSubTab === 'Audit' && (
+                            <>
+                              <table className="text-sm border border-blue-200 rounded mb-2 w-full">
+                                <tbody>
+                                  <tr><td className="px-2 py-1 font-semibold">Created By</td><td className="px-2 py-1">{auditEdit ? <input className="border px-1 py-0.5 rounded w-full" value={auditForm?.['Created By'] || ''} onChange={e => setAuditForm(f => ({...f, 'Created By': e.target.value}))} /> : row['Created By']}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold">Last Edited</td><td className="px-2 py-1">{auditEdit ? <input className="border px-1 py-0.5 rounded w-full" value={auditForm?.['Last Edited'] || ''} onChange={e => setAuditForm(f => ({...f, 'Last Edited': e.target.value}))} /> : row['Last Edited']}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold">Created</td><td className="px-2 py-1">{auditEdit ? <input className="border px-1 py-0.5 rounded w-full" value={auditForm?.['Created'] || ''} onChange={e => setAuditForm(f => ({...f, 'Created': e.target.value}))} /> : row['Created']}</td></tr>
+                                </tbody>
+                              </table>
+                              <div className="flex gap-2 mt-2">
+                                {auditEdit ? (
+                                  <>
+                                    <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                      const newRows = [...rows];
+                                      newRows[idx] = { ...row, ...auditForm };
+                                      setRows(newRows);
+                                      setAuditEdit(false);
+                                      setAuditForm(null);
+                                    }}>Save</button>
+                                    <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setAuditEdit(false); setAuditForm(null); }}>Cancel</button>
+                                  </>
+                                ) : (
+                                  <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => { setAuditEdit(true); setAuditForm({ ...row }); }}>Edit</button>
+                                )}
+                              </div>
+                            </>
+                          )}
+                          {activeSubTab === 'Totals' && (
+                            <>
+                              <table className="text-sm border border-blue-200 rounded mb-2 w-full">
+                                <tbody>
+                                  <tr><td className="px-2 py-1 font-semibold">Total Cost</td><td className="px-2 py-1">{totalsEdit ? <input className="border px-1 py-0.5 rounded w-full" value={totalsForm?.['Total Cost'] || ''} onChange={e => setTotalsForm(f => ({...f, 'Total Cost': e.target.value}))} /> : row['Total Cost']}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold">Total Qty</td><td className="px-2 py-1">{totalsEdit ? <input className="border px-1 py-0.5 rounded w-full" value={totalsForm?.['Total Qty'] || ''} onChange={e => setTotalsForm(f => ({...f, 'Total Qty': e.target.value}))} /> : row['Total Qty']}</td></tr>
+                                  <tr><td className="px-2 py-1 font-semibold">Total Value</td><td className="px-2 py-1">{totalsEdit ? <input className="border px-1 py-0.5 rounded w-full" value={totalsForm?.['Total Value'] || ''} onChange={e => setTotalsForm(f => ({...f, 'Total Value': e.target.value}))} /> : row['Total Value']}</td></tr>
+                                </tbody>
+                              </table>
+                              <div className="flex gap-2 mt-2">
+                                {totalsEdit ? (
+                                  <>
+                                    <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                      const newRows = [...rows];
+                                      newRows[idx] = { ...row, ...totalsForm };
+                                      setRows(newRows);
+                                      setTotalsEdit(false);
+                                      setTotalsForm(null);
+                                    }}>Save</button>
+                                    <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setTotalsEdit(false); setTotalsForm(null); }}>Cancel</button>
+                                  </>
+                                ) : (
+                                  <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => { setTotalsEdit(true); setTotalsForm({ ...row }); }}>Edit</button>
+                                )}
+                              </div>
+                            </>
+                          )}
+                          {activeSubTab === 'Comments' && (
+                            <>
+                              <div className="mb-2">
+                                <div className="px-2 py-1 bg-white rounded border border-blue-100 min-h-[80px]">
+                                  {commentsEdit ? (
+                                    <textarea
+                                      className="border px-1 py-0.5 rounded w-full min-h-[80px]"
+                                      value={commentsValue || ''}
+                                      onChange={e => setCommentsValue(e.target.value)}
+                                    />
+                                  ) : (
+                                    row['Latest Note'] || <span className='text-gray-400'>No comment</span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex gap-2 mt-2">
+                                {commentsEdit ? (
+                                  <>
+                                    <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                      const newRows = [...rows];
+                                      newRows[idx] = { ...row, 'Latest Note': commentsValue };
+                                      setRows(newRows);
+                                      setCommentsEdit(false);
+                                      setCommentsValue('');
+                                    }}>Save</button>
+                                    <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setCommentsEdit(false); setCommentsValue(''); }}>Cancel</button>
+                                  </>
+                                ) : (
+                                  <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => { setCommentsEdit(true); setCommentsValue(row['Latest Note'] || ''); }}>Edit</button>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 )}
                 {expandedProductIndex === idx && safeVisibleColumns.includes('Product') && (
                   <tr>
-                      <td colSpan={renderColumns().reduce((acc, col) => acc + (col.isGroup ? 2 : 1), 0) + 1} className="bg-blue-50 px-6 py-4 sticky left-0 z-10">
-                        {/* Keep existing expanded content */}
+                    <td colSpan={renderColumns().reduce((acc, col) => acc + (col.isGroup ? 2 : 1), 0) + 1} className="bg-blue-50 px-6 py-4 sticky left-0 z-10">
+                      <div>
+                        <div className="font-semibold text-blue-700 mb-2">Product Details</div>
+                        {/* Horizontal Tabs */}
+                        <div className="mb-4 flex gap-2 border-b border-blue-200">
+                          {['Product Details', 'Critical Path', 'Images', 'Comments', 'Bill Of Materials', 'Activities', 'Colorways'].map(tab => (
+                            <button
+                              key={tab}
+                              className={`px-4 py-2 -mb-px rounded-t font-medium transition-colors border-b-2 ${productEditTab === tab ? 'bg-white border-blue-500 text-blue-700' : 'bg-blue-50 border-transparent text-gray-600 hover:text-blue-600'}`}
+                              onClick={() => setProductEditTab(tab)}
+                            >
+                              {tab}
+                            </button>
+                          ))}
+                        </div>
+                        {/* Product Details Tab */}
+                        {productEditTab === 'Product Details' && (
+                          <div className="inline-block">
+                            <table className="text-sm border border-blue-200 rounded mb-2 table-fixed">
+                              <tbody>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Product</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Product'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Product': e.target.value}))} /> : row['Product'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Product Type</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Product Type'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Product Type': e.target.value}))} /> : row['Product Type'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Product Sub Type</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Product Sub Type'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Product Sub Type': e.target.value}))} /> : row['Product Sub Type'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Product Status</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Product Status'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Product Status': e.target.value}))} /> : row['Product Status'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Product Buyer Style Name</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Product Buyer Style Name'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Product Buyer Style Name': e.target.value}))} /> : row['Product Buyer Style Name'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Product Buyer Style Number</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Product Buyer Style Number'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Product Buyer Style Number': e.target.value}))} /> : row['Product Buyer Style Number'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Standard Minute Value</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Standard Minute Value'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Standard Minute Value': e.target.value}))} /> : row['Standard Minute Value'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Costing</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Costing'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Costing': e.target.value}))} /> : row['Costing'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Purchase Price</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Purchase Price'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Purchase Price': e.target.value}))} /> : row['Purchase Price'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Selling Price</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Selling Price'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Selling Price': e.target.value}))} /> : row['Selling Price'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Minimum Order Quantity</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Minimum Order Quantity'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Minimum Order Quantity': e.target.value}))} /> : row['Minimum Order Quantity'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Purchase Description</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Purchase Description'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Purchase Description': e.target.value}))} /> : row['Purchase Description'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Main Material</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Main Material'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Main Material': e.target.value}))} /> : row['Main Material'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Main Material Description</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Main Material Description'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Main Material Description': e.target.value}))} /> : row['Main Material Description'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Size</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Size'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Size': e.target.value}))} /> : row['Size'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Color</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Color'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Color': e.target.value}))} /> : row['Color'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Season</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Season'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Season': e.target.value}))} /> : row['Season'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Department</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Department'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Department': e.target.value}))} /> : row['Department'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Collection</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Collection'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Collection': e.target.value}))} /> : row['Collection'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Division</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Division'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Division': e.target.value}))} /> : row['Division'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Group</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Group'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Group': e.target.value}))} /> : row['Group'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Lookbook</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Lookbook'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Lookbook': e.target.value}))} /> : row['Lookbook'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Supplier</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Supplier'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Supplier': e.target.value}))} /> : row['Supplier'] || ''}</td></tr>
+                              </tbody>
+                            </table>
+                            <div className="flex gap-2 mt-2">
+                              {productDetailsEdit ? (
+                                <>
+                                  <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                    const newRows = [...rows];
+                                    newRows[idx] = { ...row, ...productDetailsForm };
+                                    setRows(newRows);
+                                    setProductDetailsEdit(false);
+                                    setProductDetailsForm(null);
+                                  }}>Save</button>
+                                  <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setProductDetailsEdit(false); setProductDetailsForm(null); }}>Cancel</button>
+                                </>
+                              ) : (
+                                <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => { setProductDetailsEdit(true); setProductDetailsForm({
+                                  'Product': row['Product'] || '',
+                                  'Product Type': row['Product Type'] || '',
+                                  'Product Sub Type': row['Product Sub Type'] || '',
+                                  'Product Status': row['Product Status'] || '',
+                                  'Product Buyer Style Name': row['Product Buyer Style Name'] || '',
+                                  'Product Buyer Style Number': row['Product Buyer Style Number'] || '',
+                                  'Standard Minute Value': row['Standard Minute Value'] || '',
+                                  'Costing': row['Costing'] || '',
+                                  'Purchase Price': row['Purchase Price'] || '',
+                                  'Selling Price': row['Selling Price'] || '',
+                                  'Minimum Order Quantity': row['Minimum Order Quantity'] || '',
+                                  'Purchase Description': row['Purchase Description'] || '',
+                                  'Main Material': row['Main Material'] || '',
+                                  'Main Material Description': row['Main Material Description'] || '',
+                                  'Size': row['Size'] || '',
+                                  'Color': row['Color'] || '',
+                                  'Season': row['Season'] || '',
+                                  'Department': row['Department'] || '',
+                                  'Collection': row['Collection'] || '',
+                                  'Division': row['Division'] || '',
+                                  'Group': row['Group'] || '',
+                                  'Lookbook': row['Lookbook'] || '',
+                                  'Supplier': row['Supplier'] || ''
+                                }); }}>Edit</button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        {/* Comments Tab */}
+                        {productEditTab === 'Comments' && (
+                          <div className="inline-block">
+                            <table className="text-sm border border-blue-200 rounded mb-2 table-fixed">
+                              <thead>
+                                <tr>
+                                  <th className="px-2 py-1 font-semibold w-40">Comments</th>
+                                  <th className="px-2 py-1 font-semibold w-40">Buyer Comments</th>
+                                  <th className="px-2 py-1 font-semibold w-40">Factory Comments</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td className="px-2 py-1">
+                                    {productCommentsEdit ? (
+                                      <textarea
+                                        className="border px-1 py-0.5 rounded text-sm w-full min-h-[40px]"
+                                        value={productCommentsForm?.['Product Comments'] || ''}
+                                        onChange={e => setProductCommentsForm((f: any) => ({...f, 'Product Comments': e.target.value}))}
+                                        placeholder="Comments..."
+                                      />
+                                    ) : (
+                                      row['Product Comments'] ? (
+                                        <span>{row['Product Comments']}</span>
+                                      ) : <span className="text-gray-400">No comments</span>
+                                    )}
+                                  </td>
+                                  <td className="px-2 py-1">
+                                    {productCommentsEdit ? (
+                                      <textarea
+                                        className="border px-1 py-0.5 rounded text-sm w-full min-h-[40px]"
+                                        value={productCommentsForm?.['Product Buyer Comments'] || ''}
+                                        onChange={e => setProductCommentsForm((f: any) => ({...f, 'Product Buyer Comments': e.target.value}))}
+                                        placeholder="Buyer Comments..."
+                                      />
+                                    ) : (
+                                      row['Product Buyer Comments'] ? (
+                                        <span>{row['Product Buyer Comments']}</span>
+                                      ) : <span className="text-gray-400">No comments</span>
+                                    )}
+                                  </td>
+                                  <td className="px-2 py-1">
+                                    {productCommentsEdit ? (
+                                      <textarea
+                                        className="border px-1 py-0.5 rounded text-sm w-full min-h-[40px]"
+                                        value={productCommentsForm?.['Product Factory Comments'] || ''}
+                                        onChange={e => setProductCommentsForm((f: any) => ({...f, 'Product Factory Comments': e.target.value}))}
+                                        placeholder="Factory Comments..."
+                                      />
+                                    ) : (
+                                      row['Product Factory Comments'] ? (
+                                        <span>{row['Product Factory Comments']}</span>
+                                      ) : <span className="text-gray-400">No comments</span>
+                                    )}
                                   </td>
                                 </tr>
-                  )}
+                              </tbody>
+                            </table>
+                            <div className="flex gap-2 mt-2">
+                              {productCommentsEdit ? (
+                                <>
+                                  <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                    const newRows = [...rows];
+                                    newRows[idx] = { ...row, ...productCommentsForm };
+                                    setRows(newRows);
+                                    setProductCommentsEdit(false);
+                                    setProductCommentsForm(null);
+                                  }}>Save</button>
+                                  <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setProductCommentsEdit(false); setProductCommentsForm(null); }}>Cancel</button>
+                                </>
+                              ) : (
+                                <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                  setProductCommentsEdit(true);
+                                  setProductCommentsForm({
+                                    'Product Comments': row['Product Comments'] || '',
+                                    'Product Buyer Comments': row['Product Buyer Comments'] || '',
+                                    'Product Factory Comments': row['Product Factory Comments'] || ''
+                                  });
+                                }}>Edit</button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        {/* Bill Of Materials Tab */}
+                        {productEditTab === 'Bill Of Materials' && (
+                          <div className="inline-block max-w-5xl min-w-fit overflow-x-auto sticky left-0 z-10">
+                            <div className="text-sm text-gray-600 mb-2">Bill of Materials management for this product</div>
+                            <div className="flex gap-2 mt-2">
+                              <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                setProductBOMEdit(true);
+                                setProductBOMForm(row['Product BOM'] ? [...row['Product BOM']] : []);
+                              }}>Edit BOM</button>
+                            </div>
+                          </div>
+                        )}
+                        {/* Activities Tab */}
+                        {productEditTab === 'Activities' && (
+                          <div className="inline-block max-w-3xl min-w-fit overflow-x-auto sticky left-0 z-10">
+                            <div className="text-sm text-gray-600 mb-2">Product activities and timeline</div>
+                            <div className="flex gap-2 mt-2">
+                              <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                setProductActivitiesEdit(true);
+                                setProductActivitiesForm(row['Product Activities'] ? [...row['Product Activities']] : []);
+                              }}>Edit Activities</button>
+                            </div>
+                          </div>
+                        )}
+                        {/* Colorways Tab */}
+                        {productEditTab === 'Colorways' && (
+                          <div className="inline-block max-w-3xl min-w-fit overflow-x-auto sticky left-0 z-10">
+                            <div className="text-sm text-gray-600 mb-2">Product color variations</div>
+                            <div className="flex gap-2 mt-2">
+                              <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                setProductColorwaysEdit(true);
+                                setProductColorwaysForm(row['Product Colorways'] ? [...row['Product Colorways']] : []);
+                              }}>Edit Colorways</button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )}
+                {/* Expanded subtables for all other columns */}
+                {Object.entries(expandedColumns).map(([columnKey, expandedIdx]) => {
+                  if (expandedIdx === idx && safeVisibleColumns.includes(columnKey)) {
+                    return (
+                      <tr key={`expanded-${columnKey}-${idx}`}>
+                        <td colSpan={renderColumns().reduce((acc, col) => acc + (col.isGroup ? 2 : 1), 0) + 1} className="bg-blue-50 px-6 py-4 sticky left-0 z-10">
+                          <div>
+                            <div className="font-semibold text-blue-700 mb-2">{columnKey} Details</div>
+                            <div className="max-w-4xl w-full">
+                              <table className="text-sm border border-blue-200 rounded mb-2 w-full">
+                                <tbody>
+                                  <tr>
+                                    <td className="px-2 py-1 font-semibold w-32">{columnKey}</td>
+                                    <td className="px-2 py-1">{row[columnKey] || ''}</td>
+                                  </tr>
+                                  <tr>
+                                    <td className="px-2 py-1 font-semibold w-32">Description</td>
+                                    <td className="px-2 py-1">
+                                      {commentsEdit && expandedColumns[columnKey] === idx ? (
+                                        <textarea
+                                          className="border px-1 py-0.5 rounded w-full min-h-[80px]"
+                                          value={commentsValue || ''}
+                                          onChange={e => setCommentsValue(e.target.value)}
+                                          placeholder={`Add description for ${columnKey}...`}
+                                        />
+                                      ) : (
+                                        row[`${columnKey} Description`] || <span className='text-gray-400'>No description available</span>
+                                      )}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td className="px-2 py-1 font-semibold w-32">Status</td>
+                                    <td className="px-2 py-1">{row[`${columnKey} Status`] || 'N/A'}</td>
+                                  </tr>
+                                  <tr>
+                                    <td className="px-2 py-1 font-semibold w-32">Last Updated</td>
+                                    <td className="px-2 py-1">{row[`${columnKey} Last Updated`] || 'N/A'}</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                              <div className="flex gap-2 mt-2">
+                                {commentsEdit && expandedColumns[columnKey] === idx ? (
+                                  <>
+                                    <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                      const newRows = [...rows];
+                                      newRows[idx] = { ...row, [`${columnKey} Description`]: commentsValue };
+                                      setRows(newRows);
+                                      setCommentsEdit(false);
+                                      setCommentsValue('');
+                                    }}>Save</button>
+                                    <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setCommentsEdit(false); setCommentsValue(''); }}>Cancel</button>
+                                  </>
+                                ) : (
+                                  <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => { 
+                                    setCommentsEdit(true); 
+                                    setCommentsValue(row[`${columnKey} Description`] || ''); 
+                                  }}>Edit Description</button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  }
+                  return null;
+                })}
                 </React.Fragment>
               ))}
                               </tbody>

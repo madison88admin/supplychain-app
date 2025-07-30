@@ -303,7 +303,7 @@ const PurchaseOrders: React.FC = () => {
   const [productBOMForm, setProductBOMForm] = useState<any[]>([]);
   const [productActivitiesEdit, setProductActivitiesEdit] = useState(false);
   const [productActivitiesForm, setProductActivitiesForm] = useState<any[]>([]);
-  const [productColorwaysEdit, setProductColorwaysEdit] = useState(false);
+    const [productColorwaysEdit, setProductColorwaysEdit] = useState(false);
   const [productColorwaysForm, setProductColorwaysForm] = useState<any[]>([]);
 
   // Add state for Tech Packs subtable tab
@@ -1547,9 +1547,9 @@ const PurchaseOrders: React.FC = () => {
                                   <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setProductBOMEdit(false); setProductBOMForm([]); }}>Cancel</button>
                                 </>
                               ) : (
-                                <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
-                                  setProductBOMEdit(true);
-                                  setProductBOMForm(row['Product BOM'] ? [...row['Product BOM']] : []);
+                              <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                setProductBOMEdit(true);
+                                setProductBOMForm(row['Product BOM'] ? [...row['Product BOM']] : []);
                                 }}>Edit</button>
                               )}
                             </div>
@@ -1700,9 +1700,9 @@ const PurchaseOrders: React.FC = () => {
                                   <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setProductActivitiesEdit(false); setProductActivitiesForm([]); }}>Cancel</button>
                                 </>
                               ) : (
-                                <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
-                                  setProductActivitiesEdit(true);
-                                  setProductActivitiesForm(row['Product Activities'] ? [...row['Product Activities']] : []);
+                              <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                setProductActivitiesEdit(true);
+                                setProductActivitiesForm(row['Product Activities'] ? [...row['Product Activities']] : []);
                                 }}>Edit</button>
                               )}
                             </div>
@@ -1711,32 +1711,32 @@ const PurchaseOrders: React.FC = () => {
                         {/* Colorways Tab */}
                         {productEditTab === 'Colorways' && (
                           <div className="w-full overflow-x-auto">
-                            <table className="text-sm border border-blue-200 rounded my-2" style={{ marginBottom: '12px' }}>
+                            <table className="text-xs border border-gray-300 rounded mb-1">
                               <thead>
-                                <tr>
-                                  <th className="px-2 py-1 font-semibold w-16">Active</th>
-                                  <th className="px-2 py-1 font-semibold w-20">Status</th>
-                                  <th className="px-2 py-1 font-semibold w-28">Product Sub Type</th>
-                                  <th className="px-2 py-1 font-semibold w-24">Collection</th>
-                                  <th className="px-2 py-1 font-semibold w-20">Template</th>
-                                  <th className="px-2 py-1 font-semibold w-32">Product Color Key Date</th>
-                                  <th className="px-2 py-1 font-semibold w-24">Closed Date</th>
-                                  <th className="px-2 py-1 font-semibold w-16">Color</th>
-                                  <th className="px-2 py-1 font-semibold w-28">Color Description</th>
-                                  <th className="px-2 py-1 font-semibold w-24">Color Family</th>
-                                  <th className="px-2 py-1 font-semibold w-24">Color Standard</th>
-                                  <th className="px-2 py-1 font-semibold w-28">Color External Ref.</th>
-                                  <th className="px-2 py-1 font-semibold w-28">Color External Ref. 2.</th>
-                                  <th className="px-2 py-1 font-semibold w-24">Approved to SMS</th>
-                                  <th className="px-2 py-1 font-semibold w-24">Approved to Bulk</th>
-                                  <th className="px-2 py-1 font-semibold w-24">In Development</th>
-                                  <th className="px-2 py-1 font-semibold w-20">Actions</th>
+                                <tr className="bg-gray-50">
+                                  <th className="px-1 py-0.5 text-left font-semibold border w-16">Active</th>
+                                  <th className="px-1 py-0.5 text-left font-semibold border w-20">Status</th>
+                                  <th className="px-1 py-0.5 text-left font-semibold border w-28">Product Sub Type</th>
+                                  <th className="px-1 py-0.5 text-left font-semibold border w-24">Collection</th>
+                                  <th className="px-1 py-0.5 text-left font-semibold border w-20">Template</th>
+                                  <th className="px-1 py-0.5 text-left font-semibold border w-32">Product Color Key Date</th>
+                                  <th className="px-1 py-0.5 text-left font-semibold border w-24">Closed Date</th>
+                                  <th className="px-1 py-0.5 text-left font-semibold border w-16">Color</th>
+                                  <th className="px-1 py-0.5 text-left font-semibold border w-28">Color Description</th>
+                                  <th className="px-1 py-0.5 text-left font-semibold border w-24">Color Family</th>
+                                  <th className="px-1 py-0.5 text-left font-semibold border w-24">Color Standard</th>
+                                  <th className="px-1 py-0.5 text-left font-semibold border w-28">Color External Ref.</th>
+                                  <th className="px-1 py-0.5 text-left font-semibold border w-28">Color External Ref. 2.</th>
+                                  <th className="px-1 py-0.5 text-left font-semibold border w-24">Approved to SMS</th>
+                                  <th className="px-1 py-0.5 text-left font-semibold border w-24">Approved to Bulk</th>
+                                  <th className="px-1 py-0.5 text-left font-semibold border w-24">In Development</th>
+                                  <th className="px-1 py-0.5 text-left font-semibold border w-20">Actions</th>
                                 </tr>
                               </thead>
                               <tbody>
                                 {(productColorwaysEdit ? productColorwaysForm : (row['Product Colorways'] || []))?.map((cw: any, cwIdx: number) => (
-                                  <tr key={cwIdx}>
-                                    <td className="px-2 py-1 text-center">
+                                  <tr key={cwIdx} className="hover:bg-gray-50">
+                                    <td className="px-1 py-0.5 border text-xs text-center">
                                       {productColorwaysEdit ? (
                                         <input
                                           type="checkbox"
@@ -1751,52 +1751,52 @@ const PurchaseOrders: React.FC = () => {
                                         cw['Active'] ? 'Yes' : 'No'
                                       )}
                                     </td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Status'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], Status: e.target.value }; setProductColorwaysForm(updated); }} />
+                                    <td className="px-1 py-0.5 border text-xs">{productColorwaysEdit ? (
+                                      <input className="border px-1 py-0.5 rounded text-xs w-full" value={productColorwaysForm[cwIdx]?.['Status'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], Status: e.target.value }; setProductColorwaysForm(updated); }} />
                                     ) : (cw['Status'] || '')}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Product Sub Type'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Product Sub Type': e.target.value }; setProductColorwaysForm(updated); }} />
+                                    <td className="px-1 py-0.5 border text-xs">{productColorwaysEdit ? (
+                                      <input className="border px-1 py-0.5 rounded text-xs w-full" value={productColorwaysForm[cwIdx]?.['Product Sub Type'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Product Sub Type': e.target.value }; setProductColorwaysForm(updated); }} />
                                     ) : (cw['Product Sub Type'] || '')}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Collection'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], Collection: e.target.value }; setProductColorwaysForm(updated); }} />
+                                    <td className="px-1 py-0.5 border text-xs">{productColorwaysEdit ? (
+                                      <input className="border px-1 py-0.5 rounded text-xs w-full" value={productColorwaysForm[cwIdx]?.['Collection'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], Collection: e.target.value }; setProductColorwaysForm(updated); }} />
                                     ) : (cw['Collection'] || '')}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Template'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], Template: e.target.value }; setProductColorwaysForm(updated); }} />
+                                    <td className="px-1 py-0.5 border text-xs">{productColorwaysEdit ? (
+                                      <input className="border px-1 py-0.5 rounded text-xs w-full" value={productColorwaysForm[cwIdx]?.['Template'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], Template: e.target.value }; setProductColorwaysForm(updated); }} />
                                     ) : (cw['Template'] || '')}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input type="date" className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Product Color Key Date'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Product Color Key Date': e.target.value }; setProductColorwaysForm(updated); }} />
+                                    <td className="px-1 py-0.5 border text-xs">{productColorwaysEdit ? (
+                                      <input type="date" className="border px-1 py-0.5 rounded text-xs w-full" value={productColorwaysForm[cwIdx]?.['Product Color Key Date'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Product Color Key Date': e.target.value }; setProductColorwaysForm(updated); }} />
                                     ) : (cw['Product Color Key Date'] || '')}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input type="date" className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Closed Date'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Closed Date': e.target.value }; setProductColorwaysForm(updated); }} />
+                                    <td className="px-1 py-0.5 border text-xs">{productColorwaysEdit ? (
+                                      <input type="date" className="border px-1 py-0.5 rounded text-xs w-full" value={productColorwaysForm[cwIdx]?.['Closed Date'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Closed Date': e.target.value }; setProductColorwaysForm(updated); }} />
                                     ) : (cw['Closed Date'] || '')}</td>
-                                    <td className="px-2 py-1 text-center">{productColorwaysEdit ? (
+                                    <td className="px-1 py-0.5 border text-xs text-center">{productColorwaysEdit ? (
                                       <input type="color" className="w-8 h-6 border rounded" value={productColorwaysForm[cwIdx]?.['Color'] || '#000000'} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], Color: e.target.value }; setProductColorwaysForm(updated); }} />
                                     ) : (<span style={{ background: cw['Color'] || '#000', display: 'inline-block', width: 20, height: 20, borderRadius: 4, border: '1px solid #ccc' }} title={cw['Color'] || ''}></span>)}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Color Description'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color Description': e.target.value }; setProductColorwaysForm(updated); }} />
+                                    <td className="px-1 py-0.5 border text-xs">{productColorwaysEdit ? (
+                                      <input className="border px-1 py-0.5 rounded text-xs w-full" value={productColorwaysForm[cwIdx]?.['Color Description'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color Description': e.target.value }; setProductColorwaysForm(updated); }} />
                                     ) : (cw['Color Description'] || '')}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Color Family'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color Family': e.target.value }; setProductColorwaysForm(updated); }} />
+                                    <td className="px-1 py-0.5 border text-xs">{productColorwaysEdit ? (
+                                      <input className="border px-1 py-0.5 rounded text-xs w-full" value={productColorwaysForm[cwIdx]?.['Color Family'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color Family': e.target.value }; setProductColorwaysForm(updated); }} />
                                     ) : (cw['Color Family'] || '')}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Color Standard'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color Standard': e.target.value }; setProductColorwaysForm(updated); }} />
+                                    <td className="px-1 py-0.5 border text-xs">{productColorwaysEdit ? (
+                                      <input className="border px-1 py-0.5 rounded text-xs w-full" value={productColorwaysForm[cwIdx]?.['Color Standard'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color Standard': e.target.value }; setProductColorwaysForm(updated); }} />
                                     ) : (cw['Color Standard'] || '')}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Color External Ref.'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color External Ref.': e.target.value }; setProductColorwaysForm(updated); }} />
+                                    <td className="px-1 py-0.5 border text-xs">{productColorwaysEdit ? (
+                                      <input className="border px-1 py-0.5 rounded text-xs w-full" value={productColorwaysForm[cwIdx]?.['Color External Ref.'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color External Ref.': e.target.value }; setProductColorwaysForm(updated); }} />
                                     ) : (cw['Color External Ref.'] || '')}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Color External Ref. 2.'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color External Ref. 2.': e.target.value }; setProductColorwaysForm(updated); }} />
+                                    <td className="px-1 py-0.5 border text-xs">{productColorwaysEdit ? (
+                                      <input className="border px-1 py-0.5 rounded text-xs w-full" value={productColorwaysForm[cwIdx]?.['Color External Ref. 2.'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color External Ref. 2.': e.target.value }; setProductColorwaysForm(updated); }} />
                                     ) : (cw['Color External Ref. 2.'] || '')}</td>
-                                    <td className="px-2 py-1 text-center">{productColorwaysEdit ? (
+                                    <td className="px-1 py-0.5 border text-xs text-center">{productColorwaysEdit ? (
                                       <input type="checkbox" checked={!!productColorwaysForm[cwIdx]?.['Approved to SMS']} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Approved to SMS': e.target.checked }; setProductColorwaysForm(updated); }} />
                                     ) : (cw['Approved to SMS'] ? 'Yes' : 'No')}</td>
-                                    <td className="px-2 py-1 text-center">{productColorwaysEdit ? (
+                                    <td className="px-1 py-0.5 border text-xs text-center">{productColorwaysEdit ? (
                                       <input type="checkbox" checked={!!productColorwaysForm[cwIdx]?.['Approved to Bulk']} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Approved to Bulk': e.target.checked }; setProductColorwaysForm(updated); }} />
                                     ) : (cw['Approved to Bulk'] ? 'Yes' : 'No')}</td>
-                                    <td className="px-2 py-1 text-center">{productColorwaysEdit ? (
+                                    <td className="px-1 py-0.5 border text-xs text-center">{productColorwaysEdit ? (
                                       <input type="checkbox" checked={!!productColorwaysForm[cwIdx]?.['In Development']} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'In Development': e.target.checked }; setProductColorwaysForm(updated); }} />
                                     ) : (cw['In Development'] ? 'Yes' : 'No')}</td>
-                                    <td className="px-2 py-1">
+                                    <td className="px-1 py-0.5 border text-xs">
                                       {productColorwaysEdit && (
                                         <button className="bg-red-500 text-white px-2 py-1 rounded text-xs" onClick={() => {
                                           const updated = productColorwaysForm.filter((_: any, i: number) => i !== cwIdx);
@@ -1830,14 +1830,110 @@ const PurchaseOrders: React.FC = () => {
                                   <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setProductColorwaysEdit(false); setProductColorwaysForm([]); }}>Cancel</button>
                                 </>
                               ) : (
-                                <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
-                                  setProductColorwaysEdit(true);
-                                  setProductColorwaysForm(row['Product Colorways'] ? [...row['Product Colorways']] : []);
+                              <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                setProductColorwaysEdit(true);
+                                setProductColorwaysForm(row['Product Colorways'] ? [...row['Product Colorways']] : []);
                                 }}>Edit</button>
                               )}
                             </div>
                           </div>
                         )}
+
+                        {/* Tech Packs Section - Always visible below Colorways */}
+                        <div className="mt-8">
+                          <div className="text-sm text-gray-600 mb-2">Tech Pack Table</div>
+                          {/* Tech Packs subtable tabs */}
+                          <div className="mb-4 flex gap-2 border-b border-blue-200">
+                            {(['Tech Pack Version', 'Bill Of Materials', 'Size Specifications', 'Fit Log', 'Fibre Composition', 'Care Instructions', 'Labels'] as string[]).map((tab: string) => (
+                              <button
+                                key={tab}
+                                className={`px-4 py-2 -mb-px rounded-t font-medium transition-colors border-b-2 ${techPacksEditTab === tab ? 'bg-white border-blue-500 text-blue-700' : 'bg-blue-50 border-transparent text-gray-600 hover:text-blue-600'}`}
+                                onClick={() => setTechPacksEditTab(tab)}
+                              >
+                                {tab}
+                              </button>
+                            ))}
+                          </div>
+
+                          {/* Tech Pack Version Tab */}
+                          {(!techPacksEditTab || techPacksEditTab === 'Tech Pack Version') && (
+                            <div className="inline-block w-full">
+                              <div className="mb-3">
+                                <h4 className="font-semibold text-gray-700 mb-1 text-sm">Version Control</h4>
+                                <div className="overflow-x-auto">
+                                  <table className="text-xs border border-gray-300 rounded mb-1">
+                                    <thead>
+                                      <tr className="bg-gray-50">
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-20">Version Number</th>
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-24">Comment</th>
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-28">Bill of Material Version</th>
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-28">Size Specification Version</th>
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-28">Care Instruction Version</th>
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-28">Fibre Composition Version</th>
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-20">Label Version</th>
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-16">Fit Log</th>
+                                        <th className="px-1 py-0.5 text-center font-semibold border w-20">Current Version</th>
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-20">Created By</th>
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-24">Created</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr className="hover:bg-gray-50">
+                                        <td className="px-1 py-0.5 border text-xs">v1.0</td>
+                                        <td className="px-1 py-0.5 border text-xs">Initial version</td>
+                                        <td className="px-1 py-0.5 border text-xs">BOM-001</td>
+                                        <td className="px-1 py-0.5 border text-xs">SS-001</td>
+                                        <td className="px-1 py-0.5 border text-xs">CI-001</td>
+                                        <td className="px-1 py-0.5 border text-xs">FC-001</td>
+                                        <td className="px-1 py-0.5 border text-xs">L-001</td>
+                                        <td className="px-1 py-0.5 border text-xs">FL-001</td>
+                                        <td className="px-1 py-0.5 border text-xs text-center">
+                                          <div className="w-3 h-3 bg-blue-500 border rounded flex items-center justify-center mx-auto">
+                                            <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                      </div>
+                    </td>
+                                        <td className="px-1 py-0.5 border text-xs">John Doe</td>
+                                        <td className="px-1 py-0.5 border text-xs">2024-01-15</td>
+                  </tr>
+                                      <tr className="hover:bg-gray-50">
+                                        <td className="px-1 py-0.5 border text-xs">v1.1</td>
+                                        <td className="px-1 py-0.5 border text-xs">Updated materials</td>
+                                        <td className="px-1 py-0.5 border text-xs">BOM-002</td>
+                                        <td className="px-1 py-0.5 border text-xs">SS-001</td>
+                                        <td className="px-1 py-0.5 border text-xs">CI-001</td>
+                                        <td className="px-1 py-0.5 border text-xs">FC-002</td>
+                                        <td className="px-1 py-0.5 border text-xs">L-001</td>
+                                        <td className="px-1 py-0.5 border text-xs">FL-002</td>
+                                        <td className="px-1 py-0.5 border text-xs text-center">
+                                          <div className="w-3 h-3 bg-gray-300 border rounded mx-auto"></div>
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">Jane Smith</td>
+                                        <td className="px-1 py-0.5 border text-xs">2024-01-20</td>
+                                      </tr>
+                                      <tr className="hover:bg-gray-50">
+                                        <td className="px-1 py-0.5 border text-xs">v1.2</td>
+                                        <td className="px-1 py-0.5 border text-xs">Size adjustments</td>
+                                        <td className="px-1 py-0.5 border text-xs">BOM-002</td>
+                                        <td className="px-1 py-0.5 border text-xs">SS-002</td>
+                                        <td className="px-1 py-0.5 border text-xs">CI-002</td>
+                                        <td className="px-1 py-0.5 border text-xs">FC-002</td>
+                                        <td className="px-1 py-0.5 border text-xs">L-002</td>
+                                        <td className="px-1 py-0.5 border text-xs">FL-003</td>
+                                        <td className="px-1 py-0.5 border text-xs text-center">
+                                          <div className="w-3 h-3 bg-gray-300 border rounded mx-auto"></div>
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">Mike Johnson</td>
+                                        <td className="px-1 py-0.5 border text-xs">2024-01-25</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
 
                         {/* Techpacks Tab */}
                         {productEditTab === 'Techpacks' && (

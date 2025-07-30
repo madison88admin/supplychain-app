@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
+import darkLogo from '../images/darklogo.png';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -18,11 +19,11 @@ const Login: React.FC = () => {
     password: 'admin123',
     user: {
       id: 'admin-1',
-      name: 'Admin User',
+      name: 'Sample Admin User',
       email: 'admin@madison88.com',
       role: 'Admin' as const,
-      department: 'Administration',
-      avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1'
+      department: 'IT',
+      avatar: ''
     }
   };
 
@@ -33,11 +34,11 @@ const Login: React.FC = () => {
       password: 'demo123',
       user: {
         id: 'production-1',
-        name: 'Production Manager',
+        name: 'Sample Production Manager',
         email: 'production@madison88.com',
         role: 'Production' as const,
         department: 'Production',
-        avatar: 'https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1'
+        avatar: ''
       }
     },
     {
@@ -45,11 +46,11 @@ const Login: React.FC = () => {
       password: 'demo123',
       user: {
         id: 'qa-1',
-        name: 'QA Specialist',
+        name: 'Sample QA Specialist',
         email: 'qa@madison88.com',
         role: 'QA' as const,
         department: 'Quality Assurance',
-        avatar: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1'
+        avatar: ''
       }
     },
     {
@@ -57,11 +58,11 @@ const Login: React.FC = () => {
       password: 'demo123',
       user: {
         id: '1',
-        name: 'Sarah Johnson',
-        email: 'sarah.johnson@madison88.com',
+        name: 'Sample Product Developer',
+        email: 'developer@madison88.com',
         role: 'Product Developer' as const,
         department: 'Product Development',
-        avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1'
+        avatar: ''
       }
     },
     {
@@ -69,11 +70,11 @@ const Login: React.FC = () => {
       password: 'demo123',
       user: {
         id: '2',
-        name: 'John Buyer',
+        name: 'Sample Buyer',
         email: 'buyer@madison88.com',
         role: 'Buyer' as const,
         department: 'Procurement',
-        avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1'
+        avatar: ''
       }
     }
   ];
@@ -120,27 +121,33 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{
+      background: 'linear-gradient(135deg, #2C5A7A 0%, #3D75A3 100%)'
+    }}>
+      <div className="max-w-md w-full bg-white rounded-xl shadow-2xl p-8 border border-gray-200">
         {/* Title */}
-        <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900">
-            Madison88 Supply Chain
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Sign in to your account
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <img
+              src={darkLogo}
+              alt="Madison 88 Logo"
+              className="h-20 w-auto"
+            />
+          </div>
+          <p className="text-sm text-gray-600">
+            Supply Chain Management System
           </p>
         </div>
 
         {/* Login Form */}
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          <div className="space-y-4">
+        <form className="space-y-6" onSubmit={handleLogin}>
+          <div className="space-y-5">
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email address
               </label>
-              <div className="mt-1 relative">
+              <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-gray-400" />
                 </div>
@@ -152,7 +159,7 @@ const Login: React.FC = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   placeholder="Enter your email"
                 />
               </div>
@@ -160,10 +167,10 @@ const Login: React.FC = () => {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 Password
               </label>
-              <div className="mt-1 relative">
+              <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>
@@ -175,7 +182,7 @@ const Login: React.FC = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none relative block w-full pl-10 pr-10 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  className="block w-full pl-10 pr-10 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   placeholder="Enter your password"
                 />
                 <button
@@ -184,9 +191,9 @@ const Login: React.FC = () => {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
+                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
+                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                   )}
                 </button>
               </div>
@@ -195,17 +202,17 @@ const Login: React.FC = () => {
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
           )}
 
           {/* Submit Button */}
-          <div>
+          <div className="relative">
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isLoading ? (
                 <div className="flex items-center">
@@ -216,40 +223,46 @@ const Login: React.FC = () => {
                 'Sign in'
               )}
             </button>
+            {/* Forgot Password Link */}
+            <div className="absolute -bottom-6 right-0">
+              <a href="#" className="text-xs text-blue-600 hover:text-blue-800 transition-colors">
+                Forgot Password?
+              </a>
+            </div>
           </div>
         </form>
 
         {/* Demo Login Buttons */}
-        <div className="mt-6">
+        <div className="mt-8">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
+              <div className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-500">
+              <span className="px-3 bg-white text-gray-500 font-medium">
                 Demo Accounts
               </span>
             </div>
           </div>
 
-          <div className="mt-4 space-y-2">
+          <div className="mt-6 space-y-3">
             <button
               onClick={() => handleDemoLogin(adminCredentials.email, adminCredentials.password)}
-              className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="w-full flex items-center justify-center px-4 py-3 border border-gray-200 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
             >
               <User className="h-4 w-4 mr-2" />
               Admin Login (Full Access)
             </button>
             <button
               onClick={() => handleDemoLogin('production@madison88.com', 'demo123')}
-              className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="w-full flex items-center justify-center px-4 py-3 border border-gray-200 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
             >
               <User className="h-4 w-4 mr-2" />
               Production Login (No Techpack Edit)
             </button>
             <button
               onClick={() => handleDemoLogin('qa@madison88.com', 'demo123')}
-              className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="w-full flex items-center justify-center px-4 py-3 border border-gray-200 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
             >
               <User className="h-4 w-4 mr-2" />
               QA Login (Techpack Access)
@@ -258,7 +271,7 @@ const Login: React.FC = () => {
         </div>
 
         {/* Footer */}
-        <div className="text-center text-xs text-gray-500">
+        <div className="text-center text-xs text-gray-500 mt-6 pt-6 border-t border-gray-100">
           <p>Demo credentials for testing purposes</p>
           <p className="mt-1">Admin: admin@madison88.com / admin123 (Full Access)</p>
           <p className="mt-1">Production: production@madison88.com / demo123 (No Techpack Edit)</p>

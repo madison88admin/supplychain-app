@@ -13,7 +13,8 @@ import {
   FolderOpen,
   Users,
   X,
-  Database
+  Database,
+  History
 } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
 import './Sidebar.css';
@@ -86,6 +87,12 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen, collapsed: externalCol
       title: 'Supplier Management',
       items: [
         { icon: Truck, label: 'Supplier Loading', path: '/supplier-loading' },
+      ]
+    },
+    {
+      title: 'History',
+      items: [
+        { icon: History, label: 'Activity Logs', path: '/activity-logs' },
       ]
     },
     {

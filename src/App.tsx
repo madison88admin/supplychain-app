@@ -26,6 +26,7 @@ import PurchaseOrder from './pages/PurchaseOrder';
 import DataBank from './pages/DataBank';
 import MaterialPurchaseOrder from './pages/MaterialPurchaseOrder';
 import MaterialPurchaseOrderLines from './pages/MaterialPurchaseOrderLines';
+import ActivityLogs from './pages/ActivityLogs';
 
 function AppContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -71,6 +72,7 @@ function AppContent() {
                             <Route path="/data-bank" element={<DataBank />} />
                             <Route path="/material-purchase-order" element={<MaterialPurchaseOrder />} />
                             <Route path="/material-purchase-order-lines" element={<MaterialPurchaseOrderLines />} />
+                            <Route path="/activity-logs" element={<ActivityLogs />} />
                             <Route path="/test-quick-wins" element={<TestQuickWins />} />
                             <Route path="/search" element={<SearchPage />} />
                           </Routes>

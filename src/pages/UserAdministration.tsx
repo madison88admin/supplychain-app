@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Search, Filter, MoreVertical, UserPlus, Shield, Mail, Phone, Users, Eye, EyeOff, Copy } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Filter, MoreVertical, UserPlus, Shield, Mail, Phone, Users, Eye, EyeOff, Copy, User } from 'lucide-react';
 
 interface User {
   id: string;
   name: string;
   email: string;
   password: string;
-  role: 'Production' | 'Admin' | 'QA' | 'Product Developer' | 'Buyer' | 'Logistics Manager' | 'Accountant' | 'Costing Analyst' | 'Administrator';
+  role: 'Production' | 'Admin' | 'QA' | 'Product Developer' | 'Buyer' | 'Logistics Manager' | 'Accountant' | 'Costing Analyst';
   department: string;
   status: 'Active' | 'Inactive' | 'Pending';
   avatar?: string;
@@ -18,85 +18,85 @@ const UserAdministration: React.FC = () => {
   const [users, setUsers] = useState<User[]>([
     {
       id: '1',
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@madison88.com',
+      name: 'Sample Product Developer',
+      email: 'developer@madison88.com',
       password: 'demo123',
       role: 'Product Developer',
       department: 'Product Development',
       status: 'Active',
-      avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1',
+      avatar: '',
       phone: '+1 (555) 123-4567',
       lastLogin: '2024-01-15 09:30 AM'
     },
     {
       id: '2',
-      name: 'John Buyer',
+      name: 'Sample Buyer',
       email: 'buyer@madison88.com',
       password: 'demo123',
       role: 'Buyer',
       department: 'Procurement',
       status: 'Active',
-      avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1',
+      avatar: '',
       phone: '+1 (555) 234-5678',
       lastLogin: '2024-01-15 08:45 AM'
     },
     {
       id: 'admin-1',
-      name: 'Admin User',
+      name: 'Sample Admin User',
       email: 'admin@madison88.com',
       password: 'admin123',
       role: 'Admin',
-      department: 'Administration',
+      department: 'IT',
       status: 'Active',
-      avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1',
+      avatar: '',
       phone: '+1 (555) 999-9999',
       lastLogin: '2024-01-15 10:15 AM'
     },
     {
       id: '3',
-      name: 'Production Manager',
+      name: 'Sample Production Manager',
       email: 'production@madison88.com',
       password: 'demo123',
       role: 'Production',
       department: 'Production',
       status: 'Active',
-      avatar: 'https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1',
+      avatar: '',
       phone: '+1 (555) 345-6789',
       lastLogin: '2024-01-15 11:30 AM'
     },
     {
       id: '4',
-      name: 'QA Specialist',
+      name: 'Sample QA Specialist',
       email: 'qa@madison88.com',
       password: 'demo123',
       role: 'QA',
       department: 'Quality Assurance',
       status: 'Active',
-      avatar: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1',
+      avatar: '',
       phone: '+1 (555) 456-7890',
       lastLogin: '2024-01-15 10:45 AM'
     },
     {
       id: '5',
-      name: 'Lisa Logistics',
-      email: 'lisa.logistics@madison88.com',
+      name: 'Sample Logistics Manager',
+      email: 'logistics@madison88.com',
       password: 'demo123',
       role: 'Logistics Manager',
       department: 'Logistics',
       status: 'Active',
-      avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1',
+      avatar: '',
       phone: '+1 (555) 567-8901',
       lastLogin: '2024-01-14 04:20 PM'
     },
     {
       id: '6',
-      name: 'Mike Accountant',
-      email: 'mike.accountant@madison88.com',
+      name: 'Sample Accountant',
+      email: 'accountant@madison88.com',
       password: 'demo123',
       role: 'Accountant',
       department: 'Finance',
       status: 'Inactive',
-      avatar: 'https://images.pexels.com/photos/927022/pexels-photo-927022.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1',
+      avatar: '',
       phone: '+1 (555) 678-9012',
       lastLogin: '2024-01-10 02:30 PM'
     }
@@ -120,8 +120,8 @@ const UserAdministration: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [showPasswordRow, setShowPasswordRow] = useState<{ [userId: string]: boolean }>({});
 
-  const roles = ['Production', 'Admin', 'QA', 'Product Developer', 'Buyer', 'Logistics Manager', 'Accountant', 'Costing Analyst', 'Administrator'];
-  const departments = ['Production', 'Quality Assurance', 'Product Development', 'Procurement', 'Logistics', 'Finance', 'Administration', 'Costing'];
+  const roles = ['Production', 'Admin', 'QA', 'Product Developer', 'Buyer', 'Logistics Manager', 'Accountant', 'Costing Analyst'];
+  const departments = ['Production', 'Quality Assurance', 'Product Development', 'Procurement', 'Logistics', 'Finance', 'IT', 'Costing'];
   const statuses = ['Active', 'Inactive', 'Pending'];
 
   const filteredUsers = users.filter(user => {
@@ -152,7 +152,7 @@ const UserAdministration: React.FC = () => {
       case 'Logistics Manager': return 'bg-yellow-100 text-yellow-800';
       case 'Accountant': return 'bg-red-100 text-red-800';
       case 'Costing Analyst': return 'bg-pink-100 text-pink-800';
-      case 'Administrator': return 'bg-purple-100 text-purple-800';
+
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -161,7 +161,7 @@ const UserAdministration: React.FC = () => {
     const newUser: User = {
       id: Date.now().toString(),
       ...formData,
-      avatar: `https://images.pexels.com/photos/${Math.floor(Math.random() * 1000)}/pexels-photo-${Math.floor(Math.random() * 1000)}.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=1`,
+      avatar: '',
       lastLogin: 'Never'
     };
     setUsers([...users, newUser]);
@@ -268,7 +268,7 @@ const UserAdministration: React.FC = () => {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Administrators</p>
               <p className="text-2xl font-bold text-gray-900">
-                {users.filter(u => u.role === 'Administrator').length}
+                {users.filter(u => u.role === 'Admin').length}
               </p>
             </div>
           </div>
@@ -362,11 +362,17 @@ const UserAdministration: React.FC = () => {
                 <tr key={user.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <img
-                        className="h-10 w-10 rounded-full object-cover"
-                        src={user.avatar}
-                        alt={user.name}
-                      />
+                      {user.avatar ? (
+                        <img
+                          className="h-10 w-10 rounded-full object-cover"
+                          src={user.avatar}
+                          alt={user.name}
+                        />
+                      ) : (
+                        <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                          <User className="h-5 w-5 text-gray-500" />
+                        </div>
+                      )}
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">{user.name}</div>
                         <div className="text-sm text-gray-500">{user.email}</div>

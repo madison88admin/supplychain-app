@@ -1641,8 +1641,80 @@ const PurchaseOrders: React.FC = () => {
                           
                           {/* Tech Pack Version Tab */}
                           {(!techPacksEditTab || techPacksEditTab === 'Tech Pack Version') && (
-                            <div className="inline-block">
-                              <p className="text-gray-600 mb-4">Tech Pack Version details will be displayed here.</p>
+                            <div className="inline-block w-full">
+                              <div className="mb-3">
+                                <h4 className="font-semibold text-gray-700 mb-1 text-sm">Version Control</h4>
+                                <div className="overflow-x-auto">
+                                  <table className="text-xs border border-gray-300 rounded mb-1">
+                                    <thead>
+                                      <tr className="bg-gray-50">
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-20">Version Number</th>
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-24">Comment</th>
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-28">Bill of Material Version</th>
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-28">Size Specification Version</th>
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-28">Care Instruction Version</th>
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-28">Fibre Composition Version</th>
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-20">Label Version</th>
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-16">Fit Log</th>
+                                        <th className="px-1 py-0.5 text-center font-semibold border w-20">Current Version</th>
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-20">Created By</th>
+                                        <th className="px-1 py-0.5 text-left font-semibold border w-24">Created</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr className="hover:bg-gray-50">
+                                        <td className="px-1 py-0.5 border text-xs">v1.0</td>
+                                        <td className="px-1 py-0.5 border text-xs">Initial version</td>
+                                        <td className="px-1 py-0.5 border text-xs">BOM-001</td>
+                                        <td className="px-1 py-0.5 border text-xs">SS-001</td>
+                                        <td className="px-1 py-0.5 border text-xs">CI-001</td>
+                                        <td className="px-1 py-0.5 border text-xs">FC-001</td>
+                                        <td className="px-1 py-0.5 border text-xs">L-001</td>
+                                        <td className="px-1 py-0.5 border text-xs">FL-001</td>
+                                        <td className="px-1 py-0.5 border text-xs text-center">
+                                          <div className="w-3 h-3 bg-blue-500 border rounded flex items-center justify-center mx-auto">
+                                            <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                          </div>
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">John Doe</td>
+                                        <td className="px-1 py-0.5 border text-xs">2024-01-15</td>
+                                      </tr>
+                                      <tr className="hover:bg-gray-50">
+                                        <td className="px-1 py-0.5 border text-xs">v1.1</td>
+                                        <td className="px-1 py-0.5 border text-xs">Updated materials</td>
+                                        <td className="px-1 py-0.5 border text-xs">BOM-002</td>
+                                        <td className="px-1 py-0.5 border text-xs">SS-001</td>
+                                        <td className="px-1 py-0.5 border text-xs">CI-001</td>
+                                        <td className="px-1 py-0.5 border text-xs">FC-002</td>
+                                        <td className="px-1 py-0.5 border text-xs">L-001</td>
+                                        <td className="px-1 py-0.5 border text-xs">FL-002</td>
+                                        <td className="px-1 py-0.5 border text-xs text-center">
+                                          <div className="w-3 h-3 bg-gray-300 border rounded mx-auto"></div>
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">Jane Smith</td>
+                                        <td className="px-1 py-0.5 border text-xs">2024-01-20</td>
+                                      </tr>
+                                      <tr className="hover:bg-gray-50">
+                                        <td className="px-1 py-0.5 border text-xs">v1.2</td>
+                                        <td className="px-1 py-0.5 border text-xs">Size adjustments</td>
+                                        <td className="px-1 py-0.5 border text-xs">BOM-002</td>
+                                        <td className="px-1 py-0.5 border text-xs">SS-002</td>
+                                        <td className="px-1 py-0.5 border text-xs">CI-002</td>
+                                        <td className="px-1 py-0.5 border text-xs">FC-002</td>
+                                        <td className="px-1 py-0.5 border text-xs">L-002</td>
+                                        <td className="px-1 py-0.5 border text-xs">FL-003</td>
+                                        <td className="px-1 py-0.5 border text-xs text-center">
+                                          <div className="w-3 h-3 bg-gray-300 border rounded mx-auto"></div>
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">Mike Johnson</td>
+                                        <td className="px-1 py-0.5 border text-xs">2024-01-25</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
                             </div>
                           )}
                           

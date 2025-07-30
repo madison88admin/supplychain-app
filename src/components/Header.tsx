@@ -18,6 +18,7 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const { user, logout } = useUser();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false); // NEW
 
   // Mock notifications data
   const notifications = [
@@ -65,6 +66,7 @@ const Header: React.FC<HeaderProps> = ({
 
   const unreadCount = notifications.filter(n => !n.read).length;
   const notificationsRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null); // NEW
 
   // Close notifications when clicking outside
   useEffect(() => {
@@ -72,16 +74,26 @@ const Header: React.FC<HeaderProps> = ({
       if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
         setNotificationsOpen(false);
       }
+      // Profile dropdown close
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setProfileOpen(false);
+      }
     };
-
-    if (notificationsOpen) {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setNotificationsOpen(false);
+        setProfileOpen(false);
+      }
+    };
+    if (notificationsOpen || profileOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscape);
     }
-
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
     };
-  }, [notificationsOpen]);
+  }, [notificationsOpen, profileOpen]);
 
   // Keyboard shortcut for search (Ctrl/Cmd + K)
   useEffect(() => {
@@ -106,7 +118,7 @@ const Header: React.FC<HeaderProps> = ({
       >
         Skip to main content
       </a>
-      <header className="px-4 py-3 relative overflow-hidden" style={{ 
+      <header className="px-4 py-3 relative overflow-hidden z-[9999999]" style={{ 
         background: 'linear-gradient(135deg, #2C5A7A 0%, #3D75A3 100%)',
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
       }}>
@@ -177,7 +189,7 @@ const Header: React.FC<HeaderProps> = ({
             </button>
 
             {/* Notifications Dropdown */}
-            <div className={`fixed right-4 top-20 w-80 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-[99999] transition-all duration-200 ease-in-out transform ${
+            <div className={`fixed right-4 top-20 w-80 bg-white rounded-lg shadow-2xl border border-gray-200 py-2 z-[999999] transition-all duration-200 ease-in-out transform ${
               notificationsOpen 
                 ? 'opacity-100 scale-100 translate-y-0' 
                 : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
@@ -283,15 +295,24 @@ const Header: React.FC<HeaderProps> = ({
               <p className="text-sm font-medium text-white">{user?.name}</p>
               <p className="text-xs text-white/80">{user?.role}</p>
             </div>
-            <div className="relative group">
-              <button className="flex items-center space-x-2 p-2 rounded-lg hover:bg-white/20 transition-colors">
+            <div className="relative" ref={profileRef}>
+              <button
+                className="flex items-center space-x-2 p-2 rounded-lg hover:bg-white/20 transition-colors"
+                onClick={() => setProfileOpen((open) => !open)}
+                aria-haspopup="true"
+                aria-expanded={profileOpen}
+              >
                 <img
                   src={user?.avatar}
                   alt={user?.name}
                   className="h-8 w-8 rounded-full object-cover"
                 />
               </button>
-              <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+              <div className={`fixed right-4 top-20 w-48 bg-white rounded-lg shadow-2xl border border-gray-200 py-2 z-[999999] transition-all duration-200 ${
+                profileOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
+              }`}
+                tabIndex={-1}
+              >
                 <a href="#" className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                   <User className="h-4 w-4" />
                   <span>Profile</span>

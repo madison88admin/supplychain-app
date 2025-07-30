@@ -13,13 +13,9 @@ import {
   FolderOpen,
   Users,
   X,
-  ChevronLeft,
-  ChevronRight,
   Database
 } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
-import darkLogo from '../images/darklogo.png';
-import logoNoBg from '../images/logo no bg.png';
 import './Sidebar.css';
 
 interface SidebarProps {

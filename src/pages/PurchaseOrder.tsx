@@ -1182,7 +1182,12 @@ const PurchaseOrder: React.FC = () => {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 h-screen flex flex-col" style={{ height: 'calc(86vh - 80px)' }}>
+      {/* Page Title */}
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold text-gray-900">Purchase Order</h1>
+      </div>
+      
       <div className="flex flex-wrap items-center gap-3 mb-4">
         {/* Primary Actions */}
         <div className="flex items-center space-x-2">
@@ -1353,8 +1358,9 @@ const PurchaseOrder: React.FC = () => {
         </div>
       )}
 
-      <div className="overflow-x-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
-        <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
+      <div className="flex-1 overflow-hidden">
+        <div className="overflow-x-auto h-full">
+          <div className="overflow-y-auto h-full">
           <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs relative" style={{ position: 'relative' }}>
             <thead className="bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0 z-40">
               <tr>
@@ -2188,6 +2194,7 @@ const PurchaseOrder: React.FC = () => {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
       

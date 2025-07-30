@@ -303,8 +303,98 @@ const PurchaseOrders: React.FC = () => {
   const [productBOMForm, setProductBOMForm] = useState<any[]>([]);
   const [productActivitiesEdit, setProductActivitiesEdit] = useState(false);
   const [productActivitiesForm, setProductActivitiesForm] = useState<any[]>([]);
-    const [productColorwaysEdit, setProductColorwaysEdit] = useState(false);
+  const [productColorwaysEdit, setProductColorwaysEdit] = useState(false);
   const [productColorwaysForm, setProductColorwaysForm] = useState<any[]>([]);
+
+  // Add state for Tech Packs subtable tab
+  const [techPacksEditTab, setTechPacksEditTab] = useState('Tech Pack Version');
+  // Add state for Tech Pack Version edit mode and form
+  const [techPackVersionEdit, setTechPackVersionEdit] = useState(false);
+  const [techPackVersionForm, setTechPackVersionForm] = useState<any>(null);
+  const [fibreCompositionEdit, setFibreCompositionEdit] = useState(false);
+  const [fibreCompositionForm, setFibreCompositionForm] = useState<any>(null);
+  // Add state for Techpacks Bill of Materials Table edit mode and form
+  const [techPacksBOMEdit, setTechPacksBOMEdit] = useState(false);
+  const [techPacksBOMForm, setTechPacksBOMForm] = useState<any[]>([]);
+
+  // Add critical path state
+  const [criticalPath, setCriticalPath] = useState({
+    'Template': 'Standard',
+    'PO Issue Date': '2024-07-01',
+  });
+
+  // Sample BOM data for Techpacks
+  const sampleBOMData = [
+    {
+      'Material': 'FAB001',
+      'Material Description': 'Cotton Jersey Knit',
+      'Material Status': 'Active',
+      'Material Category': 'Fabric',
+      'Comment': 'Main body fabric',
+      'Custom Text 1': '',
+      'Custom Text 2': '',
+      'Custom Text 3': '',
+      'Custom Text 4': '',
+      'Season': 'FH:2018',
+      'Note Count': '2',
+      'Latest Note': '2024-01-15',
+      'Main Material': 'Yes',
+      'Category Sequence': '1',
+      'Default Material Color': 'Navy',
+      'Composition': '100% Cotton',
+      'Buyer Style Name': 'ARC-Merbau/Aurora',
+      'Supplier Ref.': 'SUP001',
+      'Buyer Style Number': 'U53180654',
+      'Default Size': 'L',
+      'Default Rating': '4.0',
+      'One Size Size': 'XL',
+      'One Size Rating': '3.5'
+    },
+    {
+      'Material': 'THR002',
+      'Material Description': 'Polyester Thread',
+      'Material Status': 'Active',
+      'Material Category': 'Thread',
+      'Comment': 'Stitching thread',
+      'Custom Text 1': '',
+      'Custom Text 2': '',
+      'Custom Text 3': '',
+      'Custom Text 4': '',
+      'Season': 'FH:2018',
+      'Note Count': '1',
+      'Latest Note': '2024-01-10',
+      'Main Material': 'No',
+      'Category Sequence': '2',
+      'Default Material Color': 'White',
+      'Composition': '100% Polyester',
+      'Buyer Style Name': 'ARC-Merbau/Aurora',
+      'Supplier Ref.': 'SUP002',
+      'Buyer Style Number': 'U53180654',
+      'Default Size': 'N/A',
+      'Default Rating': '4.5',
+      'One Size Size': 'N/A',
+      'One Size Rating': '4.5'
+    }
+  ];
+
+  // BOM fields definition
+  const bomFields = [
+    'BOM Lines',
+    'Bill of Material Line Ref.',
+    'Bill Of Material category',
+    'Comment',
+    'Custom Text 1',
+    'Custom Text 2',
+    'Custom Text 3',
+    'Custom Text 4',
+    'Material',
+    'Material Description',
+    'Season',
+    'Main Material',
+    'Category Sequence',
+    'Default Material Color',
+    'Composition',
+  ];
 
   // Comments state for Order subtable
   const [commentsValue, setCommentsValue] = useState('');
@@ -1128,7 +1218,7 @@ const PurchaseOrders: React.FC = () => {
                         <div className="font-semibold text-blue-700 mb-2">Product Details</div>
                         {/* Horizontal Tabs */}
                         <div className="mb-4 flex gap-2 border-b border-blue-200">
-                          {['Product Details', 'Critical Path', 'Images', 'Comments', 'Bill Of Materials', 'Activities', 'Colorways'].map(tab => (
+                          {['Product Details', 'Critical Path', 'Images', 'Comments', 'Bill Of Materials', 'Activities', 'Colorways', 'Techpacks', 'Fibre Contents'].map(tab => (
                             <button
                               key={tab}
                               className={`px-4 py-2 -mb-px rounded-t font-medium transition-colors border-b-2 ${productEditTab === tab ? 'bg-white border-blue-500 text-blue-700' : 'bg-blue-50 border-transparent text-gray-600 hover:text-blue-600'}`}
@@ -1139,31 +1229,22 @@ const PurchaseOrders: React.FC = () => {
                           ))}
                         </div>
                         {/* Product Details Tab */}
-                        {productEditTab === 'Product Details' && (
+                        {(!productEditTab || productEditTab === 'Product Details') && (
                           <div className="inline-block">
                             <table className="text-sm border border-blue-200 rounded mb-2 table-fixed">
                               <tbody>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Product</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Product'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Product': e.target.value}))} /> : row['Product'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Product Type</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Product Type'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Product Type': e.target.value}))} /> : row['Product Type'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Product Sub Type</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Product Sub Type'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Product Sub Type': e.target.value}))} /> : row['Product Sub Type'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Product Status</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Product Status'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Product Status': e.target.value}))} /> : row['Product Status'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Product Buyer Style Name</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Product Buyer Style Name'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Product Buyer Style Name': e.target.value}))} /> : row['Product Buyer Style Name'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Product Buyer Style Number</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Product Buyer Style Number'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Product Buyer Style Number': e.target.value}))} /> : row['Product Buyer Style Number'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Standard Minute Value</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Standard Minute Value'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Standard Minute Value': e.target.value}))} /> : row['Standard Minute Value'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Costing</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Costing'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Costing': e.target.value}))} /> : row['Costing'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Purchase Price</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Purchase Price'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Purchase Price': e.target.value}))} /> : row['Purchase Price'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Selling Price</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Selling Price'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Selling Price': e.target.value}))} /> : row['Selling Price'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Minimum Order Quantity</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Minimum Order Quantity'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Minimum Order Quantity': e.target.value}))} /> : row['Minimum Order Quantity'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Purchase Description</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Purchase Description'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Purchase Description': e.target.value}))} /> : row['Purchase Description'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Main Material</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Main Material'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Main Material': e.target.value}))} /> : row['Main Material'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Main Material Description</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Main Material Description'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Main Material Description': e.target.value}))} /> : row['Main Material Description'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Size</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Size'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Size': e.target.value}))} /> : row['Size'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Color</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Color'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Color': e.target.value}))} /> : row['Color'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Season</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Season'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Season': e.target.value}))} /> : row['Season'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">M88 Ref</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['M88 Ref'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'M88 Ref': e.target.value}))} /> : row['M88 Ref'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Buyer Style Number</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Product Buyer Style Number'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Product Buyer Style Number': e.target.value}))} /> : row['Product Buyer Style Number'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Buyer Style Name</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Product Buyer Style Name'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Product Buyer Style Name': e.target.value}))} /> : row['Product Buyer Style Name'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Customer</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Customer'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Customer': e.target.value}))} /> : row['Customer'] || ''}</td></tr>
                                 <tr><td className="px-2 py-1 font-semibold w-32">Department</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Department'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Department': e.target.value}))} /> : row['Department'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Collection</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Collection'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Collection': e.target.value}))} /> : row['Collection'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Division</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Division'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Division': e.target.value}))} /> : row['Division'] || ''}</td></tr>
-                                <tr><td className="px-2 py-1 font-semibold w-32">Group</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Group'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Group': e.target.value}))} /> : row['Group'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Status</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Product Status'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Product Status': e.target.value}))} /> : row['Product Status'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Description</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Purchase Description'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Purchase Description': e.target.value}))} /> : row['Purchase Description'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Product Type</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Product Type'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Product Type': e.target.value}))} /> : row['Product Type'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Season</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Season'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Season': e.target.value}))} /> : row['Season'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Product Development</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Product Development'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Product Development': e.target.value}))} /> : row['Product Development'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Tech Design</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Tech Design'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Tech Design': e.target.value}))} /> : row['Tech Design'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">China - QC</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['China-QC'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'China-QC': e.target.value}))} /> : row['China-QC'] || ''}</td></tr>
                                 <tr><td className="px-2 py-1 font-semibold w-32">Lookbook</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Lookbook'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Lookbook': e.target.value}))} /> : row['Lookbook'] || ''}</td></tr>
                                 <tr><td className="px-2 py-1 font-semibold w-32">Supplier</td><td className="px-2 py-1">{productDetailsEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productDetailsForm?.['Supplier'] || ''} onChange={e => setProductDetailsForm((f: any) => ({...f, 'Supplier': e.target.value}))} /> : row['Supplier'] || ''}</td></tr>
                               </tbody>
@@ -1182,27 +1263,18 @@ const PurchaseOrders: React.FC = () => {
                                 </>
                               ) : (
                                 <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => { setProductDetailsEdit(true); setProductDetailsForm({
-                                  'Product': row['Product'] || '',
-                                  'Product Type': row['Product Type'] || '',
-                                  'Product Sub Type': row['Product Sub Type'] || '',
-                                  'Product Status': row['Product Status'] || '',
-                                  'Product Buyer Style Name': row['Product Buyer Style Name'] || '',
+                                  'M88 Ref': row['M88 Ref'] || '',
                                   'Product Buyer Style Number': row['Product Buyer Style Number'] || '',
-                                  'Standard Minute Value': row['Standard Minute Value'] || '',
-                                  'Costing': row['Costing'] || '',
-                                  'Purchase Price': row['Purchase Price'] || '',
-                                  'Selling Price': row['Selling Price'] || '',
-                                  'Minimum Order Quantity': row['Minimum Order Quantity'] || '',
-                                  'Purchase Description': row['Purchase Description'] || '',
-                                  'Main Material': row['Main Material'] || '',
-                                  'Main Material Description': row['Main Material Description'] || '',
-                                  'Size': row['Size'] || '',
-                                  'Color': row['Color'] || '',
-                                  'Season': row['Season'] || '',
+                                  'Product Buyer Style Name': row['Product Buyer Style Name'] || '',
+                                  'Customer': row['Customer'] || '',
                                   'Department': row['Department'] || '',
-                                  'Collection': row['Collection'] || '',
-                                  'Division': row['Division'] || '',
-                                  'Group': row['Group'] || '',
+                                  'Product Status': row['Product Status'] || '',
+                                  'Purchase Description': row['Purchase Description'] || '',
+                                  'Product Type': row['Product Type'] || '',
+                                  'Season': row['Season'] || '',
+                                  'Product Development': row['Product Development'] || '',
+                                  'Tech Design': row['Tech Design'] || '',
+                                  'China-QC': row['China-QC'] || '',
                                   'Lookbook': row['Lookbook'] || '',
                                   'Supplier': row['Supplier'] || ''
                                 }); }}>Edit</button>
@@ -1210,6 +1282,110 @@ const PurchaseOrders: React.FC = () => {
                             </div>
                           </div>
                         )}
+
+                        {/* Critical Path Tab */}
+                        {productEditTab === 'Critical Path' && (
+                          <div className="inline-block">
+                            <table className="text-sm border border-blue-200 rounded mb-2 table-fixed">
+                              <tbody>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Template</td><td className="px-2 py-1">{productCriticalEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productCriticalForm?.['Template'] || ''} onChange={e => setProductCriticalForm((f: any) => ({...f, 'Template': e.target.value}))} /> : row['Template'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Receive Tech Pach</td><td className="px-2 py-1">{productCriticalEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productCriticalForm?.['Receive Tech Pach'] || ''} onChange={e => setProductCriticalForm((f: any) => ({...f, 'Receive Tech Pach': e.target.value}))} /> : row['Receive Tech Pach'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Last Edited</td><td className="px-2 py-1">{productCriticalEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productCriticalForm?.['Last Edited'] || ''} onChange={e => setProductCriticalForm((f: any) => ({...f, 'Last Edited': e.target.value}))} /> : row['Last Edited'] || ''}</td></tr>
+                                <tr><td className="px-2 py-1 font-semibold w-32">Created By</td><td className="px-2 py-1">{productCriticalEdit ? <input className="border px-1 py-0.5 rounded text-sm" value={productCriticalForm?.['Created By'] || ''} onChange={e => setProductCriticalForm((f: any) => ({...f, 'Created By': e.target.value}))} /> : row['Created By'] || ''}</td></tr>
+                              </tbody>
+                            </table>
+                            <div className="flex gap-2 mt-2">
+                              {productCriticalEdit ? (
+                                <>
+                                  <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                    const newRows = [...rows];
+                                    newRows[idx] = { ...row, ...productCriticalForm };
+                                    setRows(newRows);
+                                    setProductCriticalEdit(false);
+                                    setProductCriticalForm(null);
+                                  }}>Save</button>
+                                  <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setProductCriticalEdit(false); setProductCriticalForm(null); }}>Cancel</button>
+                                </>
+                              ) : (
+                                <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => { setProductCriticalEdit(true); setProductCriticalForm({
+                                  'Template': row['Template'] || '',
+                                  'Receive Tech Pach': row['Receive Tech Pach'] || '',
+                                  'Last Edited': row['Last Edited'] || '',
+                                  'Created By': row['Created By'] || ''
+                                }); }}>Edit</button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Images Tab */}
+                        {productEditTab === 'Images' && (
+                          <div className="inline-block">
+                            <table className="text-sm border border-blue-200 rounded mb-2 table-fixed">
+                              <thead>
+                                <tr>
+                                  <th className="px-2 py-1 font-semibold w-40">Main Photo</th>
+                                  <th className="px-2 py-1 font-semibold w-40">Photo 2</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td className="px-2 py-1">
+                                    {productImagesEdit ? (
+                                      <input
+                                        className="border px-1 py-0.5 rounded text-sm w-full"
+                                        value={productImagesForm?.['Product Main Photo'] || ''}
+                                        onChange={e => setProductImagesForm((f: any) => ({...f, 'Product Main Photo': e.target.value}))}
+                                        placeholder="Image URL..."
+                                      />
+                                    ) : (
+                                      row['Product Main Photo'] ? (
+                                        <a href={row['Product Main Photo']} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{row['Product Main Photo']}</a>
+                                      ) : <span className="text-gray-400">No image</span>
+                                    )}
+                                  </td>
+                                  <td className="px-2 py-1">
+                                    {productImagesEdit ? (
+                                      <input
+                                        className="border px-1 py-0.5 rounded text-sm w-full"
+                                        value={productImagesForm?.['Product Photo 2'] || ''}
+                                        onChange={e => setProductImagesForm((f: any) => ({...f, 'Product Photo 2': e.target.value}))}
+                                        placeholder="Image URL..."
+                                      />
+                                    ) : (
+                                      row['Product Photo 2'] ? (
+                                        <a href={row['Product Photo 2']} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{row['Product Photo 2']}</a>
+                                      ) : <span className="text-gray-400">No image</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                            <div className="flex gap-2 mt-2">
+                              {productImagesEdit ? (
+                                <>
+                                  <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                    const newRows = [...rows];
+                                    newRows[idx] = { ...row, ...productImagesForm };
+                                    setRows(newRows);
+                                    setProductImagesEdit(false);
+                                    setProductImagesForm(null);
+                                  }}>Save</button>
+                                  <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setProductImagesEdit(false); setProductImagesForm(null); }}>Cancel</button>
+                                </>
+                              ) : (
+                                <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                  setProductImagesEdit(true);
+                                  setProductImagesForm({
+                                    'Product Main Photo': row['Product Main Photo'] || '',
+                                    'Product Photo 2': row['Product Photo 2'] || ''
+                                  });
+                                }}>Edit</button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
                         {/* Comments Tab */}
                         {productEditTab === 'Comments' && (
                           <div className="inline-block">
@@ -1295,37 +1471,1017 @@ const PurchaseOrders: React.FC = () => {
                         )}
                         {/* Bill Of Materials Tab */}
                         {productEditTab === 'Bill Of Materials' && (
-                          <div className="inline-block max-w-5xl min-w-fit overflow-x-auto sticky left-0 z-10">
-                            <div className="text-sm text-gray-600 mb-2">Bill of Materials management for this product</div>
+                          <div className="w-full overflow-x-auto">
+                            <table className="text-sm border border-blue-200 rounded my-2" style={{ marginBottom: '12px' }}>
+                              <thead>
+                                <tr>
+                                  <th className="px-2 py-1 font-semibold w-20">BOM Lines</th>
+                                  <th className="px-2 py-1 font-semibold w-32">Bill of Material Line Ref.</th>
+                                  <th className="px-2 py-1 font-semibold w-28">Bill Of Material category</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Comment</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Custom Text 1</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Custom Text 2</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Custom Text 3</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Custom Text 4</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Material</th>
+                                  <th className="px-2 py-1 font-semibold w-32">Material Description</th>
+                                  <th className="px-2 py-1 font-semibold w-20">Season</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Main Material</th>
+                                  <th className="px-2 py-1 font-semibold w-28">Category Sequence</th>
+                                  <th className="px-2 py-1 font-semibold w-32">Default Material Color</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Composition</th>
+                                  <th className="px-2 py-1 font-semibold w-20">Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {((productBOMEdit ? productBOMForm : (row['Product BOM'] || [])) as any[]).map((bom: any, bomIdx: number) => (
+                                  <tr key={bomIdx}>
+                                    {bomFields.map(field => (
+                                      <td className="px-2 py-1" key={field}>
+                                        {productBOMEdit ? (
+                                          <input
+                                            className="border px-1 py-0.5 rounded text-sm w-full"
+                                            value={productBOMForm[bomIdx]?.[field] || ''}
+                                            onChange={e => {
+                                              const updated = [...productBOMForm];
+                                              updated[bomIdx] = { ...updated[bomIdx], [field]: e.target.value };
+                                              setProductBOMForm(updated);
+                                            }}
+                                          />
+                                        ) : (
+                                          bom[field] || ''
+                                        )}
+                                      </td>
+                                    ))}
+                                    <td className="px-2 py-1">
+                                      {productBOMEdit && (
+                                        <button className="bg-red-500 text-white px-2 py-1 rounded text-xs" onClick={() => {
+                                          const updated = productBOMForm.filter((_: any, i: number) => i !== bomIdx);
+                                          setProductBOMForm(updated);
+                                        }}>Delete</button>
+                                      )}
+                                    </td>
+                                  </tr>
+                                ))}
+                                {productBOMEdit && (
+                                  <tr>
+                                    <td colSpan={bomFields.length + 1} className="px-2 py-1">
+                                      <button className="bg-green-500 text-white px-3 py-1 rounded mt-2" onClick={() => {
+                                        setProductBOMForm(prev => [...prev, Object.fromEntries(bomFields.map(f => [f, '']))]);
+                                      }}>Add BOM Line</button>
+                                    </td>
+                                  </tr>
+                                )}
+                              </tbody>
+                            </table>
                             <div className="flex gap-2 mt-2">
-                              <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
-                                setProductBOMEdit(true);
-                                setProductBOMForm(row['Product BOM'] ? [...row['Product BOM']] : []);
-                              }}>Edit BOM</button>
+                              {productBOMEdit ? (
+                                <>
+                                  <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                    const newRows = [...rows];
+                                    newRows[idx] = { ...row, 'Product BOM': productBOMForm };
+                                    setRows(newRows);
+                                    setProductBOMEdit(false);
+                                    setProductBOMForm([]);
+                                  }}>Save</button>
+                                  <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setProductBOMEdit(false); setProductBOMForm([]); }}>Cancel</button>
+                                </>
+                              ) : (
+                                <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                  setProductBOMEdit(true);
+                                  setProductBOMForm(row['Product BOM'] ? [...row['Product BOM']] : []);
+                                }}>Edit</button>
+                              )}
                             </div>
                           </div>
                         )}
                         {/* Activities Tab */}
                         {productEditTab === 'Activities' && (
-                          <div className="inline-block max-w-3xl min-w-fit overflow-x-auto sticky left-0 z-10">
-                            <div className="text-sm text-gray-600 mb-2">Product activities and timeline</div>
+                          <div className="w-full overflow-x-auto">
+                            <table className="text-sm border border-blue-200 rounded my-2" style={{ marginBottom: '12px' }}>
+                              <thead>
+                                <tr>
+                                  <th className="px-2 py-1 font-semibold w-24">EntityName</th>
+                                  <th className="px-2 py-1 font-semibold w-20">Overdue</th>
+                                  <th className="px-2 py-1 font-semibold w-28">Activity</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Target Date</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Expected Date</th>
+                                  <th className="px-2 py-1 font-semibold w-16">Color</th>
+                                  <th className="px-2 py-1 font-semibold w-20">Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {(productActivitiesEdit ? productActivitiesForm : (row['Product Activities'] || []))?.map((activity: any, actIdx: number) => (
+                                  <tr key={actIdx}>
+                                    <td className="px-2 py-1">
+                                      {productActivitiesEdit ? (
+                                        <input
+                                          className="border px-1 py-0.5 rounded text-sm w-full"
+                                          value={productActivitiesForm[actIdx]?.['EntityName'] || ''}
+                                          onChange={e => {
+                                            const updated = [...productActivitiesForm];
+                                            updated[actIdx] = { ...updated[actIdx], EntityName: e.target.value };
+                                            setProductActivitiesForm(updated);
+                                          }}
+                                        />
+                                      ) : (
+                                        activity['EntityName'] || ''
+                                      )}
+                                    </td>
+                                    <td className="px-2 py-1">
+                                      {productActivitiesEdit ? (
+                                        <input
+                                          type="checkbox"
+                                          checked={!!productActivitiesForm[actIdx]?.['Overdue']}
+                                          onChange={e => {
+                                            const updated = [...productActivitiesForm];
+                                            updated[actIdx] = { ...updated[actIdx], Overdue: e.target.checked };
+                                            setProductActivitiesForm(updated);
+                                          }}
+                                        />
+                                      ) : (
+                                        activity['Overdue'] ? 'Yes' : 'No'
+                                      )}
+                                    </td>
+                                    <td className="px-2 py-1">
+                                      {productActivitiesEdit ? (
+                                        <input
+                                          className="border px-1 py-0.5 rounded text-sm w-full"
+                                          value={productActivitiesForm[actIdx]?.['Activity'] || ''}
+                                          onChange={e => {
+                                            const updated = [...productActivitiesForm];
+                                            updated[actIdx] = { ...updated[actIdx], Activity: e.target.value };
+                                            setProductActivitiesForm(updated);
+                                          }}
+                                        />
+                                      ) : (
+                                        activity['Activity'] || ''
+                                      )}
+                                    </td>
+                                    <td className="px-2 py-1">
+                                      {productActivitiesEdit ? (
+                                        <input
+                                          type="date"
+                                          className="border px-1 py-0.5 rounded text-sm w-full"
+                                          value={productActivitiesForm[actIdx]?.['Target Date'] || ''}
+                                          onChange={e => {
+                                            const updated = [...productActivitiesForm];
+                                            updated[actIdx] = { ...updated[actIdx], 'Target Date': e.target.value };
+                                            setProductActivitiesForm(updated);
+                                          }}
+                                        />
+                                      ) : (
+                                        activity['Target Date'] || ''
+                                      )}
+                                    </td>
+                                    <td className="px-2 py-1">
+                                      {productActivitiesEdit ? (
+                                        <input
+                                          type="date"
+                                          className="border px-1 py-0.5 rounded text-sm w-full"
+                                          value={productActivitiesForm[actIdx]?.['Expected Date'] || ''}
+                                          onChange={e => {
+                                            const updated = [...productActivitiesForm];
+                                            updated[actIdx] = { ...updated[actIdx], 'Expected Date': e.target.value };
+                                            setProductActivitiesForm(updated);
+                                          }}
+                                        />
+                                      ) : (
+                                        activity['Expected Date'] || ''
+                                      )}
+                                    </td>
+                                    <td className="px-2 py-1">
+                                      {productActivitiesEdit ? (
+                                        <input
+                                          type="color"
+                                          className="w-8 h-6 border rounded"
+                                          value={productActivitiesForm[actIdx]?.['Color'] || '#000000'}
+                                          onChange={e => {
+                                            const updated = [...productActivitiesForm];
+                                            updated[actIdx] = { ...updated[actIdx], Color: e.target.value };
+                                            setProductActivitiesForm(updated);
+                                          }}
+                                        />
+                                      ) : (
+                                        <span style={{ background: activity['Color'] || '#000', display: 'inline-block', width: 20, height: 20, borderRadius: 4, border: '1px solid #ccc' }} title={activity['Color'] || ''}></span>
+                                      )}
+                                    </td>
+                                    <td className="px-2 py-1">
+                                      {productActivitiesEdit && (
+                                        <button className="bg-red-500 text-white px-2 py-1 rounded text-xs" onClick={() => {
+                                          const updated = productActivitiesForm.filter((_: any, i: number) => i !== actIdx);
+                                          setProductActivitiesForm(updated);
+                                        }}>Delete</button>
+                                      )}
+                                    </td>
+                                  </tr>
+                                ))}
+                                {productActivitiesEdit && (
+                                  <tr>
+                                    <td colSpan={7} className="px-2 py-1">
+                                      <button className="bg-green-500 text-white px-3 py-1 rounded mt-2" onClick={() => {
+                                        setProductActivitiesForm(prev => [...prev, { EntityName: '', Overdue: false, Activity: '', 'Target Date': '', 'Expected Date': '', Color: '#000000' }]);
+                                      }}>Add Activity</button>
+                                    </td>
+                                  </tr>
+                                )}
+                              </tbody>
+                            </table>
                             <div className="flex gap-2 mt-2">
-                              <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
-                                setProductActivitiesEdit(true);
-                                setProductActivitiesForm(row['Product Activities'] ? [...row['Product Activities']] : []);
-                              }}>Edit Activities</button>
+                              {productActivitiesEdit ? (
+                                <>
+                                  <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                    const newRows = [...rows];
+                                    newRows[idx] = { ...row, 'Product Activities': productActivitiesForm };
+                                    setRows(newRows);
+                                    setProductActivitiesEdit(false);
+                                    setProductActivitiesForm([]);
+                                  }}>Save</button>
+                                  <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setProductActivitiesEdit(false); setProductActivitiesForm([]); }}>Cancel</button>
+                                </>
+                              ) : (
+                                <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                  setProductActivitiesEdit(true);
+                                  setProductActivitiesForm(row['Product Activities'] ? [...row['Product Activities']] : []);
+                                }}>Edit</button>
+                              )}
                             </div>
                           </div>
                         )}
                         {/* Colorways Tab */}
                         {productEditTab === 'Colorways' && (
-                          <div className="inline-block max-w-3xl min-w-fit overflow-x-auto sticky left-0 z-10">
-                            <div className="text-sm text-gray-600 mb-2">Product color variations</div>
+                          <div className="w-full overflow-x-auto">
+                            <table className="text-sm border border-blue-200 rounded my-2" style={{ marginBottom: '12px' }}>
+                              <thead>
+                                <tr>
+                                  <th className="px-2 py-1 font-semibold w-16">Active</th>
+                                  <th className="px-2 py-1 font-semibold w-20">Status</th>
+                                  <th className="px-2 py-1 font-semibold w-28">Product Sub Type</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Collection</th>
+                                  <th className="px-2 py-1 font-semibold w-20">Template</th>
+                                  <th className="px-2 py-1 font-semibold w-32">Product Color Key Date</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Closed Date</th>
+                                  <th className="px-2 py-1 font-semibold w-16">Color</th>
+                                  <th className="px-2 py-1 font-semibold w-28">Color Description</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Color Family</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Color Standard</th>
+                                  <th className="px-2 py-1 font-semibold w-28">Color External Ref.</th>
+                                  <th className="px-2 py-1 font-semibold w-28">Color External Ref. 2.</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Approved to SMS</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Approved to Bulk</th>
+                                  <th className="px-2 py-1 font-semibold w-24">In Development</th>
+                                  <th className="px-2 py-1 font-semibold w-20">Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {(productColorwaysEdit ? productColorwaysForm : (row['Product Colorways'] || []))?.map((cw: any, cwIdx: number) => (
+                                  <tr key={cwIdx}>
+                                    <td className="px-2 py-1 text-center">
+                                      {productColorwaysEdit ? (
+                                        <input
+                                          type="checkbox"
+                                          checked={!!productColorwaysForm[cwIdx]?.['Active']}
+                                          onChange={e => {
+                                            const updated = [...productColorwaysForm];
+                                            updated[cwIdx] = { ...updated[cwIdx], Active: e.target.checked };
+                                            setProductColorwaysForm(updated);
+                                          }}
+                                        />
+                                      ) : (
+                                        cw['Active'] ? 'Yes' : 'No'
+                                      )}
+                                    </td>
+                                    <td className="px-2 py-1">{productColorwaysEdit ? (
+                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Status'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], Status: e.target.value }; setProductColorwaysForm(updated); }} />
+                                    ) : (cw['Status'] || '')}</td>
+                                    <td className="px-2 py-1">{productColorwaysEdit ? (
+                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Product Sub Type'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Product Sub Type': e.target.value }; setProductColorwaysForm(updated); }} />
+                                    ) : (cw['Product Sub Type'] || '')}</td>
+                                    <td className="px-2 py-1">{productColorwaysEdit ? (
+                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Collection'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], Collection: e.target.value }; setProductColorwaysForm(updated); }} />
+                                    ) : (cw['Collection'] || '')}</td>
+                                    <td className="px-2 py-1">{productColorwaysEdit ? (
+                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Template'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], Template: e.target.value }; setProductColorwaysForm(updated); }} />
+                                    ) : (cw['Template'] || '')}</td>
+                                    <td className="px-2 py-1">{productColorwaysEdit ? (
+                                      <input type="date" className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Product Color Key Date'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Product Color Key Date': e.target.value }; setProductColorwaysForm(updated); }} />
+                                    ) : (cw['Product Color Key Date'] || '')}</td>
+                                    <td className="px-2 py-1">{productColorwaysEdit ? (
+                                      <input type="date" className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Closed Date'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Closed Date': e.target.value }; setProductColorwaysForm(updated); }} />
+                                    ) : (cw['Closed Date'] || '')}</td>
+                                    <td className="px-2 py-1 text-center">{productColorwaysEdit ? (
+                                      <input type="color" className="w-8 h-6 border rounded" value={productColorwaysForm[cwIdx]?.['Color'] || '#000000'} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], Color: e.target.value }; setProductColorwaysForm(updated); }} />
+                                    ) : (<span style={{ background: cw['Color'] || '#000', display: 'inline-block', width: 20, height: 20, borderRadius: 4, border: '1px solid #ccc' }} title={cw['Color'] || ''}></span>)}</td>
+                                    <td className="px-2 py-1">{productColorwaysEdit ? (
+                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Color Description'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color Description': e.target.value }; setProductColorwaysForm(updated); }} />
+                                    ) : (cw['Color Description'] || '')}</td>
+                                    <td className="px-2 py-1">{productColorwaysEdit ? (
+                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Color Family'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color Family': e.target.value }; setProductColorwaysForm(updated); }} />
+                                    ) : (cw['Color Family'] || '')}</td>
+                                    <td className="px-2 py-1">{productColorwaysEdit ? (
+                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Color Standard'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color Standard': e.target.value }; setProductColorwaysForm(updated); }} />
+                                    ) : (cw['Color Standard'] || '')}</td>
+                                    <td className="px-2 py-1">{productColorwaysEdit ? (
+                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Color External Ref.'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color External Ref.': e.target.value }; setProductColorwaysForm(updated); }} />
+                                    ) : (cw['Color External Ref.'] || '')}</td>
+                                    <td className="px-2 py-1">{productColorwaysEdit ? (
+                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Color External Ref. 2.'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color External Ref. 2.': e.target.value }; setProductColorwaysForm(updated); }} />
+                                    ) : (cw['Color External Ref. 2.'] || '')}</td>
+                                    <td className="px-2 py-1 text-center">{productColorwaysEdit ? (
+                                      <input type="checkbox" checked={!!productColorwaysForm[cwIdx]?.['Approved to SMS']} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Approved to SMS': e.target.checked }; setProductColorwaysForm(updated); }} />
+                                    ) : (cw['Approved to SMS'] ? 'Yes' : 'No')}</td>
+                                    <td className="px-2 py-1 text-center">{productColorwaysEdit ? (
+                                      <input type="checkbox" checked={!!productColorwaysForm[cwIdx]?.['Approved to Bulk']} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Approved to Bulk': e.target.checked }; setProductColorwaysForm(updated); }} />
+                                    ) : (cw['Approved to Bulk'] ? 'Yes' : 'No')}</td>
+                                    <td className="px-2 py-1 text-center">{productColorwaysEdit ? (
+                                      <input type="checkbox" checked={!!productColorwaysForm[cwIdx]?.['In Development']} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'In Development': e.target.checked }; setProductColorwaysForm(updated); }} />
+                                    ) : (cw['In Development'] ? 'Yes' : 'No')}</td>
+                                    <td className="px-2 py-1">
+                                      {productColorwaysEdit && (
+                                        <button className="bg-red-500 text-white px-2 py-1 rounded text-xs" onClick={() => {
+                                          const updated = productColorwaysForm.filter((_: any, i: number) => i !== cwIdx);
+                                          setProductColorwaysForm(updated);
+                                        }}>Delete</button>
+                                      )}
+                                    </td>
+                                  </tr>
+                                ))}
+                                {productColorwaysEdit && (
+                                  <tr>
+                                    <td colSpan={17} className="px-2 py-1">
+                                      <button className="bg-green-500 text-white px-3 py-1 rounded mt-2" onClick={() => {
+                                        setProductColorwaysForm(prev => [...prev, { Active: false, Status: '', 'Product Sub Type': '', Collection: '', Template: '', 'Product Color Key Date': '', 'Closed Date': '', Color: '#000000', 'Color Description': '', 'Color Family': '', 'Color Standard': '', 'Color External Ref.': '', 'Color External Ref. 2.': '', 'Approved to SMS': false, 'Approved to Bulk': false, 'In Development': false }]);
+                                      }}>Add Colorway</button>
+                                    </td>
+                                  </tr>
+                                )}
+                              </tbody>
+                            </table>
                             <div className="flex gap-2 mt-2">
-                              <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
-                                setProductColorwaysEdit(true);
-                                setProductColorwaysForm(row['Product Colorways'] ? [...row['Product Colorways']] : []);
-                              }}>Edit Colorways</button>
+                              {productColorwaysEdit ? (
+                                <>
+                                  <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                    const newRows = [...rows];
+                                    newRows[idx] = { ...row, 'Product Colorways': productColorwaysForm };
+                                    setRows(newRows);
+                                    setProductColorwaysEdit(false);
+                                    setProductColorwaysForm([]);
+                                  }}>Save</button>
+                                  <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setProductColorwaysEdit(false); setProductColorwaysForm([]); }}>Cancel</button>
+                                </>
+                              ) : (
+                                <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                  setProductColorwaysEdit(true);
+                                  setProductColorwaysForm(row['Product Colorways'] ? [...row['Product Colorways']] : []);
+                                }}>Edit</button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Techpacks Tab */}
+                        {productEditTab === 'Techpacks' && (
+                          <div className="inline-block max-w-6xl min-w-fit overflow-x-auto sticky left-0 z-10">
+                            <div className="text-sm text-gray-600 mb-2">Tech Pack management for this product</div>
+                            {/* Tech Packs subtable tabs */}
+                            <div className="mb-4 flex gap-2 border-b border-blue-200">
+                              {(['Tech Pack Version', 'Bill Of Materials', 'Size Specifications', 'Fit Log', 'Fibre Composition', 'Care Instructions', 'Labels'] as string[]).map((tab: string) => (
+                                <button
+                                  key={tab}
+                                  className={`px-4 py-2 -mb-px rounded-t font-medium transition-colors border-b-2 ${techPacksEditTab === tab ? 'bg-white border-blue-500 text-blue-700' : 'bg-blue-50 border-transparent text-gray-600 hover:text-blue-600'}`}
+                                  onClick={() => setTechPacksEditTab(tab)}
+                                >
+                                  {tab}
+                                </button>
+                              ))}
+                            </div>
+
+                            {/* Tech Pack Version Tab */}
+                            {(!techPacksEditTab || techPacksEditTab === 'Tech Pack Version') && (
+                              <div className="inline-block w-full">
+                                <div className="mb-3">
+                                  <h4 className="font-semibold text-gray-700 mb-1 text-sm">Version Control</h4>
+                                  <div className="overflow-x-auto">
+                                    <table className="text-xs border border-gray-300 rounded mb-1">
+                                      <thead>
+                                        <tr className="bg-gray-50">
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20">Version Number</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-24">Comment</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-28">Bill of Material Version</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-28">Size Specification Version</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-28">Care Instruction Version</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-28">Fibre Composition Version</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20">Label Version</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-16">Fit Log</th>
+                                          <th className="px-1 py-0.5 text-center font-semibold border w-20">Current Version</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20">Created By</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-24">Created</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr className="hover:bg-gray-50">
+                                          <td className="px-1 py-0.5 border text-xs">v1.0</td>
+                                          <td className="px-1 py-0.5 border text-xs">Initial version</td>
+                                          <td className="px-1 py-0.5 border text-xs">BOM-001</td>
+                                          <td className="px-1 py-0.5 border text-xs">SS-001</td>
+                                          <td className="px-1 py-0.5 border text-xs">CI-001</td>
+                                          <td className="px-1 py-0.5 border text-xs">FC-001</td>
+                                          <td className="px-1 py-0.5 border text-xs">L-001</td>
+                                          <td className="px-1 py-0.5 border text-xs">FL-001</td>
+                                          <td className="px-1 py-0.5 border text-xs text-center">
+                                            <div className="w-3 h-3 bg-blue-500 border rounded flex items-center justify-center mx-auto">
+                                              <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                              </svg>
+                                            </div>
+                                          </td>
+                                          <td className="px-1 py-0.5 border text-xs">John Doe</td>
+                                          <td className="px-1 py-0.5 border text-xs">2024-01-15</td>
+                                        </tr>
+                                        <tr className="hover:bg-gray-50">
+                                          <td className="px-1 py-0.5 border text-xs">v1.1</td>
+                                          <td className="px-1 py-0.5 border text-xs">Updated materials</td>
+                                          <td className="px-1 py-0.5 border text-xs">BOM-002</td>
+                                          <td className="px-1 py-0.5 border text-xs">SS-001</td>
+                                          <td className="px-1 py-0.5 border text-xs">CI-001</td>
+                                          <td className="px-1 py-0.5 border text-xs">FC-002</td>
+                                          <td className="px-1 py-0.5 border text-xs">L-001</td>
+                                          <td className="px-1 py-0.5 border text-xs">FL-002</td>
+                                          <td className="px-1 py-0.5 border text-xs text-center">
+                                            <div className="w-3 h-3 bg-gray-300 border rounded mx-auto"></div>
+                                          </td>
+                                          <td className="px-1 py-0.5 border text-xs">Jane Smith</td>
+                                          <td className="px-1 py-0.5 border text-xs">2024-01-20</td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+                                <div className="flex gap-2 mt-2">
+                                  <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                    setTechPackVersionEdit(true);
+                                    setTechPackVersionForm({
+                                      'Version Number': row['Version Number'] || '',
+                                      'Comment': row['Comment'] || '',
+                                      'Current Version': row['Current Version'] || false,
+                                      'Created By': row['Created By'] || '',
+                                      'Created': row['Created'] || ''
+                                    });
+                                  }}>Edit Version</button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Bill Of Materials Tab */}
+                            {techPacksEditTab === 'Bill Of Materials' && (
+                              <div className="inline-block max-w-6xl min-w-fit overflow-x-auto sticky left-0 z-10">
+                                <div className="text-sm text-gray-600 mb-2">Bill of Materials for Tech Pack</div>
+                                <div className="flex gap-2 mt-2">
+                                  {techPacksBOMEdit ? (
+                                    <>
+                                      <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                        const newRows = [...rows];
+                                        newRows[idx] = { ...row, 'TechPacks BOM': techPacksBOMForm };
+                                        setRows(newRows);
+                                        setTechPacksBOMEdit(false);
+                                        setTechPacksBOMForm([]);
+                                      }}>Save BOM</button>
+                                      <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => {
+                                        setTechPacksBOMEdit(false);
+                                        setTechPacksBOMForm([]);
+                                      }}>Cancel</button>
+                                    </>
+                                  ) : (
+                                    <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
+                                      setTechPacksBOMEdit(true);
+                                      setTechPacksBOMForm(row['TechPacks BOM'] ? [...row['TechPacks BOM']] : [...sampleBOMData]);
+                                    }}>Edit BOM</button>
+                                  )}
+                                  <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                                    setTechPacksBOMForm([...sampleBOMData]);
+                                    setTechPacksBOMEdit(true);
+                                  }}>Create New BOM</button>
+                                </div>
+
+                                {techPacksBOMEdit && (
+                                  <div className="mt-4">
+                                    <div className="flex gap-2 mb-2">
+                                      <button className="bg-blue-600 text-white px-3 py-1 rounded text-xs" onClick={() => {
+                                        const newRow = {
+                                          'Material': '',
+                                          'Material Description': '',
+                                          'Material Status': 'Active',
+                                          'Material Category': '',
+                                          'Comment': '',
+                                          'Custom Text 1': '',
+                                          'Custom Text 2': '',
+                                          'Custom Text 3': '',
+                                          'Custom Text 4': '',
+                                          'Season': '',
+                                          'Note Count': '0',
+                                          'Latest Note': '',
+                                          'Main Material': 'No',
+                                          'Category Sequence': '',
+                                          'Default Material Color': '',
+                                          'Composition': '',
+                                          'Buyer Style Name': '',
+                                          'Supplier Ref.': '',
+                                          'Buyer Style Number': '',
+                                          'Default Size': '',
+                                          'Default Rating': '',
+                                          'One Size Size': '',
+                                          'One Size Rating': ''
+                                        };
+                                        setTechPacksBOMForm([...techPacksBOMForm, newRow]);
+                                      }}>Add Row</button>
+                                    </div>
+                                    <div className="overflow-x-auto">
+                                      <table className="text-xs border border-gray-300 rounded w-full">
+                                        <thead>
+                                          <tr className="bg-gray-50">
+                                            <th className="px-1 py-0.5 text-left font-semibold border">Material</th>
+                                            <th className="px-1 py-0.5 text-left font-semibold border">Material Description</th>
+                                            <th className="px-1 py-0.5 text-left font-semibold border">Material Status</th>
+                                            <th className="px-1 py-0.5 text-left font-semibold border">Material Category</th>
+                                            <th className="px-1 py-0.5 text-left font-semibold border">Comment</th>
+                                            <th className="px-1 py-0.5 text-left font-semibold border">Season</th>
+                                            <th className="px-1 py-0.5 text-left font-semibold border">Main Material</th>
+                                            <th className="px-1 py-0.5 text-left font-semibold border">Composition</th>
+                                            <th className="px-1 py-0.5 text-left font-semibold border">Action</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          {(techPacksBOMForm.length > 0 ? techPacksBOMForm : sampleBOMData).map((bomRow, bomIdx) => (
+                                            <tr key={bomIdx} className="hover:bg-gray-50">
+                                              <td className="px-1 py-0.5 border">
+                                                {techPacksBOMEdit && (
+                                                  <input
+                                                    className="w-full border rounded px-1 py-0.5 text-xs"
+                                                    value={bomRow['Material'] || ''}
+                                                    onChange={(e) => {
+                                                      const updated = [...techPacksBOMForm];
+                                                      updated[bomIdx]['Material'] = e.target.value;
+                                                      setTechPacksBOMForm(updated);
+                                                    }}
+                                                  />
+                                                )}
+                                                {!techPacksBOMEdit && (bomRow['Material'] || '')}
+                                              </td>
+                                              <td className="px-1 py-0.5 border">
+                                                {techPacksBOMEdit && (
+                                                  <input
+                                                    className="w-full border rounded px-1 py-0.5 text-xs"
+                                                    value={bomRow['Material Description'] || ''}
+                                                    onChange={(e) => {
+                                                      const updated = [...techPacksBOMForm];
+                                                      updated[bomIdx]['Material Description'] = e.target.value;
+                                                      setTechPacksBOMForm(updated);
+                                                    }}
+                                                  />
+                                                )}
+                                                {!techPacksBOMEdit && (bomRow['Material Description'] || '')}
+                                              </td>
+                                              <td className="px-1 py-0.5 border">
+                                                {techPacksBOMEdit && (
+                                                  <select
+                                                    className="w-full border rounded px-1 py-0.5 text-xs"
+                                                    value={bomRow['Material Status'] || ''}
+                                                    onChange={(e) => {
+                                                      const updated = [...techPacksBOMForm];
+                                                      updated[bomIdx]['Material Status'] = e.target.value;
+                                                      setTechPacksBOMForm(updated);
+                                                    }}
+                                                  >
+                                                    <option value="Active">Active</option>
+                                                    <option value="Inactive">Inactive</option>
+                                                    <option value="Discontinued">Discontinued</option>
+                                                  </select>
+                                                )}
+                                                {!techPacksBOMEdit && (bomRow['Material Status'] || '')}
+                                              </td>
+                                              <td className="px-1 py-0.5 border">
+                                                {techPacksBOMEdit && (
+                                                  <input
+                                                    className="w-full border rounded px-1 py-0.5 text-xs"
+                                                    value={bomRow['Material Category'] || ''}
+                                                    onChange={(e) => {
+                                                      const updated = [...techPacksBOMForm];
+                                                      updated[bomIdx]['Material Category'] = e.target.value;
+                                                      setTechPacksBOMForm(updated);
+                                                    }}
+                                                  />
+                                                )}
+                                                {!techPacksBOMEdit && (bomRow['Material Category'] || '')}
+                                              </td>
+                                              <td className="px-1 py-0.5 border">
+                                                {techPacksBOMEdit && (
+                                                  <input
+                                                    className="w-full border rounded px-1 py-0.5 text-xs"
+                                                    value={bomRow['Comment'] || ''}
+                                                    onChange={(e) => {
+                                                      const updated = [...techPacksBOMForm];
+                                                      updated[bomIdx]['Comment'] = e.target.value;
+                                                      setTechPacksBOMForm(updated);
+                                                    }}
+                                                  />
+                                                )}
+                                                {!techPacksBOMEdit && (bomRow['Comment'] || '')}
+                                              </td>
+                                              <td className="px-1 py-0.5 border">
+                                                {techPacksBOMEdit && (
+                                                  <input
+                                                    className="w-full border rounded px-1 py-0.5 text-xs"
+                                                    value={bomRow['Season'] || ''}
+                                                    onChange={(e) => {
+                                                      const updated = [...techPacksBOMForm];
+                                                      updated[bomIdx]['Season'] = e.target.value;
+                                                      setTechPacksBOMForm(updated);
+                                                    }}
+                                                  />
+                                                )}
+                                                {!techPacksBOMEdit && (bomRow['Season'] || '')}
+                                              </td>
+                                              <td className="px-1 py-0.5 border">
+                                                {techPacksBOMEdit && (
+                                                  <select
+                                                    className="w-full border rounded px-1 py-0.5 text-xs"
+                                                    value={bomRow['Main Material'] || ''}
+                                                    onChange={(e) => {
+                                                      const updated = [...techPacksBOMForm];
+                                                      updated[bomIdx]['Main Material'] = e.target.value;
+                                                      setTechPacksBOMForm(updated);
+                                                    }}
+                                                  >
+                                                    <option value="Yes">Yes</option>
+                                                    <option value="No">No</option>
+                                                  </select>
+                                                )}
+                                                {!techPacksBOMEdit && (bomRow['Main Material'] || '')}
+                                              </td>
+                                              <td className="px-1 py-0.5 border">
+                                                {techPacksBOMEdit && (
+                                                  <input
+                                                    className="w-full border rounded px-1 py-0.5 text-xs"
+                                                    value={bomRow['Composition'] || ''}
+                                                    onChange={(e) => {
+                                                      const updated = [...techPacksBOMForm];
+                                                      updated[bomIdx]['Composition'] = e.target.value;
+                                                      setTechPacksBOMForm(updated);
+                                                    }}
+                                                  />
+                                                )}
+                                                {!techPacksBOMEdit && (bomRow['Composition'] || '')}
+                                              </td>
+                                              <td className="px-1 py-0.5 border">
+                                                {techPacksBOMEdit && (
+                                                  <button
+                                                    className="bg-red-600 text-white px-2 py-0.5 rounded text-xs"
+                                                    onClick={() => {
+                                                      const updated = techPacksBOMForm.filter((_, i) => i !== bomIdx);
+                                                      setTechPacksBOMForm(updated);
+                                                    }}
+                                                  >
+                                                    Delete
+                                                  </button>
+                                                )}
+                                              </td>
+                                            </tr>
+                                          ))}
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Size Specifications Tab */}
+                            {techPacksEditTab === 'Size Specifications' && (
+                              <div className="inline-block max-w-4xl min-w-fit overflow-x-auto sticky left-0 z-10">
+                                <div className="text-sm text-gray-600 mb-2">Size specifications for this tech pack</div>
+                                <div className="flex gap-2 mt-2">
+                                  <button className="bg-blue-600 text-white px-3 py-1 rounded">Edit Specifications</button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Fit Log Tab */}
+                            {techPacksEditTab === 'Fit Log' && (
+                              <div className="inline-block max-w-4xl min-w-fit overflow-x-auto sticky left-0 z-10">
+                                <div className="text-sm text-gray-600 mb-2">Fit log entries for this tech pack</div>
+                                <div className="flex gap-2 mt-2">
+                                  <button className="bg-blue-600 text-white px-3 py-1 rounded">Edit Fit Log</button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Care Instructions Tab */}
+                            {techPacksEditTab === 'Care Instructions' && (
+                              <div className="inline-block max-w-4xl min-w-fit overflow-x-auto sticky left-0 z-10">
+                                <div className="text-sm text-gray-600 mb-2">Care instructions for this tech pack</div>
+                                <div className="flex gap-2 mt-2">
+                                  <button className="bg-blue-600 text-white px-3 py-1 rounded">Edit Care Instructions</button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Labels Tab */}
+                            {techPacksEditTab === 'Labels' && (
+                              <div className="inline-block max-w-4xl min-w-fit overflow-x-auto sticky left-0 z-10">
+                                <div className="text-sm text-gray-600 mb-2">Label specifications for this tech pack</div>
+                                <div className="flex gap-2 mt-2">
+                                  <button className="bg-blue-600 text-white px-3 py-1 rounded">Edit Labels</button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Fibre Contents Tab */}
+                        {productEditTab === 'Fibre Contents' && (
+                          <div className="inline-block max-w-6xl min-w-fit overflow-x-auto sticky left-0 z-10">
+                            <div className="text-sm text-gray-600 mb-2">Fibre composition management for this product</div>
+                            
+                            {/* Version Control Table */}
+                            <div className="mb-3">
+                              <h4 className="font-semibold text-gray-700 mb-1 text-sm">Version Control</h4>
+                              <table className="text-xs border border-blue-200 rounded mb-1 table-fixed">
+                                <thead>
+                                  <tr className="bg-blue-50">
+                                    <th className="px-1 py-0.5 text-left font-semibold w-20">Version Number</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold w-24">Comment</th>
+                                    <th className="px-1 py-0.5 text-center font-semibold w-16">Current Version</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold w-20">Created By</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold w-32">Created</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td className="px-1 py-0.5 border">v1.0</td>
+                                    <td className="px-1 py-0.5 border">Initial composition</td>
+                                    <td className="px-1 py-0.5 border text-center">
+                                      <div className="w-3 h-3 bg-blue-500 border rounded flex items-center justify-center mx-auto">
+                                        <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                      </div>
+                                    </td>
+                                    <td className="px-1 py-0.5 border">John Doe</td>
+                                    <td className="px-1 py-0.5 border">2024-01-15</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-4 mb-4">
+                              {/* Fibre Content Section */}
+                              <div className="border border-blue-200 rounded p-3">
+                                <div className="flex justify-between items-center mb-2">
+                                  <h4 className="font-semibold text-sm">Fibre Content</h4>
+                                  <button className="text-red-500 hover:text-red-700">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                  </button>
+                                </div>
+                                <table className="text-xs w-full">
+                                  <thead>
+                                    <tr className="border-b">
+                                      <th className="text-left py-1">Fibre</th>
+                                      <th className="text-left py-1">%</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {[0, 1, 2, 3, 4, 5].map((index) => (
+                                      <tr key={index}>
+                                        <td className="py-1">
+                                          <select 
+                                            className="w-full border rounded px-1 py-0.5 text-xs"
+                                            value={row['Fibre Content']?.[index]?.type || ''}
+                                          >
+                                            <option value="">Select</option>
+                                            <option value="(Faux fur) Polyester">(Faux fur) Polyester</option>
+                                            <option value="Acetate">Acetate</option>
+                                            <option value="Acrylic">Acrylic</option>
+                                            <option value="Alpaca">Alpaca</option>
+                                            <option value="Angora">Angora</option>
+                                            <option value="Cashmere">Cashmere</option>
+                                            <option value="Contains Non-Textile Parts of Animal Origin">Contains Non-Textile Parts of Animal Origin</option>
+                                            <option value="Cotton">Cotton</option>
+                                            <option value="Elastane">Elastane</option>
+                                            <option value="Flax">Flax</option>
+                                            <option value="Hemp">Hemp</option>
+                                            <option value="Jute">Jute</option>
+                                            <option value="Linen">Linen</option>
+                                            <option value="Lyocell">Lyocell</option>
+                                            <option value="Metallic fibre">Metallic fibre</option>
+                                            <option value="Metallised Fibre">Metallised Fibre</option>
+                                            <option value="Modal">Modal</option>
+                                            <option value="Mohair">Mohair</option>
+                                            <option value="Nylon">Nylon</option>
+                                            <option value="Other Fibres">Other Fibres</option>
+                                            <option value="Polyamide">Polyamide</option>
+                                            <option value="Polyester">Polyester</option>
+                                            <option value="Polypropylene">Polypropylene</option>
+                                            <option value="Ramie">Ramie</option>
+                                            <option value="Silk">Silk</option>
+                                            <option value="Sisal">Sisal</option>
+                                            <option value="Triacetate">Triacetate</option>
+                                            <option value="Viscose">Viscose</option>
+                                            <option value="Wool">Wool</option>
+                                          </select>
+                                        </td>
+                                        <td className="py-1">
+                                          <input
+                                            type="number"
+                                            step="0.1"
+                                            min="0"
+                                            max="100"
+                                            className="w-full border rounded px-1 py-0.5 text-xs"
+                                            value={row['Fibre Content']?.[index]?.percentage || '0.0'}
+                                          />
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                                <div className="mt-2 text-xs text-gray-600">
+                                  Total: {(row['Fibre Content']?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}%
+                                </div>
+                              </div>
+
+                              {/* Fibre Section 1 */}
+                              <div className="border border-blue-200 rounded p-3">
+                                <div className="flex justify-between items-center mb-2">
+                                  <h4 className="font-semibold text-sm">Fibre Section 1</h4>
+                                  <button className="text-red-500 hover:text-red-700">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                  </button>
+                                </div>
+                                <table className="text-xs w-full">
+                                  <thead>
+                                    <tr className="border-b">
+                                      <th className="text-left py-1">Fibre</th>
+                                      <th className="text-left py-1">%</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {[0, 1, 2, 3, 4, 5].map((index) => (
+                                      <tr key={index}>
+                                        <td className="py-1">
+                                          <select 
+                                            className="w-full border rounded px-1 py-0.5 text-xs"
+                                            value={row['Fibre Section 1']?.[index]?.type || ''}
+                                          >
+                                            <option value="">Select</option>
+                                            <option value="(Faux fur) Polyester">(Faux fur) Polyester</option>
+                                            <option value="Acetate">Acetate</option>
+                                            <option value="Acrylic">Acrylic</option>
+                                            <option value="Alpaca">Alpaca</option>
+                                            <option value="Angora">Angora</option>
+                                            <option value="Cashmere">Cashmere</option>
+                                            <option value="Contains Non-Textile Parts of Animal Origin">Contains Non-Textile Parts of Animal Origin</option>
+                                            <option value="Cotton">Cotton</option>
+                                            <option value="Elastane">Elastane</option>
+                                            <option value="Flax">Flax</option>
+                                            <option value="Hemp">Hemp</option>
+                                            <option value="Jute">Jute</option>
+                                            <option value="Linen">Linen</option>
+                                            <option value="Lyocell">Lyocell</option>
+                                            <option value="Metallic fibre">Metallic fibre</option>
+                                            <option value="Metallised Fibre">Metallised Fibre</option>
+                                            <option value="Modal">Modal</option>
+                                            <option value="Mohair">Mohair</option>
+                                            <option value="Nylon">Nylon</option>
+                                            <option value="Other Fibres">Other Fibres</option>
+                                            <option value="Polyamide">Polyamide</option>
+                                            <option value="Polyester">Polyester</option>
+                                            <option value="Polypropylene">Polypropylene</option>
+                                            <option value="Ramie">Ramie</option>
+                                            <option value="Silk">Silk</option>
+                                            <option value="Sisal">Sisal</option>
+                                            <option value="Triacetate">Triacetate</option>
+                                            <option value="Viscose">Viscose</option>
+                                            <option value="Wool">Wool</option>
+                                          </select>
+                                        </td>
+                                        <td className="py-1">
+                                          <input
+                                            type="number"
+                                            step="0.1"
+                                            min="0"
+                                            max="100"
+                                            className="w-full border rounded px-1 py-0.5 text-xs"
+                                            value={row['Fibre Section 1']?.[index]?.percentage || '0.0'}
+                                          />
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                                <div className="mt-2 text-xs text-gray-600">
+                                  Total: {(row['Fibre Section 1']?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}%
+                                </div>
+                              </div>
+
+                              {/* Fibre Section 2 */}
+                              <div className="border border-blue-200 rounded p-3">
+                                <div className="flex justify-between items-center mb-2">
+                                  <h4 className="font-semibold text-sm">Fibre Section 2</h4>
+                                  <button className="text-red-500 hover:text-red-700">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                  </button>
+                                </div>
+                                <table className="text-xs w-full">
+                                  <thead>
+                                    <tr className="border-b">
+                                      <th className="text-left py-1">Fibre</th>
+                                      <th className="text-left py-1">%</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {[0, 1, 2, 3, 4, 5].map((index) => (
+                                      <tr key={index}>
+                                        <td className="py-1">
+                                          <select 
+                                            className="w-full border rounded px-1 py-0.5 text-xs"
+                                            value={row['Fibre Section 2']?.[index]?.type || ''}
+                                          >
+                                            <option value="">Select</option>
+                                            <option value="(Faux fur) Polyester">(Faux fur) Polyester</option>
+                                            <option value="Acetate">Acetate</option>
+                                            <option value="Acrylic">Acrylic</option>
+                                            <option value="Alpaca">Alpaca</option>
+                                            <option value="Angora">Angora</option>
+                                            <option value="Cashmere">Cashmere</option>
+                                            <option value="Contains Non-Textile Parts of Animal Origin">Contains Non-Textile Parts of Animal Origin</option>
+                                            <option value="Cotton">Cotton</option>
+                                            <option value="Elastane">Elastane</option>
+                                            <option value="Flax">Flax</option>
+                                            <option value="Hemp">Hemp</option>
+                                            <option value="Jute">Jute</option>
+                                            <option value="Linen">Linen</option>
+                                            <option value="Lyocell">Lyocell</option>
+                                            <option value="Metallic fibre">Metallic fibre</option>
+                                            <option value="Metallised Fibre">Metallised Fibre</option>
+                                            <option value="Modal">Modal</option>
+                                            <option value="Mohair">Mohair</option>
+                                            <option value="Nylon">Nylon</option>
+                                            <option value="Other Fibres">Other Fibres</option>
+                                            <option value="Polyamide">Polyamide</option>
+                                            <option value="Polyester">Polyester</option>
+                                            <option value="Polypropylene">Polypropylene</option>
+                                            <option value="Ramie">Ramie</option>
+                                            <option value="Silk">Silk</option>
+                                            <option value="Sisal">Sisal</option>
+                                            <option value="Triacetate">Triacetate</option>
+                                            <option value="Viscose">Viscose</option>
+                                            <option value="Wool">Wool</option>
+                                          </select>
+                                        </td>
+                                        <td className="py-1">
+                                          <input
+                                            type="number"
+                                            step="0.1"
+                                            min="0"
+                                            max="100"
+                                            className="w-full border rounded px-1 py-0.5 text-xs"
+                                            value={row['Fibre Section 2']?.[index]?.percentage || '0.0'}
+                                          />
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                                <div className="mt-2 text-xs text-gray-600">
+                                  Total: {(row['Fibre Section 2']?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}%
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Add New Fibre Composition Button */}
+                            <div className="mt-4">
+                              <button 
+                                className="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700 transition-colors"
+                                onClick={() => {
+                                  const newRows = [...rows];
+                                  const existingSections = Object.keys(newRows[idx]).filter(key => key.startsWith('Fibre Section'));
+                                  const newSectionName = `Fibre Section ${existingSections.length + 1}`;
+                                  newRows[idx][newSectionName] = [];
+                                  setRows(newRows);
+                                }}
+                              >
+                                Add New Fibre Composition
+                              </button>
+                            </div>
+
+                            <div className="flex gap-2 mt-4">
+                              <button className="bg-blue-600 text-white px-3 py-1 rounded">Edit Fibre Contents</button>
+                              <button className="bg-green-600 text-white px-3 py-1 rounded">Save Changes</button>
                             </div>
                           </div>
                         )}

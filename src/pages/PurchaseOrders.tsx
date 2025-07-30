@@ -256,6 +256,8 @@ const PurchaseOrders: React.FC = () => {
   const [productEditTab, setProductEditTab] = useState('Product Details');
   // Add state for Tech Packs subtable tab
   const [techPacksEditTab, setTechPacksEditTab] = useState('Tech Pack Version');
+  // Add state for Specification tab
+  const [specificationTab, setSpecificationTab] = useState('Size Chart');
   // Add state for Tech Pack Version edit mode and form
   const [techPackVersionEdit, setTechPackVersionEdit] = useState(false);
   const [techPackVersionForm, setTechPackVersionForm] = useState<any>(null);
@@ -302,6 +304,64 @@ const PurchaseOrders: React.FC = () => {
   // Add state for Product Colorways Table edit mode and form
   const [productColorwaysEdit, setProductColorwaysEdit] = useState(false);
   const [productColorwaysForm, setProductColorwaysForm] = useState<any[]>([]);
+
+  // Add state for Techpacks Bill of Materials Table edit mode and form
+  const [techPacksBOMEdit, setTechPacksBOMEdit] = useState(false);
+  const [techPacksBOMForm, setTechPacksBOMForm] = useState<any[]>([]);
+
+  // Sample BOM data for Techpacks
+  const sampleBOMData = [
+    {
+      'Material': 'FAB001',
+      'Material Description': 'Cotton Jersey Knit',
+      'Material Status': 'Active',
+      'Material Category': 'Fabric',
+      'Comment': 'Main body fabric',
+      'Custom Text 1': '',
+      'Custom Text 2': '',
+      'Custom Text 3': '',
+      'Custom Text 4': '',
+      'Season': 'FH:2018',
+      'Note Count': '2',
+      'Latest Note': '2024-01-15',
+      'Main Material': 'Yes',
+      'Category Sequence': '1',
+      'Default Material Color': 'Navy',
+      'Composition': '100% Cotton',
+      'Buyer Style Name': 'ARC-Merbau/Aurora',
+      'Supplier Ref.': 'SUP001',
+      'Buyer Style Number': 'U53180654',
+      'Default Size': 'L',
+      'Default Rating': '4.0',
+      'One Size Size': 'XL',
+      'One Size Rating': '3.5'
+    },
+    {
+      'Material': 'THR002',
+      'Material Description': 'Polyester Thread',
+      'Material Status': 'Active',
+      'Material Category': 'Thread',
+      'Comment': 'Stitching thread',
+      'Custom Text 1': '',
+      'Custom Text 2': '',
+      'Custom Text 3': '',
+      'Custom Text 4': '',
+      'Season': 'FH:2018',
+      'Note Count': '1',
+      'Latest Note': '2024-01-10',
+      'Main Material': 'No',
+      'Category Sequence': '2',
+      'Default Material Color': 'Black',
+      'Composition': '100% Polyester',
+      'Buyer Style Name': 'ARC-Merbau/Aurora',
+      'Supplier Ref.': 'SUP002',
+      'Buyer Style Number': 'U53180654',
+      'Default Size': 'L',
+      'Default Rating': '4.2',
+      'One Size Size': 'XXL',
+      'One Size Rating': '3.0'
+    }
+  ];
 
 
 
@@ -1193,26 +1253,26 @@ const PurchaseOrders: React.FC = () => {
                         )}
                         {/* Bill Of Materials Tab */}
                         {productEditTab === 'Bill Of Materials' && (
-                          <div className="inline-block max-w-5xl min-w-fit overflow-x-auto sticky left-0 z-10">
-                            <table className="text-sm border border-blue-200 rounded my-2 min-w-fit" style={{ marginBottom: '12px' }}>
+                          <div className="w-full overflow-x-auto">
+                            <table className="text-sm border border-blue-200 rounded my-2" style={{ marginBottom: '12px' }}>
                               <thead>
                                 <tr>
-                                  <th className="px-2 py-1 font-semibold">BOM Lines</th>
-                                  <th className="px-2 py-1 font-semibold">Bill of Material Line Ref.</th>
-                                  <th className="px-2 py-1 font-semibold">Bill Of Material category</th>
-                                  <th className="px-2 py-1 font-semibold">Comment</th>
-                                  <th className="px-2 py-1 font-semibold">Custom Text 1</th>
-                                  <th className="px-2 py-1 font-semibold">Custom Text 2</th>
-                                  <th className="px-2 py-1 font-semibold">Custom Text 3</th>
-                                  <th className="px-2 py-1 font-semibold">Custom Text 4</th>
-                                  <th className="px-2 py-1 font-semibold">Material</th>
-                                  <th className="px-2 py-1 font-semibold">Material Description</th>
-                                  <th className="px-2 py-1 font-semibold">Season</th>
-                                  <th className="px-2 py-1 font-semibold">Main Material</th>
-                                  <th className="px-2 py-1 font-semibold">Category Sequence</th>
-                                  <th className="px-2 py-1 font-semibold">Default Material Color</th>
-                                  <th className="px-2 py-1 font-semibold">Composition</th>
-                                  <th className="px-2 py-1 font-semibold">Actions</th>
+                                  <th className="px-2 py-1 font-semibold w-20">BOM Lines</th>
+                                  <th className="px-2 py-1 font-semibold w-32">Bill of Material Line Ref.</th>
+                                  <th className="px-2 py-1 font-semibold w-28">Bill Of Material category</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Comment</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Custom Text 1</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Custom Text 2</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Custom Text 3</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Custom Text 4</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Material</th>
+                                  <th className="px-2 py-1 font-semibold w-32">Material Description</th>
+                                  <th className="px-2 py-1 font-semibold w-20">Season</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Main Material</th>
+                                  <th className="px-2 py-1 font-semibold w-28">Category Sequence</th>
+                                  <th className="px-2 py-1 font-semibold w-32">Default Material Color</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Composition</th>
+                                  <th className="px-2 py-1 font-semibold w-20">Actions</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -1279,17 +1339,17 @@ const PurchaseOrders: React.FC = () => {
                         )}
                         {/* Activities Tab */}
                         {productEditTab === 'Activities' && (
-                          <div className="inline-block max-w-3xl min-w-fit overflow-x-auto sticky left-0 z-10">
-                            <table className="text-sm border border-blue-200 rounded my-2 min-w-fit" style={{ marginBottom: '12px' }}>
+                          <div className="w-full overflow-x-auto">
+                            <table className="text-sm border border-blue-200 rounded my-2" style={{ marginBottom: '12px' }}>
                               <thead>
                                 <tr>
-                                  <th className="px-2 py-1 font-semibold">EntityName</th>
-                                  <th className="px-2 py-1 font-semibold">Overdue</th>
-                                  <th className="px-2 py-1 font-semibold">Activity</th>
-                                  <th className="px-2 py-1 font-semibold">Target Date</th>
-                                  <th className="px-2 py-1 font-semibold">Expected Date</th>
-                                  <th className="px-2 py-1 font-semibold">Color</th>
-                                  <th className="px-2 py-1 font-semibold">Actions</th>
+                                  <th className="px-2 py-1 font-semibold w-24">EntityName</th>
+                                  <th className="px-2 py-1 font-semibold w-20">Overdue</th>
+                                  <th className="px-2 py-1 font-semibold w-28">Activity</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Target Date</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Expected Date</th>
+                                  <th className="px-2 py-1 font-semibold w-16">Color</th>
+                                  <th className="px-2 py-1 font-semibold w-20">Actions</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -1432,27 +1492,27 @@ const PurchaseOrders: React.FC = () => {
                         )}
                         {/* Colorways Tab */}
                         {productEditTab === 'Colorways' && (
-                          <div className="inline-block max-w-5xl min-w-fit overflow-x-auto sticky left-0 z-10">
-                            <table className="text-sm border border-blue-200 rounded my-2 min-w-fit" style={{ marginBottom: '12px' }}>
+                          <div className="w-full overflow-x-auto">
+                            <table className="text-sm border border-blue-200 rounded my-2" style={{ marginBottom: '12px' }}>
                               <thead>
                                 <tr>
-                                  <th className="px-2 py-1 font-semibold">Active</th>
-                                  <th className="px-2 py-1 font-semibold">Status</th>
-                                  <th className="px-2 py-1 font-semibold">Product Sub Type</th>
-                                  <th className="px-2 py-1 font-semibold">Collection</th>
-                                  <th className="px-2 py-1 font-semibold">Template</th>
-                                  <th className="px-2 py-1 font-semibold">Product Color Key Date</th>
-                                  <th className="px-2 py-1 font-semibold">Closed Date</th>
-                                  <th className="px-2 py-1 font-semibold">Color</th>
-                                  <th className="px-2 py-1 font-semibold">Color Description</th>
-                                  <th className="px-2 py-1 font-semibold">Color Family</th>
-                                  <th className="px-2 py-1 font-semibold">Color Standard</th>
-                                  <th className="px-2 py-1 font-semibold">Color External Ref.</th>
-                                  <th className="px-2 py-1 font-semibold">Color External Ref. 2.</th>
-                                  <th className="px-2 py-1 font-semibold">Approved to SMS</th>
-                                  <th className="px-2 py-1 font-semibold">Approved to Bulk</th>
-                                  <th className="px-2 py-1 font-semibold">In Development</th>
-                                  <th className="px-2 py-1 font-semibold">Actions</th>
+                                  <th className="px-2 py-1 font-semibold w-16">Active</th>
+                                  <th className="px-2 py-1 font-semibold w-20">Status</th>
+                                  <th className="px-2 py-1 font-semibold w-28">Product Sub Type</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Collection</th>
+                                  <th className="px-2 py-1 font-semibold w-20">Template</th>
+                                  <th className="px-2 py-1 font-semibold w-32">Product Color Key Date</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Closed Date</th>
+                                  <th className="px-2 py-1 font-semibold w-16">Color</th>
+                                  <th className="px-2 py-1 font-semibold w-28">Color Description</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Color Family</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Color Standard</th>
+                                  <th className="px-2 py-1 font-semibold w-28">Color External Ref.</th>
+                                  <th className="px-2 py-1 font-semibold w-28">Color External Ref. 2.</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Approved to SMS</th>
+                                  <th className="px-2 py-1 font-semibold w-24">Approved to Bulk</th>
+                                  <th className="px-2 py-1 font-semibold w-24">In Development</th>
+                                  <th className="px-2 py-1 font-semibold w-20">Actions</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -1633,344 +1693,553 @@ const PurchaseOrders: React.FC = () => {
                               </div>
 
                               {/* Bill of Materials Line Items Table */}
+                              <div className="mb-2 flex gap-2">
+                                {techPacksBOMEdit ? (
+                                  <>
+                                    <button 
+                                      className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
+                                      onClick={() => {
+                                        setTechPacksBOMEdit(false);
+                                        // Save the edited data
+                                        const newRows = [...rows];
+                                        newRows[idx] = { ...row, 'TechPacks BOM': techPacksBOMForm };
+                                        setRows(newRows);
+                                      }}
+                                    >
+                                      Save
+                                    </button>
+                                    <button 
+                                      className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
+                                      onClick={() => {
+                                        setTechPacksBOMEdit(false);
+                                        setTechPacksBOMForm([]);
+                                      }}
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button 
+                                      className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
+                                      onClick={() => {
+                                        const newRow = Object.fromEntries([
+                                          'Material', 'Material Description', 'Material Status', 'Material Category',
+                                          'Comment', 'Custom Text 1', 'Custom Text 2', 'Custom Text 3', 'Custom Text 4',
+                                          'Season', 'Note Count', 'Latest Note', 'Main Material', 'Category Sequence',
+                                          'Default Material Color', 'Composition', 'Buyer Style Name', 'Supplier Ref.',
+                                          'Buyer Style Number', 'ARC- Merbau/Aurora', 'ARC- Nightshadow/lolite',
+                                          'ARC- Orion/Olive Amber', 'ARC- Nocturne/Deep Cove', 'ARC- Red Beach/Flare',
+                                          'ARC- Shorepine/Titanite', 'ARC- Tui/Stellar', 'BLACK', 'Blackbird',
+                                          'Default Size', 'Default Rating', 'One Size Size', 'One Size Rating',
+                                          'ARC- Nightshadow/lolite 2', 'ARC- Orion/Olive Amber 2', 'ARC- Nocturne/Deep Cove 2',
+                                          'ARC- Red Beach/Flare 2', 'ARC- Shorepine/Titanite 2', 'ARC- Tui/Stellar 2',
+                                          'BLACK 2', 'Blackbird 2', 'Default Size 2', 'Default Rating 2',
+                                          'One Size Size 2', 'One Size Rating 2'
+                                        ].map(key => [key, '']));
+                                        setTechPacksBOMForm([...techPacksBOMForm, newRow]);
+                                      }}
+                                    >
+                                      Add Row
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button 
+                                      className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
+                                      onClick={() => {
+                                        setTechPacksBOMEdit(true);
+                                        setTechPacksBOMForm(row['TechPacks BOM'] ? [...row['TechPacks BOM']] : [...sampleBOMData]);
+                                      }}
+                                    >
+                                      Edit
+                                    </button>
+                                    <button 
+                                      className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
+                                      onClick={() => {
+                                        setTechPacksBOMForm([...sampleBOMData]);
+                                        setTechPacksBOMEdit(true);
+                                      }}
+                                    >
+                                      Add Data
+                                    </button>
+                                  </>
+                                )}
+                              </div>
                               <div className="overflow-x-auto">
                                 <table className="text-xs border border-gray-300 rounded max-w-4xl">
                                   <thead>
                                     <tr className="bg-gray-50">
-
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-20">
+                                      {techPacksBOMEdit && (
+                                        <th className="px-1 py-0.5 text-center font-semibold border w-8" rowSpan={2}>
+                                          Del
+                                        </th>
+                                      )}
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
                                         Material
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
                                         Material Description
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-20">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
                                         Material Status
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-20">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
                                         Material Category
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
                                         Comment
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
                                         Custom Text 1
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
                                         Custom Text 2
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
                                         Custom Text 3
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
                                         Custom Text 4
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
                                         Season
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
                                         Note Count
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-20">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
                                         Latest Note
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-20">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
                                         Main Material
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-20">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
                                         Category Sequence
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
                                         Default Material Color
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-20">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
                                         Composition
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
                                         Buyer Style Name
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-20">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
                                         Supplier Ref.
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
                                         Buyer Style Number
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
                                         ARC- Merbau/Aurora
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
                                         ARC- Nightshadow/lolite
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
                                         ARC- Orion/Olive Amber
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
                                         ARC- Nocturne/Deep Cove
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
                                         ARC- Red Beach/Flare
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
                                         ARC- Shorepine/Titanite
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
                                         ARC- Tui/Stellar
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
                                         BLACK
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-20">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
                                         Blackbird
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" colSpan={2}>
                                         Default
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
-                                        - Size
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
-                                      </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
-                                        - Rating
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
-                                      </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" colSpan={2}>
                                         One Size
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
-                                        - Size
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
+                                    </tr>
+                                    <tr className="bg-gray-50">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-8">
+                                        Size
                                       </th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">
-                                        - Rating
-                                        <svg className="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-8">
+                                        Rating
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-8">
+                                        Size
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-8">
+                                        Rating
                                       </th>
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    <tr>
-                                      <td className="px-1 py-0.5 border">Regular Spu...</td>
-                                      <td className="px-1 py-0.5 border">(UJ-001 Solid) 1...</td>
-                                                                              <td className="px-1 py-0.5 border">
-                                          <div className="flex items-center">
-                                            <div className="w-2 h-2 bg-black rounded mr-1"></div>
-                                            Approved
-                                          </div>
+                                    {(techPacksBOMForm.length > 0 ? techPacksBOMForm : sampleBOMData).map((bomRow, bomIdx) => (
+                                      <tr key={bomIdx} className="hover:bg-gray-50">
+                                        {techPacksBOMEdit && (
+                                          <td className="px-1 py-0.5 border text-xs">
+                                            <button 
+                                              className="bg-red-500 text-white px-1 py-0.5 rounded text-xs hover:bg-red-600"
+                                              onClick={() => {
+                                                const updated = techPacksBOMForm.filter((_, i) => i !== bomIdx);
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            >
+                                              ×
+                                            </button>
+                                          </td>
+                                        )}
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Material'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Material': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Material'] || '')}
                                         </td>
-                                        <td className="px-1 py-0.5 border">1</td>
-                                        <td className="px-1 py-0.5 border">Yarn</td>
-                                        <td className="px-1 py-0.5 border">Yarn</td>
-                                        <td className="px-1 py-0.5 border"></td>
-                                        <td className="px-1 py-0.5 border"></td>
-                                        <td className="px-1 py-0.5 border"></td>
-                                        <td className="px-1 py-0.5 border"></td>
-                                        <td className="px-1 py-0.5 border"></td>
-                                        <td className="px-1 py-0.5 border">FH:2017</td>
-                                        <td className="px-1 py-0.5 border">0</td>
-                                    </tr>
-                                    <tr>
-                                      <td className="px-1 py-0.5 border">333MTOT12</td>
-                                      <td className="px-2 py-1 border">WOMENS LOG...</td>
-                                      <td className="px-2 py-1 border">
-                                        <div className="flex items-center">
-                                          <div className="w-2 h-2 bg-black rounded mr-1"></div>
-                                          Approved
-                                        </div>
-                                      </td>
-                                      <td className="px-2 py-1 border">7</td>
-                                      <td className="px-2 py-1 border">Logo Brand</td>
-                                      <td className="px-2 py-1 border">Logo Brand</td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border">FH:2018</td>
-                                      <td className="px-2 py-1 border">0</td>
-                                    </tr>
-                                    <tr>
-                                      <td className="px-1 py-0.5 border">UPCT1512</td>
-                                      <td className="px-2 py-1 border">Prana UPC Stick...</td>
-                                      <td className="px-2 py-1 border">
-                                        <div className="flex items-center">
-                                          <div className="w-2 h-2 bg-black rounded mr-1"></div>
-                                          Approved
-                                        </div>
-                                      </td>
-                                      <td className="px-2 py-1 border">2</td>
-                                      <td className="px-2 py-1 border">Packaging</td>
-                                      <td className="px-2 py-1 border">Packaging</td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border">FH:2018</td>
-                                      <td className="px-2 py-1 border">0</td>
-                                    </tr>
-                                    <tr>
-                                      <td className="px-1 py-0.5 border">CALB12</td>
-                                      <td className="px-2 py-1 border">PRANA CARE L...</td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border">3</td>
-                                      <td className="px-2 py-1 border">Packaging</td>
-                                      <td className="px-2 py-1 border">Packaging</td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border">FH:2018</td>
-                                      <td className="px-2 py-1 border">0</td>
-                                    </tr>
-                                    <tr>
-                                      <td className="px-1 py-0.5 border">333PRNT27...</td>
-                                      <td className="px-2 py-1 border">Prana Hangtags...</td>
-                                      <td className="px-2 py-1 border">
-                                        <div className="flex items-center">
-                                          <div className="w-2 h-2 bg-black rounded mr-1"></div>
-                                          Approved
-                                        </div>
-                                      </td>
-                                      <td className="px-2 py-1 border">4</td>
-                                      <td className="px-2 py-1 border">Packaging</td>
-                                      <td className="px-2 py-1 border">Packaging</td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border">FH:2019</td>
-                                      <td className="px-2 py-1 border">0</td>
-                                    </tr>
-                                    <tr>
-                                      <td className="px-2 py-1 border"><input type="checkbox" /></td>
-                                      <td className="px-2 py-1 border">CALB13 ID L...</td>
-                                      <td className="px-2 py-1 border">PRANA PO ID L...</td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border">5</td>
-                                      <td className="px-2 py-1 border">Packaging</td>
-                                      <td className="px-2 py-1 border">Packaging</td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border">FH:2019</td>
-                                      <td className="px-2 py-1 border">0</td>
-                                    </tr>
-                                    <tr>
-                                      <td className="px-2 py-1 border"><input type="checkbox" /></td>
-                                      <td className="px-2 py-1 border">333BLTH1NAT</td>
-                                      <td className="px-2 py-1 border">Prana J-Hook</td>
-                                      <td className="px-2 py-1 border">
-                                        <div className="flex items-center">
-                                          <div className="w-2 h-2 bg-black rounded mr-1"></div>
-                                          Approved
-                                        </div>
-                                      </td>
-                                      <td className="px-2 py-1 border">6</td>
-                                      <td className="px-2 py-1 border">Packaging</td>
-                                      <td className="px-2 py-1 border">Packaging</td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border"></td>
-                                      <td className="px-2 py-1 border">0</td>
-                                    </tr>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Material Description'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Material Description': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Material Description'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <select 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Material Status'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Material Status': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            >
+                                              <option value="">Select Status</option>
+                                              <option value="Active">Active</option>
+                                              <option value="Inactive">Inactive</option>
+                                              <option value="Pending">Pending</option>
+                                            </select>
+                                          ) : (bomRow['Material Status'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <select 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Material Category'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Material Category': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            >
+                                              <option value="">Select Category</option>
+                                              <option value="Fabric">Fabric</option>
+                                              <option value="Thread">Thread</option>
+                                              <option value="Zipper">Zipper</option>
+                                              <option value="Button">Button</option>
+                                              <option value="Label">Label</option>
+                                            </select>
+                                          ) : (bomRow['Material Category'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Comment'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Comment': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Comment'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Custom Text 1'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Custom Text 1': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Custom Text 1'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Custom Text 2'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Custom Text 2': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Custom Text 2'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Custom Text 3'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Custom Text 3': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Custom Text 3'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Custom Text 4'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Custom Text 4': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Custom Text 4'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Season'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Season': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Season'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Note Count'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Note Count': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Note Count'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Latest Note'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Latest Note': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Latest Note'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <select 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Main Material'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Main Material': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            >
+                                              <option value="">Select</option>
+                                              <option value="Yes">Yes</option>
+                                              <option value="No">No</option>
+                                            </select>
+                                          ) : (bomRow['Main Material'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Category Sequence'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Category Sequence': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Category Sequence'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Default Material Color'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Default Material Color': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Default Material Color'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Composition'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Composition': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Composition'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Buyer Style Name'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Buyer Style Name': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Buyer Style Name'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Supplier Ref.'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Supplier Ref.': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Supplier Ref.'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Buyer Style Number'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Buyer Style Number': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Buyer Style Number'] || '')}
+                                        </td>
+
+
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Default Size'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Default Size': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Default Size'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Default Rating'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Default Rating': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Default Rating'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['One Size'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'One Size': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['One Size'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['One Size Size'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'One Size Size': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['One Size Size'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['One Size Rating'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'One Size Rating': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['One Size Rating'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Default 2'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Default 2': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Default 2'] || '')}
+                                        </td>
+
+                                      </tr>
+                                    ))}
                                   </tbody>
                                 </table>
                               </div>
@@ -1981,28 +2250,510 @@ const PurchaseOrders: React.FC = () => {
                           {/* Size Specifications Tab */}
                           {techPacksEditTab === 'Size Specifications' && (
                             <div className="inline-block">
+                              <div className="grid grid-cols-2 gap-4 mb-4">
+                                {/* Details Section */}
+                                <div>
+                                  <h4 className="font-semibold text-gray-700 mb-2 text-sm">Details</h4>
                               <table className="text-sm border border-blue-200 rounded mb-2 table-fixed">
                                 <tbody>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Size</td><td className="px-2 py-1">{row['Size Spec'] || ''}</td></tr>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Chest</td><td className="px-2 py-1">{row['Size Chest'] || ''}</td></tr>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Waist</td><td className="px-2 py-1">{row['Size Waist'] || ''}</td></tr>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Hip</td><td className="px-2 py-1">{row['Size Hip'] || ''}</td></tr>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Length</td><td className="px-2 py-1">{row['Size Length'] || ''}</td></tr>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Sleeve</td><td className="px-2 py-1">{row['Size Sleeve'] || ''}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold w-32">Product</td><td className="px-2 py-1">{row['Product'] || 'M8830037'}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold w-32">Comments</td><td className="px-2 py-1">
+                                        <textarea 
+                                          className="w-full h-20 border px-2 py-1 rounded text-sm resize-none" 
+                                          placeholder="Enter comments here..."
+                                          defaultValue={row['Size Comments'] || ''}
+                                        />
+                                      </td></tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+
+                                {/* Image Section */}
+                                <div>
+                                  <h4 className="font-semibold text-gray-700 mb-2 text-sm">Image</h4>
+                                  <div className="space-y-4">
+                                    {/* How To Measure */}
+                                    <div>
+                                      <label className="block text-sm font-medium text-gray-700 mb-1">How To Measure</label>
+                                      <div className="border border-gray-300 rounded p-2 bg-gray-50 w-32 h-24 flex items-center justify-center">
+                                        <div className="text-gray-400 text-xs text-center">
+                                          <svg className="w-8 h-8 mx-auto mb-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                                          </svg>
+                                          Image Placeholder
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Knit Gauge */}
+                                    <div>
+                                      <label className="block text-sm font-medium text-gray-700 mb-1">Knit Gauge</label>
+                                      <div className="border border-gray-300 rounded p-2 bg-gray-50 w-32 h-24 flex items-center justify-center">
+                                        <div className="text-gray-400 text-xs text-center">
+                                          <svg className="w-8 h-8 mx-auto mb-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                                          </svg>
+                                          Image Placeholder
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Specification Section */}
+                              <div>
+                                <h4 className="font-semibold text-gray-700 mb-2 text-sm">Specification</h4>
+                                <div className="flex border-b border-gray-200 mb-4">
+                                  <button 
+                                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                                      specificationTab === 'Size Chart' 
+                                        ? 'border-blue-500 text-blue-600 bg-blue-50' 
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                    }`}
+                                    onClick={() => setSpecificationTab('Size Chart')}
+                                  >
+                                    Size Chart
+                                  </button>
+                                  <button 
+                                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                                      specificationTab === 'Make Up Method' 
+                                        ? 'border-blue-500 text-blue-600 bg-blue-50' 
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                    }`}
+                                    onClick={() => setSpecificationTab('Make Up Method')}
+                                  >
+                                    Make Up Method
+                                  </button>
+                                  <button 
+                                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                                      specificationTab === 'All' 
+                                        ? 'border-blue-500 text-blue-600 bg-blue-50' 
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                    }`}
+                                    onClick={() => setSpecificationTab('All')}
+                                  >
+                                    All
+                                  </button>
+                                </div>
+                                
+                                {/* Size Chart Tab */}
+                                {specificationTab === 'Size Chart' && (
+                                  <div className="overflow-x-auto">
+                                    <table className="text-xs border border-gray-300 rounded max-w-4xl">
+                                      <thead>
+                                        <tr className="bg-gray-50">
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>Sequence</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Reference</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Name</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-32" rowSpan={2}>Fit Size Dimension</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Size Comment</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" colSpan={2}>Tolerance</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" colSpan={2}>Sizes</th>
+                                        </tr>
+                                        <tr className="bg-gray-50">
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-10">-</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-10">+</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-10">Grade</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-10">One Size</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr className="hover:bg-gray-50">
+                                          <td className="px-1 py-0.5 border text-xs">1</td>
+                                          <td className="px-1 py-0.5 border text-xs">CHEST</td>
+                                          <td className="px-1 py-0.5 border text-xs">Chest Width</td>
+                                          <td className="px-1 py-0.5 border text-xs">34</td>
+                                          <td className="px-1 py-0.5 border text-xs">Standard fit</td>
+                                          <td className="px-1 py-0.5 border text-xs">0.5</td>
+                                          <td className="px-1 py-0.5 border text-xs">0.5</td>
+                                          <td className="px-1 py-0.5 border text-xs">S</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                        </tr>
+                                        <tr className="hover:bg-gray-50">
+                                          <td className="px-1 py-0.5 border text-xs">2</td>
+                                          <td className="px-1 py-0.5 border text-xs">WAIST</td>
+                                          <td className="px-1 py-0.5 border text-xs">Waist Width</td>
+                                          <td className="px-1 py-0.5 border text-xs">28</td>
+                                          <td className="px-1 py-0.5 border text-xs">Slim fit</td>
+                                          <td className="px-1 py-0.5 border text-xs">0.3</td>
+                                          <td className="px-1 py-0.5 border text-xs">0.3</td>
+                                          <td className="px-1 py-0.5 border text-xs">S</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                        </tr>
+                                        <tr className="hover:bg-gray-50">
+                                          <td className="px-1 py-0.5 border text-xs">3</td>
+                                          <td className="px-1 py-0.5 border text-xs">HIP</td>
+                                          <td className="px-1 py-0.5 border text-xs">Hip Width</td>
+                                          <td className="px-1 py-0.5 border text-xs">36</td>
+                                          <td className="px-1 py-0.5 border text-xs">Regular fit</td>
+                                          <td className="px-1 py-0.5 border text-xs">0.5</td>
+                                          <td className="px-1 py-0.5 border text-xs">0.5</td>
+                                          <td className="px-1 py-0.5 border text-xs">S</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                        </tr>
+                                        <tr className="hover:bg-gray-50">
+                                          <td className="px-1 py-0.5 border text-xs">4</td>
+                                          <td className="px-1 py-0.5 border text-xs">LENGTH</td>
+                                          <td className="px-1 py-0.5 border text-xs">Body Length</td>
+                                          <td className="px-1 py-0.5 border text-xs">25</td>
+                                          <td className="px-1 py-0.5 border text-xs">Standard length</td>
+                                          <td className="px-1 py-0.5 border text-xs">0.5</td>
+                                          <td className="px-1 py-0.5 border text-xs">0.5</td>
+                                          <td className="px-1 py-0.5 border text-xs">S</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                        </tr>
+                                        <tr className="hover:bg-gray-50">
+                                          <td className="px-1 py-0.5 border text-xs">5</td>
+                                          <td className="px-1 py-0.5 border text-xs">SLEEVE</td>
+                                          <td className="px-1 py-0.5 border text-xs">Sleeve Length</td>
+                                          <td className="px-1 py-0.5 border text-xs">23</td>
+                                          <td className="px-1 py-0.5 border text-xs">Regular sleeve</td>
+                                          <td className="px-1 py-0.5 border text-xs">0.3</td>
+                                          <td className="px-1 py-0.5 border text-xs">0.3</td>
+                                          <td className="px-1 py-0.5 border text-xs">S</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                        </tr>
                                 </tbody>
                               </table>
+                                  </div>
+                                )}
+
+                                {/* Make Up Method Tab */}
+                                {specificationTab === 'Make Up Method' && (
+                                  <div className="overflow-x-auto">
+                                    <table className="text-xs border border-gray-300 rounded max-w-4xl">
+                                      <thead>
+                                        <tr className="bg-gray-50">
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>Sequence</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Reference</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Name</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-32" rowSpan={2}>Fit Size Dimension</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Size Comment</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>All Value</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Stitch</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Knit Gauge</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Yarns Ends</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Stitch Name</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Placement</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Finishings</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Referencing For</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Finish Desc</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-28" rowSpan={2}>Reference Style Name</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Machine</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" colSpan={1}>Sizes</th>
+                                        </tr>
+                                        <tr className="bg-gray-50">
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20">One Size</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr className="hover:bg-gray-50">
+                                          <td className="px-1 py-0.5 border text-xs">1</td>
+                                          <td className="px-1 py-0.5 border text-xs">CHEST</td>
+                                          <td className="px-1 py-0.5 border text-xs">Chest Width</td>
+                                          <td className="px-1 py-0.5 border text-xs">34</td>
+                                          <td className="px-1 py-0.5 border text-xs">Standard fit</td>
+                                          <td className="px-1 py-0.5 border text-xs">34</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single</td>
+                                          <td className="px-1 py-0.5 border text-xs">12</td>
+                                          <td className="px-1 py-0.5 border text-xs">2</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
+                                          <td className="px-1 py-0.5 border text-xs">Center</td>
+                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
+                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
+                                          <td className="px-1 py-0.5 border text-xs">Clean finish</td>
+                                          <td className="px-1 py-0.5 border text-xs">ARC-Merbau/Aurora</td>
+                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                        </tr>
+                                        <tr className="hover:bg-gray-50">
+                                          <td className="px-1 py-0.5 border text-xs">2</td>
+                                          <td className="px-1 py-0.5 border text-xs">WAIST</td>
+                                          <td className="px-1 py-0.5 border text-xs">Waist Width</td>
+                                          <td className="px-1 py-0.5 border text-xs">28</td>
+                                          <td className="px-1 py-0.5 border text-xs">Slim fit</td>
+                                          <td className="px-1 py-0.5 border text-xs">28</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single</td>
+                                          <td className="px-1 py-0.5 border text-xs">12</td>
+                                          <td className="px-1 py-0.5 border text-xs">2</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
+                                          <td className="px-1 py-0.5 border text-xs">Center</td>
+                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
+                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
+                                          <td className="px-1 py-0.5 border text-xs">Clean finish</td>
+                                          <td className="px-1 py-0.5 border text-xs">ARC-Merbau/Aurora</td>
+                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                        </tr>
+                                        <tr className="hover:bg-gray-50">
+                                          <td className="px-1 py-0.5 border text-xs">3</td>
+                                          <td className="px-1 py-0.5 border text-xs">HIP</td>
+                                          <td className="px-1 py-0.5 border text-xs">Hip Width</td>
+                                          <td className="px-1 py-0.5 border text-xs">36</td>
+                                          <td className="px-1 py-0.5 border text-xs">Regular fit</td>
+                                          <td className="px-1 py-0.5 border text-xs">36</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single</td>
+                                          <td className="px-1 py-0.5 border text-xs">12</td>
+                                          <td className="px-1 py-0.5 border text-xs">2</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
+                                          <td className="px-1 py-0.5 border text-xs">Center</td>
+                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
+                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
+                                          <td className="px-1 py-0.5 border text-xs">Clean finish</td>
+                                          <td className="px-1 py-0.5 border text-xs">ARC-Merbau/Aurora</td>
+                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                        </tr>
+                                        <tr className="hover:bg-gray-50">
+                                          <td className="px-1 py-0.5 border text-xs">4</td>
+                                          <td className="px-1 py-0.5 border text-xs">LENGTH</td>
+                                          <td className="px-1 py-0.5 border text-xs">Body Length</td>
+                                          <td className="px-1 py-0.5 border text-xs">25</td>
+                                          <td className="px-1 py-0.5 border text-xs">Standard length</td>
+                                          <td className="px-1 py-0.5 border text-xs">25</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single</td>
+                                          <td className="px-1 py-0.5 border text-xs">12</td>
+                                          <td className="px-1 py-0.5 border text-xs">2</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
+                                          <td className="px-1 py-0.5 border text-xs">Center</td>
+                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
+                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
+                                          <td className="px-1 py-0.5 border text-xs">Clean finish</td>
+                                          <td className="px-1 py-0.5 border text-xs">ARC-Merbau/Aurora</td>
+                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                        </tr>
+                                        <tr className="hover:bg-gray-50">
+                                          <td className="px-1 py-0.5 border text-xs">5</td>
+                                          <td className="px-1 py-0.5 border text-xs">SLEEVE</td>
+                                          <td className="px-1 py-0.5 border text-xs">Sleeve Length</td>
+                                          <td className="px-1 py-0.5 border text-xs">23</td>
+                                          <td className="px-1 py-0.5 border text-xs">Regular sleeve</td>
+                                          <td className="px-1 py-0.5 border text-xs">23</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single</td>
+                                          <td className="px-1 py-0.5 border text-xs">12</td>
+                                          <td className="px-1 py-0.5 border text-xs">2</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
+                                          <td className="px-1 py-0.5 border text-xs">Center</td>
+                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
+                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
+                                          <td className="px-1 py-0.5 border text-xs">Clean finish</td>
+                                          <td className="px-1 py-0.5 border text-xs">ARC-Merbau/Aurora</td>
+                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+
+                                {/* All Tab */}
+                                {specificationTab === 'All' && (
+                                  <div className="overflow-x-auto">
+                                    <table className="text-xs border border-gray-300 rounded max-w-4xl">
+                                      <thead>
+                                        <tr className="bg-gray-50">
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>Sequence</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Reference</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Name</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" colSpan={2}>Tolerance</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>All Value</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Stitch</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Knit Gauge</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Yarns Ends</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Stitch Name</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Placement</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Finishings</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Referencing For</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Machine</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" colSpan={2}>Sizes</th>
+                                        </tr>
+                                        <tr className="bg-gray-50">
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-10">-</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-10">+</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-10">Grade</th>
+                                          <th className="px-1 py-0.5 text-left font-semibold border w-10">One Size</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr className="hover:bg-gray-50">
+                                          <td className="px-1 py-0.5 border text-xs">1</td>
+                                          <td className="px-1 py-0.5 border text-xs">CHEST</td>
+                                          <td className="px-1 py-0.5 border text-xs">Chest Width</td>
+                                          <td className="px-1 py-0.5 border text-xs">-0.5</td>
+                                          <td className="px-1 py-0.5 border text-xs">+0.5</td>
+                                          <td className="px-1 py-0.5 border text-xs">34</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single</td>
+                                          <td className="px-1 py-0.5 border text-xs">12</td>
+                                          <td className="px-1 py-0.5 border text-xs">2</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
+                                          <td className="px-1 py-0.5 border text-xs">Center</td>
+                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
+                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
+                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                        </tr>
+                                        <tr className="hover:bg-gray-50">
+                                          <td className="px-1 py-0.5 border text-xs">2</td>
+                                          <td className="px-1 py-0.5 border text-xs">WAIST</td>
+                                          <td className="px-1 py-0.5 border text-xs">Waist Width</td>
+                                          <td className="px-1 py-0.5 border text-xs">-0.5</td>
+                                          <td className="px-1 py-0.5 border text-xs">+0.5</td>
+                                          <td className="px-1 py-0.5 border text-xs">28</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single</td>
+                                          <td className="px-1 py-0.5 border text-xs">12</td>
+                                          <td className="px-1 py-0.5 border text-xs">2</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
+                                          <td className="px-1 py-0.5 border text-xs">Center</td>
+                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
+                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
+                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                        </tr>
+                                        <tr className="hover:bg-gray-50">
+                                          <td className="px-1 py-0.5 border text-xs">3</td>
+                                          <td className="px-1 py-0.5 border text-xs">HIP</td>
+                                          <td className="px-1 py-0.5 border text-xs">Hip Width</td>
+                                          <td className="px-1 py-0.5 border text-xs">-0.5</td>
+                                          <td className="px-1 py-0.5 border text-xs">+0.5</td>
+                                          <td className="px-1 py-0.5 border text-xs">36</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single</td>
+                                          <td className="px-1 py-0.5 border text-xs">12</td>
+                                          <td className="px-1 py-0.5 border text-xs">2</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
+                                          <td className="px-1 py-0.5 border text-xs">Center</td>
+                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
+                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
+                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                        </tr>
+                                        <tr className="hover:bg-gray-50">
+                                          <td className="px-1 py-0.5 border text-xs">4</td>
+                                          <td className="px-1 py-0.5 border text-xs">LENGTH</td>
+                                          <td className="px-1 py-0.5 border text-xs">Body Length</td>
+                                          <td className="px-1 py-0.5 border text-xs">-0.5</td>
+                                          <td className="px-1 py-0.5 border text-xs">+0.5</td>
+                                          <td className="px-1 py-0.5 border text-xs">25</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single</td>
+                                          <td className="px-1 py-0.5 border text-xs">12</td>
+                                          <td className="px-1 py-0.5 border text-xs">2</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
+                                          <td className="px-1 py-0.5 border text-xs">Center</td>
+                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
+                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
+                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                        </tr>
+                                        <tr className="hover:bg-gray-50">
+                                          <td className="px-1 py-0.5 border text-xs">5</td>
+                                          <td className="px-1 py-0.5 border text-xs">SLEEVE</td>
+                                          <td className="px-1 py-0.5 border text-xs">Sleeve Length</td>
+                                          <td className="px-1 py-0.5 border text-xs">-0.5</td>
+                                          <td className="px-1 py-0.5 border text-xs">+0.5</td>
+                                          <td className="px-1 py-0.5 border text-xs">23</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single</td>
+                                          <td className="px-1 py-0.5 border text-xs">12</td>
+                                          <td className="px-1 py-0.5 border text-xs">2</td>
+                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
+                                          <td className="px-1 py-0.5 border text-xs">Center</td>
+                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
+                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
+                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                          <td className="px-1 py-0.5 border text-xs">M</td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           )}
                           
                           {/* Fit Log Tab */}
                           {techPacksEditTab === 'Fit Log' && (
-                            <div className="inline-block">
-                              <table className="text-sm border border-blue-200 rounded mb-2 table-fixed">
+                            <div className="overflow-x-auto">
+                              <table className="text-xs border border-gray-300 rounded max-w-4xl">
+                                <thead>
+                                  <tr className="bg-gray-50">
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-24">Name</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-28">Size Chart Version</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-24">Size Comment</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-20">FitType</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-20">FitDate</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-16">Sizes</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-28">Sample Request Line</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-20">Supplier</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-20">PO Line</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-24">Comment</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-24">Closed Date</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-20">Status</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-28">Unit Source Fit Log</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-20">Note Count</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-24">Latest Note</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-28">Fit Comments</th>
+                                  </tr>
+                                </thead>
                                 <tbody>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Date</td><td className="px-2 py-1">{row['Fit Log Date'] || ''}</td></tr>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Type</td><td className="px-2 py-1">{row['Fit Log Type'] || ''}</td></tr>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Status</td><td className="px-2 py-1">{row['Fit Log Status'] || ''}</td></tr>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Comments</td><td className="px-2 py-1">{row['Fit Log Comments'] || ''}</td></tr>
+                                  <tr className="hover:bg-gray-50">
+                                    <td className="px-1 py-0.5 border text-xs">ARC-Merbau/Aurora</td>
+                                    <td className="px-1 py-0.5 border text-xs">v1.2</td>
+                                    <td className="px-1 py-0.5 border text-xs">Standard fit</td>
+                                    <td className="px-1 py-0.5 border text-xs">Initial</td>
+                                    <td className="px-1 py-0.5 border text-xs">2024-01-15</td>
+                                    <td className="px-1 py-0.5 border text-xs">M</td>
+                                    <td className="px-1 py-0.5 border text-xs">SR-001-001</td>
+                                    <td className="px-1 py-0.5 border text-xs">ABC Textiles</td>
+                                    <td className="px-1 py-0.5 border text-xs">PO-001</td>
+                                    <td className="px-1 py-0.5 border text-xs">Initial fit check</td>
+                                    <td className="px-1 py-0.5 border text-xs">2024-01-20</td>
+                                    <td className="px-1 py-0.5 border text-xs">Approved</td>
+                                    <td className="px-1 py-0.5 border text-xs">Unit-001</td>
+                                    <td className="px-1 py-0.5 border text-xs">3</td>
+                                    <td className="px-1 py-0.5 border text-xs">Fit approved</td>
+                                    <td className="px-1 py-0.5 border text-xs">All measurements within tolerance</td>
+                                  </tr>
+                                  <tr className="hover:bg-gray-50">
+                                    <td className="px-1 py-0.5 border text-xs">ARC-Merbau/Aurora</td>
+                                    <td className="px-1 py-0.5 border text-xs">v1.3</td>
+                                    <td className="px-1 py-0.5 border text-xs">Slim fit</td>
+                                    <td className="px-1 py-0.5 border text-xs">Revision</td>
+                                    <td className="px-1 py-0.5 border text-xs">2024-01-25</td>
+                                    <td className="px-1 py-0.5 border text-xs">S</td>
+                                    <td className="px-1 py-0.5 border text-xs">SR-001-002</td>
+                                    <td className="px-1 py-0.5 border text-xs">XYZ Fabrics</td>
+                                    <td className="px-1 py-0.5 border text-xs">PO-002</td>
+                                    <td className="px-1 py-0.5 border text-xs">Slim fit adjustment</td>
+                                    <td className="px-1 py-0.5 border text-xs">2024-01-30</td>
+                                    <td className="px-1 py-0.5 border text-xs">Pending</td>
+                                    <td className="px-1 py-0.5 border text-xs">Unit-002</td>
+                                    <td className="px-1 py-0.5 border text-xs">2</td>
+                                    <td className="px-1 py-0.5 border text-xs">Awaiting review</td>
+                                    <td className="px-1 py-0.5 border text-xs">Waist needs adjustment</td>
+                                  </tr>
+                                  <tr className="hover:bg-gray-50">
+                                    <td className="px-1 py-0.5 border text-xs">ARC-Merbau/Aurora</td>
+                                    <td className="px-1 py-0.5 border text-xs">v1.4</td>
+                                    <td className="px-1 py-0.5 border text-xs">Regular fit</td>
+                                    <td className="px-1 py-0.5 border text-xs">Final</td>
+                                    <td className="px-1 py-0.5 border text-xs">2024-02-01</td>
+                                    <td className="px-1 py-0.5 border text-xs">L</td>
+                                    <td className="px-1 py-0.5 border text-xs">SR-001-003</td>
+                                    <td className="px-1 py-0.5 border text-xs">DEF Materials</td>
+                                    <td className="px-1 py-0.5 border text-xs">PO-003</td>
+                                    <td className="px-1 py-0.5 border text-xs">Final approval</td>
+                                    <td className="px-1 py-0.5 border text-xs">2024-02-05</td>
+                                    <td className="px-1 py-0.5 border text-xs">Completed</td>
+                                    <td className="px-1 py-0.5 border text-xs">Unit-003</td>
+                                    <td className="px-1 py-0.5 border text-xs">5</td>
+                                    <td className="px-1 py-0.5 border text-xs">Final approval</td>
+                                    <td className="px-1 py-0.5 border text-xs">All specifications approved</td>
+                                  </tr>
                                 </tbody>
                               </table>
                             </div>
@@ -3079,27 +3830,358 @@ const PurchaseOrders: React.FC = () => {
                           {/* Care Instructions Tab */}
                           {techPacksEditTab === 'Care Instructions' && (
                             <div className="inline-block">
-                              <table className="text-sm border border-blue-200 rounded mb-2 table-fixed">
+                              <div className="border border-gray-200 rounded p-4 bg-white">
+                                <h4 className="font-semibold text-gray-700 mb-3 text-sm border-b border-gray-200 pb-2">Product Details</h4>
+                                <table className="text-sm w-full">
                                 <tbody>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Instruction</td><td className="px-2 py-1">{row['Care Instruction'] || ''}</td></tr>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Symbol</td><td className="px-2 py-1">{row['Care Symbol'] || ''}</td></tr>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Description</td><td className="px-2 py-1">{row['Care Description'] || ''}</td></tr>
+                                    <tr>
+                                      <td className="px-2 py-1 font-semibold text-gray-700 w-48">Product Name</td>
+                                      <td className="px-2 py-1 text-blue-600">M8830037</td>
+                                    </tr>
+                                    <tr>
+                                      <td className="px-2 py-1 font-semibold text-gray-700 w-48">Product Description</td>
+                                      <td className="px-2 py-1 text-gray-700">MACHINE KNITTED MENS BEANIE</td>
+                                    </tr>
+                                    <tr>
+                                      <td className="px-2 py-1 font-semibold text-gray-700 w-48">Product Buyer Style<br />Number</td>
+                                      <td className="px-2 py-1 text-gray-700">22992</td>
+                                    </tr>
                                 </tbody>
                               </table>
+                              </div>
+                              
+                              <div className="mt-6">
+                                <h4 className="font-semibold text-gray-700 mb-4 text-sm">Care Instructions</h4>
+                                
+                                {/* First Set of Care Instructions */}
+                                <div className="grid grid-cols-4 gap-4 mb-4">
+                                  {/* Wash Panel */}
+                                  <div className="border border-gray-200 rounded p-3 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Wash</div>
+                                    <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
+                                      <option value="">Select wash type</option>
+                                      <option value="machine-wash">Machine Wash</option>
+                                      <option value="hand-wash">Hand Wash</option>
+                                      <option value="do-not-wash">Do Not Wash</option>
+                                    </select>
+                                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center">
+                                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Wash Modifier Panel */}
+                                  <div className="border border-gray-200 rounded p-3 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Wash Modifier</div>
+                                    <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
+                                      <option value="">Select modifier</option>
+                                      <option value="cold">Cold</option>
+                                      <option value="warm">Warm</option>
+                                      <option value="hot">Hot</option>
+                                      <option value="gentle">Gentle</option>
+                                    </select>
+                                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center">
+                                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Bleach Panel */}
+                                  <div className="border border-gray-200 rounded p-3 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Bleach</div>
+                                    <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
+                                      <option value="">Select bleach option</option>
+                                      <option value="do-not-bleach">Do Not Bleach</option>
+                                      <option value="non-chlorine">Non-Chlorine</option>
+                                      <option value="chlorine">Chlorine</option>
+                                    </select>
+                                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center">
+                                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Dry Panel */}
+                                  <div className="border border-gray-200 rounded p-3 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Dry</div>
+                                    <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
+                                      <option value="">Select dry method</option>
+                                      <option value="tumble-dry">Tumble Dry</option>
+                                      <option value="line-dry">Line Dry</option>
+                                      <option value="drip-dry">Drip Dry</option>
+                                      <option value="do-not-dry">Do Not Dry</option>
+                                    </select>
+                                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center">
+                                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                {/* Second Set of Care Instructions */}
+                                <div className="grid grid-cols-4 gap-4 mb-4">
+                                  {/* Natural Drying Panel */}
+                                  <div className="border border-gray-200 rounded p-3 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Natural Drying</div>
+                                    <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
+                                      <option value="">Select drying method</option>
+                                      <option value="line-dry">Line Dry</option>
+                                      <option value="drip-dry">Drip Dry</option>
+                                      <option value="flat-dry">Flat Dry</option>
+                                      <option value="shade-dry">Shade Dry</option>
+                                    </select>
+                                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center">
+                                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Modifier Panel */}
+                                  <div className="border border-gray-200 rounded p-3 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Modifier</div>
+                                    <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
+                                      <option value="">Select modifier</option>
+                                      <option value="gentle">Gentle</option>
+                                      <option value="normal">Normal</option>
+                                      <option value="heavy">Heavy</option>
+                                      <option value="delicate">Delicate</option>
+                                    </select>
+                                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center">
+                                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Iron Panel */}
+                                  <div className="border border-gray-200 rounded p-3 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Iron</div>
+                                    <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
+                                      <option value="">Select iron setting</option>
+                                      <option value="do-not-iron">Do Not Iron</option>
+                                      <option value="low-heat">Low Heat</option>
+                                      <option value="medium-heat">Medium Heat</option>
+                                      <option value="high-heat">High Heat</option>
+                                    </select>
+                                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center">
+                                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Dry Clean Panel */}
+                                  <div className="border border-gray-200 rounded p-3 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Dry Clean</div>
+                                    <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
+                                      <option value="">Select dry clean option</option>
+                                      <option value="do-not-dry-clean">Do Not Dry Clean</option>
+                                      <option value="dry-clean-only">Dry Clean Only</option>
+                                      <option value="dry-clean-p">Dry Clean P</option>
+                                      <option value="dry-clean-f">Dry Clean F</option>
+                                    </select>
+                                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center">
+                                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                {/* Third Row - Care Code Panel */}
+                                <div className="grid grid-cols-4 gap-4">
+                                  {/* Care Code Panel */}
+                                  <div className="border border-gray-200 rounded p-3 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Care Code</div>
+                                    <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3" defaultValue="HW11">
+                                      <option value="">Select care code</option>
+                                      <option value="HW11">HW11</option>
+                                      <option value="HW12">HW12</option>
+                                      <option value="HW13">HW13</option>
+                                      <option value="HW14">HW14</option>
+                                    </select>
+                                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center">
+                                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Memo Section */}
+                              <div className="mt-6">
+                                <h4 className="font-semibold text-gray-700 mb-4 text-sm">Memo</h4>
+                                <div className="grid grid-cols-2 gap-6">
+                                  {/* Label Panel */}
+                                  <div className="border border-gray-200 rounded p-4 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Label</div>
+                                    <textarea 
+                                      className="w-full border border-gray-300 rounded px-3 py-2 text-sm resize-none"
+                                      rows={4}
+                                      placeholder="Enter label comments here..."
+                                    ></textarea>
+                                  </div>
+                                  
+                                  {/* Label Location Panel */}
+                                  <div className="border border-gray-200 rounded p-4 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Label Location</div>
+                                    <textarea 
+                                      className="w-full border border-gray-300 rounded px-3 py-2 text-sm resize-none"
+                                      rows={4}
+                                      placeholder="Enter label location comments here..."
+                                    ></textarea>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           )}
                           
                           {/* Labels Tab */}
                           {techPacksEditTab === 'Labels' && (
-                            <div className="inline-block">
-                              <table className="text-sm border border-blue-200 rounded mb-2 table-fixed">
+                            <div>
+                              <div className="overflow-x-auto">
+                                <table className="text-xs border border-gray-300 rounded max-w-4xl">
+                                  <thead>
+                                    <tr className="bg-gray-50">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Name</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-32">Description</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Material</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Image Type 1</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Image Type 2</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Position</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Application</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-32">Comment</th>
+                                    </tr>
+                                  </thead>
                                 <tbody>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Label Type</td><td className="px-2 py-1">{row['Label Type'] || ''}</td></tr>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Content</td><td className="px-2 py-1">{row['Label Content'] || ''}</td></tr>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Position</td><td className="px-2 py-1">{row['Label Position'] || ''}</td></tr>
-                                  <tr><td className="px-2 py-1 font-semibold w-32">Size</td><td className="px-2 py-1">{row['Label Size'] || ''}</td></tr>
+                                    <tr className="hover:bg-gray-50">
+                                      <td className="px-1 py-0.5 border text-xs">Care Label</td>
+                                      <td className="px-1 py-0.5 border text-xs">Washing and care instructions</td>
+                                      <td className="px-1 py-0.5 border text-xs">Polyester</td>
+                                      <td className="px-1 py-0.5 border text-xs">Woven</td>
+                                      <td className="px-1 py-0.5 border text-xs">Printed</td>
+                                      <td className="px-1 py-0.5 border text-xs">Neck</td>
+                                      <td className="px-1 py-0.5 border text-xs">Sewn</td>
+                                      <td className="px-1 py-0.5 border text-xs">Must be permanent</td>
+                                    </tr>
+                                    <tr className="hover:bg-gray-50">
+                                      <td className="px-1 py-0.5 border text-xs">Size Label</td>
+                                      <td className="px-1 py-0.5 border text-xs">Product size information</td>
+                                      <td className="px-1 py-0.5 border text-xs">Cotton</td>
+                                      <td className="px-1 py-0.5 border text-xs">Woven</td>
+                                      <td className="px-1 py-0.5 border text-xs">Embossed</td>
+                                      <td className="px-1 py-0.5 border text-xs">Side Seam</td>
+                                      <td className="px-1 py-0.5 border text-xs">Sewn</td>
+                                      <td className="px-1 py-0.5 border text-xs">Standard size label</td>
+                                    </tr>
+                                    <tr className="hover:bg-gray-50">
+                                      <td className="px-1 py-0.5 border text-xs">Brand Label</td>
+                                      <td className="px-1 py-0.5 border text-xs">Brand logo and name</td>
+                                      <td className="px-1 py-0.5 border text-xs">Silk</td>
+                                      <td className="px-1 py-0.5 border text-xs">Woven</td>
+                                      <td className="px-1 py-0.5 border text-xs">Embroidered</td>
+                                      <td className="px-1 py-0.5 border text-xs">Chest</td>
+                                      <td className="px-1 py-0.5 border text-xs">Sewn</td>
+                                      <td className="px-1 py-0.5 border text-xs">Premium brand label</td>
+                                    </tr>
+                                    <tr className="hover:bg-gray-50">
+                                      <td className="px-1 py-0.5 border text-xs">Composition Label</td>
+                                      <td className="px-1 py-0.5 border text-xs">Fabric composition details</td>
+                                      <td className="px-1 py-0.5 border text-xs">Polyester</td>
+                                      <td className="px-1 py-0.5 border text-xs">Woven</td>
+                                      <td className="px-1 py-0.5 border text-xs">Printed</td>
+                                      <td className="px-1 py-0.5 border text-xs">Side Seam</td>
+                                      <td className="px-1 py-0.5 border text-xs">Sewn</td>
+                                      <td className="px-1 py-0.5 border text-xs">Required by law</td>
+                                    </tr>
+                                    <tr className="hover:bg-gray-50">
+                                      <td className="px-1 py-0.5 border text-xs">Origin Label</td>
+                                      <td className="px-1 py-0.5 border text-xs">Country of origin</td>
+                                      <td className="px-1 py-0.5 border text-xs">Cotton</td>
+                                      <td className="px-1 py-0.5 border text-xs">Woven</td>
+                                      <td className="px-1 py-0.5 border text-xs">Printed</td>
+                                      <td className="px-1 py-0.5 border text-xs">Neck</td>
+                                      <td className="px-1 py-0.5 border text-xs">Sewn</td>
+                                      <td className="px-1 py-0.5 border text-xs">Made in China</td>
+                                    </tr>
                                 </tbody>
                               </table>
+                              </div>
+                              
+                              {/* Image Type Tables */}
+                              <div className="mt-6">
+                                <div className="flex gap-4">
+                                  {/* Image Type 1 Table */}
+                                  <div>
+                                    <h4 className="font-semibold text-gray-700 mb-3 text-sm">Image Type 1</h4>
+                                    <div className="border border-gray-200 rounded p-4 bg-white w-64">
+                                      <div className="w-32 h-32 bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center mb-3 mx-auto">
+                                        <svg className="w-16 h-16 text-white opacity-80" fill="currentColor" viewBox="0 0 24 24">
+                                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                      </div>
+                                      <table className="text-xs w-full">
+                                        <tbody>
+                                          <tr>
+                                            <td className="px-2 py-1 font-semibold text-gray-700 w-24">Type</td>
+                                            <td className="px-2 py-1 text-gray-700">Woven</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 font-semibold text-gray-700 w-24">Style</td>
+                                            <td className="px-2 py-1 text-gray-700">Standard</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 font-semibold text-gray-700 w-24">Color</td>
+                                            <td className="px-2 py-1 text-gray-700">Blue Gradient</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 font-semibold text-gray-700 w-24">Size</td>
+                                            <td className="px-2 py-1 text-gray-700">Medium</td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Image Type 2 Table */}
+                                  <div>
+                                    <h4 className="font-semibold text-gray-700 mb-3 text-sm">Image Type 2</h4>
+                                    <div className="border border-gray-200 rounded p-4 bg-white w-64">
+                                      <div className="w-32 h-32 bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center mb-3 mx-auto">
+                                        <svg className="w-16 h-16 text-white opacity-80" fill="currentColor" viewBox="0 0 24 24">
+                                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                      </div>
+                                      <table className="text-xs w-full">
+                                        <tbody>
+                                          <tr>
+                                            <td className="px-2 py-1 font-semibold text-gray-700 w-24">Type</td>
+                                            <td className="px-2 py-1 text-gray-700">Printed</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 font-semibold text-gray-700 w-24">Style</td>
+                                            <td className="px-2 py-1 text-gray-700">Custom</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 font-semibold text-gray-700 w-24">Color</td>
+                                            <td className="px-2 py-1 text-gray-700">Blue Gradient</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 font-semibold text-gray-700 w-24">Size</td>
+                                            <td className="px-2 py-1 text-gray-700">Large</td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           )}
                         </div>

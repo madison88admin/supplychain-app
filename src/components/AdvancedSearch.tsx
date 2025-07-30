@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Search, Filter, X, ChevronDown, ChevronUp, Lightbulb, Sparkles, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -173,7 +174,7 @@ const AdvancedSearch: React.FC = () => {
   }, {} as Record<string, SearchFilter[]>);
 
   return (
-    <div className="relative" ref={searchRef}>
+    <div className="relative z-[999999]" ref={searchRef} style={{ position: 'relative' }}>
       {/* Search Input */}
       <div className="relative">
         <div className="relative">
@@ -209,9 +210,17 @@ const AdvancedSearch: React.FC = () => {
         </div>
       </div>
 
-      {/* Search Results Dropdown */}
-      {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-96 overflow-hidden">
+            {/* Search Results Dropdown */}
+      {isOpen && createPortal(
+        <div 
+          className="fixed bg-white rounded-lg shadow-2xl border border-gray-200 z-[9999999] transition-all duration-200 ease-in-out transform max-h-96 overflow-hidden"
+          style={{
+            top: searchRef.current ? searchRef.current.getBoundingClientRect().bottom + 8 : 80,
+            left: searchRef.current ? searchRef.current.getBoundingClientRect().left : '50%',
+            width: searchRef.current ? searchRef.current.getBoundingClientRect().width : 'auto',
+            transform: searchRef.current ? 'none' : 'translateX(-50%)'
+          }}
+        >
           <div className="flex">
             {/* Filters Panel */}
             {showFilters && (
@@ -307,7 +316,8 @@ const AdvancedSearch: React.FC = () => {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

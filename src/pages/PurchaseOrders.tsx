@@ -23,7 +23,7 @@ const groupedColumns = [
 
 // All other columns
 const baseColumns = [
-  'Order', 'Product', 'PO Line', 'Fit Comment', 'Fit Log Status', 'Fit Log Type', 'Fit Log Name', 'Customer', 'Collection', 'Division', 'Group',
+  'PO Line', 'Fit Comment', 'Fit Log Status', 'Fit Log Type', 'Fit Log Name', 'Customer', 'Collection', 'Division', 'Group',
   'Transport Method', 'Deliver To', 'Status', 'Delivery Date', 'Comments', 'Quantity', 'Selling Quantity', 'Closed Date', 'Line Purchase Price',
   'Line Selling Price', 'Note Count', 'Latest Note', 'Order Quantity Increment', 'Order Lead Time', 'Supplier Ref.', 'Template', 'Ex-Factory',
   'Purchase Order Status', 'Supplier Purchase Currency', 'Customer Selling Currency', 'Supplier', 'Purchase Currency', 'Selling Currency',
@@ -46,11 +46,14 @@ const baseColumns = [
 ];
 
 const allColumns = [
+  'Order', 'Product', // Add Order and Product as separate columns at the beginning
   ...baseColumns,
   ...groupedColumns.map(g => g.key),
 ];
 
 const blankRow: Record<string, any> = Object.fromEntries([
+  ['Order', ''], // Add Order and Product to blank row
+  ['Product', ''],
   ...baseColumns.map(col => [col, '']),
   ...groupedColumns.map(g => [g.key, { 'Target Date': '', 'Completed Date': '' }]),
 ]);
@@ -62,6 +65,54 @@ const statusOptions = [
 ];
 
 const PurchaseOrders: React.FC = () => {
+  // Sticky column configuration with precise positioning
+  const stickyColumns = [
+    { key: 'checkbox-header', left: 0, zIndex: 50, width: 48 },
+    { key: 'Order', left: 48, zIndex: 40, width: 120 },
+    { key: 'Product', left: 168, zIndex: 40, width: 120 }
+  ];
+
+  const getStickyStyle = (key: string, isHeader: boolean = false) => {
+    const stickyCol = stickyColumns.find(c => c.key === key);
+    if (!stickyCol) return {};
+    
+    const baseStyle = {
+      position: 'sticky' as const,
+      left: `${stickyCol.left}px`,
+      zIndex: stickyCol.zIndex,
+      backgroundColor: isHeader ? '#f9fafb' : '#ffffff',
+      boxSizing: 'border-box' as const,
+      borderCollapse: 'separate' as const,
+      borderSpacing: 0,
+      width: `${stickyCol.width}px`,
+      minWidth: `${stickyCol.width}px`,
+      maxWidth: `${stickyCol.width}px`
+    };
+
+    // Add specific border styling for each sticky column
+    if (key === 'checkbox-header') {
+      return {
+        ...baseStyle,
+        borderRight: '1px solid #e5e7eb',
+        borderLeft: '1px solid #e5e7eb'
+      };
+    } else if (key === 'Order') {
+      return {
+        ...baseStyle,
+        borderRight: '1px solid #e5e7eb',
+        borderLeft: '1px solid #e5e7eb'
+      };
+    } else if (key === 'Product') {
+      return {
+        ...baseStyle,
+        borderRight: '2px solid #e5e7eb',
+        borderLeft: '1px solid #e5e7eb'
+      };
+    }
+
+    return baseStyle;
+  };
+
   // Create multiple dummy rows for testing
   const createDummyRow = (index: number): Record<string, any> => ({
     'Order': `PO-2024-${String(index + 1).padStart(3, '0')}`,
@@ -197,8 +248,13 @@ const PurchaseOrders: React.FC = () => {
   // Create 10 dummy rows for testing
   const dummyRows = Array.from({ length: 10 }, (_, index) => createDummyRow(index));
 
-  // Fix: Always ensure rows is an array of objects
-  const [rows, setRows] = useState<Record<string, any>[]>(dummyRows);
+  // Fix: Always ensure rows is an array of objects - force refresh with new data structure
+  const [rows, setRows] = useState<Record<string, any>[]>([]);
+  
+  // Initialize rows with dummy data
+  React.useEffect(() => {
+    setRows(dummyRows);
+  }, []);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [search, setSearch] = useState('');
   const [filteredRows, setFilteredRows] = useState<typeof rows | null>(null);
@@ -395,8 +451,17 @@ const PurchaseOrders: React.FC = () => {
     // First row: group headers
     const firstRow = [
       // Add checkbox column header
-      <th key="checkbox-header" rowSpan={2} className="px-3 py-1 border-b text-center whitespace-nowrap border-r-2 border-gray-200 bg-gray-50">
-        <div className="flex items-center justify-center">
+      <th 
+        key="checkbox-header" 
+        rowSpan={2} 
+        className="px-3 py-1 border-b text-center whitespace-nowrap"
+        style={{
+          ...getStickyStyle('checkbox-header', true),
+          borderTop: '1px solid #e5e7eb',
+          borderBottom: '1px solid #e5e7eb'
+        }}
+      >
+        <div className="flex items-center justify-center w-full">
           <input
             type="checkbox"
             checked={selectAll}
@@ -406,26 +471,42 @@ const PurchaseOrders: React.FC = () => {
         </div>
       </th>,
       ...cols.map((col, i) => {
-      let stickyClass = '';
-      if (col.key === 'Order') {
-          stickyClass = 'sticky left-12 bg-white z-20'; // Adjust for checkbox column
-      } else if (col.key === 'Product') {
-          stickyClass = 'sticky left-24 bg-white z-20'; // Adjust for checkbox column
-      }
-      
-      return col.isGroup ? (
-        <th key={`${col.key}-group-${i}`} colSpan={2} className={`px-2 py-1 border-b text-center whitespace-nowrap ${stickyClass}${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
-      ) : (
-                                <th key={`${col.key}-single-${i}`} rowSpan={2} className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle ${stickyClass}${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
-      );
+        const style = getStickyStyle(col.key);
+        return col.isGroup ? (
+          <th 
+            key={`${col.key}-group-${i}`} 
+            colSpan={2} 
+            className={`px-2 py-1 border-b text-center whitespace-nowrap min-w-32`}
+            style={{
+              ...getStickyStyle(col.key, true),
+              borderTop: '1px solid #e5e7eb',
+              borderBottom: '1px solid #e5e7eb'
+            }}
+          >
+            {col.label}
+          </th>
+        ) : (
+          <th 
+            key={`${col.key}-single-${i}`} 
+            rowSpan={2} 
+            className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle min-w-32`}
+            style={{
+              ...getStickyStyle(col.key, true),
+              borderTop: '1px solid #e5e7eb',
+              borderBottom: '1px solid #e5e7eb'
+            }}
+          >
+            {col.label}
+          </th>
+        );
       })
     ];
     // Second row: subheaders
     const secondRow = cols.flatMap((col, idx) =>
       col.isGroup
         ? [
-                                    <th key={`${col.key}-target-${idx}`} className={`px-2 py-1 border-b text-center whitespace-nowrap border-r-2 border-gray-200`}>Target Date</th>,
-                        <th key={`${col.key}-completed-${idx}`} className={`${idx < cols.length - 1 ? 'border-r-2 border-gray-200' : ''} px-2 py-1 border-b text-center whitespace-nowrap`}>Completed Date</th>,
+            <th key={`${col.key}-target-${idx}`} className={`px-2 py-1 border-b text-center whitespace-nowrap border-r-2 border-gray-200`}>Target Date</th>,
+            <th key={`${col.key}-completed-${idx}`} className={`${idx < cols.length - 1 ? 'border-r-2 border-gray-200' : ''} px-2 py-1 border-b text-center whitespace-nowrap`}>Completed Date</th>,
           ]
         : []
     );
@@ -624,8 +705,13 @@ const PurchaseOrders: React.FC = () => {
 
       {/* Enhanced Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div className="overflow-x-auto">
-          <table className="min-w-full text-xs">
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs" style={{ 
+            boxSizing: 'border-box',
+            borderCollapse: 'separate',
+            borderSpacing: 0,
+            tableLayout: 'auto'
+          }}>
             <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
             <tr>
               {renderHeaderRows()[0]}
@@ -641,10 +727,10 @@ const PurchaseOrders: React.FC = () => {
               <React.Fragment key={`row-${idx}-${row.Order || row.Balance || idx}`}>
                 <tr
                     className={`
-                      transition-all duration-200 cursor-pointer
-                      ${selectedIndex === idx ? 'bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500' : 'hover:bg-gray-50'}
-                      ${selectedRows.has(idx) && selectedIndex !== idx ? 'bg-gradient-to-r from-green-50 to-green-100 border-l-4 border-green-500 shadow-sm' : ''}
-                      ${selectedRows.has(idx) && selectedIndex === idx ? 'bg-gradient-to-r from-blue-100 to-green-100 border-l-4 border-blue-500 shadow-sm' : ''}
+                      transition-all duration-300 cursor-pointer
+                      ${selectedIndex === idx ? 'bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-500 shadow-lg animate-pulse' : 'hover:bg-gray-50'}
+                      ${selectedRows.has(idx) && selectedIndex !== idx ? 'bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-500 shadow-md' : ''}
+                      ${selectedRows.has(idx) && selectedIndex === idx ? 'bg-gradient-to-r from-blue-100 to-green-100 border-2 border-blue-500 shadow-lg animate-pulse' : ''}
                     `}
                     onClick={(e) => {
                       // Don't trigger row selection if clicking on checkbox
@@ -655,8 +741,15 @@ const PurchaseOrders: React.FC = () => {
                     }}
                   >
                     {/* Checkbox column */}
-                    <td className="px-3 py-3 border-b align-top whitespace-nowrap border-r-2 border-gray-200 bg-white">
-                      <div className="flex items-center justify-center">
+                    <td 
+                      className="px-3 py-3 border-b align-top whitespace-nowrap"
+                      style={{
+                        ...getStickyStyle('checkbox-header', false),
+                        borderTop: '1px solid #e5e7eb',
+                        borderBottom: '1px solid #e5e7eb'
+                      }}
+                    >
+                      <div className="flex items-center justify-center w-full">
                         <input
                           type="checkbox"
                           checked={selectedRows.has(idx)}
@@ -670,48 +763,71 @@ const PurchaseOrders: React.FC = () => {
                     </td>
                     
                   {renderColumns().flatMap((col, colIdx, arr) => {
-                    // Only render columns that are in renderColumns (already filtered by visibleColumns)
-                    if (col.key === 'Order' && safeVisibleColumns.includes('Order')) {
+                    // Handle Order column with sticky positioning and expand/collapse functionality
+                    if (col.key === 'Order') {
                       return [
-                          <td key={col.key} className={`px-3 py-3 border-b align-top whitespace-nowrap sticky left-12 bg-white z-10${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}> 
-                          <button 
-                              className="mr-2 align-middle p-1 hover:bg-gray-100 rounded transition-colors"
+                          <td 
+                            key={`${col.key}-${idx}-${colIdx}`} 
+                            className={`px-3 py-3 border-b align-top whitespace-nowrap cursor-pointer hover:bg-gray-50 transition-colors`}
+                            style={{
+                              ...getStickyStyle(col.key, false),
+                              width: '120px',
+                              minWidth: '120px',
+                              maxWidth: '120px',
+                              borderTop: '1px solid #e5e7eb',
+                              borderBottom: '1px solid #e5e7eb'
+                            }}
                             onClick={e => {
                               e.stopPropagation();
                               setExpandedIndex(expandedIndex === idx ? null : idx);
                             }}
-                            aria-label={expandedIndex === idx ? 'Collapse details' : 'Expand details'}
-                          >
-                            {expandedIndex === idx ? <ChevronDown className="inline h-4 w-4" /> : <ChevronRight className="inline h-4 w-4" />}
-                          </button>
-                            <span className="font-medium text-gray-900">{row[col.key] || ''}</span>
-                        </td>
+                            title={expandedIndex === idx ? 'Click to collapse details' : 'Click to expand details'}
+                          > 
+                            <div className="flex items-center w-full">
+                              <div className="mr-2 align-middle flex-shrink-0">
+                                {expandedIndex === idx ? <ChevronDown className="inline h-4 w-4 text-blue-600" /> : <ChevronRight className="inline h-4 w-4 text-gray-500" />}
+                              </div>
+                              <span className="font-medium text-gray-900 truncate">{row[col.key] || ''}</span>
+                            </div>
+                          </td>
                       ];
                     }
-                    // Add Product subtable dropdown
-                    if (col.key === 'Product' && safeVisibleColumns.includes('Product')) {
+                    // Handle Product column with sticky positioning and expand/collapse functionality
+                    if (col.key === 'Product') {
                       return [
-                          <td key={col.key} className={`px-3 py-3 border-b align-top whitespace-nowrap sticky left-24 bg-white z-10${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}> 
-                          <button
-                              className="mr-2 align-middle p-1 hover:bg-gray-100 rounded transition-colors"
+                          <td 
+                            key={`${col.key}-${idx}-${colIdx}`} 
+                            className={`px-3 py-3 border-b align-top whitespace-nowrap cursor-pointer hover:bg-gray-50 transition-colors`}
+                            style={{
+                              ...getStickyStyle(col.key, false),
+                              width: '120px',
+                              minWidth: '120px',
+                              maxWidth: '120px',
+                              borderTop: '1px solid #e5e7eb',
+                              borderBottom: '1px solid #e5e7eb'
+                            }}
                             onClick={e => {
                               e.stopPropagation();
                               setExpandedProductIndex(expandedProductIndex === idx ? null : idx);
                             }}
-                            aria-label={expandedProductIndex === idx ? 'Collapse product details' : 'Expand product details'}
-                          >
-                            {expandedProductIndex === idx ? <ChevronDown className="inline h-4 w-4" /> : <ChevronRight className="inline h-4 w-4" />}
-                          </button>
-                            <span className="font-medium text-gray-900">{row[col.key] || ''}</span>
-                        </td>
+                            title={expandedProductIndex === idx ? 'Click to collapse product details' : 'Click to expand product details'}
+                          > 
+                            <div className="flex items-center w-full">
+                              <div className="mr-2 align-middle flex-shrink-0">
+                                {expandedProductIndex === idx ? <ChevronDown className="inline h-4 w-4 text-blue-600" /> : <ChevronRight className="inline h-4 w-4 text-gray-500" />}
+                              </div>
+                              <span className="font-medium text-gray-900 truncate">{row[col.key] || ''}</span>
+                            </div>
+                          </td>
                       ];
                     }
+                    // Handle grouped columns
                     if (col.isGroup) {
                       return col.children!.map((subCol, subIdx) => (
                         <td
                           key={`${col.key}-${subCol}-${idx}`}
                           className={
-                              `px-3 py-3 border-b align-top whitespace-nowrap` +
+                              `px-3 py-3 border-b align-top whitespace-nowrap min-w-20` +
                             ((subIdx === 0 || subCol === 'Target Date') ? ' border-r-2 border-gray-200' : '') +
                             (colIdx === arr.length - 1 && subCol === 'Completed Date' ? '' : '')
                           }
@@ -720,8 +836,9 @@ const PurchaseOrders: React.FC = () => {
                         </td>
                       ));
                     } else {
+                      // Handle all other regular columns
                       return [
-                          <td key={col.key} className={`px-3 py-3 border-b align-top whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>
+                          <td key={`${col.key}-${idx}-${colIdx}`} className={`px-3 py-3 border-b align-top whitespace-nowrap min-w-24${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>
                             {row[col.key] || ''}
                         </td>
                       ];

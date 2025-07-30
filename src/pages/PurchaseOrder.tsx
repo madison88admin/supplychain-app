@@ -96,6 +96,124 @@ const allColumns = [
   ...groupedColumns.map(g => g.key),
 ];
 
+// Function to generate dummy purchase order entries
+const generateDummyEntries = (): Record<string, any>[] => {
+  const customers = ['ABC Corp', 'Beta Industries', 'Gamma Solutions', 'Delta Manufacturing', 'Epsilon Trading', 'Zeta Retail', 'Eta Services', 'Theta Logistics'];
+  const suppliers = ['XYZ Textiles', 'Premium Fabrics', 'Global Materials', 'Quality Suppliers', 'Elite Manufacturing', 'Prime Vendors', 'Superior Goods', 'Excellence Corp'];
+  const statuses = ['Open', 'Confirmed', 'In Production', 'Shipped', 'Delivered'];
+  const divisions = ['Apparel', 'Electronics', 'Home Goods', 'Automotive', 'Healthcare'];
+  const groups = ['Men\'s Wear', 'Women\'s Wear', 'Children\'s', 'Accessories', 'Footwear'];
+  const transportMethods = ['Sea', 'Air', 'Land', 'Express'];
+  const locations = ['Shanghai', 'Bangkok', 'Mumbai', 'Istanbul', 'Cairo', 'Nairobi', 'Lagos', 'Casablanca'];
+  const countries = ['China', 'Thailand', 'India', 'Turkey', 'Egypt', 'Kenya', 'Nigeria', 'Morocco'];
+  const templates = ['Standard', 'Premium', 'Express', 'Custom', 'Bulk'];
+  const currencies = ['USD', 'EUR', 'CNY', 'INR', 'THB', 'TRY', 'EGP', 'KES'];
+  const paymentTerms = ['Net 30', 'Net 60', 'Net 90', 'Cash on Delivery', 'Advance Payment'];
+  const productionStatuses = ['In Progress', 'Planned', 'Completed', 'On Hold', 'Cancelled'];
+  const qcStatuses = ['Passed', 'Pending', 'Failed', 'Under Review', 'Approved'];
+  const planningStatuses = ['Planned', 'In Progress', 'Completed', 'Delayed', 'Cancelled'];
+  const shippingStatuses = ['Pending', 'In Progress', 'Shipped', 'Delivered', 'Returned'];
+
+  const dummyEntries: Record<string, any>[] = [];
+
+  for (let i = 1; i <= 8; i++) {
+    const customer = customers[i - 1];
+    const supplier = suppliers[i - 1];
+    const status = statuses[i % statuses.length];
+    const division = divisions[i % divisions.length];
+    const group = groups[i % groups.length];
+    const transport = transportMethods[i % transportMethods.length];
+    const location = locations[i % locations.length];
+    const country = countries[i % countries.length];
+    const template = templates[i % templates.length];
+    const currency = currencies[i % currencies.length];
+    const paymentTerm = paymentTerms[i % paymentTerms.length];
+    const production = productionStatuses[i % productionStatuses.length];
+    const qc = qcStatuses[i % qcStatuses.length];
+    const planning = planningStatuses[i % planningStatuses.length];
+    const shipping = shippingStatuses[i % shippingStatuses.length];
+
+    const baseDate = new Date(2024, 6, 1); // July 1, 2024
+    const issueDate = new Date(baseDate.getTime() + (i * 7 * 24 * 60 * 60 * 1000)); // Add i weeks
+    const deliveryDate = new Date(issueDate.getTime() + (30 * 24 * 60 * 60 * 1000)); // Add 30 days
+    const closedDate = new Date(deliveryDate.getTime() - (5 * 24 * 60 * 60 * 1000)); // 5 days before delivery
+
+    const totalQty = 500 + (i * 250);
+    const totalCost = totalQty * (10 + i);
+    const totalValue = totalCost * 1.2; // 20% markup
+
+    const entry: Record<string, any> = {
+      'Order References': `PO-2024-${String(i).padStart(3, '0')}`,
+      'Status': status,
+      'Total Qty': totalQty,
+      'Total Cost': `$${totalCost.toLocaleString()}`,
+      'Total Value': `$${totalValue.toLocaleString()}`,
+      'Customer': customer,
+      'Supplier': supplier,
+      'Purchase Currency': currency,
+      'Selling Currency': 'EUR',
+      'Purchase Payment Term': paymentTerm,
+      'Selling Payment Term': 'Net 60',
+      'Supplier Parent': `${supplier} Group`,
+      'Delivery Contact': `Contact ${i}`,
+      'Division': division,
+      'Group': group,
+      'Supplier Description': `Main supplier for ${division.toLowerCase()}`,
+      'Supplier Location': location,
+      'Supplier Country': country,
+      'Template': template,
+      'Transport Method': transport,
+      'Deliver to': `Warehouse ${i}`,
+      'Closed Date': closedDate.toISOString().split('T')[0],
+      'Delivery Date': deliveryDate.toISOString().split('T')[0],
+      'PO Issue Date': issueDate.toISOString().split('T')[0],
+      'Supplier Currency': currency,
+      'Comments': `${status} order for ${customer}`,
+      'Production': production,
+      'MLA- Purchasing': `Purchaser ${i}`,
+      'China -QC': qc,
+      'MLA-Planning': planning,
+      'MLA-Shipping': shipping,
+      'PO Key User 6': `User${i}`,
+      'PO Key User 7': `User${i + 1}`,
+      'PO Key User 8': `User${i + 2}`,
+      'PO Key Working Group 2': `Group${i}`,
+      'PO Key Working Group 3': `Group${i + 1}`,
+      'PO Key Working Group 4': `Group${i + 2}`,
+      'Purchase Payment Term Description': `${paymentTerm} days after invoice`,
+      'Selling Payment Term Description': '60 days after invoice',
+      'Note Count': i,
+      'Latest Note': `Note ${i}: ${status} status update`,
+      'Default PO Line Template': `Template ${String.fromCharCode(65 + i)}`,
+      'Default Ex-Factory': new Date(issueDate.getTime() + (15 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+      'Created By': 'Admin',
+      'Created': new Date(issueDate.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+      'Last Edited': new Date(issueDate.getTime() - (2 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+      'Last Edited By': 'Editor',
+      'Finish trim Order': { 
+        'Target Date': new Date(issueDate.getTime() + (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0], 
+        'Completed Date': new Date(issueDate.getTime() + (8 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0] 
+      },
+      'Link to line': { 
+        'Target Date': new Date(issueDate.getTime() + (10 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0], 
+        'Completed Date': new Date(issueDate.getTime() + (11 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0] 
+      },
+      'Finish Care Label': { 
+        'Target Date': new Date(issueDate.getTime() + (12 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0], 
+        'Completed Date': new Date(issueDate.getTime() + (13 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0] 
+      },
+      'Packing & Shipping Instructions': { 
+        'Target Date': new Date(issueDate.getTime() + (14 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0], 
+        'Completed Date': new Date(issueDate.getTime() + (15 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0] 
+      },
+    };
+
+    dummyEntries.push(entry);
+  }
+
+  return dummyEntries;
+};
+
 const initialRow: Record<string, any> = {
   'Order References': 'PO-1001',
   'Status': 'Open',
@@ -561,7 +679,48 @@ const poLinesColumns = [
 ];
 
 const PurchaseOrder: React.FC = () => {
-  const [rows, setRows] = useState([initialRow]);
+  // Sticky column configuration with precise positioning
+  const stickyColumns = [
+    { key: 'checkbox-header', left: 0, zIndex: 30, width: 48 },
+    { key: 'Order References', left: 48, zIndex: 40, width: 120 }
+  ];
+
+  const getStickyStyle = (key: string, isHeader: boolean = false) => {
+    const stickyCol = stickyColumns.find(c => c.key === key);
+    if (!stickyCol) return {};
+    
+    const baseStyle = {
+      position: 'sticky' as const,
+      left: `${stickyCol.left}px`,
+      zIndex: stickyCol.zIndex,
+      backgroundColor: isHeader ? '#f9fafb' : '#ffffff',
+      boxSizing: 'border-box' as const,
+      borderCollapse: 'separate' as const,
+      borderSpacing: 0,
+      width: `${stickyCol.width}px`,
+      minWidth: `${stickyCol.width}px`,
+      maxWidth: `${stickyCol.width}px`
+    };
+
+    // Add specific border styling for each sticky column
+    if (key === 'checkbox-header') {
+      return {
+        ...baseStyle,
+        borderRight: '1px solid #e5e7eb',
+        borderLeft: '1px solid #e5e7eb'
+      };
+    } else if (key === 'Order References') {
+      return {
+        ...baseStyle,
+        borderRight: '2px solid #e5e7eb',
+        borderLeft: '1px solid #e5e7eb'
+      };
+    }
+
+    return baseStyle;
+  };
+
+  const [rows, setRows] = useState(generateDummyEntries());
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [editRow, setEditRow] = useState<Record<string, any> | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
@@ -574,6 +733,14 @@ const PurchaseOrder: React.FC = () => {
 
   // Add state for column selector search
   const [columnSearch, setColumnSearch] = useState('');
+
+  // Add state for Add New modal
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [addFormData, setAddFormData] = useState<Record<string, any>>({});
+
+  // Add state for Edit modal
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState<Record<string, any>>({});
 
   // Multi-row selection states
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
@@ -682,8 +849,11 @@ const PurchaseOrder: React.FC = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleEdit = () => {
-    setEditIndex(selectedIndex);
-    setEditRow({ ...JSON.parse(JSON.stringify((filteredRows ?? rows)[selectedIndex])) });
+    // Only edit if a row is selected/highlighted
+    if (selectedIndex >= 0 && selectedIndex < displayRows.length) {
+      setEditFormData({ ...JSON.parse(JSON.stringify(displayRows[selectedIndex])) });
+      setIsEditModalOpen(true);
+    }
   };
 
   const handleChange = (col: string, value: string, subCol?: string) => {
@@ -729,17 +899,51 @@ const PurchaseOrder: React.FC = () => {
   };
 
   const handleAdd = () => {
-    const newRows = [ { ...blankRow }, ...(filteredRows ?? rows) ];
+    // Initialize form data with blank row
+    setAddFormData({ ...blankRow });
+    setIsAddModalOpen(true);
+  };
+
+  const handleAddSave = () => {
+    // Add the new row to the beginning of the list
+    const newRows = [addFormData, ...(filteredRows ?? rows)];
     if (filteredRows) {
-      const mainRows = [ { ...blankRow }, ...rows ];
+      const mainRows = [addFormData, ...rows];
       setRows(mainRows);
       setFilteredRows(newRows);
     } else {
       setRows(newRows);
     }
     setSelectedIndex(0);
-    setEditIndex(0);
-    setEditRow({ ...blankRow });
+    setIsAddModalOpen(false);
+    setAddFormData({});
+  };
+
+  const handleAddCancel = () => {
+    setIsAddModalOpen(false);
+    setAddFormData({});
+  };
+
+  const handleEditSave = () => {
+    // Update the row with form data
+    const newRows = [...(filteredRows ?? rows)];
+    newRows[selectedIndex] = { ...editFormData };
+    if (filteredRows) {
+      const mainRows = [...rows];
+      const idxInMain = rows.indexOf(filteredRows[selectedIndex]);
+      if (idxInMain !== -1) mainRows[idxInMain] = { ...editFormData };
+      setRows(mainRows);
+      setFilteredRows(newRows);
+    } else {
+      setRows(newRows);
+    }
+    setIsEditModalOpen(false);
+    setEditFormData({});
+  };
+
+  const handleEditCancel = () => {
+    setIsEditModalOpen(false);
+    setEditFormData({});
   };
 
   // Dynamic filtering: update filteredRows whenever search or rows changes
@@ -881,6 +1085,19 @@ const PurchaseOrder: React.FC = () => {
 
   const displayRows = filteredRows ?? rows;
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && selectedIndex >= 0 && selectedIndex < displayRows.length) {
+        e.preventDefault();
+        handleEdit();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [selectedIndex, displayRows.length]);
+
   // For rendering, expand grouped columns into subcolumns
   const renderColumns = () => {
     const cols: { label: string; key: string; isGroup?: boolean; children?: string[] }[] = [];
@@ -908,21 +1125,47 @@ const PurchaseOrder: React.FC = () => {
   const renderHeaderRows = () => {
     const cols = renderColumns();
     const firstRow = [
-      <th key="checkbox-header" rowSpan={2} className="px-3 py-1 border-b text-center whitespace-nowrap border-r-2 border-gray-200 bg-gray-50 sticky left-0 z-50" style={{ position: 'sticky', left: 0, zIndex: 50 }}>
+      <th 
+        key="checkbox-header" 
+        rowSpan={2} 
+        className="px-3 py-1 border-b text-center whitespace-nowrap"
+        style={{
+          ...getStickyStyle('checkbox-header', true),
+          borderTop: '1px solid #e5e7eb',
+          borderBottom: '1px solid #e5e7eb'
+        }}
+      >
         <div className="flex items-center justify-center">
           <input type="checkbox" checked={selectAll} onChange={handleSelectAll} className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2" />
         </div>
       </th>,
       ...cols.map((col, i) => {
-        let stickyClass = '';
-        if (col.key === 'Order References') {
-          stickyClass = 'sticky left-12 bg-gray-50 z-40';
-        }
-        
         return col.isGroup ? (
-          <th key={`${col.key}-group-${i}`} colSpan={2} className={`px-2 py-1 border-b text-center whitespace-nowrap ${stickyClass}${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
+          <th 
+            key={`${col.key}-group-${i}`} 
+            colSpan={2} 
+            className={`px-2 py-1 border-b text-center whitespace-nowrap`}
+            style={{
+              ...getStickyStyle(col.key, true),
+              borderTop: '1px solid #e5e7eb',
+              borderBottom: '1px solid #e5e7eb'
+            }}
+          >
+            {col.label}
+          </th>
         ) : (
-          <th key={`${col.key}-single-${i}`} rowSpan={2} className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle ${stickyClass}${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
+          <th 
+            key={`${col.key}-single-${i}`} 
+            rowSpan={2} 
+            className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle`}
+            style={{
+              ...getStickyStyle(col.key, true),
+              borderTop: '1px solid #e5e7eb',
+              borderBottom: '1px solid #e5e7eb'
+            }}
+          >
+            {col.label}
+          </th>
         );
       })
     ];
@@ -1281,6 +1524,17 @@ const PurchaseOrder: React.FC = () => {
         </div>
       )}
 
+      {/* Interaction Guide */}
+      <div className="mt-2 p-2 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg">
+        <div className="flex items-center space-x-2 text-xs text-blue-700">
+          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+          <span className="font-medium">Quick Tips:</span>
+          <span>• Click row to select for editing</span>
+          <span>• Click chevron to view details</span>
+          <span>• Press Enter to edit selected row</span>
+        </div>
+      </div>
+
       {/* Column Selector Modal */}
       {showColumnSelector && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -1355,7 +1609,12 @@ const PurchaseOrder: React.FC = () => {
 
       <div className="overflow-x-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
         <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
-          <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs relative" style={{ position: 'relative' }}>
+          <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs" style={{ 
+            boxSizing: 'border-box',
+            borderCollapse: 'separate',
+            borderSpacing: 0,
+            tableLayout: 'auto'
+          }}>
             <thead className="bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0 z-40">
               <tr>
                 {renderHeaderRows()[0]}
@@ -1371,26 +1630,31 @@ const PurchaseOrder: React.FC = () => {
                 <React.Fragment key={idx}>
                   <tr
                     className={`
-                      transition-all duration-200 cursor-pointer
-                      ${selectedIndex === idx ? 'bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500' : 'hover:bg-gray-50'}
-                      ${selectedRows.has(idx) && selectedIndex !== idx ? 'bg-gradient-to-r from-green-50 to-green-100 border-l-4 border-green-500 shadow-sm' : ''}
-                      ${selectedRows.has(idx) && selectedIndex === idx ? 'bg-gradient-to-r from-blue-100 to-green-100 border-l-4 border-blue-500 shadow-sm' : ''}
-                      ${editIndex === idx ? 'bg-yellow-50' : ''}
+                      transition-all duration-300 cursor-pointer group
+                      ${selectedIndex === idx ? 'bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-500 shadow-lg animate-pulse' : 'hover:bg-gray-50'}
+                      ${selectedRows.has(idx) && selectedIndex !== idx ? 'bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-500 shadow-md' : ''}
+                      ${selectedRows.has(idx) && selectedIndex === idx ? 'bg-gradient-to-r from-blue-100 to-green-100 border-2 border-blue-500 shadow-lg animate-pulse' : ''}
+                      ${editIndex === idx ? 'bg-yellow-50 border-2 border-yellow-500' : ''}
                     `}
+                    title="Click to select for editing • Click chevron to view details"
                     onClick={(e) => {
-                      if ((e.target as HTMLElement).closest('input[type="checkbox"]')) {
+                      if ((e.target as HTMLElement).closest('input[type="checkbox"]') || 
+                          (e.target as HTMLElement).closest('button[data-action="expand"]')) {
                         return;
                       }
+                      // Single click: Only highlight/select the row for editing
                       setSelectedIndex(idx);
-                      const newExpandedIndex = expandedIndex === idx ? null : idx;
-                      setExpandedIndex(newExpandedIndex);
-                      if (newExpandedIndex === null) {
-                        setSelectedProductDetails(null);
-                      }
                     }}
                   >
                     {/* Checkbox column */}
-                    <td className="px-3 py-3 border-b align-top whitespace-nowrap border-r-2 border-gray-200 bg-white sticky left-0 z-40" style={{ position: 'sticky', left: 0, zIndex: 40 }}>
+                    <td 
+                      className="px-3 py-3 border-b align-top whitespace-nowrap"
+                      style={{
+                        ...getStickyStyle('checkbox-header', false),
+                        borderTop: '1px solid #e5e7eb',
+                        borderBottom: '1px solid #e5e7eb'
+                      }}
+                    >
                       <div className="flex items-center justify-center">
                         <input
                           type="checkbox"
@@ -1407,16 +1671,47 @@ const PurchaseOrder: React.FC = () => {
                     {renderColumns().flatMap((col, colIdx, arr) => {
                       if (col.key === 'Order References') {
                         return [
-                          <td key={col.key} className="sticky left-12 bg-white px-2 py-1 border-b align-top whitespace-nowrap border-r-2 border-gray-200 z-30" style={{ position: 'sticky', left: '48px', zIndex: 30 }}> 
-                            {editIndex === idx ? (
-                              <input
-                                className="border px-1 py-0.5 rounded w-32 text-xs"
-                                value={editRow ? editRow[col.key] : ''}
-                                onChange={e => handleChange(col.key, e.target.value)}
-                              />
-                            ) : (
-                              row[col.key] || ''
-                            )}
+                          <td 
+                            key={col.key} 
+                            className="px-2 py-1 border-b align-top whitespace-nowrap"
+                            style={{
+                              ...getStickyStyle(col.key, false),
+                              borderTop: '1px solid #e5e7eb',
+                              borderBottom: '1px solid #e5e7eb'
+                            }}
+                          > 
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                {editIndex === idx ? (
+                                  <input
+                                    className="border px-1 py-0.5 rounded w-32 text-xs"
+                                    value={editRow ? editRow[col.key] : ''}
+                                    onChange={e => handleChange(col.key, e.target.value)}
+                                  />
+                                ) : (
+                                  <span className="text-xs">{row[col.key] || ''}</span>
+                                )}
+                              </div>
+                              <button
+                                data-action="expand"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const newExpandedIndex = expandedIndex === idx ? null : idx;
+                                  setExpandedIndex(newExpandedIndex);
+                                  if (newExpandedIndex === null) {
+                                    setSelectedProductDetails(null);
+                                  }
+                                }}
+                                className="ml-2 p-1 hover:bg-blue-100 rounded transition-colors"
+                                title={expandedIndex === idx ? 'Collapse details' : 'Expand details'}
+                              >
+                                {expandedIndex === idx ? (
+                                  <ChevronDown className="h-3 w-3 text-blue-600" />
+                                ) : (
+                                  <ChevronRight className="h-3 w-3 text-gray-500 hover:text-blue-600" />
+                                )}
+                              </button>
+                            </div>
                           </td>
                         ];
                       }
@@ -1461,7 +1756,7 @@ const PurchaseOrder: React.FC = () => {
                   {expandedIndex === idx && (
                     <tr key={`expanded-${idx}`}>
                       <td colSpan={visibleColumns.length + 1} className="bg-transparent p-0 border-none">
-                        <div className="sticky left-0 z-30 bg-white w-full shadow-lg p-3 mt-1 overflow-x-auto" style={{ maxWidth: '100vw' }}>
+                        <div className="bg-white w-full shadow-lg p-3 mt-1 overflow-x-auto" style={{ maxWidth: '100vw' }}>
                           <div className="flex flex-row gap-4" style={{ minWidth: '1200px' }}>
                             {/* Left: Tab bar and tab content */}
                             <div className="flex-1 min-w-0 overflow-x-auto">
@@ -1509,31 +1804,6 @@ const PurchaseOrder: React.FC = () => {
                                       </tr>
                                     </tbody>
                                   </table>
-                                  </div>
-                                  <div className="flex gap-1 mt-1">
-                                    {!poDetailsEditMode ? (
-                                      <button
-                                        className="bg-blue-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                        onClick={() => handleSubTableEdit('poDetails')}
-                                      >
-                                        <EditIcon className="w-2 h-2" /> Edit
-                                      </button>
-                                    ) : (
-                                      <>
-                                        <button
-                                          className="bg-green-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                          onClick={() => handleSubTableSave('poDetails')}
-                                        >
-                                          <SaveIcon className="w-2 h-2" /> Save
-                                        </button>
-                                        <button
-                                          className="bg-red-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                          onClick={() => handleSubTableCancel('poDetails')}
-                                        >
-                                          <X className="w-2 h-2" /> Cancel
-                                        </button>
-                                      </>
-                                    )}
                                   </div>
                                 </>
                               )}
@@ -1588,31 +1858,6 @@ const PurchaseOrder: React.FC = () => {
                                     </tbody>
                                   </table>
                                   </div>
-                                  <div className="flex gap-1 mt-1">
-                                    {!deliveryEditMode ? (
-                                      <button
-                                        className="bg-blue-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                        onClick={() => handleSubTableEdit('delivery')}
-                                      >
-                                        <EditIcon className="w-2 h-2" /> Edit
-                                      </button>
-                                    ) : (
-                                      <>
-                                        <button
-                                          className="bg-green-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                          onClick={() => handleSubTableSave('delivery')}
-                                        >
-                                          <SaveIcon className="w-2 h-2" /> Save
-                                        </button>
-                                        <button
-                                          className="bg-red-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                          onClick={() => handleSubTableCancel('delivery')}
-                                        >
-                                          <X className="w-2 h-2" /> Cancel
-                                        </button>
-                                      </>
-                                    )}
-                                  </div>
                                 </>
                               )}
                               {activeSubTab === 'Critical Path' && (
@@ -1654,31 +1899,6 @@ const PurchaseOrder: React.FC = () => {
                                       </tr>
                                     </tbody>
                                   </table>
-                                  </div>
-                                  <div className="flex gap-1 mt-1">
-                                    {!criticalPathEditMode ? (
-                                      <button
-                                        className="bg-blue-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                        onClick={() => handleSubTableEdit('criticalPath')}
-                                      >
-                                        <EditIcon className="w-2 h-2" /> Edit
-                                      </button>
-                                    ) : (
-                                      <>
-                                        <button
-                                          className="bg-green-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                          onClick={() => handleSubTableSave('criticalPath')}
-                                        >
-                                          <SaveIcon className="w-2 h-2" /> Save
-                                        </button>
-                                        <button
-                                          className="bg-red-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                          onClick={() => handleSubTableCancel('criticalPath')}
-                                        >
-                                          <X className="w-2 h-2" /> Cancel
-                                        </button>
-                                      </>
-                                    )}
                                   </div>
                                 </>
                               )}
@@ -1731,31 +1951,6 @@ const PurchaseOrder: React.FC = () => {
                                       </tr>
                                     </tbody>
                                   </table>
-                                  <div className="flex gap-1 mt-1">
-                                    {!auditEditMode ? (
-                                      <button
-                                        className="bg-blue-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                        onClick={() => handleSubTableEdit('audit')}
-                                      >
-                                        <EditIcon className="w-2 h-2" /> Edit
-                                      </button>
-                                    ) : (
-                                      <>
-                                        <button
-                                          className="bg-green-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                          onClick={() => handleSubTableSave('audit')}
-                                        >
-                                          <SaveIcon className="w-2 h-2" /> Save
-                                        </button>
-                                        <button
-                                          className="bg-red-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                          onClick={() => handleSubTableCancel('audit')}
-                                        >
-                                          <X className="w-2 h-2" /> Cancel
-                                        </button>
-                                      </>
-                                    )}
-                                  </div>
                                 </>
                               )}
                               {activeSubTab === 'Totals' && (
@@ -1807,31 +2002,6 @@ const PurchaseOrder: React.FC = () => {
                                       </tr>
                                     </tbody>
                                   </table>
-                                  <div className="flex gap-1 mt-1">
-                                    {!totalsEditMode ? (
-                                      <button
-                                        className="bg-blue-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                        onClick={() => handleSubTableEdit('totals')}
-                                      >
-                                        <EditIcon className="w-2 h-2" /> Edit
-                                      </button>
-                                    ) : (
-                                      <>
-                                        <button
-                                          className="bg-green-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                          onClick={() => handleSubTableSave('totals')}
-                                        >
-                                          <SaveIcon className="w-2 h-2" /> Save
-                                        </button>
-                                        <button
-                                          className="bg-red-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                          onClick={() => handleSubTableCancel('totals')}
-                                        >
-                                          <X className="w-2 h-2" /> Cancel
-                                        </button>
-                                      </>
-                                    )}
-                                  </div>
                                 </>
                               )}
                               {activeSubTab === 'Comments' && (
@@ -1862,31 +2032,6 @@ const PurchaseOrder: React.FC = () => {
                                       </tr>
                                     </tbody>
                                   </table>
-                                  <div className="flex gap-1 mt-1">
-                                    {!commentsEditMode ? (
-                                      <button
-                                        className="bg-blue-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                        onClick={() => handleSubTableEdit('comments')}
-                                      >
-                                        <EditIcon className="w-2 h-2" /> Edit
-                                      </button>
-                                    ) : (
-                                      <>
-                                        <button
-                                          className="bg-green-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                          onClick={() => handleSubTableSave('comments')}
-                                        >
-                                          <SaveIcon className="w-2 h-2" /> Save
-                                        </button>
-                                        <button
-                                          className="bg-red-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                          onClick={() => handleSubTableCancel('comments')}
-                                        >
-                                          <X className="w-2 h-2" /> Cancel
-                                        </button>
-                                      </>
-                                    )}
-                                  </div>
                                 </>
                               )}
                               {activeSubTab === 'Product Details' && selectedProductDetails && (
@@ -2145,31 +2290,6 @@ const PurchaseOrder: React.FC = () => {
                                   </tbody>
                                 </table>
                               </div>
-                              <div className="flex gap-1 mt-1">
-                                {!poLinesEditMode ? (
-                                  <button
-                                    className="bg-blue-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                    onClick={() => handleSubTableEdit('poLines')}
-                                  >
-                                    <EditIcon className="w-2 h-2" /> Edit
-                                  </button>
-                                ) : (
-                                  <>
-                                    <button
-                                      className="bg-green-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                      onClick={() => handleSubTableSave('poLines')}
-                                    >
-                                      <SaveIcon className="w-2 h-2" /> Save
-                                    </button>
-                                    <button
-                                      className="bg-red-500 text-white px-1 py-0.5 rounded text-xs flex items-center gap-1"
-                                      onClick={() => handleSubTableCancel('poLines')}
-                                    >
-                                      <X className="w-2 h-2" /> Cancel
-                                    </button>
-                                  </>
-                                )}
-                              </div>
                             </div>
                            </div>
                           </div>
@@ -2220,6 +2340,344 @@ const PurchaseOrder: React.FC = () => {
                 className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
                 Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add New Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">Add New Purchase Order</h3>
+              <button 
+                onClick={handleAddCancel}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto pr-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {allColumns.map(col => {
+                  const group = groupedColumns.find(g => g.key === col);
+                  if (group) {
+                    return (
+                      <div key={col} className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">{group.label}</label>
+                        {group.children.map(subCol => (
+                          <div key={subCol} className="ml-4">
+                            <label className="block text-xs text-gray-600 mb-1">{subCol}</label>
+                            <input
+                              type={isDateColumn(subCol) ? "date" : "text"}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                              value={addFormData[col]?.[subCol] || ''}
+                              onChange={e => {
+                                const newData = { ...addFormData };
+                                if (!newData[col]) newData[col] = {};
+                                newData[col][subCol] = e.target.value;
+                                setAddFormData(newData);
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <div key={col}>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{col}</label>
+                        <input
+                          type={isDateColumn(col) ? "date" : "text"}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          value={addFormData[col] || ''}
+                          onChange={e => setAddFormData({ ...addFormData, [col]: e.target.value })}
+                        />
+                      </div>
+                    );
+                  }
+                })}
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
+              <button
+                onClick={handleAddCancel}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddSave}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Add Purchase Order
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-6xl w-full max-h-[95vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">Edit Purchase Order</h3>
+              <button 
+                onClick={handleEditCancel}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto pr-2">
+              {/* Main Row Fields */}
+              <div className="mb-6">
+                <h4 className="text-md font-semibold text-gray-800 mb-3 border-b border-gray-200 pb-2">Main Information</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {allColumns.map(col => {
+                    const group = groupedColumns.find(g => g.key === col);
+                    if (group) {
+                      return (
+                        <div key={col} className="space-y-2">
+                          <label className="block text-sm font-medium text-gray-700">{group.label}</label>
+                          {group.children.map(subCol => (
+                            <div key={subCol} className="ml-4">
+                              <label className="block text-xs text-gray-600 mb-1">{subCol}</label>
+                              <input
+                                type={isDateColumn(subCol) ? "date" : "text"}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                value={editFormData[col]?.[subCol] || ''}
+                                onChange={e => {
+                                  const newData = { ...editFormData };
+                                  if (!newData[col]) newData[col] = {};
+                                  newData[col][subCol] = e.target.value;
+                                  setEditFormData(newData);
+                                }}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div key={col}>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">{col}</label>
+                          <input
+                            type={isDateColumn(col) ? "date" : "text"}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            value={editFormData[col] || ''}
+                            onChange={e => setEditFormData({ ...editFormData, [col]: e.target.value })}
+                          />
+                        </div>
+                      );
+                    }
+                  })}
+                </div>
+              </div>
+
+              {/* Subtables */}
+              <div className="space-y-6">
+                {/* PO Details Subtable */}
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <h4 className="text-md font-semibold text-gray-800 mb-3">PO Details</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {poDetailsColumns.map(col => (
+                      <div key={col}>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{col}</label>
+                        <input
+                          type="text"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          value={editFormData[col] || ''}
+                          onChange={e => setEditFormData({ ...editFormData, [col]: e.target.value })}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Delivery Subtable */}
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <h4 className="text-md font-semibold text-gray-800 mb-3">Delivery Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {deliveryDetailsColumns.map(col => (
+                      <div key={col}>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{col}</label>
+                        <input
+                          type="text"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          value={editFormData[col] || ''}
+                          onChange={e => setEditFormData({ ...editFormData, [col]: e.target.value })}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Critical Path Subtable */}
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <h4 className="text-md font-semibold text-gray-800 mb-3">Critical Path</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {criticalPathColumns.map(col => (
+                      <div key={col}>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{col}</label>
+                        <input
+                          type="text"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          value={editFormData[col] || ''}
+                          onChange={e => setEditFormData({ ...editFormData, [col]: e.target.value })}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Audit Subtable */}
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <h4 className="text-md font-semibold text-gray-800 mb-3">Audit Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {auditColumns.map(col => (
+                      <div key={col}>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{col}</label>
+                        <input
+                          type="text"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          value={editFormData[col] || ''}
+                          onChange={e => setEditFormData({ ...editFormData, [col]: e.target.value })}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Totals Subtable */}
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <h4 className="text-md font-semibold text-gray-800 mb-3">Totals</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {totalsColumns.map(col => (
+                      <div key={col}>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{col}</label>
+                        <input
+                          type="text"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          value={editFormData[col] || ''}
+                          onChange={e => setEditFormData({ ...editFormData, [col]: e.target.value })}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Comments Subtable */}
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <h4 className="text-md font-semibold text-gray-800 mb-3">Comments</h4>
+                  <div className="grid grid-cols-1 gap-4">
+                    {commentsColumns.map(col => (
+                      <div key={col}>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{col}</label>
+                        <textarea
+                          rows={3}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm resize-none"
+                          value={editFormData[col] || ''}
+                          onChange={e => setEditFormData({ ...editFormData, [col]: e.target.value })}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* PO Lines Subtable */}
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-md font-semibold text-gray-800">PO Lines</h4>
+                    <button
+                      onClick={() => {
+                        const newLine = {
+                          'PO Line': `Line ${(editFormData.poLines?.length || 0) + 1}`,
+                          'Product': '',
+                          'Description': '',
+                          'Qty': '',
+                          'Unit Price': '',
+                          'Total': ''
+                        };
+                        setEditFormData({
+                          ...editFormData,
+                          poLines: [...(editFormData.poLines || []), newLine]
+                        });
+                      }}
+                      className="px-3 py-1 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 flex items-center gap-1"
+                    >
+                      <span>+</span> Add PO Line
+                    </button>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm border border-gray-300 rounded-lg">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          {poLinesColumns.map(col => (
+                            <th key={col} className="px-3 py-2 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
+                              {col}
+                            </th>
+                          ))}
+                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(editFormData.poLines || mockPOLines).map((line: Record<string, any>, index: number) => (
+                          <tr key={index} className="border-b border-gray-200">
+                            {poLinesColumns.map(col => (
+                              <td key={col} className="px-3 py-2">
+                                <input
+                                  type="text"
+                                  className="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                  value={line[col] || ''}
+                                  onChange={e => {
+                                    const updatedLines = [...(editFormData.poLines || mockPOLines)];
+                                    updatedLines[index] = { ...updatedLines[index], [col]: e.target.value };
+                                    setEditFormData({ ...editFormData, poLines: updatedLines });
+                                  }}
+                                />
+                              </td>
+                            ))}
+                            <td className="px-3 py-2">
+                              <button
+                                onClick={() => {
+                                  const updatedLines = (editFormData.poLines || mockPOLines).filter((_: Record<string, any>, i: number) => i !== index);
+                                  setEditFormData({ ...editFormData, poLines: updatedLines });
+                                }}
+                                className="px-2 py-1 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                              >
+                                Remove
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
+              <button
+                onClick={handleEditCancel}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEditSave}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Save Changes
               </button>
             </div>
           </div>

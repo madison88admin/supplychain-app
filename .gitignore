@@ -23,3 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+#Database
+.db
+supplychain_data.db
+
+PurchaseOrders_downloads.tsx
+PurchaseOrdersTest.tsx

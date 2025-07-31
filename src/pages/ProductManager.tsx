@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ReportBar from '../components/ReportBar';
+import { Users, Grid, Menu, ChevronRight, ChevronDown, X } from 'lucide-react';
 import { useSidebar } from '../contexts/SidebarContext';
 
 const ProductManager: React.FC = () => {
@@ -13,138 +14,333 @@ const ProductManager: React.FC = () => {
   const [activeContent, setActiveContent] = useState('activities');
   const [selectedRowIndex, setSelectedRowIndex] = useState<number | null>(null);
   
+  // Product Filter Sidebar state
+  const [filterSidebarCollapsed, setFilterSidebarCollapsed] = useState(false);
+  
   // Sidebar context
   const { sidebarCollapsed } = useSidebar();
-  return (
-    <div className="p-6">
-      <div className="mb-8 flex items-center space-x-4">
-        <h1 className="text-2xl font-bold text-gray-900">Product Manager</h1>
-        
-        {/* Season Filter Dropdown */}
-        <div className="relative">
-          <button
-            onClick={() => setIsSeasonDropdownOpen(!isSeasonDropdownOpen)}
-            className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
-            </svg>
-            <span className="text-sm font-medium text-gray-700">
-              {selectedSeasons.length === 0 
-                ? 'All Seasons' 
-                : selectedSeasons.length === 1 
-                  ? selectedSeasons[0] 
-                  : `${selectedSeasons.length} Seasons`
+
+  // ProductFilterSidebar Component (moved inside ProductManager)
+  const ProductFilterSidebar: React.FC<{ collapsed: boolean; setCollapsed: (collapsed: boolean) => void }> = ({ 
+    collapsed, 
+    setCollapsed 
+  }) => {
+    const [selectedSeasons, setSelectedSeasons] = useState<string[]>(['FH:2024', 'FH:2018']);
+    const [selectedProductSeason, setSelectedProductSeason] = useState('Library');
+    const [expandedItems, setExpandedItems] = useState<string[]>(['Library']);
+    const [selectedCategory, setSelectedCategory] = useState('Youth');
+    const [isSeasonDropdownOpen, setIsSeasonDropdownOpen] = useState(false);
+    const [isProductSeasonDropdownOpen, setIsProductSeasonDropdownOpen] = useState(false);
+
+    // Season data
+    const availableSeasons = [
+      'FH:2018',
+      'FH:2019', 
+      'FH:2020',
+      'FH:2021',
+      'FH:2022',
+      'FH:2023',
+      'FH:2024',
+      'FH:2025'
+    ];
+
+    // Product season tree data - now dynamically generated based on selected seasons
+    const generateSeasonTreeData = () => {
+      const seasonItems = selectedSeasons.map(season => ({
+        id: season.toLowerCase().replace(/[^a-z0-9]/g, ''),
+        label: season,
+        type: 'category' as const,
+        expanded: false,
+        children: [
+          { id: 'mens', label: 'Mens', type: 'subcategory' as const },
+          { id: 'womens', label: 'Womens', type: 'subcategory' as const },
+          { id: 'home', label: 'Home', type: 'subcategory' as const },
+          { id: 'unisex', label: 'Unisex', type: 'subcategory' as const },
+          { id: 'youth', label: 'Youth', type: 'subcategory' as const }
+        ]
+      }));
+
+      return [
+        ...seasonItems,
+        { 
+          id: 'library', 
+          label: 'Library', 
+          type: 'category' as const, 
+          expanded: true,
+          children: [
+            { id: 'mens', label: 'Mens', type: 'subcategory' as const },
+            { id: 'womens', label: 'Womens', type: 'subcategory' as const },
+            { id: 'home', label: 'Home', type: 'subcategory' as const },
+            { id: 'unisex', label: 'Unisex', type: 'subcategory' as const },
+            { id: 'youth', label: 'Youth', type: 'subcategory' as const }
+          ]
+        },
+        { 
+          id: 'none', 
+          label: 'None', 
+          type: 'category' as const, 
+          expanded: false,
+          children: [
+            { id: 'mens', label: 'Mens', type: 'subcategory' as const },
+            { id: 'womens', label: 'Womens', type: 'subcategory' as const },
+            { id: 'home', label: 'Home', type: 'subcategory' as const },
+            { id: 'unisex', label: 'Unisex', type: 'subcategory' as const },
+            { id: 'youth', label: 'Youth', type: 'subcategory' as const }
+          ]
+        },
+        { 
+          id: 'all', 
+          label: 'All', 
+          type: 'category' as const, 
+          expanded: false,
+          children: [
+            { id: 'mens', label: 'Mens', type: 'subcategory' as const },
+            { id: 'womens', label: 'Womens', type: 'subcategory' as const },
+            { id: 'home', label: 'Home', type: 'subcategory' as const },
+            { id: 'unisex', label: 'Unisex', type: 'subcategory' as const },
+            { id: 'youth', label: 'Youth', type: 'subcategory' as const }
+          ]
+        }
+      ];
+    };
+
+    const seasonTreeData = generateSeasonTreeData();
+
+    const toggleSeason = (season: string) => {
+      setSelectedSeasons(prev => 
+        prev.includes(season) 
+          ? prev.filter(s => s !== season)
+          : [...prev, season]
+      );
+    };
+
+    const removeSeason = (season: string) => {
+      setSelectedSeasons(prev => prev.filter(s => s !== season));
+    };
+
+    const toggleExpanded = (itemId: string) => {
+      setExpandedItems(prev => 
+        prev.includes(itemId) 
+          ? prev.filter(id => id !== itemId)
+          : [...prev, itemId]
+      );
+    };
+
+    const handleCategorySelect = (category: string) => {
+      setSelectedCategory(category);
+    };
+
+    const handleSeasonRemoveFromTree = (season: string) => {
+      setSelectedSeasons(prev => prev.filter(s => s !== season));
+    };
+
+    const renderTreeItem = (item: any) => {
+      const isExpanded = expandedItems.includes(item.id);
+      const isSelected = selectedCategory === item.label;
+      const hasChildren = item.children && item.children.length > 0;
+
+      return (
+        <div key={item.id} className="flex flex-col">
+          <div 
+            className={`flex items-center p-2 cursor-pointer rounded-md transition-all duration-200 ${
+              isSelected 
+                ? 'bg-blue-50 border border-blue-500' 
+                : 'hover:bg-gray-50'
+            }`}
+            onClick={() => {
+              if (hasChildren) {
+                toggleExpanded(item.id);
+              } else {
+                handleCategorySelect(item.label);
               }
-            </span>
-            <svg
-              className={`w-4 h-4 text-gray-400 transition-transform ${isSeasonDropdownOpen ? 'rotate-180' : ''}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
+            }}
+          >
+            <div className="flex items-center gap-2 flex-1">
+              {hasChildren && (
+                <span className="flex items-center justify-center w-4 h-4 text-gray-500">
+                  {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                </span>
+              )}
+              <span className="text-sm text-gray-700 flex-1">{item.label}</span>
+              {isSelected && <ChevronRight size={14} className="text-blue-500" />}
+            </div>
+          </div>
           
-          {isSeasonDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-              <div className="p-3 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-gray-900">Filter by Season</h3>
-                  <button
-                    onClick={() => {
-                      setSelectedSeasons([]);
-                      setIsSeasonDropdownOpen(false);
-                    }}
-                    className="text-xs text-blue-600 hover:text-blue-800"
-                  >
-                    Clear All
-                  </button>
-                </div>
-              </div>
-              <div className="py-1 max-h-48 overflow-y-auto">
-                {[
-                  'Spring/Summer 2024',
-                  'Fall/Winter 2024',
-                  'Spring/Summer 2025',
-                  'Fall/Winter 2025',
-                  'Holiday 2024',
-                  'Resort 2025'
-                ].map((season) => (
-                  <label
-                    key={season}
-                    className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedSeasons.includes(season)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedSeasons([...selectedSeasons, season]);
-                        } else {
-                          setSelectedSeasons(selectedSeasons.filter(s => s !== season));
-                        }
-                      }}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <span className="ml-3 text-sm text-gray-700">{season}</span>
-                  </label>
-                ))}
-              </div>
-              <div className="p-3 border-t border-gray-200">
-                <button
-                  onClick={() => setIsSeasonDropdownOpen(false)}
-                  className="w-full px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          {hasChildren && isExpanded && (
+            <div className="ml-6 flex flex-col gap-0.5">
+              {item.children.map((child: any) => (
+                <div 
+                  key={child.id} 
+                  className={`flex items-center justify-between p-1.5 cursor-pointer rounded transition-all duration-200 ${
+                    selectedCategory === child.label 
+                      ? 'bg-blue-50 border border-blue-500' 
+                      : 'hover:bg-gray-50'
+                  }`}
+                  onClick={() => handleCategorySelect(child.label)}
                 >
-                  Apply Filter
-                </button>
-              </div>
+                  <span className="text-sm text-gray-700">{child.label}</span>
+                  {selectedCategory === child.label && <ChevronRight size={14} className="text-blue-500" />}
+                </div>
+              ))}
             </div>
           )}
         </div>
+      );
+    };
 
-        {/* Product Filter Dropdown */}
-        <div className="relative">
+         return (
+       <div className={`bg-white border-r border-gray-200 flex flex-col transition-all duration-300 overflow-hidden h-screen ${
+         collapsed ? 'w-16' : 'w-72'
+       }`}>
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200 min-h-14">
+          <h3 className={`font-semibold text-gray-900 transition-opacity duration-300 ${
+            collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'
+          }`}>
+            Product Filters
+          </h3>
           <button
-            onClick={() => setIsProductFilterDropdownOpen(!isProductFilterDropdownOpen)}
-            className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            onClick={() => setCollapsed(!collapsed)}
+            className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all duration-300"
           >
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-            <span className="text-sm font-medium text-gray-700">{selectedProductFilter}</span>
-            <svg
-              className={`w-4 h-4 text-gray-400 transition-transform ${isProductFilterDropdownOpen ? 'rotate-180' : ''}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
+            <ChevronRight className={`transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`} />
           </button>
+        </div>
+
+        {/* Season Section */}
+        <div className="p-4 border-b border-gray-100">
+          <div className="flex items-center gap-2 mb-3">
+            <Users size={16} className="text-gray-500" />
+            <span className={`text-sm font-semibold text-gray-700 uppercase tracking-wide transition-opacity duration-300 ${
+              collapsed ? 'opacity-0' : 'opacity-100'
+            }`}>
+              Season
+            </span>
+          </div>
           
-          {isProductFilterDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-              <div className="py-1">
-                {['Default', 'Library'].map((option) => (
+          <div className={`flex flex-wrap gap-2 mb-3 transition-opacity duration-300 ${
+            collapsed ? 'opacity-0' : 'opacity-100'
+          }`}>
+            {selectedSeasons.map(season => (
+              <div key={season} className="flex items-center gap-1 px-2 py-1 bg-indigo-100 border border-indigo-500 rounded-md">
+                <span className="text-xs text-indigo-700">{season}</span>
+                <button
+                  onClick={() => removeSeason(season)}
+                  className="flex items-center justify-center w-4 h-4 bg-transparent border-none cursor-pointer text-indigo-700 hover:bg-indigo-200 rounded-full transition-all duration-200"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
+          
+          <div className={`relative transition-opacity duration-300 ${
+            collapsed ? 'opacity-0' : 'opacity-100'
+          }`}>
+            <button 
+              onClick={() => setIsSeasonDropdownOpen(!isSeasonDropdownOpen)}
+              className="flex items-center justify-between w-full px-3 py-2 bg-white border border-gray-300 rounded-md cursor-pointer text-sm text-gray-700 hover:border-blue-500 hover:bg-gray-50 transition-all duration-200"
+            >
+              <span>Add Season</span>
+              <ChevronDown size={14} className={`transition-transform duration-200 ${isSeasonDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {isSeasonDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg z-10 max-h-48 overflow-y-auto">
+                {availableSeasons
+                  .filter(season => !selectedSeasons.includes(season))
+                  .map(season => (
+                    <button
+                      key={season}
+                      onClick={() => {
+                        toggleSeason(season);
+                        setIsSeasonDropdownOpen(false);
+                      }}
+                      className="block w-full px-3 py-2 bg-transparent border-none cursor-pointer text-sm text-gray-700 text-left hover:bg-gray-100 transition-colors duration-200"
+                    >
+                      {season}
+                    </button>
+                  ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Product Season Trees Section */}
+        <div className="p-4 border-b border-gray-100">
+          <div className="flex items-center gap-2 mb-3">
+            <Grid size={16} className="text-gray-500" />
+            <span className={`text-sm font-semibold text-gray-700 uppercase tracking-wide transition-opacity duration-300 ${
+              collapsed ? 'opacity-0' : 'opacity-100'
+            }`}>
+              Product Season Trees
+            </span>
+          </div>
+          
+          <div className={`relative transition-opacity duration-300 ${
+            collapsed ? 'opacity-0' : 'opacity-100'
+          }`}>
+            <button 
+              onClick={() => setIsProductSeasonDropdownOpen(!isProductSeasonDropdownOpen)}
+              className="flex items-center justify-between w-full px-3 py-2 bg-white border border-gray-300 rounded-md cursor-pointer text-sm text-gray-700 hover:border-blue-500 hover:bg-gray-50 transition-all duration-200"
+            >
+              <span>{selectedProductSeason}</span>
+              <ChevronDown size={14} className={`transition-transform duration-200 ${isProductSeasonDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {isProductSeasonDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg z-10 max-h-48 overflow-y-auto">
+                {['Library', 'Custom', 'Shared', 'Archived'].map(option => (
                   <button
                     key={option}
                     onClick={() => {
-                      setSelectedProductFilter(option);
-                      setIsProductFilterDropdownOpen(false);
+                      setSelectedProductSeason(option);
+                      setIsProductSeasonDropdownOpen(false);
                     }}
-                    className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                      selectedProductFilter === option ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
-                    }`}
+                    className="block w-full px-3 py-2 bg-transparent border-none cursor-pointer text-sm text-gray-700 text-left hover:bg-gray-100 transition-colors duration-200"
                   >
                     {option}
                   </button>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
+
+        {/* Season Tree Section */}
+        <div className="p-4 border-b border-gray-100">
+          <div className="flex items-center gap-2 mb-3">
+            <Menu size={16} className="text-gray-500" />
+            <span className={`text-sm font-semibold text-gray-700 uppercase tracking-wide transition-opacity duration-300 ${
+              collapsed ? 'opacity-0' : 'opacity-100'
+            }`}>
+              Season Tree
+            </span>
+          </div>
+          
+          <div className={`flex flex-col gap-1 transition-opacity duration-300 ${
+            collapsed ? 'opacity-0' : 'opacity-100'
+          }`}>
+            {seasonTreeData.map(item => renderTreeItem(item))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-50">
+      {/* Main Content with Product Filter Sidebar */}
+      <div className="flex-1 flex">
+        {/* Product Filter Sidebar - positioned inside the page content */}
+        <ProductFilterSidebar 
+          collapsed={filterSidebarCollapsed}
+          setCollapsed={setFilterSidebarCollapsed}
+        />
+        
+        {/* Main Content Area */}
+        <div className={`flex-1 flex flex-col transition-all duration-300 ${filterSidebarCollapsed ? 'ml-0' : 'ml-0'}`}>
+          <div className="p-6">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900">Product Manager</h1>
       </div>
       
       {/* Two Column Layout */}
@@ -1679,6 +1875,9 @@ const ProductManager: React.FC = () => {
           'Total Value': '$12,000'
         }}
       />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

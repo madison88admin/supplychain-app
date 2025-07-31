@@ -306,7 +306,6 @@ const PurchaseOrders: React.FC = () => {
     const [productColorwaysEdit, setProductColorwaysEdit] = useState(false);
   const [productColorwaysForm, setProductColorwaysForm] = useState<any[]>([]);
 
-<<<<<<< HEAD
   // Add state for Tech Packs subtable tab
   const [techPacksEditTab, setTechPacksEditTab] = useState('Tech Pack Version');
   // Add state for Tech Pack Version edit mode and form
@@ -327,56 +326,6 @@ const PurchaseOrders: React.FC = () => {
     'Template': 'Standard',
     'PO Issue Date': '2024-07-01',
   });
-=======
-  // Tech Packs subtable states
-  const [techPacksEditTab, setTechPacksEditTab] = useState('Tech Pack Version');
-  const [techPacksBOMEdit, setTechPacksBOMEdit] = useState(false);
-  const [techPacksBOMForm, setTechPacksBOMForm] = useState<any[]>([]);
-  
-  // Add state for Specification tab
-  const [specificationTab, setSpecificationTab] = useState('Size Chart');
-  
-  // Add state for Tech Pack Version edit mode and form
-  const [techPackVersionEdit, setTechPackVersionEdit] = useState(false);
-  const [techPackVersionForm, setTechPackVersionForm] = useState<any>(null);
-  
-  // Add state for Fibre Composition sections
-  const [fibreSections, setFibreSections] = useState<number[]>([1, 2, 3]);
-  const [fibreSectionNames, setFibreSectionNames] = useState<{[key: number]: string}>({
-    1: 'Fibre Section 1',
-    2: 'Fibre Section 2', 
-    3: 'Fibre Section 3'
-  });
-  
-  // Add state for Version Control edit mode
-  const [versionControlEdit, setVersionControlEdit] = useState(false);
-  const [versionControlData, setVersionControlData] = useState({
-    versionNumber: '',
-    comment: '',
-    currentVersion: false,
-    createdBy: 'Admin',
-    created: new Date().toLocaleString()
-  });
-
-  // Bill Of Materials fields
-  const bomFields = [
-    'BOM Lines',
-    'Bill of Material Line Ref.',
-    'Bill Of Material category',
-    'Comment',
-    'Custom Text 1',
-    'Custom Text 2',
-    'Custom Text 3',
-    'Custom Text 4',
-    'Material',
-    'Material Description',
-    'Season',
-    'Main Material',
-    'Category Sequence',
-    'Default Material Color',
-    'Composition',
-  ];
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
 
   // Sample BOM data for Techpacks
   const sampleBOMData = [
@@ -420,16 +369,11 @@ const PurchaseOrders: React.FC = () => {
       'Latest Note': '2024-01-10',
       'Main Material': 'No',
       'Category Sequence': '2',
-<<<<<<< HEAD
       'Default Material Color': 'White',
-=======
-      'Default Material Color': 'Black',
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
       'Composition': '100% Polyester',
       'Buyer Style Name': 'ARC-Merbau/Aurora',
       'Supplier Ref.': 'SUP002',
       'Buyer Style Number': 'U53180654',
-<<<<<<< HEAD
       'Default Size': 'N/A',
       'Default Rating': '4.5',
       'One Size Size': 'N/A',
@@ -562,15 +506,6 @@ const PurchaseOrders: React.FC = () => {
     'Composition',
   ];
 
-=======
-      'Default Size': 'L',
-      'Default Rating': '4.2',
-      'One Size Size': 'XXL',
-      'One Size Rating': '3.0'
-    }
-  ];
-
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
   // Comments state for Order subtable
   const [commentsValue, setCommentsValue] = useState('');
   const [commentsEdit, setCommentsEdit] = useState(false);
@@ -1391,15 +1326,9 @@ const PurchaseOrders: React.FC = () => {
                     <td colSpan={renderColumns().reduce((acc, col) => acc + (col.isGroup ? 2 : 1), 0) + 1} className="bg-blue-50 px-6 py-4 sticky left-0 z-10">
                       <div>
                         <div className="font-semibold text-blue-700 mb-2">Product Details</div>
-<<<<<<< HEAD
                         {/* Horizontal Tabs */}
                         <div className="mb-4 flex gap-2 border-b border-blue-200">
                           {['Product Details', 'Critical Path', 'Images', 'Comments', 'Bill Of Materials', 'Activities', 'Colorways'].map(tab => (
-=======
-                        {/* Product subtable tabs */}
-                        <div className="mb-4 flex gap-2 border-b border-blue-200">
-                          {(['Product Details', 'Critical Path', 'Images', 'Comments', 'Bill Of Materials', 'Activities', 'Colorways'] as string[]).map((tab: string) => (
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                             <button
                               key={tab}
                               className={`px-4 py-2 -mb-px rounded-t font-medium transition-colors border-b-2 ${productEditTab === tab ? 'bg-white border-blue-500 text-blue-700' : 'bg-blue-50 border-transparent text-gray-600 hover:text-blue-600'}`}
@@ -1463,10 +1392,7 @@ const PurchaseOrders: React.FC = () => {
                             </div>
                           </div>
                         )}
-<<<<<<< HEAD
 
-=======
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                         {/* Critical Path Tab */}
                         {productEditTab === 'Critical Path' && (
                           <div className="inline-block">
@@ -1501,10 +1427,7 @@ const PurchaseOrders: React.FC = () => {
                             </div>
                           </div>
                         )}
-<<<<<<< HEAD
 
-=======
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                         {/* Images Tab */}
                         {productEditTab === 'Images' && (
                           <div className="inline-block">
@@ -1572,10 +1495,7 @@ const PurchaseOrders: React.FC = () => {
                             </div>
                           </div>
                         )}
-<<<<<<< HEAD
 
-=======
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                         {/* Comments Tab */}
                         {productEditTab === 'Comments' && (
                           <div className="inline-block">
@@ -1901,7 +1821,6 @@ const PurchaseOrders: React.FC = () => {
                         {/* Colorways Tab */}
                         {productEditTab === 'Colorways' && (
                           <div className="w-full overflow-x-auto">
-<<<<<<< HEAD
                             <table className="text-xs border border-gray-300 rounded mb-1">
                               <thead>
                                 <tr className="bg-gray-50">
@@ -1922,39 +1841,12 @@ const PurchaseOrders: React.FC = () => {
                                   <th className="px-1 py-0.5 text-left font-semibold border w-24">Approved to Bulk</th>
                                   <th className="px-1 py-0.5 text-left font-semibold border w-24">In Development</th>
                                   <th className="px-1 py-0.5 text-left font-semibold border w-20">Actions</th>
-=======
-                            <table className="text-sm border border-blue-200 rounded my-2" style={{ marginBottom: '12px' }}>
-                              <thead>
-                                <tr>
-                                  <th className="px-2 py-1 font-semibold w-16">Active</th>
-                                  <th className="px-2 py-1 font-semibold w-20">Status</th>
-                                  <th className="px-2 py-1 font-semibold w-28">Product Sub Type</th>
-                                  <th className="px-2 py-1 font-semibold w-24">Collection</th>
-                                  <th className="px-2 py-1 font-semibold w-20">Template</th>
-                                  <th className="px-2 py-1 font-semibold w-32">Product Color Key Date</th>
-                                  <th className="px-2 py-1 font-semibold w-24">Closed Date</th>
-                                  <th className="px-2 py-1 font-semibold w-16">Color</th>
-                                  <th className="px-2 py-1 font-semibold w-28">Color Description</th>
-                                  <th className="px-2 py-1 font-semibold w-24">Color Family</th>
-                                  <th className="px-2 py-1 font-semibold w-24">Color Standard</th>
-                                  <th className="px-2 py-1 font-semibold w-28">Color External Ref.</th>
-                                  <th className="px-2 py-1 font-semibold w-28">Color External Ref. 2.</th>
-                                  <th className="px-2 py-1 font-semibold w-24">Approved to SMS</th>
-                                  <th className="px-2 py-1 font-semibold w-24">Approved to Bulk</th>
-                                  <th className="px-2 py-1 font-semibold w-24">In Development</th>
-                                  <th className="px-2 py-1 font-semibold w-20">Actions</th>
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                                 </tr>
                               </thead>
                               <tbody>
                                 {(productColorwaysEdit ? productColorwaysForm : (row['Product Colorways'] || []))?.map((cw: any, cwIdx: number) => (
-<<<<<<< HEAD
                                   <tr key={cwIdx} className="hover:bg-gray-50">
                                     <td className="px-1 py-0.5 border text-xs text-center">
-=======
-                                  <tr key={cwIdx}>
-                                    <td className="px-2 py-1 text-center">
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                                       {productColorwaysEdit ? (
                                         <input
                                           type="checkbox"
@@ -1969,7 +1861,6 @@ const PurchaseOrders: React.FC = () => {
                                         cw['Active'] ? 'Yes' : 'No'
                                       )}
                                     </td>
-<<<<<<< HEAD
                                     <td className="px-1 py-0.5 border text-xs">{productColorwaysEdit ? (
                                       <input className="border px-1 py-0.5 rounded text-xs w-full" value={productColorwaysForm[cwIdx]?.['Status'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], Status: e.target.value }; setProductColorwaysForm(updated); }} />
                                     ) : (cw['Status'] || '')}</td>
@@ -2016,54 +1907,6 @@ const PurchaseOrders: React.FC = () => {
                                       <input type="checkbox" checked={!!productColorwaysForm[cwIdx]?.['In Development']} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'In Development': e.target.checked }; setProductColorwaysForm(updated); }} />
                                     ) : (cw['In Development'] ? 'Yes' : 'No')}</td>
                                     <td className="px-1 py-0.5 border text-xs">
-=======
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Status'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], Status: e.target.value }; setProductColorwaysForm(updated); }} />
-                                    ) : (cw['Status'] || '')}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Product Sub Type'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Product Sub Type': e.target.value }; setProductColorwaysForm(updated); }} />
-                                    ) : (cw['Product Sub Type'] || '')}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Collection'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], Collection: e.target.value }; setProductColorwaysForm(updated); }} />
-                                    ) : (cw['Collection'] || '')}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Template'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], Template: e.target.value }; setProductColorwaysForm(updated); }} />
-                                    ) : (cw['Template'] || '')}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input type="date" className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Product Color Key Date'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Product Color Key Date': e.target.value }; setProductColorwaysForm(updated); }} />
-                                    ) : (cw['Product Color Key Date'] || '')}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input type="date" className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Closed Date'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Closed Date': e.target.value }; setProductColorwaysForm(updated); }} />
-                                    ) : (cw['Closed Date'] || '')}</td>
-                                    <td className="px-2 py-1 text-center">{productColorwaysEdit ? (
-                                      <input type="color" className="w-8 h-6 border rounded" value={productColorwaysForm[cwIdx]?.['Color'] || '#000000'} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], Color: e.target.value }; setProductColorwaysForm(updated); }} />
-                                    ) : (<span style={{ background: cw['Color'] || '#000', display: 'inline-block', width: 20, height: 20, borderRadius: 4, border: '1px solid #ccc' }} title={cw['Color'] || ''}></span>)}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Color Description'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color Description': e.target.value }; setProductColorwaysForm(updated); }} />
-                                    ) : (cw['Color Description'] || '')}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Color Family'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color Family': e.target.value }; setProductColorwaysForm(updated); }} />
-                                    ) : (cw['Color Family'] || '')}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Color Standard'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color Standard': e.target.value }; setProductColorwaysForm(updated); }} />
-                                    ) : (cw['Color Standard'] || '')}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Color External Ref.'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color External Ref.': e.target.value }; setProductColorwaysForm(updated); }} />
-                                    ) : (cw['Color External Ref.'] || '')}</td>
-                                    <td className="px-2 py-1">{productColorwaysEdit ? (
-                                      <input className="border px-1 py-0.5 rounded text-sm w-full" value={productColorwaysForm[cwIdx]?.['Color External Ref. 2.'] || ''} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Color External Ref. 2.': e.target.value }; setProductColorwaysForm(updated); }} />
-                                    ) : (cw['Color External Ref. 2.'] || '')}</td>
-                                    <td className="px-2 py-1 text-center">{productColorwaysEdit ? (
-                                      <input type="checkbox" checked={!!productColorwaysForm[cwIdx]?.['Approved to SMS']} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Approved to SMS': e.target.checked }; setProductColorwaysForm(updated); }} />
-                                    ) : (cw['Approved to SMS'] ? 'Yes' : 'No')}</td>
-                                    <td className="px-2 py-1 text-center">{productColorwaysEdit ? (
-                                      <input type="checkbox" checked={!!productColorwaysForm[cwIdx]?.['Approved to Bulk']} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'Approved to Bulk': e.target.checked }; setProductColorwaysForm(updated); }} />
-                                    ) : (cw['Approved to Bulk'] ? 'Yes' : 'No')}</td>
-                                    <td className="px-2 py-1 text-center">{productColorwaysEdit ? (
-                                      <input type="checkbox" checked={!!productColorwaysForm[cwIdx]?.['In Development']} onChange={e => { const updated = [...productColorwaysForm]; updated[cwIdx] = { ...updated[cwIdx], 'In Development': e.target.checked }; setProductColorwaysForm(updated); }} />
-                                    ) : (cw['In Development'] ? 'Yes' : 'No')}</td>
-                                    <td className="px-2 py-1">
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                                       {productColorwaysEdit && (
                                         <button className="bg-red-500 text-white px-2 py-1 rounded text-xs" onClick={() => {
                                           const updated = productColorwaysForm.filter((_: any, i: number) => i !== cwIdx);
@@ -2105,16 +1948,10 @@ const PurchaseOrders: React.FC = () => {
                             </div>
                           </div>
                         )}
-<<<<<<< HEAD
 
                         {/* Tech Packs Section - Always visible below Colorways */}
                         <div className="mt-8">
                           <div className="text-sm text-gray-600 mb-2">Tech Pack Table</div>
-=======
-                        {/* Tech Packs Section */}
-                        <div className="mt-8">
-                          <div className="font-semibold text-blue-700 mb-2">Tech Packs</div>
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                           {/* Tech Packs subtable tabs */}
                           <div className="mb-4 flex gap-2 border-b border-blue-200">
                             {(['Tech Pack Version', 'Bill Of Materials', 'Size Specifications', 'Fit Log', 'Fibre Composition', 'Care Instructions', 'Labels'] as string[]).map((tab: string) => (
@@ -2127,10 +1964,7 @@ const PurchaseOrders: React.FC = () => {
                               </button>
                             ))}
                           </div>
-<<<<<<< HEAD
 
-=======
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                           {/* Tech Pack Version Tab */}
                           {(!techPacksEditTab || techPacksEditTab === 'Tech Pack Version') && (
                             <div className="inline-block w-full">
@@ -2209,10 +2043,7 @@ const PurchaseOrders: React.FC = () => {
                               </div>
                             </div>
                           )}
-<<<<<<< HEAD
 
-=======
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                           {/* Bill Of Materials Tab */}
                           {techPacksEditTab === 'Bill Of Materials' && (
                             <div className="inline-block w-full">
@@ -2235,10 +2066,7 @@ const PurchaseOrders: React.FC = () => {
                                     </div>
                                   </div>
                                 </div>
-<<<<<<< HEAD
                                 
-=======
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                                 <div className="border border-gray-300 rounded p-3 bg-white w-80">
                                   <h4 className="font-semibold text-gray-700 mb-2 text-sm">Product Details</h4>
                                   <div className="space-y-2">
@@ -2261,10 +2089,7 @@ const PurchaseOrders: React.FC = () => {
                                   </div>
                                 </div>
                               </div>
-<<<<<<< HEAD
 
-=======
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                               {/* Bill of Materials Line Items Table */}
                               <div className="mb-2 flex gap-2">
                                 {techPacksBOMEdit ? (
@@ -2336,13 +2161,8 @@ const PurchaseOrders: React.FC = () => {
                                   </>
                                 )}
                               </div>
-<<<<<<< HEAD
                               <div className="overflow-x-auto max-w-full">
                                 <table className="text-xs border border-gray-300 rounded min-w-max">
-=======
-                              <div className="overflow-x-auto">
-                                <table className="text-xs border border-gray-300 rounded max-w-4xl">
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                                   <thead>
                                     <tr className="bg-gray-50">
                                       {techPacksBOMEdit && (
@@ -2498,7 +2318,6 @@ const PurchaseOrders: React.FC = () => {
                                             />
                                           ) : (bomRow['Material Description'] || '')}
                                         </td>
-<<<<<<< HEAD
                                         <td className="px-1 py-0.5 border text-xs">
                                           {techPacksBOMEdit ? (
                                             <select 
@@ -2788,9 +2607,6 @@ const PurchaseOrders: React.FC = () => {
                                             />
                                           ) : (bomRow['One Size Rating'] || '')}
                                         </td>
-=======
-                                        {/* ...rest of the Tech Packs BOM table fields and logic... */}
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                                       </tr>
                                     ))}
                                   </tbody>
@@ -2798,7 +2614,6 @@ const PurchaseOrders: React.FC = () => {
                               </div>
                             </div>
                           )}
-<<<<<<< HEAD
 
                           {/* Size Specifications Tab */}
                           {techPacksEditTab === 'Size Specifications' && (
@@ -2841,64 +2656,11 @@ const PurchaseOrders: React.FC = () => {
                                     <div className="flex items-center">
                                       <span className="font-medium text-sm w-28">Season:</span>
                                       <span className="text-sm">FH:2018</span>
-=======
-                          
-                          {/* Size Specifications Tab */}
-                          {techPacksEditTab === 'Size Specifications' && (
-                            <div className="inline-block">
-                              <div className="grid grid-cols-2 gap-4 mb-4">
-                                {/* Details Section */}
-                                <div>
-                                  <h4 className="font-semibold text-gray-700 mb-2 text-sm">Details</h4>
-                              <table className="text-sm border border-blue-200 rounded mb-2 table-fixed">
-                                <tbody>
-                                      <tr><td className="px-2 py-1 font-semibold w-32">Product</td><td className="px-2 py-1">{row['Product'] || 'M8830037'}</td></tr>
-                                      <tr><td className="px-2 py-1 font-semibold w-32">Comments</td><td className="px-2 py-1">
-                                        <textarea 
-                                          className="w-full h-20 border px-2 py-1 rounded text-sm resize-none" 
-                                          placeholder="Enter comments here..."
-                                          defaultValue={row['Size Comments'] || ''}
-                                        />
-                                      </td></tr>
-                                    </tbody>
-                                  </table>
-                                </div>
-
-                                {/* Image Section */}
-                                <div>
-                                  <h4 className="font-semibold text-gray-700 mb-2 text-sm">Image</h4>
-                                  <div className="space-y-4">
-                                    {/* How To Measure */}
-                                    <div>
-                                      <label className="block text-sm font-medium text-gray-700 mb-1">How To Measure</label>
-                                      <div className="border border-gray-300 rounded p-2 bg-gray-50 w-32 h-24 flex items-center justify-center">
-                                        <div className="text-gray-400 text-xs text-center">
-                                          <svg className="w-8 h-8 mx-auto mb-1" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                                          </svg>
-                                          Image Placeholder
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    {/* Knit Gauge */}
-                                    <div>
-                                      <label className="block text-sm font-medium text-gray-700 mb-1">Knit Gauge</label>
-                                      <div className="border border-gray-300 rounded p-2 bg-gray-50 w-32 h-24 flex items-center justify-center">
-                                        <div className="text-gray-400 text-xs text-center">
-                                          <svg className="w-8 h-8 mx-auto mb-1" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                                          </svg>
-                                          Image Placeholder
-                                        </div>
-                                      </div>
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                                     </div>
                                   </div>
                                 </div>
                               </div>
 
-<<<<<<< HEAD
                               {/* Size Specifications Line Items Table */}
                               <div className="mb-2 flex gap-2">
                                 {techPacksSizeSpecEdit ? (
@@ -3535,462 +3297,11 @@ const PurchaseOrders: React.FC = () => {
                                         </td>
                                       </tr>
                                     ))}
-=======
-                              {/* Specification Section */}
-                              <div>
-                                <h4 className="font-semibold text-gray-700 mb-2 text-sm">Specification</h4>
-                                <div className="flex border-b border-gray-200 mb-4">
-                                  <button 
-                                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                                      specificationTab === 'Size Chart' 
-                                        ? 'border-blue-500 text-blue-600 bg-blue-50' 
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                    }`}
-                                    onClick={() => setSpecificationTab('Size Chart')}
-                                  >
-                                    Size Chart
-                                  </button>
-                                  <button 
-                                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                                      specificationTab === 'Make Up Method' 
-                                        ? 'border-blue-500 text-blue-600 bg-blue-50' 
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                    }`}
-                                    onClick={() => setSpecificationTab('Make Up Method')}
-                                  >
-                                    Make Up Method
-                                  </button>
-                                  <button 
-                                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                                      specificationTab === 'All' 
-                                        ? 'border-blue-500 text-blue-600 bg-blue-50' 
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                    }`}
-                                    onClick={() => setSpecificationTab('All')}
-                                  >
-                                    All
-                                  </button>
-                                </div>
-                                
-                                {/* Size Chart Tab */}
-                                {specificationTab === 'Size Chart' && (
-                                  <div className="overflow-x-auto">
-                                    <table className="text-xs border border-gray-300 rounded max-w-4xl">
-                                      <thead>
-                                        <tr className="bg-gray-50">
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>Sequence</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Reference</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Name</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-32" rowSpan={2}>Fit Size Dimension</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Size Comment</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" colSpan={2}>Tolerance</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" colSpan={2}>Sizes</th>
-                                        </tr>
-                                        <tr className="bg-gray-50">
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-10">-</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-10">+</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-10">Grade</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-10">One Size</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-1 py-0.5 border text-xs">1</td>
-                                          <td className="px-1 py-0.5 border text-xs">CHEST</td>
-                                          <td className="px-1 py-0.5 border text-xs">Chest Width</td>
-                                          <td className="px-1 py-0.5 border text-xs">34</td>
-                                          <td className="px-1 py-0.5 border text-xs">Standard fit</td>
-                                          <td className="px-1 py-0.5 border text-xs">0.5</td>
-                                          <td className="px-1 py-0.5 border text-xs">0.5</td>
-                                          <td className="px-1 py-0.5 border text-xs">S</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-1 py-0.5 border text-xs">2</td>
-                                          <td className="px-1 py-0.5 border text-xs">WAIST</td>
-                                          <td className="px-1 py-0.5 border text-xs">Waist Width</td>
-                                          <td className="px-1 py-0.5 border text-xs">28</td>
-                                          <td className="px-1 py-0.5 border text-xs">Slim fit</td>
-                                          <td className="px-1 py-0.5 border text-xs">0.3</td>
-                                          <td className="px-1 py-0.5 border text-xs">0.3</td>
-                                          <td className="px-1 py-0.5 border text-xs">S</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-1 py-0.5 border text-xs">3</td>
-                                          <td className="px-1 py-0.5 border text-xs">HIP</td>
-                                          <td className="px-1 py-0.5 border text-xs">Hip Width</td>
-                                          <td className="px-1 py-0.5 border text-xs">36</td>
-                                          <td className="px-1 py-0.5 border text-xs">Regular fit</td>
-                                          <td className="px-1 py-0.5 border text-xs">0.5</td>
-                                          <td className="px-1 py-0.5 border text-xs">0.5</td>
-                                          <td className="px-1 py-0.5 border text-xs">S</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-1 py-0.5 border text-xs">4</td>
-                                          <td className="px-1 py-0.5 border text-xs">LENGTH</td>
-                                          <td className="px-1 py-0.5 border text-xs">Body Length</td>
-                                          <td className="px-1 py-0.5 border text-xs">25</td>
-                                          <td className="px-1 py-0.5 border text-xs">Standard length</td>
-                                          <td className="px-1 py-0.5 border text-xs">0.5</td>
-                                          <td className="px-1 py-0.5 border text-xs">0.5</td>
-                                          <td className="px-1 py-0.5 border text-xs">S</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-1 py-0.5 border text-xs">5</td>
-                                          <td className="px-1 py-0.5 border text-xs">SLEEVE</td>
-                                          <td className="px-1 py-0.5 border text-xs">Sleeve Length</td>
-                                          <td className="px-1 py-0.5 border text-xs">23</td>
-                                          <td className="px-1 py-0.5 border text-xs">Regular sleeve</td>
-                                          <td className="px-1 py-0.5 border text-xs">0.3</td>
-                                          <td className="px-1 py-0.5 border text-xs">0.3</td>
-                                          <td className="px-1 py-0.5 border text-xs">S</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                        </tr>
-                                </tbody>
-                              </table>
-                                  </div>
-                                )}
-
-                                {/* Make Up Method Tab */}
-                                {specificationTab === 'Make Up Method' && (
-                                  <div className="overflow-x-auto">
-                                    <table className="text-xs border border-gray-300 rounded max-w-4xl">
-                                      <thead>
-                                        <tr className="bg-gray-50">
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>Sequence</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Reference</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Name</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-32" rowSpan={2}>Fit Size Dimension</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Size Comment</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>All Value</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Stitch</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Knit Gauge</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Yarns Ends</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Stitch Name</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Placement</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Finishings</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Referencing For</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Finish Desc</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-28" rowSpan={2}>Reference Style Name</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Machine</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" colSpan={1}>Sizes</th>
-                                        </tr>
-                                        <tr className="bg-gray-50">
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20">One Size</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-1 py-0.5 border text-xs">1</td>
-                                          <td className="px-1 py-0.5 border text-xs">CHEST</td>
-                                          <td className="px-1 py-0.5 border text-xs">Chest Width</td>
-                                          <td className="px-1 py-0.5 border text-xs">34</td>
-                                          <td className="px-1 py-0.5 border text-xs">Standard fit</td>
-                                          <td className="px-1 py-0.5 border text-xs">34</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single</td>
-                                          <td className="px-1 py-0.5 border text-xs">12</td>
-                                          <td className="px-1 py-0.5 border text-xs">2</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
-                                          <td className="px-1 py-0.5 border text-xs">Center</td>
-                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
-                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
-                                          <td className="px-1 py-0.5 border text-xs">Clean finish</td>
-                                          <td className="px-1 py-0.5 border text-xs">ARC-Merbau/Aurora</td>
-                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-1 py-0.5 border text-xs">2</td>
-                                          <td className="px-1 py-0.5 border text-xs">WAIST</td>
-                                          <td className="px-1 py-0.5 border text-xs">Waist Width</td>
-                                          <td className="px-1 py-0.5 border text-xs">28</td>
-                                          <td className="px-1 py-0.5 border text-xs">Slim fit</td>
-                                          <td className="px-1 py-0.5 border text-xs">28</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single</td>
-                                          <td className="px-1 py-0.5 border text-xs">12</td>
-                                          <td className="px-1 py-0.5 border text-xs">2</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
-                                          <td className="px-1 py-0.5 border text-xs">Center</td>
-                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
-                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
-                                          <td className="px-1 py-0.5 border text-xs">Clean finish</td>
-                                          <td className="px-1 py-0.5 border text-xs">ARC-Merbau/Aurora</td>
-                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-1 py-0.5 border text-xs">3</td>
-                                          <td className="px-1 py-0.5 border text-xs">HIP</td>
-                                          <td className="px-1 py-0.5 border text-xs">Hip Width</td>
-                                          <td className="px-1 py-0.5 border text-xs">36</td>
-                                          <td className="px-1 py-0.5 border text-xs">Regular fit</td>
-                                          <td className="px-1 py-0.5 border text-xs">36</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single</td>
-                                          <td className="px-1 py-0.5 border text-xs">12</td>
-                                          <td className="px-1 py-0.5 border text-xs">2</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
-                                          <td className="px-1 py-0.5 border text-xs">Center</td>
-                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
-                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
-                                          <td className="px-1 py-0.5 border text-xs">Clean finish</td>
-                                          <td className="px-1 py-0.5 border text-xs">ARC-Merbau/Aurora</td>
-                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-1 py-0.5 border text-xs">4</td>
-                                          <td className="px-1 py-0.5 border text-xs">LENGTH</td>
-                                          <td className="px-1 py-0.5 border text-xs">Body Length</td>
-                                          <td className="px-1 py-0.5 border text-xs">25</td>
-                                          <td className="px-1 py-0.5 border text-xs">Standard length</td>
-                                          <td className="px-1 py-0.5 border text-xs">25</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single</td>
-                                          <td className="px-1 py-0.5 border text-xs">12</td>
-                                          <td className="px-1 py-0.5 border text-xs">2</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
-                                          <td className="px-1 py-0.5 border text-xs">Center</td>
-                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
-                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
-                                          <td className="px-1 py-0.5 border text-xs">Clean finish</td>
-                                          <td className="px-1 py-0.5 border text-xs">ARC-Merbau/Aurora</td>
-                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-1 py-0.5 border text-xs">5</td>
-                                          <td className="px-1 py-0.5 border text-xs">SLEEVE</td>
-                                          <td className="px-1 py-0.5 border text-xs">Sleeve Length</td>
-                                          <td className="px-1 py-0.5 border text-xs">23</td>
-                                          <td className="px-1 py-0.5 border text-xs">Regular sleeve</td>
-                                          <td className="px-1 py-0.5 border text-xs">23</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single</td>
-                                          <td className="px-1 py-0.5 border text-xs">12</td>
-                                          <td className="px-1 py-0.5 border text-xs">2</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
-                                          <td className="px-1 py-0.5 border text-xs">Center</td>
-                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
-                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
-                                          <td className="px-1 py-0.5 border text-xs">Clean finish</td>
-                                          <td className="px-1 py-0.5 border text-xs">ARC-Merbau/Aurora</td>
-                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                )}
-
-                                {/* All Tab */}
-                                {specificationTab === 'All' && (
-                                  <div className="overflow-x-auto">
-                                    <table className="text-xs border border-gray-300 rounded max-w-4xl">
-                                      <thead>
-                                        <tr className="bg-gray-50">
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>Sequence</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Reference</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Name</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" colSpan={2}>Tolerance</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>All Value</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Stitch</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Knit Gauge</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Yarns Ends</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Stitch Name</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Placement</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Finishings</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>Referencing For</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>Machine</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20" colSpan={2}>Sizes</th>
-                                        </tr>
-                                        <tr className="bg-gray-50">
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-10">-</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-10">+</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-10">Grade</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-10">One Size</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-1 py-0.5 border text-xs">1</td>
-                                          <td className="px-1 py-0.5 border text-xs">CHEST</td>
-                                          <td className="px-1 py-0.5 border text-xs">Chest Width</td>
-                                          <td className="px-1 py-0.5 border text-xs">-0.5</td>
-                                          <td className="px-1 py-0.5 border text-xs">+0.5</td>
-                                          <td className="px-1 py-0.5 border text-xs">34</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single</td>
-                                          <td className="px-1 py-0.5 border text-xs">12</td>
-                                          <td className="px-1 py-0.5 border text-xs">2</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
-                                          <td className="px-1 py-0.5 border text-xs">Center</td>
-                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
-                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
-                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-1 py-0.5 border text-xs">2</td>
-                                          <td className="px-1 py-0.5 border text-xs">WAIST</td>
-                                          <td className="px-1 py-0.5 border text-xs">Waist Width</td>
-                                          <td className="px-1 py-0.5 border text-xs">-0.5</td>
-                                          <td className="px-1 py-0.5 border text-xs">+0.5</td>
-                                          <td className="px-1 py-0.5 border text-xs">28</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single</td>
-                                          <td className="px-1 py-0.5 border text-xs">12</td>
-                                          <td className="px-1 py-0.5 border text-xs">2</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
-                                          <td className="px-1 py-0.5 border text-xs">Center</td>
-                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
-                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
-                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-1 py-0.5 border text-xs">3</td>
-                                          <td className="px-1 py-0.5 border text-xs">HIP</td>
-                                          <td className="px-1 py-0.5 border text-xs">Hip Width</td>
-                                          <td className="px-1 py-0.5 border text-xs">-0.5</td>
-                                          <td className="px-1 py-0.5 border text-xs">+0.5</td>
-                                          <td className="px-1 py-0.5 border text-xs">36</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single</td>
-                                          <td className="px-1 py-0.5 border text-xs">12</td>
-                                          <td className="px-1 py-0.5 border text-xs">2</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
-                                          <td className="px-1 py-0.5 border text-xs">Center</td>
-                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
-                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
-                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-1 py-0.5 border text-xs">4</td>
-                                          <td className="px-1 py-0.5 border text-xs">LENGTH</td>
-                                          <td className="px-1 py-0.5 border text-xs">Body Length</td>
-                                          <td className="px-1 py-0.5 border text-xs">-0.5</td>
-                                          <td className="px-1 py-0.5 border text-xs">+0.5</td>
-                                          <td className="px-1 py-0.5 border text-xs">25</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single</td>
-                                          <td className="px-1 py-0.5 border text-xs">12</td>
-                                          <td className="px-1 py-0.5 border text-xs">2</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
-                                          <td className="px-1 py-0.5 border text-xs">Center</td>
-                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
-                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
-                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-1 py-0.5 border text-xs">5</td>
-                                          <td className="px-1 py-0.5 border text-xs">SLEEVE</td>
-                                          <td className="px-1 py-0.5 border text-xs">Sleeve Length</td>
-                                          <td className="px-1 py-0.5 border text-xs">-0.5</td>
-                                          <td className="px-1 py-0.5 border text-xs">+0.5</td>
-                                          <td className="px-1 py-0.5 border text-xs">23</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single</td>
-                                          <td className="px-1 py-0.5 border text-xs">12</td>
-                                          <td className="px-1 py-0.5 border text-xs">2</td>
-                                          <td className="px-1 py-0.5 border text-xs">Single Stitch</td>
-                                          <td className="px-1 py-0.5 border text-xs">Center</td>
-                                          <td className="px-1 py-0.5 border text-xs">Overlock</td>
-                                          <td className="px-1 py-0.5 border text-xs">Seam</td>
-                                          <td className="px-1 py-0.5 border text-xs">Juki</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                          <td className="px-1 py-0.5 border text-xs">M</td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                          
-                          {/* Fit Log Tab */}
-                          {techPacksEditTab === 'Fit Log' && (
-                            <div className="inline-block">
-                              <div className="overflow-x-auto">
-                                <table className="text-xs border border-gray-300 rounded max-w-6xl">
-                                  <thead>
-                                    <tr className="bg-gray-50">
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-16">Sequence</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit Date</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit Type</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit Status</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit Result</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit Comments</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit By</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit Location</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit Sample</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit Sample Size</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit Sample Color</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit Sample Quantity</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit Sample Received</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit Sample Returned</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit Sample Returned Date</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit Sample Returned By</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit Sample Returned To</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit Sample Returned Via</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit Sample Returned Tracking</th>
-                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Fit Sample Returned Notes</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <tr className="hover:bg-gray-50">
-                                      <td className="px-1 py-0.5 border text-xs">1</td>
-                                      <td className="px-1 py-0.5 border text-xs">2024-01-15</td>
-                                      <td className="px-1 py-0.5 border text-xs">Initial</td>
-                                      <td className="px-1 py-0.5 border text-xs">Completed</td>
-                                      <td className="px-1 py-0.5 border text-xs">Approved</td>
-                                      <td className="px-1 py-0.5 border text-xs">Good fit, minor adjustments needed</td>
-                                      <td className="px-1 py-0.5 border text-xs">John Smith</td>
-                                      <td className="px-1 py-0.5 border text-xs">Studio A</td>
-                                      <td className="px-1 py-0.5 border text-xs">Sample-001</td>
-                                      <td className="px-1 py-0.5 border text-xs">M</td>
-                                      <td className="px-1 py-0.5 border text-xs">Navy</td>
-                                      <td className="px-1 py-0.5 border text-xs">1</td>
-                                      <td className="px-1 py-0.5 border text-xs">2024-01-10</td>
-                                      <td className="px-1 py-0.5 border text-xs"></td>
-                                      <td className="px-1 py-0.5 border text-xs">2024-01-20</td>
-                                      <td className="px-1 py-0.5 border text-xs">Jane Doe</td>
-                                      <td className="px-1 py-0.5 border text-xs">Supplier A</td>
-                                      <td className="px-1 py-0.5 border text-xs">Courier</td>
-                                      <td className="px-1 py-0.5 border text-xs">TRK123456</td>
-                                      <td className="px-1 py-0.5 border text-xs">Sample returned in good condition</td>
-                                    </tr>
-                                    <tr className="hover:bg-gray-50">
-                                      <td className="px-1 py-0.5 border text-xs">2</td>
-                                      <td className="px-1 py-0.5 border text-xs">2024-02-01</td>
-                                      <td className="px-1 py-0.5 border text-xs">Revision</td>
-                                      <td className="px-1 py-0.5 border text-xs">Completed</td>
-                                      <td className="px-1 py-0.5 border text-xs">Approved with changes</td>
-                                      <td className="px-1 py-0.5 border text-xs">Sleeve length adjusted</td>
-                                      <td className="px-1 py-0.5 border text-xs">Sarah Johnson</td>
-                                      <td className="px-1 py-0.5 border text-xs">Studio B</td>
-                                      <td className="px-1 py-0.5 border text-xs">Sample-002</td>
-                                      <td className="px-1 py-0.5 border text-xs">L</td>
-                                      <td className="px-1 py-0.5 border text-xs">Black</td>
-                                      <td className="px-1 py-0.5 border text-xs">1</td>
-                                      <td className="px-1 py-0.5 border text-xs">2024-01-28</td>
-                                      <td className="px-1 py-0.5 border text-xs"></td>
-                                      <td className="px-1 py-0.5 border text-xs">2024-02-05</td>
-                                      <td className="px-1 py-0.5 border text-xs">Mike Wilson</td>
-                                      <td className="px-1 py-0.5 border text-xs">Supplier B</td>
-                                      <td className="px-1 py-0.5 border text-xs">Express</td>
-                                      <td className="px-1 py-0.5 border text-xs">TRK789012</td>
-                                      <td className="px-1 py-0.5 border text-xs">Sample returned with feedback</td>
-                                    </tr>
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                                   </tbody>
                                 </table>
                               </div>
                             </div>
                           )}
-<<<<<<< HEAD
 
                           {/* Fit Log Tab */}
                           {techPacksEditTab === 'Fit Log' && (
@@ -5123,779 +4434,20 @@ const PurchaseOrders: React.FC = () => {
                                           </tr>
                                         </tbody>
                                       </table>
-=======
-                          
-                          {/* Fibre Composition Tab */}
-                          {techPacksEditTab === 'Fibre Composition' && (
-                            <div className="inline-block">
-                              <div className="space-y-4">
-                                {/* Version Control */}
-                                <div>
-                                  <h4 className="font-semibold text-gray-700 mb-2 text-sm">Version Control</h4>
-                                  <div className="border border-gray-300 rounded mb-4">
-                                    <table className="w-full text-sm">
-                                      <thead>
-                                        <tr className="border-b border-gray-200 bg-gray-50">
-                                          <th className="text-left py-2 px-3 font-medium text-gray-700">Version Number</th>
-                                          <th className="text-left py-2 px-3 font-medium text-gray-700">Comment</th>
-                                          <th className="text-left py-2 px-3 font-medium text-gray-700">Current Version</th>
-                                          <th className="text-left py-2 px-3 font-medium text-gray-700">Created By</th>
-                                          <th className="text-left py-2 px-3 font-medium text-gray-700">Created</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr className="border-b border-gray-100">
-                                          <td className="py-2 px-3">
-                                            {versionControlEdit ? (
-                                              <input 
-                                                type="text" 
-                                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-                                                value={versionControlData.versionNumber}
-                                                onChange={(e) => setVersionControlData({
-                                                  ...versionControlData,
-                                                  versionNumber: e.target.value
-                                                })}
-                                              />
-                                            ) : (
-                                              <span className="text-gray-700">{versionControlData.versionNumber || '-'}</span>
-                                            )}
-                                          </td>
-                                          <td className="py-2 px-3">
-                                            {versionControlEdit ? (
-                                              <input 
-                                                type="text" 
-                                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-                                                value={versionControlData.comment}
-                                                onChange={(e) => setVersionControlData({
-                                                  ...versionControlData,
-                                                  comment: e.target.value
-                                                })}
-                                              />
-                                            ) : (
-                                              <span className="text-gray-700">{versionControlData.comment || '-'}</span>
-                                            )}
-                                          </td>
-                                          <td className="py-2 px-3">
-                                            <div className="flex items-center justify-center">
-                                              <input 
-                                                type="checkbox" 
-                                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                                                checked={versionControlData.currentVersion}
-                                                onChange={(e) => setVersionControlData({
-                                                  ...versionControlData,
-                                                  currentVersion: e.target.checked
-                                                })}
-                                                disabled={!versionControlEdit}
-                                              />
-                                            </div>
-                                          </td>
-                                          <td className="py-2 px-3">
-                                            {versionControlEdit ? (
-                                              <input 
-                                                type="text" 
-                                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-                                                value={versionControlData.createdBy}
-                                                onChange={(e) => setVersionControlData({
-                                                  ...versionControlData,
-                                                  createdBy: e.target.value
-                                                })}
-                                              />
-                                            ) : (
-                                              <span className="text-gray-700">{versionControlData.createdBy}</span>
-                                            )}
-                                          </td>
-                                          <td className="py-2 px-3">
-                                            <span className="text-gray-700">{versionControlData.created}</span>
-                                          </td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                  <div className="flex space-x-2">
-                                    {versionControlEdit ? (
-                                      <>
-                                        <button 
-                                          className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
-                                          onClick={() => {
-                                            setVersionControlData({
-                                              ...versionControlData,
-                                              created: new Date().toLocaleString()
-                                            });
-                                            setVersionControlEdit(false);
-                                          }}
-                                        >
-                                          Save
-                                        </button>
-                                        <button 
-                                          className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
-                                          onClick={() => {
-                                            setVersionControlEdit(false);
-                                            setVersionControlData({
-                                              versionNumber: '',
-                                              comment: '',
-                                              currentVersion: false,
-                                              createdBy: 'Admin',
-                                              created: new Date().toLocaleString()
-                                            });
-                                          }}
-                                        >
-                                          Cancel
-                                        </button>
-                                      </>
-                                    ) : (
-                                      <button 
-                                        className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
-                                        onClick={() => setVersionControlEdit(true)}
-                                      >
-                                        Edit
-                                      </button>
-                                    )}
-                                  </div>
-                                </div>
-
-                                                                {/* Add New Fibre Composition Button */}
-                                <div className="mb-4">
-                                  <button 
-                                    className="bg-blue-500 text-white px-4 py-2 rounded text-sm hover:bg-blue-600 flex items-center space-x-2"
-                                    onClick={() => {
-                                      const newSectionId = fibreSections.length + 1;
-                                      setFibreSections([...fibreSections, newSectionId]);
-                                      setFibreSectionNames({
-                                        ...fibreSectionNames,
-                                        [newSectionId]: `Fibre Section ${newSectionId}`
-                                      });
-                                    }}
-                                  >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                    </svg>
-                                    <span>Add New Fibre Composition</span>
-                                  </button>
-                                </div>
-
-                                {/* Fibre Sections */}
-                                <div className="space-y-4">
-                                  {/* First Row - Original 3 sections */}
-                                  <div className="grid grid-cols-3 gap-4">
-                                    {fibreSections.slice(0, 3).map((sectionId, index) => (
-                                      <div key={sectionId} className="border border-gray-300 rounded p-3 max-w-xs">
-                                        <div className="flex justify-between items-center mb-3">
-                                          <input
-                                            type="text"
-                                            className="font-semibold text-gray-700 text-sm bg-transparent border-none focus:outline-none focus:ring-1 focus:ring-blue-500 rounded px-1"
-                                            value={fibreSectionNames[sectionId] || `Fibre Section ${index + 1}`}
-                                            onChange={(e) => {
-                                              setFibreSectionNames({
-                                                ...fibreSectionNames,
-                                                [sectionId]: e.target.value
-                                              });
-                                            }}
-                                          />
-                                          <button 
-                                            className="text-red-500 hover:text-red-700"
-                                            onClick={() => {
-                                              if (fibreSections.length > 1) {
-                                                setFibreSections(fibreSections.filter((_, i) => i !== index));
-                                                // Remove the name from state when deleting
-                                                const newNames = { ...fibreSectionNames };
-                                                delete newNames[sectionId];
-                                                setFibreSectionNames(newNames);
-                                              }
-                                            }}
-                                          >
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                          </button>
-                                        </div>
-                                        <table className="w-full text-xs">
-                                          <thead>
-                                            <tr className="border-b border-gray-200">
-                                              <th className="text-left py-1 font-medium text-gray-700">Fibre</th>
-                                              <th className="text-left py-1 font-medium text-gray-700">%</th>
-                                            </tr>
-                                          </thead>
-                                          <tbody>
-                                            {[1, 2, 3, 4, 5, 6].map((row) => (
-                                              <tr key={row} className="border-b border-gray-100">
-                                                <td className="py-1">
-                                                  <select className="w-full border border-gray-300 rounded px-1 py-0.5 text-xs">
-                                                    <option>Select</option>
-                                                    <option>(Faux fur) Polyester</option>
-                                                    <option>Acetate</option>
-                                                    <option>Acrylic</option>
-                                                    <option>Alpaca</option>
-                                                    <option>Angora</option>
-                                                    <option>Cashmere</option>
-                                                    <option>Contains Non-Textile Parts of Animal Origin</option>
-                                                    <option>Cotton</option>
-                                                    <option>Elastane</option>
-                                                    <option>Elasterell-P</option>
-                                                    <option>Elastodiene</option>
-                                                    <option>Exclusive of Decoration</option>
-                                                    <option>Exclusive of Elastic</option>
-                                                    <option>Exclusive of Ornamentation</option>
-                                                    <option>Exclusive of Trim</option>
-                                                    <option>Exclusive of Trimming</option>
-                                                    <option>Faux Fur</option>
-                                                    <option>Faux Suede Patch</option>
-                                                    <option>Finished Piece Washed (for Testing only)</option>
-                                                    <option>Imitation Suede</option>
-                                                    <option>Lambswool</option>
-                                                    <option>Leather</option>
-                                                    <option>Lurex</option>
-                                                    <option>Lycra</option>
-                                                    <option>Lyocell</option>
-                                                    <option>Merino Wool</option>
-                                                    <option>Metallic</option>
-                                                    <option>Metallic fibre</option>
-                                                    <option>Metallised Fibre</option>
-                                                    <option>Modacrylic</option>
-                                                    <option>Nylon</option>
-                                                    <option>Olefin</option>
-                                                    <option>Organic cotton</option>
-                                                    <option>Other Fiber</option>
-                                                    <option>Other Fibers</option>
-                                                    <option>Paper</option>
-                                                    <option>Pig suede</option>
-                                                    <option>Polyamide</option>
-                                                    <option>Polyester</option>
-                                                    <option>Polyester (Recycled)</option>
-                                                    <option>Polyester Recycled</option>
-                                                    <option>Polypropylene</option>
-                                                    <option>Polyurethane</option>
-                                                    <option>Polyurethane Foam</option>
-                                                    <option>Rayon</option>
-                                                    <option>Recycled</option>
-                                                    <option>Recycled Nylon</option>
-                                                    <option>Recycled Other Fibers</option>
-                                                    <option>Recycled Polyester</option>
-                                                    <option>Recycled Wool</option>
-                                                    <option>Recycled Wool/ Reprocessed Wool</option>
-                                                    <option>Recycled/Reclaimed Wool</option>
-                                                    <option>Rubber</option>
-                                                    <option>Rubber/Elastodiene</option>
-                                                    <option>Silk</option>
-                                                    <option>Spandex</option>
-                                                    <option>Straw</option>
-                                                    <option>True Hemp</option>
-                                                    <option>Viscose</option>
-                                                    <option>Wool</option>
-                                                    <option>Wool - Merino</option>
-                                                    <option>Wool (Merino)</option>
-                                                    <option>Wool Merino</option>
-                                                    <option>Yak</option>
-                                                    <option>Yarn & Finished Piece Washed (for Testing only)</option>
-                                                    <option>Yarn Washed (for Testing only)</option>
-                                                    <option>Excluding Trims</option>
-                                                    <option>Exclusive of Decoration and Elastic</option>
-                                                    <option>Recycled Acrylic</option>
-                                                  </select>
-                                                </td>
-                                                <td className="py-1">
-                                                  <input 
-                                                    type="number" 
-                                                    step="0.1"
-                                                    className="w-full border border-gray-300 rounded px-1 py-0.5 text-xs"
-                                                    defaultValue="0.0"
-                                                  />
-                                                </td>
-                                              </tr>
-                                            ))}
-                                            <tr className="bg-gray-50 font-medium">
-                                              <td className="py-1 text-gray-700">Total</td>
-                                              <td className="py-1 text-gray-700">0.0</td>
-                                            </tr>
-                                          </tbody>
-                                        </table>
-                                      </div>
-                                    ))}
-                                  </div>
-
-                                  {/* Additional sections (after the first 3) */}
-                                  {fibreSections.length > 3 && (
-                                    <div className="grid grid-cols-3 gap-4">
-                                      {fibreSections.slice(3).map((sectionId, index) => (
-                                        <div key={sectionId} className="border border-gray-300 rounded p-3 max-w-xs">
-                                          <div className="flex justify-between items-center mb-3">
-                                            <input
-                                              type="text"
-                                              className="font-semibold text-gray-700 text-sm bg-transparent border-none focus:outline-none focus:ring-1 focus:ring-blue-500 rounded px-1"
-                                              value={fibreSectionNames[sectionId] || `Fibre Section ${index + 4}`}
-                                              onChange={(e) => {
-                                                setFibreSectionNames({
-                                                  ...fibreSectionNames,
-                                                  [sectionId]: e.target.value
-                                                });
-                                              }}
-                                            />
-                                            <button 
-                                              className="text-red-500 hover:text-red-700"
-                                              onClick={() => {
-                                                setFibreSections(fibreSections.filter((_, i) => i !== index + 3));
-                                                // Remove the name from state when deleting
-                                                const newNames = { ...fibreSectionNames };
-                                                delete newNames[sectionId];
-                                                setFibreSectionNames(newNames);
-                                              }}
-                                            >
-                                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                              </svg>
-                                            </button>
-                                          </div>
-                                          <table className="w-full text-xs">
-                                            <thead>
-                                              <tr className="border-b border-gray-200">
-                                                <th className="text-left py-1 font-medium text-gray-700">Fibre</th>
-                                                <th className="text-left py-1 font-medium text-gray-700">%</th>
-                                              </tr>
-                                            </thead>
-                                            <tbody>
-                                              {[1, 2, 3, 4, 5, 6].map((row) => (
-                                                <tr key={row} className="border-b border-gray-100">
-                                                  <td className="py-1">
-                                                    <select className="w-full border border-gray-300 rounded px-1 py-0.5 text-xs">
-                                                      <option>Select</option>
-                                                      <option>(Faux fur) Polyester</option>
-                                                      <option>Acetate</option>
-                                                      <option>Acrylic</option>
-                                                      <option>Alpaca</option>
-                                                      <option>Angora</option>
-                                                      <option>Cashmere</option>
-                                                      <option>Contains Non-Textile Parts of Animal Origin</option>
-                                                      <option>Cotton</option>
-                                                      <option>Elastane</option>
-                                                      <option>Elasterell-P</option>
-                                                      <option>Elastodiene</option>
-                                                      <option>Exclusive of Decoration</option>
-                                                      <option>Exclusive of Elastic</option>
-                                                      <option>Exclusive of Ornamentation</option>
-                                                      <option>Exclusive of Trim</option>
-                                                      <option>Exclusive of Trimming</option>
-                                                      <option>Faux Fur</option>
-                                                      <option>Faux Suede Patch</option>
-                                                      <option>Finished Piece Washed (for Testing only)</option>
-                                                      <option>Imitation Suede</option>
-                                                      <option>Lambswool</option>
-                                                      <option>Leather</option>
-                                                      <option>Lurex</option>
-                                                      <option>Lycra</option>
-                                                      <option>Lyocell</option>
-                                                      <option>Merino Wool</option>
-                                                      <option>Metallic</option>
-                                                      <option>Metallic fibre</option>
-                                                      <option>Metallised Fibre</option>
-                                                      <option>Modacrylic</option>
-                                                      <option>Nylon</option>
-                                                      <option>Olefin</option>
-                                                      <option>Organic cotton</option>
-                                                      <option>Other Fiber</option>
-                                                      <option>Other Fibers</option>
-                                                      <option>Paper</option>
-                                                      <option>Pig suede</option>
-                                                      <option>Polyamide</option>
-                                                      <option>Polyester</option>
-                                                      <option>Polyester (Recycled)</option>
-                                                      <option>Polyester Recycled</option>
-                                                      <option>Polypropylene</option>
-                                                      <option>Polyurethane</option>
-                                                      <option>Polyurethane Foam</option>
-                                                      <option>Rayon</option>
-                                                      <option>Recycled</option>
-                                                      <option>Recycled Nylon</option>
-                                                      <option>Recycled Other Fibers</option>
-                                                      <option>Recycled Polyester</option>
-                                                      <option>Recycled Wool</option>
-                                                      <option>Recycled Wool/ Reprocessed Wool</option>
-                                                      <option>Recycled/Reclaimed Wool</option>
-                                                      <option>Rubber</option>
-                                                      <option>Rubber/Elastodiene</option>
-                                                      <option>Silk</option>
-                                                      <option>Spandex</option>
-                                                      <option>Straw</option>
-                                                      <option>True Hemp</option>
-                                                      <option>Viscose</option>
-                                                      <option>Wool</option>
-                                                      <option>Wool - Merino</option>
-                                                      <option>Wool (Merino)</option>
-                                                      <option>Wool Merino</option>
-                                                      <option>Yak</option>
-                                                      <option>Yarn & Finished Piece Washed (for Testing only)</option>
-                                                      <option>Yarn Washed (for Testing only)</option>
-                                                      <option>Excluding Trims</option>
-                                                      <option>Exclusive of Decoration and Elastic</option>
-                                                      <option>Recycled Acrylic</option>
-                                                    </select>
-                                                  </td>
-                                                  <td className="py-1">
-                                                    <input 
-                                                      type="number" 
-                                                      step="0.1"
-                                                      className="w-full border border-gray-300 rounded px-1 py-0.5 text-xs"
-                                                      defaultValue="0.0"
-                                                    />
-                                                  </td>
-                                                </tr>
-                                              ))}
-                                              <tr className="bg-gray-50 font-medium">
-                                                <td className="py-1 text-gray-700">Total</td>
-                                                <td className="py-1 text-gray-700">0.0</td>
-                                              </tr>
-                                            </tbody>
-                                          </table>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                          
-                          {/* Care Instructions Tab */}
-                          {techPacksEditTab === 'Care Instructions' && (
-                            <div className="inline-block">
-                              <div className="space-y-4">
-                                {/* Product Details */}
-                                <div className="bg-white border border-gray-300 rounded p-4 mb-4">
-                                  <h4 className="font-semibold text-gray-700 mb-3 text-sm">Product Details</h4>
-                                  <div className="grid grid-cols-3 gap-4">
-                                    <div>
-                                      <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-                                      <span className="text-blue-600 font-medium">M8830037</span>
-                                    </div>
-                                    <div>
-                                      <label className="block text-sm font-medium text-gray-700 mb-1">Product Description</label>
-                                      <span className="text-gray-700">MACHINE KNITTED MENS BEANIE</span>
-                                    </div>
-                                    <div>
-                                      <label className="block text-sm font-medium text-gray-700 mb-1">Product Buyer Style Number</label>
-                                      <span className="text-gray-700">22992</span>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Care Instructions */}
-                                <div>
-                                  <h4 className="font-semibold text-gray-700 mb-3 text-sm">Care Instructions</h4>
-                                                                     <div className="grid grid-cols-3 gap-4">
-                                     {/* Wash */}
-                                     <div className="bg-white border border-gray-300 rounded p-4">
-                                       <h5 className="font-medium text-gray-700 mb-3 text-sm">Wash</h5>
-                                       <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
-                                         <option>Select wash type</option>
-                                         <option>Machine wash</option>
-                                         <option>Hand wash</option>
-                                         <option>Do not wash</option>
-                                       </select>
-                                       <button className="w-full bg-gradient-to-b from-blue-400 to-blue-600 text-white p-2 rounded hover:from-blue-500 hover:to-blue-700 flex items-center justify-center">
-                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                         </svg>
-                                       </button>
-                                     </div>
-
-                                     {/* Wash Modifier */}
-                                     <div className="bg-white border border-gray-300 rounded p-4">
-                                       <h5 className="font-medium text-gray-700 mb-3 text-sm">Wash Modifier</h5>
-                                       <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
-                                         <option>Select modifier</option>
-                                         <option>Gentle</option>
-                                         <option>Normal</option>
-                                         <option>Heavy</option>
-                                       </select>
-                                       <button className="w-full bg-gradient-to-b from-blue-400 to-blue-600 text-white p-2 rounded hover:from-blue-500 hover:to-blue-700 flex items-center justify-center">
-                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                         </svg>
-                                       </button>
-                                     </div>
-
-                                     {/* Bleach */}
-                                     <div className="bg-white border border-gray-300 rounded p-4">
-                                       <h5 className="font-medium text-gray-700 mb-3 text-sm">Bleach</h5>
-                                       <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
-                                         <option>Select bleach option</option>
-                                         <option>Do not bleach</option>
-                                         <option>Bleach when needed</option>
-                                         <option>Non-chlorine bleach</option>
-                                       </select>
-                                       <button className="w-full bg-gradient-to-b from-blue-400 to-blue-600 text-white p-2 rounded hover:from-blue-500 hover:to-blue-700 flex items-center justify-center">
-                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                         </svg>
-                                       </button>
-                                     </div>
-
-                                     {/* Dry */}
-                                     <div className="bg-white border border-gray-300 rounded p-4">
-                                       <h5 className="font-medium text-gray-700 mb-3 text-sm">Dry</h5>
-                                       <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
-                                         <option>Select dry method</option>
-                                         <option>Tumble dry</option>
-                                         <option>Line dry</option>
-                                         <option>Drip dry</option>
-                                         <option>Do not tumble dry</option>
-                                       </select>
-                                       <button className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-                                       </button>
-                                     </div>
-
-                                     {/* Natural Drying */}
-                                     <div className="bg-white border border-gray-300 rounded p-4">
-                                       <h5 className="font-medium text-gray-700 mb-3 text-sm">Natural Drying</h5>
-                                       <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
-                                         <option>Select drying method</option>
-                                         <option>Line dry</option>
-                                         <option>Drip dry</option>
-                                         <option>Dry flat</option>
-                                         <option>Dry in shade</option>
-                                       </select>
-                                       <button className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-                                       </button>
-                                     </div>
-
-                                     {/* Modifier */}
-                                     <div className="bg-white border border-gray-300 rounded p-4">
-                                       <h5 className="font-medium text-gray-700 mb-3 text-sm">Modifier</h5>
-                                       <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
-                                         <option>Select modifier</option>
-                                         <option>Low heat</option>
-                                         <option>Medium heat</option>
-                                         <option>High heat</option>
-                                         <option>No heat</option>
-                                       </select>
-                                       <button className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-                                       </button>
-                                     </div>
-
-                                     {/* Iron */}
-                                     <div className="bg-white border border-gray-300 rounded p-4">
-                                       <h5 className="font-medium text-gray-700 mb-3 text-sm">Iron</h5>
-                                       <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
-                                         <option>Select iron setting</option>
-                                         <option>Iron if needed</option>
-                                         <option>Do not iron</option>
-                                         <option>Iron on low</option>
-                                         <option>Iron on medium</option>
-                                         <option>Iron on high</option>
-                                       </select>
-                                       <button className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-                                       </button>
-                                     </div>
-
-                                     {/* Dry Clean */}
-                                     <div className="bg-white border border-gray-300 rounded p-4">
-                                       <h5 className="font-medium text-gray-700 mb-3 text-sm">Dry Clean</h5>
-                                       <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
-                                         <option>Select dry clean option</option>
-                                         <option>Do not dry clean</option>
-                                         <option>Dry clean only</option>
-                                         <option>Dry clean with any solvent</option>
-                                         <option>Dry clean with petroleum solvent</option>
-                                       </select>
-                                       <button className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-                                       </button>
-                                     </div>
-
-                                     {/* Care Code */}
-                                     <div className="bg-white border border-gray-300 rounded p-4">
-                                       <h5 className="font-medium text-gray-700 mb-3 text-sm">Care Code</h5>
-                                       <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3" defaultValue="HW11">
-                                         <option value="HW11">HW11</option>
-                                         <option value="HW12">HW12</option>
-                                         <option value="HW13">HW13</option>
-                                         <option value="HW14">HW14</option>
-                                         <option value="HW15">HW15</option>
-                                       </select>
-                                       <button className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-                                       </button>
-                                     </div>
-                                   </div>
-
-                                   {/* Memo Section */}
-                                   <div className="mt-6">
-                                     <h4 className="font-semibold text-gray-700 mb-3 text-sm">Memo</h4>
-                                     <div className="grid grid-cols-2 gap-4">
-                                       {/* Label Card */}
-                                       <div className="bg-white border border-gray-300 rounded p-4">
-                                         <h5 className="font-medium text-gray-700 mb-3 text-sm">Label</h5>
-                                         <textarea 
-                                           className="w-full border border-gray-300 rounded px-3 py-2 text-sm resize-none"
-                                           rows={4}
-                                           placeholder="Enter label comments here..."
-                                         />
-                                       </div>
-
-                                       {/* Label Location Card */}
-                                       <div className="bg-white border border-gray-300 rounded p-4">
-                                         <h5 className="font-medium text-gray-700 mb-3 text-sm">Label Location</h5>
-                                         <textarea 
-                                           className="w-full border border-gray-300 rounded px-3 py-2 text-sm resize-none"
-                                           rows={4}
-                                           placeholder="Enter label location comments here..."
-                                         />
-                                       </div>
-                                     </div>
-                                   </div>
-                                 </div>
-                               </div>
-                             </div>
-                           )}
-                          
-                          {/* Labels Tab */}
-                          {techPacksEditTab === 'Labels' && (
-                            <div className="inline-block">
-                              <div className="space-y-4">
-                                {/* Label Details */}
-                                <div className="grid grid-cols-2 gap-4 mb-4">
-                                  <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Product</label>
-                                    <input 
-                                      type="text" 
-                                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-                                      defaultValue="M8830037"
-                                      readOnly
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-                                    <input 
-                                      type="text" 
-                                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-                                      defaultValue="Classic T-Shirt"
-                                      readOnly
-                                    />
-                                  </div>
-                                </div>
-
-                                {/* Labels Table */}
-                                <div>
-                                  <h4 className="font-semibold text-gray-700 mb-2 text-sm">Labels</h4>
-                                  <div className="overflow-x-auto">
-                                    <table className="text-xs border border-gray-300 rounded max-w-4xl">
-                                      <thead>
-                                        <tr className="bg-gray-50">
-                                          <th className="px-2 py-2 text-left font-semibold border">Name</th>
-                                          <th className="px-2 py-2 text-left font-semibold border">Description</th>
-                                          <th className="px-2 py-2 text-left font-semibold border">Material</th>
-                                          <th className="px-2 py-2 text-left font-semibold border">Image Type 1</th>
-                                          <th className="px-2 py-2 text-left font-semibold border">Image Type 2</th>
-                                          <th className="px-2 py-2 text-left font-semibold border">Position</th>
-                                          <th className="px-2 py-2 text-left font-semibold border">Application</th>
-                                          <th className="px-2 py-2 text-left font-semibold border">Comment</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-2 py-2 border text-xs">Care Label</td>
-                                          <td className="px-2 py-2 border text-xs">Washing and care instructions</td>
-                                          <td className="px-2 py-2 border text-xs">Polyester</td>
-                                          <td className="px-2 py-2 border text-xs">Woven</td>
-                                          <td className="px-2 py-2 border text-xs">Printed</td>
-                                          <td className="px-2 py-2 border text-xs">Neck</td>
-                                          <td className="px-2 py-2 border text-xs">Sewn</td>
-                                          <td className="px-2 py-2 border text-xs">Must be permanent</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-2 py-2 border text-xs">Size Label</td>
-                                          <td className="px-2 py-2 border text-xs">Product size information</td>
-                                          <td className="px-2 py-2 border text-xs">Cotton</td>
-                                          <td className="px-2 py-2 border text-xs">Woven</td>
-                                          <td className="px-2 py-2 border text-xs">Embossed</td>
-                                          <td className="px-2 py-2 border text-xs">Side Seam</td>
-                                          <td className="px-2 py-2 border text-xs">Sewn</td>
-                                          <td className="px-2 py-2 border text-xs">Standard size label</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-2 py-2 border text-xs">Brand Label</td>
-                                          <td className="px-2 py-2 border text-xs">Brand logo and name</td>
-                                          <td className="px-2 py-2 border text-xs">Silk</td>
-                                          <td className="px-2 py-2 border text-xs">Woven</td>
-                                          <td className="px-2 py-2 border text-xs">Embroidered</td>
-                                          <td className="px-2 py-2 border text-xs">Chest</td>
-                                          <td className="px-2 py-2 border text-xs">Sewn</td>
-                                          <td className="px-2 py-2 border text-xs">Premium brand label</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-2 py-2 border text-xs">Composition Label</td>
-                                          <td className="px-2 py-2 border text-xs">Fabric composition details</td>
-                                          <td className="px-2 py-2 border text-xs">Polyester</td>
-                                          <td className="px-2 py-2 border text-xs">Woven</td>
-                                          <td className="px-2 py-2 border text-xs">Printed</td>
-                                          <td className="px-2 py-2 border text-xs">Side Seam</td>
-                                          <td className="px-2 py-2 border text-xs">Sewn</td>
-                                          <td className="px-2 py-2 border text-xs">Required by law</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-2 py-2 border text-xs">Origin Label</td>
-                                          <td className="px-2 py-2 border text-xs">Country of origin</td>
-                                          <td className="px-2 py-2 border text-xs">Cotton</td>
-                                          <td className="px-2 py-2 border text-xs">Woven</td>
-                                          <td className="px-2 py-2 border text-xs">Printed</td>
-                                          <td className="px-2 py-2 border text-xs">Neck</td>
-                                          <td className="px-2 py-2 border text-xs">Sewn</td>
-                                          <td className="px-2 py-2 border text-xs">Made in China</td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                </div>
-
-                                {/* Image Type Sections */}
-                                <div className="grid grid-cols-2 gap-6 mt-6">
-                                  {/* Image Type 1 */}
-                                  <div>
-                                    <h4 className="font-semibold text-gray-700 mb-4 text-sm">Image Type 1</h4>
-                                    <div className="bg-white border border-gray-300 rounded p-4">
-                                      <div className="flex justify-center">
-                                        <div className="w-16 h-16 bg-gradient-to-b from-blue-400 to-blue-600 rounded flex items-center justify-center">
-                                          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                                            <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                            </svg>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  {/* Image Type 2 */}
-                                  <div>
-                                    <h4 className="font-semibold text-gray-700 mb-4 text-sm">Image Type 2</h4>
-                                    <div className="bg-white border border-gray-300 rounded p-4">
-                                      <div className="flex justify-center">
-                                        <div className="w-16 h-16 bg-gradient-to-b from-blue-400 to-blue-600 rounded flex items-center justify-center">
-                                          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                                            <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                            </svg>
-                                          </div>
-                                        </div>
-                                      </div>
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                                     </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
                           )}
-<<<<<<< HEAD
 
                         </div>
 
 
-=======
-                          
-                          {/* ...rest of the Tech Packs subtabs implementation... */}
-                        </div>
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                       </div>
                     </td>
                   </tr>
                 )}
-<<<<<<< HEAD
 
                 </React.Fragment>
               ))}
@@ -5903,14 +4455,6 @@ const PurchaseOrders: React.FC = () => {
                             </table>
                             </div>
                           </div>
-=======
-                </React.Fragment>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
 
       {/* Selection Summary */}
       {selectedRows.size > 0 && (
@@ -5921,11 +4465,7 @@ const PurchaseOrders: React.FC = () => {
               <span className="text-sm font-medium text-green-800">
                 {selectedRows.size} row{selectedRows.size !== 1 ? 's' : ''} selected
               </span>
-<<<<<<< HEAD
                         </div>
-=======
-            </div>
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
             <button
               onClick={() => {
                 setSelectedRows(new Set());
@@ -5934,17 +4474,10 @@ const PurchaseOrders: React.FC = () => {
               className="text-sm text-green-600 hover:text-green-800 underline"
             >
               Clear Selection
-<<<<<<< HEAD
                                     </button>
                                   </div>
                                 </div>
                                 )}
-=======
-            </button>
-          </div>
-        </div>
-      )}
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
 
       {/* Modals */}
       <PurchaseOrderEditModal

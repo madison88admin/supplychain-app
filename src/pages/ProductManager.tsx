@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import ReportBar from '../components/ReportBar';
-<<<<<<< HEAD
 import { Users, Grid, Menu, ChevronRight, ChevronDown, X } from 'lucide-react';
-=======
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
 import { useSidebar } from '../contexts/SidebarContext';
 
 const ProductManager: React.FC = () => {
@@ -17,7 +14,6 @@ const ProductManager: React.FC = () => {
   const [activeContent, setActiveContent] = useState('activities');
   const [selectedRowIndex, setSelectedRowIndex] = useState<number | null>(null);
   
-<<<<<<< HEAD
   // Product Filter Sidebar state
   const [filterSidebarCollapsed, setFilterSidebarCollapsed] = useState(false);
   
@@ -300,138 +296,11 @@ const ProductManager: React.FC = () => {
                       setIsProductSeasonDropdownOpen(false);
                     }}
                     className="block w-full px-3 py-2 bg-transparent border-none cursor-pointer text-sm text-gray-700 text-left hover:bg-gray-100 transition-colors duration-200"
-=======
-  // Sidebar context
-  const { sidebarCollapsed } = useSidebar();
-  return (
-    <div className="p-6">
-      <div className="mb-8 flex items-center space-x-4">
-        <h1 className="text-2xl font-bold text-gray-900">Product Manager</h1>
-        
-        {/* Season Filter Dropdown */}
-        <div className="relative">
-          <button
-            onClick={() => setIsSeasonDropdownOpen(!isSeasonDropdownOpen)}
-            className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
-            </svg>
-            <span className="text-sm font-medium text-gray-700">
-              {selectedSeasons.length === 0 
-                ? 'All Seasons' 
-                : selectedSeasons.length === 1 
-                  ? selectedSeasons[0] 
-                  : `${selectedSeasons.length} Seasons`
-              }
-            </span>
-            <svg
-              className={`w-4 h-4 text-gray-400 transition-transform ${isSeasonDropdownOpen ? 'rotate-180' : ''}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          
-          {isSeasonDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-              <div className="p-3 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-gray-900">Filter by Season</h3>
-                  <button
-                    onClick={() => {
-                      setSelectedSeasons([]);
-                      setIsSeasonDropdownOpen(false);
-                    }}
-                    className="text-xs text-blue-600 hover:text-blue-800"
-                  >
-                    Clear All
-                  </button>
-                </div>
-              </div>
-              <div className="py-1 max-h-48 overflow-y-auto">
-                {[
-                  'Spring/Summer 2024',
-                  'Fall/Winter 2024',
-                  'Spring/Summer 2025',
-                  'Fall/Winter 2025',
-                  'Holiday 2024',
-                  'Resort 2025'
-                ].map((season) => (
-                  <label
-                    key={season}
-                    className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedSeasons.includes(season)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedSeasons([...selectedSeasons, season]);
-                        } else {
-                          setSelectedSeasons(selectedSeasons.filter(s => s !== season));
-                        }
-                      }}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <span className="ml-3 text-sm text-gray-700">{season}</span>
-                  </label>
-                ))}
-              </div>
-              <div className="p-3 border-t border-gray-200">
-                <button
-                  onClick={() => setIsSeasonDropdownOpen(false)}
-                  className="w-full px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  Apply Filter
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Product Filter Dropdown */}
-        <div className="relative">
-          <button
-            onClick={() => setIsProductFilterDropdownOpen(!isProductFilterDropdownOpen)}
-            className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-            <span className="text-sm font-medium text-gray-700">{selectedProductFilter}</span>
-            <svg
-              className={`w-4 h-4 text-gray-400 transition-transform ${isProductFilterDropdownOpen ? 'rotate-180' : ''}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          
-          {isProductFilterDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-              <div className="py-1">
-                {['Default', 'Library'].map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => {
-                      setSelectedProductFilter(option);
-                      setIsProductFilterDropdownOpen(false);
-                    }}
-                    className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                      selectedProductFilter === option ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
-                    }`}
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                   >
                     {option}
                   </button>
                 ))}
               </div>
-<<<<<<< HEAD
             )}
           </div>
         </div>
@@ -472,11 +341,6 @@ const ProductManager: React.FC = () => {
           <div className="p-6">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Product Manager</h1>
-=======
-            </div>
-          )}
-        </div>
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
       </div>
       
       {/* Two Column Layout */}
@@ -510,7 +374,6 @@ const ProductManager: React.FC = () => {
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-<<<<<<< HEAD
                       <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PRODUCT</th>
                       <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">VERSION NUMBER</th>
                       <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">COMMENT</th>
@@ -523,17 +386,10 @@ const ProductManager: React.FC = () => {
                       <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CURRENT VERSION</th>
                       <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CREATED BY</th>
                       <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CREATED</th>
-=======
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">VERSION</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DATE</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">APPROVED BY</th>
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     <tr className="hover:bg-gray-50">
-<<<<<<< HEAD
                       <td className="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">Cotton T-Shirt</td>
                       <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">v1.0</td>
                       <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">Initial version</td>
@@ -588,53 +444,12 @@ const ProductManager: React.FC = () => {
                       <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">No</td>
                       <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">Lisa Chen</td>
                       <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">2024-02-01</td>
-=======
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">v1.0</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">2024-01-15</td>
-                      <td className="px-3 py-2 whitespace-nowrap">
-                        <span className="px-1.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full bg-green-100 text-green-800">
-                          Approved
-                        </span>
-                      </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">John Smith</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">v1.1</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">2024-01-20</td>
-                      <td className="px-3 py-2 whitespace-nowrap">
-                        <span className="px-1.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                          Pending
-                        </span>
-                      </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">-</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">v1.2</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">2024-01-25</td>
-                      <td className="px-3 py-2 whitespace-nowrap">
-                        <span className="px-1.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full bg-blue-100 text-blue-800">
-                          In Review
-                        </span>
-                      </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">Sarah Johnson</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">v2.0</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">2024-02-01</td>
-                      <td className="px-3 py-2 whitespace-nowrap">
-                        <span className="px-1.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full bg-gray-100 text-gray-800">
-                          Draft
-                        </span>
-                      </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">-</td>
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                     </tr>
                   </tbody>
                 </table>
               )}
 
               {leftActiveTab === 'Costings' && (
-<<<<<<< HEAD
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-max">
                   <thead className="bg-gray-50">
@@ -684,21 +499,10 @@ const ProductManager: React.FC = () => {
                         <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MARGIN</th>
                         <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">LANDED SUBTOTAL COST</th>
                         <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SPECIAL SUR</th>
-=======
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">COMPONENT</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MATERIAL COST</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">LABOR COST</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TOTAL COST</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MARGIN %</th>
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     <tr className="hover:bg-gray-50">
-<<<<<<< HEAD
                         <td className="px-2 py-2 whitespace-nowrap text-xs font-medium text-gray-900">COST-001</td>
                         <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">Cotton T-Shirt</td>
                         <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">ABC Textiles</td>
@@ -1657,104 +1461,6 @@ const ProductManager: React.FC = () => {
                     </tbody>
                   </table>
                 </div>
-=======
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">Fabric</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">$8.50</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">$0.00</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">$8.50</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">25%</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">Thread</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">$0.75</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">$0.00</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">$0.75</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">20%</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">Buttons</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">$1.25</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">$0.00</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">$1.25</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">30%</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">Assembly</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">$0.00</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">$3.50</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">$3.50</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">15%</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50 bg-blue-50">
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-bold text-gray-900">TOTAL</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-bold text-gray-900">$10.50</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-bold text-gray-900">$3.50</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-bold text-gray-900">$14.00</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-bold text-gray-900">22%</td>
-                    </tr>
-                  </tbody>
-                </table>
-              )}
-
-              {leftActiveTab === 'Sample Lines' && (
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SAMPLE TYPE</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SIZE</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">COLOR</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DUE DATE</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Proto Sample</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">M</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Navy Blue</td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          Completed
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-01-10</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Fit Sample</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">S, M, L</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Black</td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                          In Progress
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-01-25</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Salesman Sample</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">M</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">White, Red</td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                          Pending
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-02-05</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Pre-Production</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">XS, S, M, L, XL</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">All Colors</td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                          Not Started
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-02-15</td>
-                    </tr>
-                  </tbody>
-                </table>
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
               )}
 
               {leftActiveTab === 'Lines' && (
@@ -2169,12 +1875,9 @@ const ProductManager: React.FC = () => {
           'Total Value': '$12,000'
         }}
       />
-<<<<<<< HEAD
           </div>
         </div>
       </div>
-=======
->>>>>>> 1477f560acee0605b1abcbc5da3ec2b0bbcfa6b3
     </div>
   );
 };

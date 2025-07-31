@@ -317,6 +317,10 @@ const PurchaseOrders: React.FC = () => {
   const [techPacksBOMEdit, setTechPacksBOMEdit] = useState(false);
   const [techPacksBOMForm, setTechPacksBOMForm] = useState<any[]>([]);
 
+  // Add state for Techpacks Size Specifications Table edit mode and form
+  const [techPacksSizeSpecEdit, setTechPacksSizeSpecEdit] = useState(false);
+  const [techPacksSizeSpecForm, setTechPacksSizeSpecForm] = useState<any[]>([]);
+
   // Add critical path state
   const [criticalPath, setCriticalPath] = useState({
     'Template': 'Standard',
@@ -374,6 +378,112 @@ const PurchaseOrders: React.FC = () => {
       'Default Rating': '4.5',
       'One Size Size': 'N/A',
       'One Size Rating': '4.5'
+    }
+  ];
+
+  // Sample Size Specification data for Techpacks
+  const sampleSizeSpecData = [
+    {
+      'Size': 'S',
+      'Size Description': 'Small',
+      'Size Status': 'Active',
+      'Size Category': 'Small',
+      'Comment': 'Small size specification',
+      'Custom Text 1': '',
+      'Custom Text 2': '',
+      'Custom Text 3': '',
+      'Custom Text 4': '',
+      'Season': 'FH:2018',
+      'Note Count': '1',
+      'Latest Note': '2024-01-15',
+      'Main Size': 'No',
+      'Category Sequence': '1',
+      'Default Size Color': 'Navy',
+      'Composition': '100% Cotton',
+      'Buyer Style Name': 'ARC-Merbau/Aurora',
+      'Supplier Ref.': 'SUP001',
+      'Buyer Style Number': 'U53180654',
+      'ARC- Merbau/Aurora': 'S',
+      'ARC- Nightshadow/lolite': 'S',
+      'ARC- Orion/Olive Amber': 'S',
+      'ARC- Nocturne/Deep Cove': 'S',
+      'ARC- Red Beach/Flare': 'S',
+      'ARC- Shorepine/Titanite': 'S',
+      'ARC- Tui/Stellar': 'S',
+      'BLACK': 'S',
+      'Blackbird': 'S',
+      'Default Size': 'S',
+      'Default Rating': '4.0',
+      'One Size Size': 'N/A',
+      'One Size Rating': 'N/A'
+    },
+    {
+      'Size': 'M',
+      'Size Description': 'Medium',
+      'Size Status': 'Active',
+      'Size Category': 'Medium',
+      'Comment': 'Medium size specification',
+      'Custom Text 1': '',
+      'Custom Text 2': '',
+      'Custom Text 3': '',
+      'Custom Text 4': '',
+      'Season': 'FH:2018',
+      'Note Count': '2',
+      'Latest Note': '2024-01-20',
+      'Main Size': 'Yes',
+      'Category Sequence': '2',
+      'Default Size Color': 'Navy',
+      'Composition': '100% Cotton',
+      'Buyer Style Name': 'ARC-Merbau/Aurora',
+      'Supplier Ref.': 'SUP001',
+      'Buyer Style Number': 'U53180654',
+      'ARC- Merbau/Aurora': 'M',
+      'ARC- Nightshadow/lolite': 'M',
+      'ARC- Orion/Olive Amber': 'M',
+      'ARC- Nocturne/Deep Cove': 'M',
+      'ARC- Red Beach/Flare': 'M',
+      'ARC- Shorepine/Titanite': 'M',
+      'ARC- Tui/Stellar': 'M',
+      'BLACK': 'M',
+      'Blackbird': 'M',
+      'Default Size': 'M',
+      'Default Rating': '4.5',
+      'One Size Size': 'N/A',
+      'One Size Rating': 'N/A'
+    },
+    {
+      'Size': 'L',
+      'Size Description': 'Large',
+      'Size Status': 'Active',
+      'Size Category': 'Large',
+      'Comment': 'Large size specification',
+      'Custom Text 1': '',
+      'Custom Text 2': '',
+      'Custom Text 3': '',
+      'Custom Text 4': '',
+      'Season': 'FH:2018',
+      'Note Count': '1',
+      'Latest Note': '2024-01-25',
+      'Main Size': 'No',
+      'Category Sequence': '3',
+      'Default Size Color': 'Navy',
+      'Composition': '100% Cotton',
+      'Buyer Style Name': 'ARC-Merbau/Aurora',
+      'Supplier Ref.': 'SUP001',
+      'Buyer Style Number': 'U53180654',
+      'ARC- Merbau/Aurora': 'L',
+      'ARC- Nightshadow/lolite': 'L',
+      'ARC- Orion/Olive Amber': 'L',
+      'ARC- Nocturne/Deep Cove': 'L',
+      'ARC- Red Beach/Flare': 'L',
+      'ARC- Shorepine/Titanite': 'L',
+      'ARC- Tui/Stellar': 'L',
+      'BLACK': 'L',
+      'Blackbird': 'L',
+      'Default Size': 'L',
+      'Default Rating': '4.0',
+      'One Size Size': 'N/A',
+      'One Size Rating': 'N/A'
     }
   ];
 
@@ -1218,7 +1328,7 @@ const PurchaseOrders: React.FC = () => {
                         <div className="font-semibold text-blue-700 mb-2">Product Details</div>
                         {/* Horizontal Tabs */}
                         <div className="mb-4 flex gap-2 border-b border-blue-200">
-                          {['Product Details', 'Critical Path', 'Images', 'Comments', 'Bill Of Materials', 'Activities', 'Colorways', 'Techpacks', 'Fibre Contents'].map(tab => (
+                          {['Product Details', 'Critical Path', 'Images', 'Comments', 'Bill Of Materials', 'Activities', 'Colorways'].map(tab => (
                             <button
                               key={tab}
                               className={`px-4 py-2 -mb-px rounded-t font-medium transition-colors border-b-2 ${productEditTab === tab ? 'bg-white border-blue-500 text-blue-700' : 'bg-blue-50 border-transparent text-gray-600 hover:text-blue-600'}`}
@@ -1933,654 +2043,2407 @@ const PurchaseOrders: React.FC = () => {
                               </div>
                             </div>
                           )}
-                        </div>
 
-                        {/* Techpacks Tab */}
-                        {productEditTab === 'Techpacks' && (
-                          <div className="inline-block max-w-6xl min-w-fit overflow-x-auto sticky left-0 z-10">
-                            <div className="text-sm text-gray-600 mb-2">Tech Pack management for this product</div>
-                            {/* Tech Packs subtable tabs */}
-                            <div className="mb-4 flex gap-2 border-b border-blue-200">
-                              {(['Tech Pack Version', 'Bill Of Materials', 'Size Specifications', 'Fit Log', 'Fibre Composition', 'Care Instructions', 'Labels'] as string[]).map((tab: string) => (
-                                <button
-                                  key={tab}
-                                  className={`px-4 py-2 -mb-px rounded-t font-medium transition-colors border-b-2 ${techPacksEditTab === tab ? 'bg-white border-blue-500 text-blue-700' : 'bg-blue-50 border-transparent text-gray-600 hover:text-blue-600'}`}
-                                  onClick={() => setTechPacksEditTab(tab)}
-                                >
-                                  {tab}
-                                </button>
-                              ))}
-                            </div>
-
-                            {/* Tech Pack Version Tab */}
-                            {(!techPacksEditTab || techPacksEditTab === 'Tech Pack Version') && (
-                              <div className="inline-block w-full">
-                                <div className="mb-3">
-                                  <h4 className="font-semibold text-gray-700 mb-1 text-sm">Version Control</h4>
-                                  <div className="overflow-x-auto">
-                                    <table className="text-xs border border-gray-300 rounded mb-1">
-                                      <thead>
-                                        <tr className="bg-gray-50">
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20">Version Number</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-24">Comment</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-28">Bill of Material Version</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-28">Size Specification Version</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-28">Care Instruction Version</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-28">Fibre Composition Version</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20">Label Version</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-16">Fit Log</th>
-                                          <th className="px-1 py-0.5 text-center font-semibold border w-20">Current Version</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-20">Created By</th>
-                                          <th className="px-1 py-0.5 text-left font-semibold border w-24">Created</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-1 py-0.5 border text-xs">v1.0</td>
-                                          <td className="px-1 py-0.5 border text-xs">Initial version</td>
-                                          <td className="px-1 py-0.5 border text-xs">BOM-001</td>
-                                          <td className="px-1 py-0.5 border text-xs">SS-001</td>
-                                          <td className="px-1 py-0.5 border text-xs">CI-001</td>
-                                          <td className="px-1 py-0.5 border text-xs">FC-001</td>
-                                          <td className="px-1 py-0.5 border text-xs">L-001</td>
-                                          <td className="px-1 py-0.5 border text-xs">FL-001</td>
-                                          <td className="px-1 py-0.5 border text-xs text-center">
-                                            <div className="w-3 h-3 bg-blue-500 border rounded flex items-center justify-center mx-auto">
-                                              <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                              </svg>
-                                            </div>
-                                          </td>
-                                          <td className="px-1 py-0.5 border text-xs">John Doe</td>
-                                          <td className="px-1 py-0.5 border text-xs">2024-01-15</td>
-                                        </tr>
-                                        <tr className="hover:bg-gray-50">
-                                          <td className="px-1 py-0.5 border text-xs">v1.1</td>
-                                          <td className="px-1 py-0.5 border text-xs">Updated materials</td>
-                                          <td className="px-1 py-0.5 border text-xs">BOM-002</td>
-                                          <td className="px-1 py-0.5 border text-xs">SS-001</td>
-                                          <td className="px-1 py-0.5 border text-xs">CI-001</td>
-                                          <td className="px-1 py-0.5 border text-xs">FC-002</td>
-                                          <td className="px-1 py-0.5 border text-xs">L-001</td>
-                                          <td className="px-1 py-0.5 border text-xs">FL-002</td>
-                                          <td className="px-1 py-0.5 border text-xs text-center">
-                                            <div className="w-3 h-3 bg-gray-300 border rounded mx-auto"></div>
-                                          </td>
-                                          <td className="px-1 py-0.5 border text-xs">Jane Smith</td>
-                                          <td className="px-1 py-0.5 border text-xs">2024-01-20</td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
+                          {/* Bill Of Materials Tab */}
+                          {techPacksEditTab === 'Bill Of Materials' && (
+                            <div className="inline-block w-full">
+                              {/* Bill of Materials Details Panel */}
+                              <div className="flex gap-4 mb-4">
+                                <div className="border border-blue-200 rounded p-3 bg-blue-50 w-80">
+                                  <h4 className="font-semibold text-gray-700 mb-2 text-sm">Bill Of Materials Details</h4>
+                                  <div className="space-y-2">
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Name:</span>
+                                      <input type="text" className="border rounded px-2 py-1 text-sm ml-2 flex-1" value="000125 M8836207 v1" />
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Source Bill of Material:</span>
+                                      <input type="checkbox" className="ml-2" />
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Status:</span>
+                                      <input type="text" className="border rounded px-2 py-1 text-sm ml-2 flex-1" placeholder="" />
+                                    </div>
                                   </div>
                                 </div>
-                                <div className="flex gap-2 mt-2">
-                                  <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
-                                    setTechPackVersionEdit(true);
-                                    setTechPackVersionForm({
-                                      'Version Number': row['Version Number'] || '',
-                                      'Comment': row['Comment'] || '',
-                                      'Current Version': row['Current Version'] || false,
-                                      'Created By': row['Created By'] || '',
-                                      'Created': row['Created'] || ''
-                                    });
-                                  }}>Edit Version</button>
+                                
+                                <div className="border border-gray-300 rounded p-3 bg-white w-80">
+                                  <h4 className="font-semibold text-gray-700 mb-2 text-sm">Product Details</h4>
+                                  <div className="space-y-2">
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Product Name:</span>
+                                      <span className="text-sm text-blue-600">M8836207</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Product Description:</span>
+                                      <span className="text-sm">MACHINE KNIT BEANIE</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Product Buyer Style Number:</span>
+                                      <span className="text-sm">U53180654</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Season:</span>
+                                      <span className="text-sm">FH:2018</span>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
-                            )}
 
-                            {/* Bill Of Materials Tab */}
-                            {techPacksEditTab === 'Bill Of Materials' && (
-                              <div className="inline-block max-w-6xl min-w-fit overflow-x-auto sticky left-0 z-10">
-                                <div className="text-sm text-gray-600 mb-2">Bill of Materials for Tech Pack</div>
-                                <div className="flex gap-2 mt-2">
-                                  {techPacksBOMEdit ? (
-                                    <>
-                                      <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
+                              {/* Bill of Materials Line Items Table */}
+                              <div className="mb-2 flex gap-2">
+                                {techPacksBOMEdit ? (
+                                  <>
+                                    <button 
+                                      className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
+                                      onClick={() => {
+                                        setTechPacksBOMEdit(false);
+                                        // Save the edited data
                                         const newRows = [...rows];
                                         newRows[idx] = { ...row, 'TechPacks BOM': techPacksBOMForm };
                                         setRows(newRows);
+                                      }}
+                                    >
+                                      Save
+                                    </button>
+                                    <button 
+                                      className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
+                                      onClick={() => {
                                         setTechPacksBOMEdit(false);
                                         setTechPacksBOMForm([]);
-                                      }}>Save BOM</button>
-                                      <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => {
-                                        setTechPacksBOMEdit(false);
-                                        setTechPacksBOMForm([]);
-                                      }}>Cancel</button>
-                                    </>
-                                  ) : (
-                                    <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => {
-                                      setTechPacksBOMEdit(true);
-                                      setTechPacksBOMForm(row['TechPacks BOM'] ? [...row['TechPacks BOM']] : [...sampleBOMData]);
-                                    }}>Edit BOM</button>
-                                  )}
-                                  <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
-                                    setTechPacksBOMForm([...sampleBOMData]);
-                                    setTechPacksBOMEdit(true);
-                                  }}>Create New BOM</button>
-                                </div>
-
-                                {techPacksBOMEdit && (
-                                  <div className="mt-4">
-                                    <div className="flex gap-2 mb-2">
-                                      <button className="bg-blue-600 text-white px-3 py-1 rounded text-xs" onClick={() => {
-                                        const newRow = {
-                                          'Material': '',
-                                          'Material Description': '',
-                                          'Material Status': 'Active',
-                                          'Material Category': '',
-                                          'Comment': '',
-                                          'Custom Text 1': '',
-                                          'Custom Text 2': '',
-                                          'Custom Text 3': '',
-                                          'Custom Text 4': '',
-                                          'Season': '',
-                                          'Note Count': '0',
-                                          'Latest Note': '',
-                                          'Main Material': 'No',
-                                          'Category Sequence': '',
-                                          'Default Material Color': '',
-                                          'Composition': '',
-                                          'Buyer Style Name': '',
-                                          'Supplier Ref.': '',
-                                          'Buyer Style Number': '',
-                                          'Default Size': '',
-                                          'Default Rating': '',
-                                          'One Size Size': '',
-                                          'One Size Rating': ''
-                                        };
+                                      }}
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button 
+                                      className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
+                                      onClick={() => {
+                                        const newRow = Object.fromEntries([
+                                          'Material', 'Material Description', 'Material Status', 'Material Category',
+                                          'Comment', 'Custom Text 1', 'Custom Text 2', 'Custom Text 3', 'Custom Text 4',
+                                          'Season', 'Note Count', 'Latest Note', 'Main Material', 'Category Sequence',
+                                          'Default Material Color', 'Composition', 'Buyer Style Name', 'Supplier Ref.',
+                                          'Buyer Style Number', 'ARC- Merbau/Aurora', 'ARC- Nightshadow/lolite',
+                                          'ARC- Orion/Olive Amber', 'ARC- Nocturne/Deep Cove', 'ARC- Red Beach/Flare',
+                                          'ARC- Shorepine/Titanite', 'ARC- Tui/Stellar', 'BLACK', 'Blackbird',
+                                          'Default Size', 'Default Rating', 'One Size Size', 'One Size Rating',
+                                          'ARC- Nightshadow/lolite 2', 'ARC- Orion/Olive Amber 2', 'ARC- Nocturne/Deep Cove 2',
+                                          'ARC- Red Beach/Flare 2', 'ARC- Shorepine/Titanite 2', 'ARC- Tui/Stellar 2',
+                                          'BLACK 2', 'Blackbird 2', 'Default Size 2', 'Default Rating 2',
+                                          'One Size Size 2', 'One Size Rating 2'
+                                        ].map(key => [key, '']));
                                         setTechPacksBOMForm([...techPacksBOMForm, newRow]);
-                                      }}>Add Row</button>
-                                    </div>
-                                    <div className="overflow-x-auto">
-                                      <table className="text-xs border border-gray-300 rounded w-full">
-                                        <thead>
-                                          <tr className="bg-gray-50">
-                                            <th className="px-1 py-0.5 text-left font-semibold border">Material</th>
-                                            <th className="px-1 py-0.5 text-left font-semibold border">Material Description</th>
-                                            <th className="px-1 py-0.5 text-left font-semibold border">Material Status</th>
-                                            <th className="px-1 py-0.5 text-left font-semibold border">Material Category</th>
-                                            <th className="px-1 py-0.5 text-left font-semibold border">Comment</th>
-                                            <th className="px-1 py-0.5 text-left font-semibold border">Season</th>
-                                            <th className="px-1 py-0.5 text-left font-semibold border">Main Material</th>
-                                            <th className="px-1 py-0.5 text-left font-semibold border">Composition</th>
-                                            <th className="px-1 py-0.5 text-left font-semibold border">Action</th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          {(techPacksBOMForm.length > 0 ? techPacksBOMForm : sampleBOMData).map((bomRow, bomIdx) => (
-                                            <tr key={bomIdx} className="hover:bg-gray-50">
-                                              <td className="px-1 py-0.5 border">
-                                                {techPacksBOMEdit && (
-                                                  <input
-                                                    className="w-full border rounded px-1 py-0.5 text-xs"
-                                                    value={bomRow['Material'] || ''}
-                                                    onChange={(e) => {
-                                                      const updated = [...techPacksBOMForm];
-                                                      updated[bomIdx]['Material'] = e.target.value;
-                                                      setTechPacksBOMForm(updated);
-                                                    }}
-                                                  />
-                                                )}
-                                                {!techPacksBOMEdit && (bomRow['Material'] || '')}
-                                              </td>
-                                              <td className="px-1 py-0.5 border">
-                                                {techPacksBOMEdit && (
-                                                  <input
-                                                    className="w-full border rounded px-1 py-0.5 text-xs"
-                                                    value={bomRow['Material Description'] || ''}
-                                                    onChange={(e) => {
-                                                      const updated = [...techPacksBOMForm];
-                                                      updated[bomIdx]['Material Description'] = e.target.value;
-                                                      setTechPacksBOMForm(updated);
-                                                    }}
-                                                  />
-                                                )}
-                                                {!techPacksBOMEdit && (bomRow['Material Description'] || '')}
-                                              </td>
-                                              <td className="px-1 py-0.5 border">
-                                                {techPacksBOMEdit && (
-                                                  <select
-                                                    className="w-full border rounded px-1 py-0.5 text-xs"
-                                                    value={bomRow['Material Status'] || ''}
-                                                    onChange={(e) => {
-                                                      const updated = [...techPacksBOMForm];
-                                                      updated[bomIdx]['Material Status'] = e.target.value;
-                                                      setTechPacksBOMForm(updated);
-                                                    }}
-                                                  >
-                                                    <option value="Active">Active</option>
-                                                    <option value="Inactive">Inactive</option>
-                                                    <option value="Discontinued">Discontinued</option>
-                                                  </select>
-                                                )}
-                                                {!techPacksBOMEdit && (bomRow['Material Status'] || '')}
-                                              </td>
-                                              <td className="px-1 py-0.5 border">
-                                                {techPacksBOMEdit && (
-                                                  <input
-                                                    className="w-full border rounded px-1 py-0.5 text-xs"
-                                                    value={bomRow['Material Category'] || ''}
-                                                    onChange={(e) => {
-                                                      const updated = [...techPacksBOMForm];
-                                                      updated[bomIdx]['Material Category'] = e.target.value;
-                                                      setTechPacksBOMForm(updated);
-                                                    }}
-                                                  />
-                                                )}
-                                                {!techPacksBOMEdit && (bomRow['Material Category'] || '')}
-                                              </td>
-                                              <td className="px-1 py-0.5 border">
-                                                {techPacksBOMEdit && (
-                                                  <input
-                                                    className="w-full border rounded px-1 py-0.5 text-xs"
-                                                    value={bomRow['Comment'] || ''}
-                                                    onChange={(e) => {
-                                                      const updated = [...techPacksBOMForm];
-                                                      updated[bomIdx]['Comment'] = e.target.value;
-                                                      setTechPacksBOMForm(updated);
-                                                    }}
-                                                  />
-                                                )}
-                                                {!techPacksBOMEdit && (bomRow['Comment'] || '')}
-                                              </td>
-                                              <td className="px-1 py-0.5 border">
-                                                {techPacksBOMEdit && (
-                                                  <input
-                                                    className="w-full border rounded px-1 py-0.5 text-xs"
-                                                    value={bomRow['Season'] || ''}
-                                                    onChange={(e) => {
-                                                      const updated = [...techPacksBOMForm];
-                                                      updated[bomIdx]['Season'] = e.target.value;
-                                                      setTechPacksBOMForm(updated);
-                                                    }}
-                                                  />
-                                                )}
-                                                {!techPacksBOMEdit && (bomRow['Season'] || '')}
-                                              </td>
-                                              <td className="px-1 py-0.5 border">
-                                                {techPacksBOMEdit && (
-                                                  <select
-                                                    className="w-full border rounded px-1 py-0.5 text-xs"
-                                                    value={bomRow['Main Material'] || ''}
-                                                    onChange={(e) => {
-                                                      const updated = [...techPacksBOMForm];
-                                                      updated[bomIdx]['Main Material'] = e.target.value;
-                                                      setTechPacksBOMForm(updated);
-                                                    }}
-                                                  >
-                                                    <option value="Yes">Yes</option>
-                                                    <option value="No">No</option>
-                                                  </select>
-                                                )}
-                                                {!techPacksBOMEdit && (bomRow['Main Material'] || '')}
-                                              </td>
-                                              <td className="px-1 py-0.5 border">
-                                                {techPacksBOMEdit && (
-                                                  <input
-                                                    className="w-full border rounded px-1 py-0.5 text-xs"
-                                                    value={bomRow['Composition'] || ''}
-                                                    onChange={(e) => {
-                                                      const updated = [...techPacksBOMForm];
-                                                      updated[bomIdx]['Composition'] = e.target.value;
-                                                      setTechPacksBOMForm(updated);
-                                                    }}
-                                                  />
-                                                )}
-                                                {!techPacksBOMEdit && (bomRow['Composition'] || '')}
-                                              </td>
-                                              <td className="px-1 py-0.5 border">
-                                                {techPacksBOMEdit && (
-                                                  <button
-                                                    className="bg-red-600 text-white px-2 py-0.5 rounded text-xs"
-                                                    onClick={() => {
-                                                      const updated = techPacksBOMForm.filter((_, i) => i !== bomIdx);
-                                                      setTechPacksBOMForm(updated);
-                                                    }}
-                                                  >
-                                                    Delete
-                                                  </button>
-                                                )}
-                                              </td>
-                                            </tr>
-                                          ))}
-                                        </tbody>
-                                      </table>
-                                    </div>
-                                  </div>
+                                      }}
+                                    >
+                                      Add Row
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button 
+                                      className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
+                                      onClick={() => {
+                                        setTechPacksBOMEdit(true);
+                                        setTechPacksBOMForm(row['TechPacks BOM'] ? [...row['TechPacks BOM']] : [...sampleBOMData]);
+                                      }}
+                                    >
+                                      Edit
+                                    </button>
+                                    <button 
+                                      className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
+                                      onClick={() => {
+                                        setTechPacksBOMForm([...sampleBOMData]);
+                                        setTechPacksBOMEdit(true);
+                                      }}
+                                    >
+                                      Add Data
+                                    </button>
+                                  </>
                                 )}
                               </div>
-                            )}
+                              <div className="overflow-x-auto max-w-full">
+                                <table className="text-xs border border-gray-300 rounded min-w-max">
+                                  <thead>
+                                    <tr className="bg-gray-50">
+                                      {techPacksBOMEdit && (
+                                        <th className="px-1 py-0.5 text-center font-semibold border w-8" rowSpan={2}>
+                                          Del
+                                        </th>
+                                      )}
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
+                                        Material
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        Material Description
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
+                                        Material Status
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
+                                        Material Category
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
+                                        Comment
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
+                                        Custom Text 1
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
+                                        Custom Text 2
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
+                                        Custom Text 3
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
+                                        Custom Text 4
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
+                                        Season
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
+                                        Note Count
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
+                                        Latest Note
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
+                                        Main Material
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
+                                        Category Sequence
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        Default Material Color
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
+                                        Composition
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        Buyer Style Name
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
+                                        Supplier Ref.
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        Buyer Style Number
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        ARC- Merbau/Aurora
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        ARC- Nightshadow/lolite
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        ARC- Orion/Olive Amber
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        ARC- Nocturne/Deep Cove
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        ARC- Red Beach/Flare
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        ARC- Shorepine/Titanite
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        ARC- Tui/Stellar
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
+                                        BLACK
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
+                                        Blackbird
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" colSpan={2}>
+                                        Default
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" colSpan={2}>
+                                        One Size
+                                      </th>
+                                    </tr>
+                                    <tr className="bg-gray-50">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-8">
+                                        Size
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-8">
+                                        Rating
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-8">
+                                        Size
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-8">
+                                        Rating
+                                      </th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {(techPacksBOMForm.length > 0 ? techPacksBOMForm : sampleBOMData).map((bomRow, bomIdx) => (
+                                      <tr key={bomIdx} className="hover:bg-gray-50">
+                                        {techPacksBOMEdit && (
+                                          <td className="px-1 py-0.5 border text-xs">
+                                            <button 
+                                              className="bg-red-500 text-white px-1 py-0.5 rounded text-xs hover:bg-red-600"
+                                              onClick={() => {
+                                                const updated = techPacksBOMForm.filter((_, i) => i !== bomIdx);
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            >
+                                              ×
+                                            </button>
+                                          </td>
+                                        )}
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Material'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Material': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Material'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Material Description'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Material Description': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Material Description'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <select 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Material Status'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Material Status': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            >
+                                              <option value="">Select Status</option>
+                                              <option value="Active">Active</option>
+                                              <option value="Inactive">Inactive</option>
+                                              <option value="Pending">Pending</option>
+                                            </select>
+                                          ) : (bomRow['Material Status'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <select 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Material Category'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Material Category': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            >
+                                              <option value="">Select Category</option>
+                                              <option value="Fabric">Fabric</option>
+                                              <option value="Thread">Thread</option>
+                                              <option value="Zipper">Zipper</option>
+                                              <option value="Button">Button</option>
+                                              <option value="Label">Label</option>
+                                            </select>
+                                          ) : (bomRow['Material Category'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Comment'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Comment': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Comment'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Custom Text 1'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Custom Text 1': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Custom Text 1'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Custom Text 2'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Custom Text 2': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Custom Text 2'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Custom Text 3'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Custom Text 3': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Custom Text 3'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Custom Text 4'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Custom Text 4': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Custom Text 4'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Season'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Season': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Season'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Note Count'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Note Count': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Note Count'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Latest Note'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Latest Note': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Latest Note'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <select 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Main Material'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Main Material': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            >
+                                              <option value="">Select</option>
+                                              <option value="Yes">Yes</option>
+                                              <option value="No">No</option>
+                                            </select>
+                                          ) : (bomRow['Main Material'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Category Sequence'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Category Sequence': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Category Sequence'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Default Material Color'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Default Material Color': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Default Material Color'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Composition'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Composition': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Composition'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Buyer Style Name'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Buyer Style Name': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Buyer Style Name'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Supplier Ref.'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Supplier Ref.': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Supplier Ref.'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Buyer Style Number'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Buyer Style Number': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Buyer Style Number'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Default Size'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Default Size': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Default Size'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['Default Rating'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'Default Rating': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['Default Rating'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['One Size Size'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'One Size Size': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['One Size Size'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksBOMEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={bomRow['One Size Rating'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksBOMForm];
+                                                updated[bomIdx] = { ...updated[bomIdx], 'One Size Rating': e.target.value };
+                                                setTechPacksBOMForm(updated);
+                                              }}
+                                            />
+                                          ) : (bomRow['One Size Rating'] || '')}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          )}
 
-                            {/* Size Specifications Tab */}
-                            {techPacksEditTab === 'Size Specifications' && (
-                              <div className="inline-block max-w-4xl min-w-fit overflow-x-auto sticky left-0 z-10">
-                                <div className="text-sm text-gray-600 mb-2">Size specifications for this tech pack</div>
-                                <div className="flex gap-2 mt-2">
-                                  <button className="bg-blue-600 text-white px-3 py-1 rounded">Edit Specifications</button>
+                          {/* Size Specifications Tab */}
+                          {techPacksEditTab === 'Size Specifications' && (
+                            <div className="inline-block w-full">
+                              {/* Size Specifications Details Panel */}
+                              <div className="flex gap-4 mb-4">
+                                <div className="border border-blue-200 rounded p-3 bg-blue-50 w-80">
+                                  <h4 className="font-semibold text-gray-700 mb-2 text-sm">Size Specifications Details</h4>
+                                  <div className="space-y-2">
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Name:</span>
+                                      <input type="text" className="border rounded px-2 py-1 text-sm ml-2 flex-1" value="000125 M8836207 v1" />
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Source Size Spec:</span>
+                                      <input type="checkbox" className="ml-2" />
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Status:</span>
+                                      <input type="text" className="border rounded px-2 py-1 text-sm ml-2 flex-1" placeholder="" />
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                <div className="border border-gray-300 rounded p-3 bg-white w-80">
+                                  <h4 className="font-semibold text-gray-700 mb-2 text-sm">Product Details</h4>
+                                  <div className="space-y-2">
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Product Name:</span>
+                                      <span className="text-sm text-blue-600">M8836207</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Product Description:</span>
+                                      <span className="text-sm">MACHINE KNIT BEANIE</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Product Buyer Style Number:</span>
+                                      <span className="text-sm">U53180654</span>
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span className="font-medium text-sm w-28">Season:</span>
+                                      <span className="text-sm">FH:2018</span>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
-                            )}
 
-                            {/* Fit Log Tab */}
-                            {techPacksEditTab === 'Fit Log' && (
-                              <div className="inline-block max-w-4xl min-w-fit overflow-x-auto sticky left-0 z-10">
-                                <div className="text-sm text-gray-600 mb-2">Fit log entries for this tech pack</div>
-                                <div className="flex gap-2 mt-2">
-                                  <button className="bg-blue-600 text-white px-3 py-1 rounded">Edit Fit Log</button>
-                                </div>
+                              {/* Size Specifications Line Items Table */}
+                              <div className="mb-2 flex gap-2">
+                                {techPacksSizeSpecEdit ? (
+                                  <>
+                                    <button 
+                                      className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
+                                      onClick={() => {
+                                        setTechPacksSizeSpecEdit(false);
+                                        // Save the edited data
+                                        const newRows = [...rows];
+                                        newRows[idx] = { ...row, 'TechPacks SizeSpec': techPacksSizeSpecForm };
+                                        setRows(newRows);
+                                      }}
+                                    >
+                                      Save
+                                    </button>
+                                    <button 
+                                      className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
+                                      onClick={() => {
+                                        setTechPacksSizeSpecEdit(false);
+                                        setTechPacksSizeSpecForm([]);
+                                      }}
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button 
+                                      className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
+                                      onClick={() => {
+                                        const newRow = Object.fromEntries([
+                                          'Size', 'Size Description', 'Size Status', 'Size Category',
+                                          'Comment', 'Custom Text 1', 'Custom Text 2', 'Custom Text 3', 'Custom Text 4',
+                                          'Season', 'Note Count', 'Latest Note', 'Main Size', 'Category Sequence',
+                                          'Default Size Color', 'Composition', 'Buyer Style Name', 'Supplier Ref.',
+                                          'Buyer Style Number', 'ARC- Merbau/Aurora', 'ARC- Nightshadow/lolite',
+                                          'ARC- Orion/Olive Amber', 'ARC- Nocturne/Deep Cove', 'ARC- Red Beach/Flare',
+                                          'ARC- Shorepine/Titanite', 'ARC- Tui/Stellar', 'BLACK', 'Blackbird',
+                                          'Default Size', 'Default Rating', 'One Size Size', 'One Size Rating',
+                                          'ARC- Nightshadow/lolite 2', 'ARC- Orion/Olive Amber 2', 'ARC- Nocturne/Deep Cove 2',
+                                          'ARC- Red Beach/Flare 2', 'ARC- Shorepine/Titanite 2', 'ARC- Tui/Stellar 2',
+                                          'BLACK 2', 'Blackbird 2', 'Default Size 2', 'Default Rating 2',
+                                          'One Size Size 2', 'One Size Rating 2'
+                                        ].map(key => [key, '']));
+                                        setTechPacksSizeSpecForm([...techPacksSizeSpecForm, newRow]);
+                                      }}
+                                    >
+                                      Add Row
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button 
+                                      className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
+                                      onClick={() => {
+                                        setTechPacksSizeSpecEdit(true);
+                                        setTechPacksSizeSpecForm(row['TechPacks SizeSpec'] ? [...row['TechPacks SizeSpec']] : [...sampleSizeSpecData]);
+                                      }}
+                                    >
+                                      Edit
+                                    </button>
+                                    <button 
+                                      className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
+                                      onClick={() => {
+                                        setTechPacksSizeSpecForm([...sampleSizeSpecData]);
+                                        setTechPacksSizeSpecEdit(true);
+                                      }}
+                                    >
+                                      Add Data
+                                    </button>
+                                  </>
+                                )}
                               </div>
-                            )}
-
-                            {/* Care Instructions Tab */}
-                            {techPacksEditTab === 'Care Instructions' && (
-                              <div className="inline-block max-w-4xl min-w-fit overflow-x-auto sticky left-0 z-10">
-                                <div className="text-sm text-gray-600 mb-2">Care instructions for this tech pack</div>
-                                <div className="flex gap-2 mt-2">
-                                  <button className="bg-blue-600 text-white px-3 py-1 rounded">Edit Care Instructions</button>
-                                </div>
+                              <div className="overflow-x-auto max-w-full">
+                                <table className="text-xs border border-gray-300 rounded min-w-max">
+                                  <thead>
+                                    <tr className="bg-gray-50">
+                                      {techPacksSizeSpecEdit && (
+                                        <th className="px-1 py-0.5 text-center font-semibold border w-8" rowSpan={2}>
+                                          Del
+                                        </th>
+                                      )}
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
+                                        Size
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        Size Description
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
+                                        Size Status
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
+                                        Size Category
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
+                                        Comment
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
+                                        Custom Text 1
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
+                                        Custom Text 2
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
+                                        Custom Text 3
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
+                                        Custom Text 4
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
+                                        Season
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
+                                        Note Count
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
+                                        Latest Note
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
+                                        Main Size
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
+                                        Category Sequence
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        Default Size Color
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
+                                        Composition
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        Buyer Style Name
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
+                                        Supplier Ref.
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        Buyer Style Number
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        ARC- Merbau/Aurora
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        ARC- Nightshadow/lolite
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        ARC- Orion/Olive Amber
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        ARC- Nocturne/Deep Cove
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        ARC- Red Beach/Flare
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        ARC- Shorepine/Titanite
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24" rowSpan={2}>
+                                        ARC- Tui/Stellar
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" rowSpan={2}>
+                                        BLACK
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-20" rowSpan={2}>
+                                        Blackbird
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" colSpan={2}>
+                                        Default
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-16" colSpan={2}>
+                                        One Size
+                                      </th>
+                                    </tr>
+                                    <tr className="bg-gray-50">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-8">
+                                        Size
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-8">
+                                        Rating
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-8">
+                                        Size
+                                      </th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-8">
+                                        Rating
+                                      </th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {(techPacksSizeSpecForm.length > 0 ? techPacksSizeSpecForm : sampleSizeSpecData).map((sizeSpecRow, sizeSpecIdx) => (
+                                      <tr key={sizeSpecIdx} className="hover:bg-gray-50">
+                                        {techPacksSizeSpecEdit && (
+                                          <td className="px-1 py-0.5 border text-xs">
+                                            <button 
+                                              className="bg-red-500 text-white px-1 py-0.5 rounded text-xs hover:bg-red-600"
+                                              onClick={() => {
+                                                const updated = techPacksSizeSpecForm.filter((_, i) => i !== sizeSpecIdx);
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            >
+                                              ×
+                                            </button>
+                                          </td>
+                                        )}
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Size'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Size': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Size'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Size Description'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Size Description': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Size Description'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <select 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Size Status'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Size Status': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            >
+                                              <option value="">Select Status</option>
+                                              <option value="Active">Active</option>
+                                              <option value="Inactive">Inactive</option>
+                                              <option value="Pending">Pending</option>
+                                            </select>
+                                          ) : (sizeSpecRow['Size Status'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <select 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Size Category'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Size Category': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            >
+                                              <option value="">Select Category</option>
+                                              <option value="Small">Small</option>
+                                              <option value="Medium">Medium</option>
+                                              <option value="Large">Large</option>
+                                              <option value="X-Large">X-Large</option>
+                                              <option value="One Size">One Size</option>
+                                            </select>
+                                          ) : (sizeSpecRow['Size Category'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Comment'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Comment': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Comment'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Custom Text 1'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Custom Text 1': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Custom Text 1'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Custom Text 2'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Custom Text 2': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Custom Text 2'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Custom Text 3'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Custom Text 3': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Custom Text 3'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Custom Text 4'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Custom Text 4': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Custom Text 4'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Season'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Season': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Season'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Note Count'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Note Count': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Note Count'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Latest Note'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Latest Note': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Latest Note'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <select 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Main Size'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Main Size': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            >
+                                              <option value="">Select</option>
+                                              <option value="Yes">Yes</option>
+                                              <option value="No">No</option>
+                                            </select>
+                                          ) : (sizeSpecRow['Main Size'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Category Sequence'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Category Sequence': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Category Sequence'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Default Size Color'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Default Size Color': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Default Size Color'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Composition'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Composition': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Composition'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Buyer Style Name'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Buyer Style Name': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Buyer Style Name'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Supplier Ref.'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Supplier Ref.': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Supplier Ref.'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Buyer Style Number'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Buyer Style Number': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Buyer Style Number'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['ARC- Merbau/Aurora'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'ARC- Merbau/Aurora': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['ARC- Merbau/Aurora'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['ARC- Nightshadow/lolite'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'ARC- Nightshadow/lolite': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['ARC- Nightshadow/lolite'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['ARC- Orion/Olive Amber'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'ARC- Orion/Olive Amber': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['ARC- Orion/Olive Amber'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['ARC- Nocturne/Deep Cove'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'ARC- Nocturne/Deep Cove': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['ARC- Nocturne/Deep Cove'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['ARC- Red Beach/Flare'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'ARC- Red Beach/Flare': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['ARC- Red Beach/Flare'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['ARC- Shorepine/Titanite'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'ARC- Shorepine/Titanite': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['ARC- Shorepine/Titanite'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['ARC- Tui/Stellar'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'ARC- Tui/Stellar': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['ARC- Tui/Stellar'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['BLACK'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'BLACK': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['BLACK'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Blackbird'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Blackbird': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Blackbird'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Default Size'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Default Size': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Default Size'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['Default Rating'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'Default Rating': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['Default Rating'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['One Size Size'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'One Size Size': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['One Size Size'] || '')}
+                                        </td>
+                                        <td className="px-1 py-0.5 border text-xs">
+                                          {techPacksSizeSpecEdit ? (
+                                            <input 
+                                              className="border px-1 py-0.5 rounded text-xs w-full" 
+                                              value={sizeSpecRow['One Size Rating'] || ''} 
+                                              onChange={e => {
+                                                const updated = [...techPacksSizeSpecForm];
+                                                updated[sizeSpecIdx] = { ...updated[sizeSpecIdx], 'One Size Rating': e.target.value };
+                                                setTechPacksSizeSpecForm(updated);
+                                              }}
+                                            />
+                                          ) : (sizeSpecRow['One Size Rating'] || '')}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
                               </div>
-                            )}
+                            </div>
+                          )}
 
-                            {/* Labels Tab */}
-                            {techPacksEditTab === 'Labels' && (
-                              <div className="inline-block max-w-4xl min-w-fit overflow-x-auto sticky left-0 z-10">
-                                <div className="text-sm text-gray-600 mb-2">Label specifications for this tech pack</div>
-                                <div className="flex gap-2 mt-2">
-                                  <button className="bg-blue-600 text-white px-3 py-1 rounded">Edit Labels</button>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Fibre Contents Tab */}
-                        {productEditTab === 'Fibre Contents' && (
-                          <div className="inline-block max-w-6xl min-w-fit overflow-x-auto sticky left-0 z-10">
-                            <div className="text-sm text-gray-600 mb-2">Fibre composition management for this product</div>
-                            
-                            {/* Version Control Table */}
-                            <div className="mb-3">
-                              <h4 className="font-semibold text-gray-700 mb-1 text-sm">Version Control</h4>
-                              <table className="text-xs border border-blue-200 rounded mb-1 table-fixed">
+                          {/* Fit Log Tab */}
+                          {techPacksEditTab === 'Fit Log' && (
+                            <div className="overflow-x-auto">
+                              <table className="text-xs border border-gray-300 rounded max-w-4xl">
                                 <thead>
-                                  <tr className="bg-blue-50">
-                                    <th className="px-1 py-0.5 text-left font-semibold w-20">Version Number</th>
-                                    <th className="px-1 py-0.5 text-left font-semibold w-24">Comment</th>
-                                    <th className="px-1 py-0.5 text-center font-semibold w-16">Current Version</th>
-                                    <th className="px-1 py-0.5 text-left font-semibold w-20">Created By</th>
-                                    <th className="px-1 py-0.5 text-left font-semibold w-32">Created</th>
+                                  <tr className="bg-gray-50">
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-24">Name</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-28">Size Chart Version</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-24">Size Comment</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-20">FitType</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-20">FitDate</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-16">Sizes</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-28">Sample Request Line</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-20">Supplier</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-20">PO Line</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-24">Comment</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-24">Closed Date</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-20">Status</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-28">Unit Source Fit Log</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-20">Note Count</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-24">Latest Note</th>
+                                    <th className="px-1 py-0.5 text-left font-semibold border w-28">Fit Comments</th>
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  <tr>
-                                    <td className="px-1 py-0.5 border">v1.0</td>
-                                    <td className="px-1 py-0.5 border">Initial composition</td>
-                                    <td className="px-1 py-0.5 border text-center">
-                                      <div className="w-3 h-3 bg-blue-500 border rounded flex items-center justify-center mx-auto">
-                                        <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                        </svg>
-                                      </div>
-                                    </td>
-                                    <td className="px-1 py-0.5 border">John Doe</td>
-                                    <td className="px-1 py-0.5 border">2024-01-15</td>
+                                  <tr className="hover:bg-gray-50">
+                                    <td className="px-1 py-0.5 border text-xs">ARC-Merbau/Aurora</td>
+                                    <td className="px-1 py-0.5 border text-xs">v1.2</td>
+                                    <td className="px-1 py-0.5 border text-xs">Standard fit</td>
+                                    <td className="px-1 py-0.5 border text-xs">Initial</td>
+                                    <td className="px-1 py-0.5 border text-xs">2024-01-15</td>
+                                    <td className="px-1 py-0.5 border text-xs">M</td>
+                                    <td className="px-1 py-0.5 border text-xs">SR-001-001</td>
+                                    <td className="px-1 py-0.5 border text-xs">ABC Textiles</td>
+                                    <td className="px-1 py-0.5 border text-xs">PO-001</td>
+                                    <td className="px-1 py-0.5 border text-xs">Initial fit check</td>
+                                    <td className="px-1 py-0.5 border text-xs">2024-01-20</td>
+                                    <td className="px-1 py-0.5 border text-xs">Approved</td>
+                                    <td className="px-1 py-0.5 border text-xs">Unit-001</td>
+                                    <td className="px-1 py-0.5 border text-xs">3</td>
+                                    <td className="px-1 py-0.5 border text-xs">Fit approved</td>
+                                    <td className="px-1 py-0.5 border text-xs">All measurements within tolerance</td>
+                                  </tr>
+                                  <tr className="hover:bg-gray-50">
+                                    <td className="px-1 py-0.5 border text-xs">ARC-Merbau/Aurora</td>
+                                    <td className="px-1 py-0.5 border text-xs">v1.3</td>
+                                    <td className="px-1 py-0.5 border text-xs">Slim fit</td>
+                                    <td className="px-1 py-0.5 border text-xs">Revision</td>
+                                    <td className="px-1 py-0.5 border text-xs">2024-01-25</td>
+                                    <td className="px-1 py-0.5 border text-xs">S</td>
+                                    <td className="px-1 py-0.5 border text-xs">SR-001-002</td>
+                                    <td className="px-1 py-0.5 border text-xs">XYZ Fabrics</td>
+                                    <td className="px-1 py-0.5 border text-xs">PO-002</td>
+                                    <td className="px-1 py-0.5 border text-xs">Slim fit adjustment</td>
+                                    <td className="px-1 py-0.5 border text-xs">2024-01-30</td>
+                                    <td className="px-1 py-0.5 border text-xs">Pending</td>
+                                    <td className="px-1 py-0.5 border text-xs">Unit-002</td>
+                                    <td className="px-1 py-0.5 border text-xs">2</td>
+                                    <td className="px-1 py-0.5 border text-xs">Awaiting review</td>
+                                    <td className="px-1 py-0.5 border text-xs">Waist needs adjustment</td>
+                                  </tr>
+                                  <tr className="hover:bg-gray-50">
+                                    <td className="px-1 py-0.5 border text-xs">ARC-Merbau/Aurora</td>
+                                    <td className="px-1 py-0.5 border text-xs">v1.4</td>
+                                    <td className="px-1 py-0.5 border text-xs">Regular fit</td>
+                                    <td className="px-1 py-0.5 border text-xs">Final</td>
+                                    <td className="px-1 py-0.5 border text-xs">2024-02-01</td>
+                                    <td className="px-1 py-0.5 border text-xs">L</td>
+                                    <td className="px-1 py-0.5 border text-xs">SR-001-003</td>
+                                    <td className="px-1 py-0.5 border text-xs">DEF Materials</td>
+                                    <td className="px-1 py-0.5 border text-xs">PO-003</td>
+                                    <td className="px-1 py-0.5 border text-xs">Final approval</td>
+                                    <td className="px-1 py-0.5 border text-xs">2024-02-05</td>
+                                    <td className="px-1 py-0.5 border text-xs">Completed</td>
+                                    <td className="px-1 py-0.5 border text-xs">Unit-003</td>
+                                    <td className="px-1 py-0.5 border text-xs">5</td>
+                                    <td className="px-1 py-0.5 border text-xs">Final approval</td>
+                                    <td className="px-1 py-0.5 border text-xs">All specifications approved</td>
                                   </tr>
                                 </tbody>
                               </table>
                             </div>
+                          )}
 
-                            <div className="grid grid-cols-3 gap-4 mb-4">
-                              {/* Fibre Content Section */}
-                              <div className="border border-blue-200 rounded p-3">
-                                <div className="flex justify-between items-center mb-2">
-                                  <h4 className="font-semibold text-sm">Fibre Content</h4>
-                                  <button className="text-red-500 hover:text-red-700">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                  </button>
-                                </div>
-                                <table className="text-xs w-full">
+                          {/* Fibre Composition Tab */}
+                          {techPacksEditTab === 'Fibre Composition' && (
+                            <div className="inline-block">
+                              {/* Version Control Table */}
+                              <div className="mb-3">
+                                <h4 className="font-semibold text-gray-700 mb-1 text-sm">Version Control</h4>
+                                <table className="text-xs border border-blue-200 rounded mb-1 table-fixed">
                                   <thead>
-                                    <tr className="border-b">
-                                      <th className="text-left py-1">Fibre</th>
-                                      <th className="text-left py-1">%</th>
+                                    <tr className="bg-blue-50">
+                                      <th className="px-1 py-0.5 text-left font-semibold w-20">Version Number</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold w-24">Comment</th>
+                                      <th className="px-1 py-0.5 text-center font-semibold w-16">Current Version</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold w-20">Created By</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold w-32">Created</th>
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    {[0, 1, 2, 3, 4, 5].map((index) => (
-                                      <tr key={index}>
-                                        <td className="py-1">
-                                          <select 
-                                            className="w-full border rounded px-1 py-0.5 text-xs"
-                                            value={row['Fibre Content']?.[index]?.type || ''}
-                                          >
-                                            <option value="">Select</option>
-                                            <option value="(Faux fur) Polyester">(Faux fur) Polyester</option>
-                                            <option value="Acetate">Acetate</option>
-                                            <option value="Acrylic">Acrylic</option>
-                                            <option value="Alpaca">Alpaca</option>
-                                            <option value="Angora">Angora</option>
-                                            <option value="Cashmere">Cashmere</option>
-                                            <option value="Contains Non-Textile Parts of Animal Origin">Contains Non-Textile Parts of Animal Origin</option>
-                                            <option value="Cotton">Cotton</option>
-                                            <option value="Elastane">Elastane</option>
-                                            <option value="Flax">Flax</option>
-                                            <option value="Hemp">Hemp</option>
-                                            <option value="Jute">Jute</option>
-                                            <option value="Linen">Linen</option>
-                                            <option value="Lyocell">Lyocell</option>
-                                            <option value="Metallic fibre">Metallic fibre</option>
-                                            <option value="Metallised Fibre">Metallised Fibre</option>
-                                            <option value="Modal">Modal</option>
-                                            <option value="Mohair">Mohair</option>
-                                            <option value="Nylon">Nylon</option>
-                                            <option value="Other Fibres">Other Fibres</option>
-                                            <option value="Polyamide">Polyamide</option>
-                                            <option value="Polyester">Polyester</option>
-                                            <option value="Polypropylene">Polypropylene</option>
-                                            <option value="Ramie">Ramie</option>
-                                            <option value="Silk">Silk</option>
-                                            <option value="Sisal">Sisal</option>
-                                            <option value="Triacetate">Triacetate</option>
-                                            <option value="Viscose">Viscose</option>
-                                            <option value="Wool">Wool</option>
-                                          </select>
-                                        </td>
-                                        <td className="py-1">
-                                          <input
-                                            type="number"
-                                            step="0.1"
-                                            min="0"
-                                            max="100"
-                                            className="w-full border rounded px-1 py-0.5 text-xs"
-                                            value={row['Fibre Content']?.[index]?.percentage || '0.0'}
-                                          />
-                                        </td>
-                                      </tr>
-                                    ))}
+                                    <tr>
+                                      <td className="px-1 py-0.5 border">{techPackVersionEdit ? (
+                                        <input className="border px-1 py-0.5 rounded text-xs w-full" value={techPackVersionForm?.['Version Number'] || ''} onChange={e => setTechPackVersionForm({...techPackVersionForm, 'Version Number': e.target.value})} />
+                                      ) : (row['Version Number'] || '')}</td>
+                                      <td className="px-1 py-0.5 border">{techPackVersionEdit ? (
+                                        <input className="border px-1 py-0.5 rounded text-xs w-full" value={techPackVersionForm?.['Comment'] || ''} onChange={e => setTechPackVersionForm({...techPackVersionForm, 'Comment': e.target.value})} />
+                                      ) : (row['Comment'] || '')}</td>
+                                      <td className="px-1 py-0.5 border text-center">{techPackVersionEdit ? (
+                                        <input type="checkbox" checked={!!techPackVersionForm?.['Current Version']} onChange={e => setTechPackVersionForm({...techPackVersionForm, 'Current Version': e.target.checked})} />
+                                      ) : (row['Current Version'] ? (
+                                        <div className="w-3 h-3 bg-gray-300 border rounded flex items-center justify-center">
+                                          <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                          </svg>
+                                        </div>
+                                      ) : (
+                                        <div className="w-3 h-3 bg-gray-300 border rounded"></div>
+                                      ))}</td>
+                                      <td className="px-1 py-0.5 border">{techPackVersionEdit ? (
+                                        <input className="border px-1 py-0.5 rounded text-xs w-full" value={techPackVersionForm?.['Created By'] || ''} onChange={e => setTechPackVersionForm({...techPackVersionForm, 'Created By': e.target.value})} />
+                                      ) : (row['Created By'] || '')}</td>
+                                      <td className="px-1 py-0.5 border">{techPackVersionEdit ? (
+                                        <input type="datetime-local" className="border px-1 py-0.5 rounded text-xs w-full" value={techPackVersionForm?.['Created'] || ''} onChange={e => setTechPackVersionForm({...techPackVersionForm, 'Created': e.target.value})} />
+                                      ) : (row['Created'] || '')}</td>
+                                    </tr>
                                   </tbody>
                                 </table>
-                                <div className="mt-2 text-xs text-gray-600">
-                                  Total: {(row['Fibre Content']?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}%
+                                <div className="flex gap-1 mt-1">
+                                  {techPackVersionEdit ? (
+                                    <>
+                                      <button className="bg-green-600 text-white px-2 py-0.5 rounded text-xs" onClick={() => {
+                                        const newRows = [...rows];
+                                        newRows[idx] = { ...row, ...techPackVersionForm };
+                                        setRows(newRows);
+                                        setTechPackVersionEdit(false);
+                                        setTechPackVersionForm(null);
+                                      }}>Save</button>
+                                      <button className="bg-gray-500 text-white px-2 py-0.5 rounded text-xs" onClick={() => { setTechPackVersionEdit(false); setTechPackVersionForm(null); }}>Cancel</button>
+                                    </>
+                                  ) : (
+                                    <button className="bg-blue-600 text-white px-2 py-0.5 rounded text-xs" onClick={() => {
+                                      setTechPackVersionEdit(true);
+                                      setTechPackVersionForm({
+                                        'Version Number': row['Version Number'] || '',
+                                        'Comment': row['Comment'] || '',
+                                        'Current Version': row['Current Version'] || false,
+                                        'Created By': row['Created By'] || '',
+                                        'Created': row['Created'] || ''
+                                      });
+                                    }}>Edit</button>
+                                  )}
                                 </div>
                               </div>
-
-                              {/* Fibre Section 1 */}
-                              <div className="border border-blue-200 rounded p-3">
-                                <div className="flex justify-between items-center mb-2">
-                                  <h4 className="font-semibold text-sm">Fibre Section 1</h4>
-                                  <button className="text-red-500 hover:text-red-700">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                  </button>
+                              
+                              <div className="grid grid-cols-3 gap-4 mb-4">
+                                {/* Fibre Content Section */}
+                                {row['Fibre Content'] !== undefined && (
+                                <div className="border border-blue-200 rounded p-3">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold text-sm">Fibre Content</h4>
+                                    <button className="text-red-500 hover:text-red-700" onClick={() => {
+                                      // Remove fibre content section completely
+                                      const newRows = [...rows];
+                                      delete newRows[idx]['Fibre Content'];
+                                      setRows(newRows);
+                                    }}>
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                  <table className="text-xs w-full">
+                                    <thead>
+                                      <tr className="border-b">
+                                        <th className="text-left py-1">Fibre</th>
+                                        <th className="text-left py-1">%</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {[0, 1, 2, 3, 4, 5].map((index) => (
+                                        <tr key={index}>
+                                          <td className="py-1">
+                                            <select 
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Fibre Content']?.[index]?.type || ''}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Fibre Content']) newRows[idx]['Fibre Content'] = [];
+                                                if (!newRows[idx]['Fibre Content'][index]) newRows[idx]['Fibre Content'][index] = {};
+                                                newRows[idx]['Fibre Content'][index].type = e.target.value;
+                                                setRows(newRows);
+                                              }}
+                                            >
+                                              <option value="">Select</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Acrylic">Acrylic</option>
+                                              <option value="Nylon">Nylon</option>
+                                              <option value="Elastane">Elastane</option>
+                                              <option value="Silk">Silk</option>
+                                              <option value="Viscose">Viscose</option>
+                                              <option value="Lycra">Lycra</option>
+                                              <option value="Spandex">Spandex</option>
+                                              <option value="Rayon">Rayon</option>
+                                              <option value="Cashmere">Cashmere</option>
+                                              <option value="Angora">Angora</option>
+                                              <option value="Alpaca">Alpaca</option>
+                                              <option value="Lambswool">Lambswool</option>
+                                              <option value="Merino Wool">Merino Wool</option>
+                                              <option value="Organic cotton">Organic cotton</option>
+                                              <option value="Recycled Polyester">Recycled Polyester</option>
+                                              <option value="Recycled Wool">Recycled Wool</option>
+                                              <option value="Recycled Nylon">Recycled Nylon</option>
+                                              <option value="Recycled Acrylic">Recycled Acrylic</option>
+                                              <option value="Leather">Leather</option>
+                                              <option value="Faux Fur">Faux Fur</option>
+                                              <option value="Faux Suede Patch">Faux Suede Patch</option>
+                                              <option value="Imitation Suede">Imitation Suede</option>
+                                              <option value="Lurex">Lurex</option>
+                                              <option value="Metallic">Metallic</option>
+                                              <option value="Metallic fibre">Metallic fibre</option>
+                                              <option value="Metallised Fibre">Metallised Fibre</option>
+                                              <option value="Other Fiber">Other Fiber</option>
+                                              <option value="Other Fibers">Other Fibers</option>
+                                            </select>
+                                          </td>
+                                          <td className="py-1">
+                                            <input 
+                                              type="number" 
+                                              step="0.1"
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Fibre Content']?.[index]?.percentage || '0.0'}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Fibre Content']) newRows[idx]['Fibre Content'] = [];
+                                                if (!newRows[idx]['Fibre Content'][index]) newRows[idx]['Fibre Content'][index] = {};
+                                                newRows[idx]['Fibre Content'][index].percentage = parseFloat(e.target.value) || 0;
+                                                setRows(newRows);
+                                              }}
+                                            />
+                                          </td>
+                                        </tr>
+                                      ))}
+                                      <tr className="border-t font-semibold">
+                                        <td className="py-1">Total</td>
+                                        <td className="py-1">
+                                          {(row['Fibre Content']?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
                                 </div>
-                                <table className="text-xs w-full">
+                                )}
+
+                                {/* Shell Section */}
+                                {row['Shell'] !== undefined && (
+                                <div className="border border-blue-200 rounded p-3">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold text-sm">Shell</h4>
+                                    <button className="text-red-500 hover:text-red-700" onClick={() => {
+                                      const newRows = [...rows];
+                                      delete newRows[idx]['Shell'];
+                                      setRows(newRows);
+                                    }}>
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                  <table className="text-xs w-full">
+                                    <thead>
+                                      <tr className="border-b">
+                                        <th className="text-left py-1">Fibre</th>
+                                        <th className="text-left py-1">%</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {[0, 1, 2, 3, 4, 5].map((index) => (
+                                        <tr key={index}>
+                                          <td className="py-1">
+                                            <select 
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Shell']?.[index]?.type || ''}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Shell']) newRows[idx]['Shell'] = [];
+                                                if (!newRows[idx]['Shell'][index]) newRows[idx]['Shell'][index] = {};
+                                                newRows[idx]['Shell'][index].type = e.target.value;
+                                                setRows(newRows);
+                                              }}
+                                            >
+                                              <option value="">Select</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Acrylic">Acrylic</option>
+                                              <option value="Nylon">Nylon</option>
+                                              <option value="Elastane">Elastane</option>
+                                              <option value="Silk">Silk</option>
+                                              <option value="Viscose">Viscose</option>
+                                              <option value="Lycra">Lycra</option>
+                                              <option value="Spandex">Spandex</option>
+                                              <option value="Rayon">Rayon</option>
+                                              <option value="Cashmere">Cashmere</option>
+                                              <option value="Angora">Angora</option>
+                                              <option value="Alpaca">Alpaca</option>
+                                              <option value="Lambswool">Lambswool</option>
+                                              <option value="Merino Wool">Merino Wool</option>
+                                              <option value="Organic cotton">Organic cotton</option>
+                                              <option value="Recycled Polyester">Recycled Polyester</option>
+                                              <option value="Recycled Wool">Recycled Wool</option>
+                                              <option value="Recycled Nylon">Recycled Nylon</option>
+                                              <option value="Recycled Acrylic">Recycled Acrylic</option>
+                                              <option value="Leather">Leather</option>
+                                              <option value="Faux Fur">Faux Fur</option>
+                                              <option value="Faux Suede Patch">Faux Suede Patch</option>
+                                              <option value="Imitation Suede">Imitation Suede</option>
+                                              <option value="Lurex">Lurex</option>
+                                              <option value="Metallic">Metallic</option>
+                                              <option value="Metallic fibre">Metallic fibre</option>
+                                              <option value="Metallised Fibre">Metallised Fibre</option>
+                                              <option value="Other Fiber">Other Fiber</option>
+                                              <option value="Other Fibers">Other Fibers</option>
+                                            </select>
+                                          </td>
+                                          <td className="py-1">
+                                            <input 
+                                              type="number" 
+                                              step="0.1"
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Shell']?.[index]?.percentage || '0.0'}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Shell']) newRows[idx]['Shell'] = [];
+                                                if (!newRows[idx]['Shell'][index]) newRows[idx]['Shell'][index] = {};
+                                                newRows[idx]['Shell'][index].percentage = parseFloat(e.target.value) || 0;
+                                                setRows(newRows);
+                                              }}
+                                            />
+                                          </td>
+                                        </tr>
+                                      ))}
+                                      <tr className="border-t font-semibold">
+                                        <td className="py-1">Total</td>
+                                        <td className="py-1">
+                                          {(row['Shell']?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                                )}
+
+                                {/* Body Section */}
+                                {row['Body'] !== undefined && (
+                                <div className="border border-blue-200 rounded p-3">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold text-sm">Body</h4>
+                                    <button className="text-red-500 hover:text-red-700" onClick={() => {
+                                      const newRows = [...rows];
+                                      delete newRows[idx]['Body'];
+                                      setRows(newRows);
+                                    }}>
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                  <table className="text-xs w-full">
+                                    <thead>
+                                      <tr className="border-b">
+                                        <th className="text-left py-1">Fibre</th>
+                                        <th className="text-left py-1">%</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {[0, 1, 2, 3, 4, 5].map((index) => (
+                                        <tr key={index}>
+                                          <td className="py-1">
+                                            <select 
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Body']?.[index]?.type || ''}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Body']) newRows[idx]['Body'] = [];
+                                                if (!newRows[idx]['Body'][index]) newRows[idx]['Body'][index] = {};
+                                                newRows[idx]['Body'][index].type = e.target.value;
+                                                setRows(newRows);
+                                              }}
+                                            >
+                                              <option value="">Select</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Acrylic">Acrylic</option>
+                                              <option value="Nylon">Nylon</option>
+                                              <option value="Elastane">Elastane</option>
+                                              <option value="Silk">Silk</option>
+                                              <option value="Viscose">Viscose</option>
+                                              <option value="Lycra">Lycra</option>
+                                              <option value="Spandex">Spandex</option>
+                                              <option value="Rayon">Rayon</option>
+                                              <option value="Cashmere">Cashmere</option>
+                                              <option value="Angora">Angora</option>
+                                              <option value="Alpaca">Alpaca</option>
+                                              <option value="Lambswool">Lambswool</option>
+                                              <option value="Merino Wool">Merino Wool</option>
+                                              <option value="Organic cotton">Organic cotton</option>
+                                              <option value="Recycled Polyester">Recycled Polyester</option>
+                                              <option value="Recycled Wool">Recycled Wool</option>
+                                              <option value="Recycled Nylon">Recycled Nylon</option>
+                                              <option value="Recycled Acrylic">Recycled Acrylic</option>
+                                              <option value="Leather">Leather</option>
+                                              <option value="Faux Fur">Faux Fur</option>
+                                              <option value="Faux Suede Patch">Faux Suede Patch</option>
+                                              <option value="Imitation Suede">Imitation Suede</option>
+                                              <option value="Lurex">Lurex</option>
+                                              <option value="Metallic">Metallic</option>
+                                              <option value="Metallic fibre">Metallic fibre</option>
+                                              <option value="Metallised Fibre">Metallised Fibre</option>
+                                              <option value="Other Fiber">Other Fiber</option>
+                                              <option value="Other Fibers">Other Fibers</option>
+                                            </select>
+                                          </td>
+                                          <td className="py-1">
+                                            <input 
+                                              type="number" 
+                                              step="0.1"
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Body']?.[index]?.percentage || '0.0'}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Body']) newRows[idx]['Body'] = [];
+                                                if (!newRows[idx]['Body'][index]) newRows[idx]['Body'][index] = {};
+                                                newRows[idx]['Body'][index].percentage = parseFloat(e.target.value) || 0;
+                                                setRows(newRows);
+                                              }}
+                                            />
+                                          </td>
+                                        </tr>
+                                      ))}
+                                      <tr className="border-t font-semibold">
+                                        <td className="py-1">Total</td>
+                                        <td className="py-1">
+                                          {(row['Body']?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                                )}
+
+                                {/* Upper Section */}
+                                {row['Upper'] !== undefined && (
+                                <div className="border border-blue-200 rounded p-3">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold text-sm">Upper</h4>
+                                    <button className="text-red-500 hover:text-red-700" onClick={() => {
+                                      const newRows = [...rows];
+                                      delete newRows[idx]['Upper'];
+                                      setRows(newRows);
+                                    }}>
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                  <table className="text-xs w-full">
+                                    <thead>
+                                      <tr className="border-b">
+                                        <th className="text-left py-1">Fibre</th>
+                                        <th className="text-left py-1">%</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {[0, 1, 2, 3, 4, 5].map((index) => (
+                                        <tr key={index}>
+                                          <td className="py-1">
+                                            <select 
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Upper']?.[index]?.type || ''}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Upper']) newRows[idx]['Upper'] = [];
+                                                if (!newRows[idx]['Upper'][index]) newRows[idx]['Upper'][index] = {};
+                                                newRows[idx]['Upper'][index].type = e.target.value;
+                                                setRows(newRows);
+                                              }}
+                                            >
+                                              <option value="">Select</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Acrylic">Acrylic</option>
+                                              <option value="Nylon">Nylon</option>
+                                              <option value="Elastane">Elastane</option>
+                                              <option value="Silk">Silk</option>
+                                              <option value="Viscose">Viscose</option>
+                                              <option value="Lycra">Lycra</option>
+                                              <option value="Spandex">Spandex</option>
+                                              <option value="Rayon">Rayon</option>
+                                              <option value="Cashmere">Cashmere</option>
+                                              <option value="Angora">Angora</option>
+                                              <option value="Alpaca">Alpaca</option>
+                                              <option value="Lambswool">Lambswool</option>
+                                              <option value="Merino Wool">Merino Wool</option>
+                                              <option value="Organic cotton">Organic cotton</option>
+                                              <option value="Recycled Polyester">Recycled Polyester</option>
+                                              <option value="Recycled Wool">Recycled Wool</option>
+                                              <option value="Recycled Nylon">Recycled Nylon</option>
+                                              <option value="Recycled Acrylic">Recycled Acrylic</option>
+                                              <option value="Leather">Leather</option>
+                                              <option value="Faux Fur">Faux Fur</option>
+                                              <option value="Faux Suede Patch">Faux Suede Patch</option>
+                                              <option value="Imitation Suede">Imitation Suede</option>
+                                              <option value="Lurex">Lurex</option>
+                                              <option value="Metallic">Metallic</option>
+                                              <option value="Metallic fibre">Metallic fibre</option>
+                                              <option value="Metallised Fibre">Metallised Fibre</option>
+                                              <option value="Other Fiber">Other Fiber</option>
+                                              <option value="Other Fibers">Other Fibers</option>
+                                            </select>
+                                          </td>
+                                          <td className="py-1">
+                                            <input 
+                                              type="number" 
+                                              step="0.1"
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Upper']?.[index]?.percentage || '0.0'}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Upper']) newRows[idx]['Upper'] = [];
+                                                if (!newRows[idx]['Upper'][index]) newRows[idx]['Upper'][index] = {};
+                                                newRows[idx]['Upper'][index].percentage = parseFloat(e.target.value) || 0;
+                                                setRows(newRows);
+                                              }}
+                                            />
+                                          </td>
+                                        </tr>
+                                      ))}
+                                      <tr className="border-t font-semibold">
+                                        <td className="py-1">Total</td>
+                                        <td className="py-1">
+                                          {(row['Upper']?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                                )}
+
+                                {/* Faux Fur Shell Section */}
+                                {row['Faux Fur Shell'] !== undefined && (
+                                <div className="border border-blue-200 rounded p-3">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold text-sm">Faux Fur Shell</h4>
+                                    <button className="text-red-500 hover:text-red-700" onClick={() => {
+                                      const newRows = [...rows];
+                                      delete newRows[idx]['Faux Fur Shell'];
+                                      setRows(newRows);
+                                    }}>
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                  <table className="text-xs w-full">
+                                    <thead>
+                                      <tr className="border-b">
+                                        <th className="text-left py-1">Fibre</th>
+                                        <th className="text-left py-1">%</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {[0, 1, 2, 3, 4, 5].map((index) => (
+                                        <tr key={index}>
+                                          <td className="py-1">
+                                            <select 
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Faux Fur Shell']?.[index]?.type || ''}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Faux Fur Shell']) newRows[idx]['Faux Fur Shell'] = [];
+                                                if (!newRows[idx]['Faux Fur Shell'][index]) newRows[idx]['Faux Fur Shell'][index] = {};
+                                                newRows[idx]['Faux Fur Shell'][index].type = e.target.value;
+                                                setRows(newRows);
+                                              }}
+                                            >
+                                              <option value="">Select</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Acrylic">Acrylic</option>
+                                              <option value="Nylon">Nylon</option>
+                                              <option value="Elastane">Elastane</option>
+                                              <option value="Silk">Silk</option>
+                                              <option value="Viscose">Viscose</option>
+                                              <option value="Lycra">Lycra</option>
+                                              <option value="Spandex">Spandex</option>
+                                              <option value="Rayon">Rayon</option>
+                                              <option value="Cashmere">Cashmere</option>
+                                              <option value="Angora">Angora</option>
+                                              <option value="Alpaca">Alpaca</option>
+                                              <option value="Lambswool">Lambswool</option>
+                                              <option value="Merino Wool">Merino Wool</option>
+                                              <option value="Organic cotton">Organic cotton</option>
+                                              <option value="Recycled Polyester">Recycled Polyester</option>
+                                              <option value="Recycled Wool">Recycled Wool</option>
+                                              <option value="Recycled Nylon">Recycled Nylon</option>
+                                              <option value="Recycled Acrylic">Recycled Acrylic</option>
+                                              <option value="Leather">Leather</option>
+                                              <option value="Faux Fur">Faux Fur</option>
+                                              <option value="Faux Suede Patch">Faux Suede Patch</option>
+                                              <option value="Imitation Suede">Imitation Suede</option>
+                                              <option value="Lurex">Lurex</option>
+                                              <option value="Metallic">Metallic</option>
+                                              <option value="Metallic fibre">Metallic fibre</option>
+                                              <option value="Metallised Fibre">Metallised Fibre</option>
+                                              <option value="Other Fiber">Other Fiber</option>
+                                              <option value="Other Fibers">Other Fibers</option>
+                                            </select>
+                                          </td>
+                                          <td className="py-1">
+                                            <input 
+                                              type="number" 
+                                              step="0.1"
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Faux Fur Shell']?.[index]?.percentage || '0.0'}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Faux Fur Shell']) newRows[idx]['Faux Fur Shell'] = [];
+                                                if (!newRows[idx]['Faux Fur Shell'][index]) newRows[idx]['Faux Fur Shell'][index] = {};
+                                                newRows[idx]['Faux Fur Shell'][index].percentage = parseFloat(e.target.value) || 0;
+                                                setRows(newRows);
+                                              }}
+                                            />
+                                          </td>
+                                        </tr>
+                                      ))}
+                                      <tr className="border-t font-semibold">
+                                        <td className="py-1">Total</td>
+                                        <td className="py-1">
+                                          {(row['Faux Fur Shell']?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                                )}
+
+                                {/* Lining Section */}
+                                {row['Lining'] !== undefined && (
+                                <div className="border border-blue-200 rounded p-3">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-semibold text-sm">Lining</h4>
+                                    <button className="text-red-500 hover:text-red-700" onClick={() => {
+                                      const newRows = [...rows];
+                                      delete newRows[idx]['Lining'];
+                                      setRows(newRows);
+                                    }}>
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                  <table className="text-xs w-full">
+                                    <thead>
+                                      <tr className="border-b">
+                                        <th className="text-left py-1">Fibre</th>
+                                        <th className="text-left py-1">%</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {[0, 1, 2, 3, 4, 5].map((index) => (
+                                        <tr key={index}>
+                                          <td className="py-1">
+                                            <select 
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Lining']?.[index]?.type || ''}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Lining']) newRows[idx]['Lining'] = [];
+                                                if (!newRows[idx]['Lining'][index]) newRows[idx]['Lining'][index] = {};
+                                                newRows[idx]['Lining'][index].type = e.target.value;
+                                                setRows(newRows);
+                                              }}
+                                            >
+                                              <option value="">Select</option>
+                                              <option value="Cotton">Cotton</option>
+                                              <option value="Polyester">Polyester</option>
+                                              <option value="Wool">Wool</option>
+                                              <option value="Acrylic">Acrylic</option>
+                                              <option value="Nylon">Nylon</option>
+                                              <option value="Elastane">Elastane</option>
+                                              <option value="Silk">Silk</option>
+                                              <option value="Viscose">Viscose</option>
+                                              <option value="Lycra">Lycra</option>
+                                              <option value="Spandex">Spandex</option>
+                                              <option value="Rayon">Rayon</option>
+                                              <option value="Cashmere">Cashmere</option>
+                                              <option value="Angora">Angora</option>
+                                              <option value="Alpaca">Alpaca</option>
+                                              <option value="Lambswool">Lambswool</option>
+                                              <option value="Merino Wool">Merino Wool</option>
+                                              <option value="Organic cotton">Organic cotton</option>
+                                              <option value="Recycled Polyester">Recycled Polyester</option>
+                                              <option value="Recycled Wool">Recycled Wool</option>
+                                              <option value="Recycled Nylon">Recycled Nylon</option>
+                                              <option value="Recycled Acrylic">Recycled Acrylic</option>
+                                              <option value="Leather">Leather</option>
+                                              <option value="Faux Fur">Faux Fur</option>
+                                              <option value="Faux Suede Patch">Faux Suede Patch</option>
+                                              <option value="Imitation Suede">Imitation Suede</option>
+                                              <option value="Lurex">Lurex</option>
+                                              <option value="Metallic">Metallic</option>
+                                              <option value="Metallic fibre">Metallic fibre</option>
+                                              <option value="Metallised Fibre">Metallised Fibre</option>
+                                              <option value="Other Fiber">Other Fiber</option>
+                                              <option value="Other Fibers">Other Fibers</option>
+                                            </select>
+                                          </td>
+                                          <td className="py-1">
+                                            <input 
+                                              type="number" 
+                                              step="0.1"
+                                              className="w-full border rounded px-1 py-0.5 text-xs"
+                                              value={row['Lining']?.[index]?.percentage || '0.0'}
+                                              onChange={(e) => {
+                                                const newRows = [...rows];
+                                                if (!newRows[idx]['Lining']) newRows[idx]['Lining'] = [];
+                                                if (!newRows[idx]['Lining'][index]) newRows[idx]['Lining'][index] = {};
+                                                newRows[idx]['Lining'][index].percentage = parseFloat(e.target.value) || 0;
+                                                setRows(newRows);
+                                              }}
+                                            />
+                                          </td>
+                                        </tr>
+                                      ))}
+                                      <tr className="border-t font-semibold">
+                                        <td className="py-1">Total</td>
+                                        <td className="py-1">
+                                          {(row['Lining']?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                                )}
+                              </div>
+                              
+                              {/* Add New Fibre Composition Button */}
+                              <div className="mb-3">
+                                <button 
+                                  className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 flex items-center gap-2"
+                                  onClick={() => {
+                                    const newRows = [...rows];
+                                    // Add all the fibre composition sections
+                                    newRows[idx] = { 
+                                      ...newRows[idx], 
+                                      'Fibre Content': [],
+                                      'Shell': [],
+                                      'Body': [],
+                                      'Upper': [],
+                                      'Faux Fur Shell': [],
+                                      'Lining': []
+                                    };
+                                    setRows(newRows);
+                                  }}
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                  </svg>
+                                  Add New Fibre Composition
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Care Instructions Tab */}
+                          {techPacksEditTab === 'Care Instructions' && (
+                            <div className="inline-block">
+                              <div className="border border-gray-200 rounded p-4 bg-white">
+                                <h4 className="font-semibold text-gray-700 mb-3 text-sm border-b border-gray-200 pb-2">Product Details</h4>
+                                <table className="text-sm w-full">
+                                <tbody>
+                                    <tr>
+                                      <td className="px-2 py-1 font-semibold text-gray-700 w-48">Product Name</td>
+                                      <td className="px-2 py-1 text-blue-600">M8830037</td>
+                                    </tr>
+                                    <tr>
+                                      <td className="px-2 py-1 font-semibold text-gray-700 w-48">Product Description</td>
+                                      <td className="px-2 py-1 text-gray-700">MACHINE KNITTED MENS BEANIE</td>
+                                    </tr>
+                                    <tr>
+                                      <td className="px-2 py-1 font-semibold text-gray-700 w-48">Product Buyer Style<br />Number</td>
+                                      <td className="px-2 py-1 text-gray-700">22992</td>
+                                    </tr>
+                                </tbody>
+                              </table>
+                              </div>
+                              
+                              <div className="mt-6">
+                                <h4 className="font-semibold text-gray-700 mb-4 text-sm">Care Instructions</h4>
+                                
+                                {/* First Set of Care Instructions */}
+                                <div className="grid grid-cols-4 gap-4 mb-4">
+                                  {/* Wash Panel */}
+                                  <div className="border border-gray-200 rounded p-3 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Wash</div>
+                                    <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
+                                      <option value="">Select wash type</option>
+                                      <option value="machine-wash">Machine Wash</option>
+                                      <option value="hand-wash">Hand Wash</option>
+                                      <option value="do-not-wash">Do Not Wash</option>
+                                    </select>
+                                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center">
+                                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Wash Modifier Panel */}
+                                  <div className="border border-gray-200 rounded p-3 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Wash Modifier</div>
+                                    <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
+                                      <option value="">Select modifier</option>
+                                      <option value="cold">Cold</option>
+                                      <option value="warm">Warm</option>
+                                      <option value="hot">Hot</option>
+                                      <option value="gentle">Gentle</option>
+                                    </select>
+                                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center">
+                                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Bleach Panel */}
+                                  <div className="border border-gray-200 rounded p-3 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Bleach</div>
+                                    <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
+                                      <option value="">Select bleach option</option>
+                                      <option value="do-not-bleach">Do Not Bleach</option>
+                                      <option value="non-chlorine">Non-Chlorine</option>
+                                      <option value="chlorine">Chlorine</option>
+                                    </select>
+                                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center">
+                                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Dry Panel */}
+                                  <div className="border border-gray-200 rounded p-3 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Dry</div>
+                                    <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
+                                      <option value="">Select dry method</option>
+                                      <option value="tumble-dry">Tumble Dry</option>
+                                      <option value="line-dry">Line Dry</option>
+                                      <option value="drip-dry">Drip Dry</option>
+                                      <option value="do-not-dry">Do Not Dry</option>
+                                    </select>
+                                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center">
+                                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                {/* Second Set of Care Instructions */}
+                                <div className="grid grid-cols-4 gap-4 mb-4">
+                                  {/* Natural Drying Panel */}
+                                  <div className="border border-gray-200 rounded p-3 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Natural Drying</div>
+                                    <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
+                                      <option value="">Select drying method</option>
+                                      <option value="line-dry">Line Dry</option>
+                                      <option value="drip-dry">Drip Dry</option>
+                                      <option value="flat-dry">Flat Dry</option>
+                                      <option value="shade-dry">Shade Dry</option>
+                                    </select>
+                                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center">
+                                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Modifier Panel */}
+                                  <div className="border border-gray-200 rounded p-3 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Modifier</div>
+                                    <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
+                                      <option value="">Select modifier</option>
+                                      <option value="gentle">Gentle</option>
+                                      <option value="normal">Normal</option>
+                                      <option value="heavy">Heavy</option>
+                                      <option value="delicate">Delicate</option>
+                                    </select>
+                                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center">
+                                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Iron Panel */}
+                                  <div className="border border-gray-200 rounded p-3 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Iron</div>
+                                    <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
+                                      <option value="">Select iron setting</option>
+                                      <option value="do-not-iron">Do Not Iron</option>
+                                      <option value="low-heat">Low Heat</option>
+                                      <option value="medium-heat">Medium Heat</option>
+                                      <option value="high-heat">High Heat</option>
+                                    </select>
+                                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center">
+                                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Dry Clean Panel */}
+                                  <div className="border border-gray-200 rounded p-3 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Dry Clean</div>
+                                    <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3">
+                                      <option value="">Select dry clean option</option>
+                                      <option value="do-not-dry-clean">Do Not Dry Clean</option>
+                                      <option value="dry-clean-only">Dry Clean Only</option>
+                                      <option value="dry-clean-p">Dry Clean P</option>
+                                      <option value="dry-clean-f">Dry Clean F</option>
+                                    </select>
+                                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center">
+                                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                {/* Third Row - Care Code Panel */}
+                                <div className="grid grid-cols-4 gap-4">
+                                  {/* Care Code Panel */}
+                                  <div className="border border-gray-200 rounded p-3 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Care Code</div>
+                                    <select className="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-3" defaultValue="HW11">
+                                      <option value="">Select care code</option>
+                                      <option value="HW11">HW11</option>
+                                      <option value="HW12">HW12</option>
+                                      <option value="HW13">HW13</option>
+                                      <option value="HW14">HW14</option>
+                                    </select>
+                                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center">
+                                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Memo Section */}
+                              <div className="mt-6">
+                                <h4 className="font-semibold text-gray-700 mb-4 text-sm">Memo</h4>
+                                <div className="grid grid-cols-2 gap-6">
+                                  {/* Label Panel */}
+                                  <div className="border border-gray-200 rounded p-4 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Label</div>
+                                    <textarea 
+                                      className="w-full border border-gray-300 rounded px-3 py-2 text-sm resize-none"
+                                      rows={4}
+                                      placeholder="Enter label comments here..."
+                                    ></textarea>
+                                  </div>
+                                  
+                                  {/* Label Location Panel */}
+                                  <div className="border border-gray-200 rounded p-4 bg-white">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">Label Location</div>
+                                    <textarea 
+                                      className="w-full border border-gray-300 rounded px-3 py-2 text-sm resize-none"
+                                      rows={4}
+                                      placeholder="Enter label location comments here..."
+                                    ></textarea>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Labels Tab */}
+                          {techPacksEditTab === 'Labels' && (
+                            <div>
+                              <div className="overflow-x-auto">
+                                <table className="text-xs border border-gray-300 rounded max-w-4xl">
                                   <thead>
-                                    <tr className="border-b">
-                                      <th className="text-left py-1">Fibre</th>
-                                      <th className="text-left py-1">%</th>
+                                    <tr className="bg-gray-50">
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Name</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-32">Description</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Material</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Image Type 1</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Image Type 2</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Position</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-24">Application</th>
+                                      <th className="px-1 py-0.5 text-left font-semibold border w-32">Comment</th>
                                     </tr>
                                   </thead>
-                                  <tbody>
-                                    {[0, 1, 2, 3, 4, 5].map((index) => (
-                                      <tr key={index}>
-                                        <td className="py-1">
-                                          <select 
-                                            className="w-full border rounded px-1 py-0.5 text-xs"
-                                            value={row['Fibre Section 1']?.[index]?.type || ''}
-                                          >
-                                            <option value="">Select</option>
-                                            <option value="(Faux fur) Polyester">(Faux fur) Polyester</option>
-                                            <option value="Acetate">Acetate</option>
-                                            <option value="Acrylic">Acrylic</option>
-                                            <option value="Alpaca">Alpaca</option>
-                                            <option value="Angora">Angora</option>
-                                            <option value="Cashmere">Cashmere</option>
-                                            <option value="Contains Non-Textile Parts of Animal Origin">Contains Non-Textile Parts of Animal Origin</option>
-                                            <option value="Cotton">Cotton</option>
-                                            <option value="Elastane">Elastane</option>
-                                            <option value="Flax">Flax</option>
-                                            <option value="Hemp">Hemp</option>
-                                            <option value="Jute">Jute</option>
-                                            <option value="Linen">Linen</option>
-                                            <option value="Lyocell">Lyocell</option>
-                                            <option value="Metallic fibre">Metallic fibre</option>
-                                            <option value="Metallised Fibre">Metallised Fibre</option>
-                                            <option value="Modal">Modal</option>
-                                            <option value="Mohair">Mohair</option>
-                                            <option value="Nylon">Nylon</option>
-                                            <option value="Other Fibres">Other Fibres</option>
-                                            <option value="Polyamide">Polyamide</option>
-                                            <option value="Polyester">Polyester</option>
-                                            <option value="Polypropylene">Polypropylene</option>
-                                            <option value="Ramie">Ramie</option>
-                                            <option value="Silk">Silk</option>
-                                            <option value="Sisal">Sisal</option>
-                                            <option value="Triacetate">Triacetate</option>
-                                            <option value="Viscose">Viscose</option>
-                                            <option value="Wool">Wool</option>
-                                          </select>
-                                        </td>
-                                        <td className="py-1">
-                                          <input
-                                            type="number"
-                                            step="0.1"
-                                            min="0"
-                                            max="100"
-                                            className="w-full border rounded px-1 py-0.5 text-xs"
-                                            value={row['Fibre Section 1']?.[index]?.percentage || '0.0'}
-                                          />
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                                <div className="mt-2 text-xs text-gray-600">
-                                  Total: {(row['Fibre Section 1']?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}%
-                                </div>
-                              </div>
-
-                              {/* Fibre Section 2 */}
-                              <div className="border border-blue-200 rounded p-3">
-                                <div className="flex justify-between items-center mb-2">
-                                  <h4 className="font-semibold text-sm">Fibre Section 2</h4>
-                                  <button className="text-red-500 hover:text-red-700">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                  </button>
-                                </div>
-                                <table className="text-xs w-full">
-                                  <thead>
-                                    <tr className="border-b">
-                                      <th className="text-left py-1">Fibre</th>
-                                      <th className="text-left py-1">%</th>
+                                <tbody>
+                                    <tr className="hover:bg-gray-50">
+                                      <td className="px-1 py-0.5 border text-xs">Care Label</td>
+                                      <td className="px-1 py-0.5 border text-xs">Washing and care instructions</td>
+                                      <td className="px-1 py-0.5 border text-xs">Polyester</td>
+                                      <td className="px-1 py-0.5 border text-xs">Woven</td>
+                                      <td className="px-1 py-0.5 border text-xs">Printed</td>
+                                      <td className="px-1 py-0.5 border text-xs">Neck</td>
+                                      <td className="px-1 py-0.5 border text-xs">Sewn</td>
+                                      <td className="px-1 py-0.5 border text-xs">Must be permanent</td>
                                     </tr>
-                                  </thead>
-                                  <tbody>
-                                    {[0, 1, 2, 3, 4, 5].map((index) => (
-                                      <tr key={index}>
-                                        <td className="py-1">
-                                          <select 
-                                            className="w-full border rounded px-1 py-0.5 text-xs"
-                                            value={row['Fibre Section 2']?.[index]?.type || ''}
-                                          >
-                                            <option value="">Select</option>
-                                            <option value="(Faux fur) Polyester">(Faux fur) Polyester</option>
-                                            <option value="Acetate">Acetate</option>
-                                            <option value="Acrylic">Acrylic</option>
-                                            <option value="Alpaca">Alpaca</option>
-                                            <option value="Angora">Angora</option>
-                                            <option value="Cashmere">Cashmere</option>
-                                            <option value="Contains Non-Textile Parts of Animal Origin">Contains Non-Textile Parts of Animal Origin</option>
-                                            <option value="Cotton">Cotton</option>
-                                            <option value="Elastane">Elastane</option>
-                                            <option value="Flax">Flax</option>
-                                            <option value="Hemp">Hemp</option>
-                                            <option value="Jute">Jute</option>
-                                            <option value="Linen">Linen</option>
-                                            <option value="Lyocell">Lyocell</option>
-                                            <option value="Metallic fibre">Metallic fibre</option>
-                                            <option value="Metallised Fibre">Metallised Fibre</option>
-                                            <option value="Modal">Modal</option>
-                                            <option value="Mohair">Mohair</option>
-                                            <option value="Nylon">Nylon</option>
-                                            <option value="Other Fibres">Other Fibres</option>
-                                            <option value="Polyamide">Polyamide</option>
-                                            <option value="Polyester">Polyester</option>
-                                            <option value="Polypropylene">Polypropylene</option>
-                                            <option value="Ramie">Ramie</option>
-                                            <option value="Silk">Silk</option>
-                                            <option value="Sisal">Sisal</option>
-                                            <option value="Triacetate">Triacetate</option>
-                                            <option value="Viscose">Viscose</option>
-                                            <option value="Wool">Wool</option>
-                                          </select>
-                                        </td>
-                                        <td className="py-1">
-                                          <input
-                                            type="number"
-                                            step="0.1"
-                                            min="0"
-                                            max="100"
-                                            className="w-full border rounded px-1 py-0.5 text-xs"
-                                            value={row['Fibre Section 2']?.[index]?.percentage || '0.0'}
-                                          />
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                                <div className="mt-2 text-xs text-gray-600">
-                                  Total: {(row['Fibre Section 2']?.reduce((sum: number, item: any) => sum + (parseFloat(item?.percentage) || 0), 0) || 0).toFixed(1)}%
+                                    <tr className="hover:bg-gray-50">
+                                      <td className="px-1 py-0.5 border text-xs">Size Label</td>
+                                      <td className="px-1 py-0.5 border text-xs">Product size information</td>
+                                      <td className="px-1 py-0.5 border text-xs">Cotton</td>
+                                      <td className="px-1 py-0.5 border text-xs">Woven</td>
+                                      <td className="px-1 py-0.5 border text-xs">Embossed</td>
+                                      <td className="px-1 py-0.5 border text-xs">Side Seam</td>
+                                      <td className="px-1 py-0.5 border text-xs">Sewn</td>
+                                      <td className="px-1 py-0.5 border text-xs">Standard size label</td>
+                                    </tr>
+                                    <tr className="hover:bg-gray-50">
+                                      <td className="px-1 py-0.5 border text-xs">Brand Label</td>
+                                      <td className="px-1 py-0.5 border text-xs">Brand logo and name</td>
+                                      <td className="px-1 py-0.5 border text-xs">Silk</td>
+                                      <td className="px-1 py-0.5 border text-xs">Woven</td>
+                                      <td className="px-1 py-0.5 border text-xs">Embroidered</td>
+                                      <td className="px-1 py-0.5 border text-xs">Chest</td>
+                                      <td className="px-1 py-0.5 border text-xs">Sewn</td>
+                                      <td className="px-1 py-0.5 border text-xs">Premium brand label</td>
+                                    </tr>
+                                    <tr className="hover:bg-gray-50">
+                                      <td className="px-1 py-0.5 border text-xs">Composition Label</td>
+                                      <td className="px-1 py-0.5 border text-xs">Fabric composition details</td>
+                                      <td className="px-1 py-0.5 border text-xs">Polyester</td>
+                                      <td className="px-1 py-0.5 border text-xs">Woven</td>
+                                      <td className="px-1 py-0.5 border text-xs">Printed</td>
+                                      <td className="px-1 py-0.5 border text-xs">Side Seam</td>
+                                      <td className="px-1 py-0.5 border text-xs">Sewn</td>
+                                      <td className="px-1 py-0.5 border text-xs">Required by law</td>
+                                    </tr>
+                                    <tr className="hover:bg-gray-50">
+                                      <td className="px-1 py-0.5 border text-xs">Origin Label</td>
+                                      <td className="px-1 py-0.5 border text-xs">Country of origin</td>
+                                      <td className="px-1 py-0.5 border text-xs">Cotton</td>
+                                      <td className="px-1 py-0.5 border text-xs">Woven</td>
+                                      <td className="px-1 py-0.5 border text-xs">Printed</td>
+                                      <td className="px-1 py-0.5 border text-xs">Neck</td>
+                                      <td className="px-1 py-0.5 border text-xs">Sewn</td>
+                                      <td className="px-1 py-0.5 border text-xs">Made in China</td>
+                                    </tr>
+                                </tbody>
+                              </table>
+                              </div>
+                              
+                              {/* Image Type Tables */}
+                              <div className="mt-6">
+                                <div className="flex gap-4">
+                                  {/* Image Type 1 Table */}
+                                  <div>
+                                    <h4 className="font-semibold text-gray-700 mb-3 text-sm">Image Type 1</h4>
+                                    <div className="border border-gray-200 rounded p-4 bg-white w-64">
+                                      <div className="w-32 h-32 bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center mb-3 mx-auto">
+                                        <svg className="w-16 h-16 text-white opacity-80" fill="currentColor" viewBox="0 0 24 24">
+                                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                      </div>
+                                      <table className="text-xs w-full">
+                                        <tbody>
+                                          <tr>
+                                            <td className="px-2 py-1 font-semibold text-gray-700 w-24">Type</td>
+                                            <td className="px-2 py-1 text-gray-700">Woven</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 font-semibold text-gray-700 w-24">Style</td>
+                                            <td className="px-2 py-1 text-gray-700">Standard</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 font-semibold text-gray-700 w-24">Color</td>
+                                            <td className="px-2 py-1 text-gray-700">Blue Gradient</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 font-semibold text-gray-700 w-24">Size</td>
+                                            <td className="px-2 py-1 text-gray-700">Medium</td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Image Type 2 Table */}
+                                  <div>
+                                    <h4 className="font-semibold text-gray-700 mb-3 text-sm">Image Type 2</h4>
+                                    <div className="border border-gray-200 rounded p-4 bg-white w-64">
+                                      <div className="w-32 h-32 bg-gradient-to-br from-blue-300 to-blue-500 rounded-lg flex items-center justify-center mb-3 mx-auto">
+                                        <svg className="w-16 h-16 text-white opacity-80" fill="currentColor" viewBox="0 0 24 24">
+                                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                      </div>
+                                      <table className="text-xs w-full">
+                                        <tbody>
+                                          <tr>
+                                            <td className="px-2 py-1 font-semibold text-gray-700 w-24">Type</td>
+                                            <td className="px-2 py-1 text-gray-700">Printed</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 font-semibold text-gray-700 w-24">Style</td>
+                                            <td className="px-2 py-1 text-gray-700">Custom</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 font-semibold text-gray-700 w-24">Color</td>
+                                            <td className="px-2 py-1 text-gray-700">Blue Gradient</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 font-semibold text-gray-700 w-24">Size</td>
+                                            <td className="px-2 py-1 text-gray-700">Large</td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </div>
+                          )}
 
-                            {/* Add New Fibre Composition Button */}
-                            <div className="mt-4">
-                              <button 
-                                className="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700 transition-colors"
-                                onClick={() => {
-                                  const newRows = [...rows];
-                                  const existingSections = Object.keys(newRows[idx]).filter(key => key.startsWith('Fibre Section'));
-                                  const newSectionName = `Fibre Section ${existingSections.length + 1}`;
-                                  newRows[idx][newSectionName] = [];
-                                  setRows(newRows);
-                                }}
-                              >
-                                Add New Fibre Composition
-                              </button>
-                            </div>
+                        </div>
 
-                            <div className="flex gap-2 mt-4">
-                              <button className="bg-blue-600 text-white px-3 py-1 rounded">Edit Fibre Contents</button>
-                              <button className="bg-green-600 text-white px-3 py-1 rounded">Save Changes</button>
-                            </div>
-                          </div>
-                        )}
+
                       </div>
                     </td>
                   </tr>

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { BarChart3, Download, Filter, Calendar, TrendingUp, DollarSign, Package, Users } from 'lucide-react';
+import { BarChart3, Download, Filter, Calendar, TrendingUp, DollarSign, Package, Users, FileText } from 'lucide-react';
 import ExportReportModal from '../components/modals/ExportReportModal';
+import GenerateReportModal from '../components/modals/GenerateReportModal';
 
 const PivotReports: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState('overview');
   const [dateRange, setDateRange] = useState('last30days');
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showGenerateModal, setShowGenerateModal] = useState(false);
 
   const reportTypes = [
     { id: 'overview', name: 'Overview Dashboard', icon: BarChart3 },
@@ -55,6 +57,24 @@ const PivotReports: React.FC = () => {
     alert(`Exporting ${reportType} report as ${exportFormat}...\n\nThis would trigger the actual export functionality.`);
   };
 
+  const handleGenerateReport = async (reportType: string, selectedDateRange: string) => {
+    try {
+      // Simulate report generation process
+      console.log(`Generating ${reportType} report for ${selectedDateRange}`);
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Show success message
+      const reportName = reportTypes.find(r => r.id === reportType)?.name || reportType;
+      alert(`Report generated successfully!\n\nReport Type: ${reportName}\nDate Range: ${selectedDateRange}\n\nThis would trigger the actual report generation functionality.`);
+      
+    } catch (error) {
+      console.error('Error generating report:', error);
+      alert('Error generating report. Please try again.');
+    }
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
@@ -74,6 +94,13 @@ const PivotReports: React.FC = () => {
               <option value="last90days">Last 90 Days</option>
               <option value="lastyear">Last Year</option>
             </select>
+            <button 
+              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+              onClick={() => setShowGenerateModal(true)}
+            >
+              <FileText className="h-5 w-5" />
+              <span>Generate Report</span>
+            </button>
             <button 
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
               onClick={() => setShowExportModal(true)}
@@ -242,6 +269,12 @@ const PivotReports: React.FC = () => {
         isOpen={showExportModal}
         onClose={() => setShowExportModal(false)}
         onExport={handleExport}
+      />
+      <GenerateReportModal
+        isOpen={showGenerateModal}
+        onClose={() => setShowGenerateModal(false)}
+        onGenerate={handleGenerateReport}
+        selectedDateRange={dateRange}
       />
     </div>
   );

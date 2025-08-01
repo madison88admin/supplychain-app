@@ -53,43 +53,6 @@ const ProductManager: React.FC = () => {
         {/* Main Content Area */}
         <div className={`flex-1 flex flex-col transition-all duration-300 ${filterSidebarCollapsed ? 'ml-0' : 'ml-0'}`}>
           <div className="p-6">
-<<<<<<< HEAD
-            <div className="mb-8">
-              <h1 className="text-2xl font-bold text-gray-900">Product Manager</h1>
-            </div>
-            
-            {/* Two Column Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative">
-              {/* Left Column - Tech Pack Tabs */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-                {/* Tab Navigation */}
-                <div className="border-b" style={{ borderColor: '#3D75A3' }}>
-                  <div className="flex">
-                    {leftTabs.map((tab) => (
-                      <button
-                        key={tab}
-                        onClick={() => handleLeftTabChange(tab)}
-                        className={`px-4 py-3 font-medium text-xs ${
-                          leftActiveTab === tab
-                            ? 'bg-gray-100 text-gray-900 border-t-2 border-l-2 shadow-sm'
-                            : 'bg-white text-gray-700 border border-gray-300'
-                        }`}
-                        style={leftActiveTab === tab ? { borderColor: '#3D75A3' } : {}}
-                      >
-                        {tab}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Tab Content */}
-                <TabContent
-                  activeTab={leftActiveTab}
-                  selectedRowId={selectedRowIndex?.toString()}
-                  onRowClick={handleRowClick}
-                />
-              </div>
-=======
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Product Manager</h1>
       </div>
@@ -125,7 +88,6 @@ const ProductManager: React.FC = () => {
             onRowClick={handleRowClick}
           />
         </div>
->>>>>>> 080b6a96d9b314f1a101ac6ec5234ed83f31f730
 
         {/* Vertical Divider */}
         <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px bg-gray-300 transform -translate-x-1/2"></div>

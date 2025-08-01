@@ -420,7 +420,7 @@ const DataBank: React.FC = () => {
               ) : tableData.length > 0 ? (
                 <div>
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 sticky top-0 z-40">
                       <tr>
                         {Object.keys(tableData[0]).map((column) => (
                           <th

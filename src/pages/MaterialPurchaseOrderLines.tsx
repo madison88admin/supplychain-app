@@ -331,7 +331,7 @@ const MaterialPurchaseOrderLines: React.FC = () => {
   };
 
   const [rows, setRows] = useState(generateDummyEntries());
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const [search, setSearch] = useState('');
   const [filteredRows, setFilteredRows] = useState<typeof rows | null>(null);
   const [showColumnSelector, setShowColumnSelector] = useState(false);
@@ -339,6 +339,9 @@ const MaterialPurchaseOrderLines: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [selectAll, setSelectAll] = useState(false);
+
+  // Cell selection states
+  const [selectedCell, setSelectedCell] = useState<{rowIndex: number, colKey: string} | null>(null);
   const [columnSearch, setColumnSearch] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editModalData, setEditModalData] = useState<any>(null);
@@ -500,6 +503,23 @@ const MaterialPurchaseOrderLines: React.FC = () => {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'MaterialPurchaseOrderLines');
     XLSX.writeFile(wb, `material_purchase_order_lines_${selectedRows.size > 0 ? 'selected' : 'all'}_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  // Cell selection handlers - now highlights entire row
+  const handleCellClick = (rowIndex: number, colKey: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedIndex(rowIndex);
+    // Clear any previous cell selection
+    setSelectedCell(null);
+  };
+
+  const handleCellKeyDown = (rowIndex: number, colKey: string, e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setSelectedIndex(rowIndex);
+      // Clear any previous cell selection
+      setSelectedCell(null);
+    }
   };
 
   const handleSaveEdit = (data: any) => {
@@ -755,14 +775,13 @@ const MaterialPurchaseOrderLines: React.FC = () => {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto" style={{ maxHeight: 'calc(86vh - 220px)' }}>
-        <div className="overflow-y-auto" style={{ maxHeight: 'calc(86vh - 220px)' }}>
-          <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs" style={{ 
-            boxSizing: 'border-box',
-            borderCollapse: 'separate',
-            borderSpacing: 0,
-            tableLayout: 'auto'
-          }}>
+      <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: 'calc(86vh - 220px)' }}>
+        <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs" style={{ 
+          boxSizing: 'border-box',
+          borderCollapse: 'separate',
+          borderSpacing: 0,
+          tableLayout: 'auto'
+        }}>
             <thead className="bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0 z-40">
               <tr>
                 {/* Checkbox column header */}
@@ -804,12 +823,22 @@ const MaterialPurchaseOrderLines: React.FC = () => {
                   key={idx}
                   className={`
                     transition-all duration-300 cursor-pointer group
-                    ${selectedIndex === idx ? 'bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-500 shadow-lg animate-pulse' : 'hover:bg-gray-50'}
-                    ${selectedRows.has(idx) && selectedIndex !== idx ? 'bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-500 shadow-md' : ''}
-                    ${selectedRows.has(idx) && selectedIndex === idx ? 'bg-gradient-to-r from-blue-100 to-green-100 border-2 border-blue-500 shadow-lg animate-pulse' : ''}
+                    ${selectedIndex === idx ? 'bg-blue-50 border border-blue-500' : 'hover:bg-gray-50'}
+                    ${selectedRows.has(idx) && selectedIndex !== idx ? 'bg-green-50 border border-green-500' : ''}
+                    ${selectedRows.has(idx) && selectedIndex === idx ? 'bg-blue-50 border border-blue-500' : ''}
                   `}
                   title="Click to select for editing"
-                  onClick={() => setSelectedIndex(idx)}
+                  onClick={(e) => {
+                    // Don't trigger row selection if clicking on checkbox
+                    if ((e.target as HTMLElement).closest('input[type="checkbox"]')) {
+                      return;
+                    }
+                    // When a row is clicked (not its checkbox), treat it as a single selection:
+                    // Clear all previous multi-selections and set this as the only selected row.
+                    setSelectedRows(new Set([idx]));
+                    setSelectAll(false); // Since it's a single selection, selectAll should be false
+                    setSelectedIndex(idx);
+                  }}
                 >
                   {/* Checkbox column */}
                   <td 
@@ -843,12 +872,15 @@ const MaterialPurchaseOrderLines: React.FC = () => {
                     return (
                       <td 
                         key={col} 
-                        className={`px-2 py-1 border-b align-top whitespace-nowrap${colIdx < visibleColumns.length - 1 ? ' border-r-2 border-gray-200' : ''}`}
+                        className={`px-2 py-1 border-b align-top whitespace-nowrap cursor-pointer transition-all duration-200${colIdx < visibleColumns.length - 1 ? ' border-r-2 border-gray-200' : ''}${selectedIndex === idx ? ' bg-blue-50' : ' hover:bg-gray-50'}`}
                         style={{
                           ...getStickyStyle(col, false),
                           borderTop: '1px solid #e5e7eb',
                           borderBottom: '1px solid #e5e7eb'
                         }}
+                        onClick={(e) => handleCellClick(idx, col, e)}
+                        onKeyDown={(e) => handleCellKeyDown(idx, col, e)}
+                        tabIndex={0}
                       >
                         {showArrow ? (
                           <button
@@ -860,7 +892,7 @@ const MaterialPurchaseOrderLines: React.FC = () => {
                             }}
                           >
                             <span>{row[col] || ''}</span>
-                            <ChevronDown className={`inline w-4 h-4 ml-1 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                            <ChevronDown className={`inline w-5 h-5 ml-1 text-gray-500 hover:text-blue-600 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
                           </button>
                         ) : (
                           row[col] || ''
@@ -916,7 +948,6 @@ const MaterialPurchaseOrderLines: React.FC = () => {
             </tbody>
           </table>
         </div>
-      </div>
 
       {/* Edit Modal */}
       {/* <MaterialPurchaseOrderLinesEditModal

@@ -348,7 +348,7 @@ const PurchaseOrders: React.FC = () => {
   React.useEffect(() => {
     setRows(dummyRows);
   }, []);
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const [search, setSearch] = useState('');
   const [filteredRows, setFilteredRows] = useState<typeof rows | null>(null);
   const [showColumnSelector, setShowColumnSelector] = useState(false);
@@ -607,6 +607,9 @@ const PurchaseOrders: React.FC = () => {
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [selectAll, setSelectAll] = useState(false);
 
+  // Cell selection states
+  const [selectedCell, setSelectedCell] = useState<{rowIndex: number, colKey: string} | null>(null);
+
   const handleImportClick = () => {
     fileInputRef.current?.click();
   };
@@ -763,6 +766,23 @@ const PurchaseOrders: React.FC = () => {
     const today = new Date();
     const formattedDate = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}-${today.getFullYear()}`;
     XLSX.writeFile(wb, `purchase_orders_${selectedRows.size > 0 ? 'selected' : 'all'}_${formattedDate}.xlsx`);
+  };
+
+  // Cell selection handlers - now highlights entire row
+  const handleCellClick = (rowIndex: number, colKey: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedIndex(rowIndex);
+    // Clear any previous cell selection
+    setSelectedCell(null);
+  };
+
+  const handleCellKeyDown = (rowIndex: number, colKey: string, e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setSelectedIndex(rowIndex);
+      // Clear any previous cell selection
+      setSelectedCell(null);
+    }
   };
 
   const handleColumnToggle = (col: string) => {
@@ -1059,7 +1079,7 @@ const PurchaseOrders: React.FC = () => {
             borderSpacing: 0,
             tableLayout: 'auto'
           }}>
-            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0 z-40">
             <tr>
               {renderHeaderRows()[0]}
             </tr>
@@ -1075,15 +1095,19 @@ const PurchaseOrders: React.FC = () => {
                 <tr
                     className={`
                       transition-all duration-300 cursor-pointer
-                      ${selectedIndex === idx ? 'bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-500 shadow-lg animate-pulse' : 'hover:bg-gray-50'}
-                      ${selectedRows.has(idx) && selectedIndex !== idx ? 'bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-500 shadow-md' : ''}
-                      ${selectedRows.has(idx) && selectedIndex === idx ? 'bg-gradient-to-r from-blue-100 to-green-100 border-2 border-blue-500 shadow-lg animate-pulse' : ''}
+                      ${selectedIndex === idx ? 'bg-blue-50 border border-blue-500' : 'hover:bg-gray-50'}
+                      ${selectedRows.has(idx) && selectedIndex !== idx ? 'bg-green-50 border border-green-500' : ''}
+                      ${selectedRows.has(idx) && selectedIndex === idx ? 'bg-blue-50 border border-blue-500' : ''}
                     `}
                     onClick={(e) => {
                       // Don't trigger row selection if clicking on checkbox
                       if ((e.target as HTMLElement).closest('input[type="checkbox"]')) {
                         return;
                       }
+                      // When a row is clicked (not its checkbox), treat it as a single selection:
+                      // Clear all previous multi-selections and set this as the only selected row.
+                      setSelectedRows(new Set([idx]));
+                      setSelectAll(false); // Since it's a single selection, selectAll should be false
                       setSelectedIndex(idx);
                     }}
                   >
@@ -1118,9 +1142,9 @@ const PurchaseOrders: React.FC = () => {
                             className={`px-3 py-3 border-b align-top whitespace-nowrap cursor-pointer hover:bg-gray-50 transition-colors`}
                             style={{
                               ...getStickyStyle(col.key, false),
-                              width: '120px',
-                              minWidth: '120px',
-                              maxWidth: '120px',
+                              width: '200px',
+                              minWidth: '200px',
+                              maxWidth: '200px',
                               borderTop: '1px solid #e5e7eb',
                               borderBottom: '1px solid #e5e7eb'
                             }}
@@ -1132,7 +1156,7 @@ const PurchaseOrders: React.FC = () => {
                           > 
                             <div className="flex items-center w-full">
                               <div className="mr-2 align-middle flex-shrink-0">
-                                {expandedIndex === idx ? <ChevronDown className="inline h-4 w-4 text-blue-600" /> : <ChevronRight className="inline h-4 w-4 text-gray-500" />}
+                                {expandedIndex === idx ? <ChevronDown className="inline h-5 w-5 text-blue-600 transition-transform duration-200" /> : <ChevronRight className="inline h-5 w-5 text-gray-500 hover:text-blue-600 transition-transform duration-200" />}
                               </div>
                               <span className="font-medium text-gray-900 truncate">{row[col.key] || ''}</span>
                             </div>
@@ -1159,7 +1183,7 @@ const PurchaseOrders: React.FC = () => {
                             }}
                             aria-label={expandedProductIndex === idx ? 'Collapse product details' : 'Expand product details'}
                           >
-                            {expandedProductIndex === idx ? <ChevronDown className="inline h-4 w-4" /> : <ChevronRight className="inline h-4 w-4" />}
+                            {expandedProductIndex === idx ? <ChevronDown className="inline h-5 w-5 text-blue-600 transition-transform duration-200" /> : <ChevronRight className="inline h-5 w-5 text-gray-500 hover:text-blue-600 transition-transform duration-200" />}
                             <span className="font-medium text-gray-900">{row[col.key] || ''}</span>
                           </td>
                       ];
@@ -1167,7 +1191,13 @@ const PurchaseOrders: React.FC = () => {
                     // Regular columns without expandable subtables
                     if (!col.isGroup) {
                       return [
-                        <td key={col.key} className={`px-3 py-3 border-b align-top whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>
+                        <td 
+                          key={col.key} 
+                          className={`px-3 py-3 border-b align-top whitespace-nowrap cursor-pointer transition-all duration-200${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}${selectedIndex === idx ? ' bg-blue-50' : ' hover:bg-gray-50'}`}
+                          onClick={(e) => handleCellClick(idx, col.key, e)}
+                          onKeyDown={(e) => handleCellKeyDown(idx, col.key, e)}
+                          tabIndex={0}
+                        >
                           <span className="font-medium text-gray-900">{row[col.key] || ''}</span>
                         </td>
                       ];
@@ -1178,12 +1208,16 @@ const PurchaseOrders: React.FC = () => {
                         <td
                           key={`${col.key}-${subCol}-${idx}`}
                           className={
-                              `px-3 py-3 border-b align-top whitespace-nowrap min-w-20` +
+                              `px-3 py-3 border-b align-top whitespace-nowrap min-w-20 cursor-pointer transition-all duration-200` +
                             ((subIdx === 0 || subCol === 'Target Date') ? ' border-r-2 border-gray-200' : '') +
-                            (colIdx === arr.length - 1 && subCol === 'Completed Date' ? '' : '')
+                            (colIdx === arr.length - 1 && subCol === 'Completed Date' ? '' : '') +
+                            (selectedIndex === idx ? ' bg-blue-50' : ' hover:bg-gray-50')
                           }
+                                                    onClick={(e) => handleCellClick(idx, col.key + '-' + subCol, e)}
+                          onKeyDown={(e) => handleCellKeyDown(idx, col.key + '-' + subCol, e)}
+                          tabIndex={0}
                         >
-                            {row[col.key]?.[subCol] || ''}
+                          {row[col.key]?.[subCol] || ''}
                         </td>
                       ));
                     } else {

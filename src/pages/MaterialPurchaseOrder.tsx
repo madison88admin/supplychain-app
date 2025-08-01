@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 
 // Grouped columns with subfields
 const groupedColumns = [
@@ -42,7 +43,121 @@ const MaterialPurchaseOrder: React.FC = () => {
   const [filteredRows, setFilteredRows] = useState<typeof rows | null>(null);
   const [showColumnSelector, setShowColumnSelector] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState<string[]>(allColumns);
+  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const [activeSubTab, setActiveSubTab] = useState('MPO Details');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sample order reference data for demonstration
+  const getOrderReferencesData = (orderRef: string) => {
+    if (!orderRef) return [];
+    
+    // Special case for MPO-012345
+    if (orderRef === 'MPO-012345') {
+      return [
+        {
+          id: 1,
+          reference: 'MPO-012345',
+          orderType: 'Material Purchase Order',
+          status: 'Active',
+          supplier: 'Premium Textiles Co.',
+          orderDate: '2024-01-10',
+          deliveryDate: '2024-02-10',
+          totalValue: '$25,750',
+          currency: 'USD',
+          items: [
+            { material: 'Premium Cotton Fabric', quantity: '2000m', unitPrice: '$8.50', total: '$17,000' },
+            { material: 'Elastic Band', quantity: '1000m', unitPrice: '$2.25', total: '$2,250' },
+            { material: 'Metal Buttons', quantity: '500pcs', unitPrice: '$0.75', total: '$375' },
+            { material: 'Polyester Thread', quantity: '800m', unitPrice: '$1.80', total: '$1,440' },
+            { material: 'Care Labels', quantity: '1000pcs', unitPrice: '$0.35', total: '$350' },
+            { material: 'Size Labels', quantity: '1000pcs', unitPrice: '$0.40', total: '$400' }
+          ]
+        },
+        {
+          id: 2,
+          reference: 'MPO-012345-SUB',
+          orderType: 'Sub Contract',
+          status: 'In Progress',
+          supplier: 'Quality Dyeing Services',
+          orderDate: '2024-01-12',
+          deliveryDate: '2024-02-08',
+          totalValue: '$12,300',
+          currency: 'USD',
+          items: [
+            { material: 'Fabric Dyeing Service', quantity: '2000m', unitPrice: '$4.50', total: '$9,000' },
+            { material: 'Color Matching Service', quantity: '1 lot', unitPrice: '$500', total: '$500' },
+            { material: 'Quality Testing', quantity: '1 lot', unitPrice: '$800', total: '$800' },
+            { material: 'Packaging Service', quantity: '2000m', unitPrice: '$1.00', total: '$2,000' }
+          ]
+        },
+        {
+          id: 3,
+          reference: 'MPO-012345-TRIM',
+          orderType: 'Trim Order',
+          status: 'Completed',
+          supplier: 'Accessories Plus Ltd',
+          orderDate: '2024-01-08',
+          deliveryDate: '2024-01-25',
+          totalValue: '$8,900',
+          currency: 'USD',
+          items: [
+            { material: 'Zipper Pulls', quantity: '300pcs', unitPrice: '$1.20', total: '$360' },
+            { material: 'Drawstring Cord', quantity: '600m', unitPrice: '$0.85', total: '$510' },
+            { material: 'Hook & Loop Tape', quantity: '400m', unitPrice: '$2.10', total: '$840' },
+            { material: 'Ribbon Trim', quantity: '500m', unitPrice: '$1.45', total: '$725' },
+            { material: 'Decorative Patches', quantity: '200pcs', unitPrice: '$2.50', total: '$500' }
+          ]
+        }
+      ];
+    }
+    
+    // Default data for other order references
+    return [
+      {
+        id: 1,
+        reference: orderRef,
+        orderType: 'Purchase Order',
+        status: 'Active',
+        supplier: 'Textile Solutions Ltd',
+        orderDate: '2024-01-15',
+        deliveryDate: '2024-02-15',
+        totalValue: '$15,000',
+        currency: 'USD',
+        items: [
+          { material: 'Cotton Fabric', quantity: '1000m', unitPrice: '$5.50', total: '$5,500' },
+          { material: 'Polyester Thread', quantity: '500m', unitPrice: '$2.00', total: '$1,000' },
+          { material: 'Zippers', quantity: '200pcs', unitPrice: '$1.25', total: '$250' }
+        ]
+      },
+      {
+        id: 2,
+        reference: `${orderRef}-SUB`,
+        orderType: 'Sub Contract',
+        status: 'Pending',
+        supplier: 'Fashion Factory Inc',
+        orderDate: '2024-01-20',
+        deliveryDate: '2024-02-20',
+        totalValue: '$8,500',
+        currency: 'USD',
+        items: [
+          { material: 'Dyeing Service', quantity: '500m', unitPrice: '$3.00', total: '$1,500' },
+          { material: 'Printing Service', quantity: '300m', unitPrice: '$2.50', total: '$750' }
+        ]
+      }
+    ];
+  };
+
+  const toggleRowExpansion = (index: number) => {
+    const newExpandedRows = new Set(expandedRows);
+    if (newExpandedRows.has(index)) {
+      newExpandedRows.delete(index);
+    } else {
+      newExpandedRows.add(index);
+    }
+    setExpandedRows(newExpandedRows);
+  };
+
+  const isRowExpanded = (index: number) => expandedRows.has(index);
 
   const handleEdit = () => {
     setEditIndex(selectedIndex);
@@ -238,6 +353,136 @@ const MaterialPurchaseOrder: React.FC = () => {
     return [firstRow, secondRow];
   };
 
+  const renderOrderReferencesSubTable = (orderRef: string) => {
+    return (
+      <div className="bg-blue-50 px-6 py-4">
+        <div>
+          <div className="font-semibold text-blue-700 mb-2">Material Purchase Order Details</div>
+          {/* Subtable Content */}
+          <div className="max-w-4xl w-full">
+            <div className="bg-white rounded-lg border border-blue-200 p-4">
+              <div className="overflow-x-auto">
+                <table className="text-sm w-full border border-gray-300">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Order Reference</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Template</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Transport Method</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Deliver To</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Status</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Total Qty</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Total Cost</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Total Value</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Customer</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Supplier</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Purchase Currency</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Purchase Payment Term</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Closed Date</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">MPO Key Date</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Supplier Currency</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Supplier Description</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Supplier Parent</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Delivery Date</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Recipient Product Supplier</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Comments</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Purchasing</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">MPO Key User 2</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">MPO Key User 3</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">MPO Key User 4</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">MPO Key User 5</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">MPO Key User 6</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">MPO Key User 7</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">MPO Key User 8</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Note Count</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Latest Note</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Purchase Payment Term Description</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Created By</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Last Edited</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Selling Currency</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Selling Payment Term</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Delivery Contact</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Division</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Group</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Supplier Location</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Supplier Country</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Selling Payment Term Description</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Default Material Purchase Order Line Template</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Default MPO Line Key Date</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">MPO Key Working Group 1</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">MPO Key Working Group 2</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">MPO Key Working Group 3</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">MPO Key Working Group 4</th>
+                      <th className="px-3 py-2 text-left font-semibold border border-gray-300">Last Edited By</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="bg-white">
+                      <td className="px-3 py-2 border border-gray-300">{orderRef}</td>
+                      <td className="px-3 py-2 border border-gray-300">Standard MPO</td>
+                      <td className="px-3 py-2 border border-gray-300">Sea Freight</td>
+                      <td className="px-3 py-2 border border-gray-300">Main Warehouse</td>
+                      <td className="px-3 py-2 border border-gray-300">
+                        <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Open</span>
+                      </td>
+                      <td className="px-3 py-2 border border-gray-300">10,000 pcs</td>
+                      <td className="px-3 py-2 border border-gray-300">$45,750</td>
+                      <td className="px-3 py-2 border border-gray-300">$52,500</td>
+                      <td className="px-3 py-2 border border-gray-300">Fashion Brand Inc</td>
+                      <td className="px-3 py-2 border border-gray-300">Premium Textiles Co.</td>
+                      <td className="px-3 py-2 border border-gray-300">USD</td>
+                      <td className="px-3 py-2 border border-gray-300">Net 30</td>
+                      <td className="px-3 py-2 border border-gray-300">2024-07-15</td>
+                      <td className="px-3 py-2 border border-gray-300">2024-01-10</td>
+                      <td className="px-3 py-2 border border-gray-300">USD</td>
+                      <td className="px-3 py-2 border border-gray-300">Premium Textiles Co. Ltd</td>
+                      <td className="px-3 py-2 border border-gray-300">Textile Group International</td>
+                      <td className="px-3 py-2 border border-gray-300">2024-02-10</td>
+                      <td className="px-3 py-2 border border-gray-300">Production Team</td>
+                      <td className="px-3 py-2 border border-gray-300">Priority order for Spring collection</td>
+                      <td className="px-3 py-2 border border-gray-300">John Smith</td>
+                      <td className="px-3 py-2 border border-gray-300">Sarah Johnson</td>
+                      <td className="px-3 py-2 border border-gray-300">Mike Wilson</td>
+                      <td className="px-3 py-2 border border-gray-300">Lisa Brown</td>
+                      <td className="px-3 py-2 border border-gray-300">David Lee</td>
+                      <td className="px-3 py-2 border border-gray-300">Emma Davis</td>
+                      <td className="px-3 py-2 border border-gray-300">Tom Anderson</td>
+                      <td className="px-3 py-2 border border-gray-300">Anna Garcia</td>
+                      <td className="px-3 py-2 border border-gray-300">5</td>
+                      <td className="px-3 py-2 border border-gray-300">Materials confirmed for production</td>
+                      <td className="px-3 py-2 border border-gray-300">Net 30 days from invoice date</td>
+                      <td className="px-3 py-2 border border-gray-300">John Smith</td>
+                      <td className="px-3 py-2 border border-gray-300">2024-01-15</td>
+                      <td className="px-3 py-2 border border-gray-300">EUR</td>
+                      <td className="px-3 py-2 border border-gray-300">Net 60</td>
+                      <td className="px-3 py-2 border border-gray-300">Warehouse Manager</td>
+                      <td className="px-3 py-2 border border-gray-300">Casual Wear</td>
+                      <td className="px-3 py-2 border border-gray-300">A</td>
+                      <td className="px-3 py-2 border border-gray-300">Shanghai, China</td>
+                      <td className="px-3 py-2 border border-gray-300">China</td>
+                      <td className="px-3 py-2 border border-gray-300">Net 60 days from delivery</td>
+                      <td className="px-3 py-2 border border-gray-300">Standard Template</td>
+                      <td className="px-3 py-2 border border-gray-300">2024-01-12</td>
+                      <td className="px-3 py-2 border border-gray-300">Production</td>
+                      <td className="px-3 py-2 border border-gray-300">Quality Control</td>
+                      <td className="px-3 py-2 border border-gray-300">Logistics</td>
+                      <td className="px-3 py-2 border border-gray-300">Finance</td>
+                      <td className="px-3 py-2 border border-gray-300">John Smith</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className="mt-4">
+                <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+                  Edit
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Material Purchase Orders</h1>
@@ -303,54 +548,94 @@ const MaterialPurchaseOrder: React.FC = () => {
           </thead>
           <tbody>
             {displayRows.map((row, idx) => (
-              <tr
-                key={idx}
-                className={
-                  (selectedIndex === idx ? 'bg-blue-50 ' : '') +
-                  (editIndex === idx ? 'bg-yellow-50' : '')
-                }
-                onClick={() => setSelectedIndex(idx)}
-                style={{ cursor: 'pointer' }}
-              >
-                {renderColumns().flatMap((col, colIdx, arr) => {
-                  if (col.isGroup) {
-                    return col.children!.map((subCol, subIdx) => (
-                      <td
-                        key={col.key + '-' + subCol}
-                        className={
-                          `px-2 py-1 border-b align-top whitespace-nowrap` +
-                          ((subIdx === 0 || subCol === 'Target Date') ? ' border-r-2 border-gray-200' : '') +
-                          (colIdx === arr.length - 1 && subCol === 'Completed Date' ? '' : '')
-                        }
-                      >
-                        {editIndex === idx ? (
-                          <input
-                            className="border px-1 py-0.5 rounded w-32 text-xs"
-                            value={editRow ? editRow[col.key]?.[subCol] || '' : ''}
-                            onChange={e => handleChange(col.key, e.target.value, subCol)}
-                          />
-                        ) : (
-                          row[col.key]?.[subCol] || ''
-                        )}
-                      </td>
-                    ));
-                  } else {
-                    return [
-                      <td key={col.key} className={`px-2 py-1 border-b align-top whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>
-                        {editIndex === idx ? (
-                          <input
-                            className="border px-1 py-0.5 rounded w-32 text-xs"
-                            value={editRow ? editRow[col.key] : ''}
-                            onChange={e => handleChange(col.key, e.target.value)}
-                          />
-                        ) : (
-                          row[col.key] || ''
-                        )}
-                      </td>
-                    ];
+              <React.Fragment key={idx}>
+                <tr
+                  className={
+                    (selectedIndex === idx ? 'bg-blue-50 ' : '') +
+                    (editIndex === idx ? 'bg-yellow-50' : '')
                   }
-                })}
-              </tr>
+                  onClick={() => setSelectedIndex(idx)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {renderColumns().flatMap((col, colIdx, arr) => {
+                    if (col.isGroup) {
+                      return col.children!.map((subCol, subIdx) => (
+                        <td
+                          key={col.key + '-' + subCol}
+                          className={
+                            `px-2 py-1 border-b align-top whitespace-nowrap` +
+                            ((subIdx === 0 || subCol === 'Target Date') ? ' border-r-2 border-gray-200' : '') +
+                            (colIdx === arr.length - 1 && subCol === 'Completed Date' ? '' : '')
+                          }
+                        >
+                          {editIndex === idx ? (
+                            <input
+                              className="border px-1 py-0.5 rounded w-32 text-xs"
+                              value={editRow ? editRow[col.key]?.[subCol] || '' : ''}
+                              onChange={e => handleChange(col.key, e.target.value, subCol)}
+                            />
+                          ) : (
+                            row[col.key]?.[subCol] || ''
+                          )}
+                        </td>
+                      ));
+                    } else {
+                      return [
+                        <td key={col.key} className={`px-2 py-1 border-b align-top whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>
+                          {col.key === 'Order References' ? (
+                            <div className="flex items-center space-x-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleRowExpansion(idx);
+                                }}
+                                className="p-1 hover:bg-gray-200 rounded"
+                              >
+                                {isRowExpanded(idx) ? (
+                                  <ChevronDown className="h-3 w-3" />
+                                ) : (
+                                  <ChevronRight className="h-3 w-3" />
+                                )}
+                              </button>
+                              {editIndex === idx ? (
+                                <input
+                                  className="border px-1 py-0.5 rounded w-32 text-xs"
+                                  value={editRow ? editRow[col.key] : ''}
+                                  onChange={e => handleChange(col.key, e.target.value)}
+                                />
+                              ) : (
+                                <span className="text-blue-600 hover:text-blue-800 cursor-pointer">
+                                  {row[col.key] || 'MPO-012345'}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            editIndex === idx ? (
+                              <input
+                                className="border px-1 py-0.5 rounded w-32 text-xs"
+                                value={editRow ? editRow[col.key] : ''}
+                                onChange={e => handleChange(col.key, e.target.value)}
+                              />
+                            ) : (
+                              row[col.key] || ''
+                            )
+                          )}
+                        </td>
+                      ];
+                    }
+                  })}
+                </tr>
+                {isRowExpanded(idx) && (
+                  <tr>
+                    <td colSpan={visibleColumns.reduce((acc, col) => {
+                      const group = groupedColumns.find(g => g.key === col);
+                      return acc + (group ? 2 : 1);
+                    }, 0)} className="p-0">
+                      {renderOrderReferencesSubTable(row['Order References'])}
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             ))}
             {displayRows.length === 0 && (
               <tr><td colSpan={visibleColumns.reduce((acc, col) => {

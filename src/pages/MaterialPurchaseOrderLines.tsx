@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { ChevronDown, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, Copy as CopyIcon, Plus, Filter as FilterIcon, Download, X, Trash2, Search, Eye } from 'lucide-react';
 import { parse, format, isValid } from 'date-fns';
-// import MaterialPurchaseOrderLinesEditModal from '../components/modals/MaterialPurchaseOrderLinesEditModal';
+import MaterialPurchaseOrderLinesEditModal from '../components/modals/MaterialPurchaseOrderLinesEditModal';
 
 // Robust date formatting utility function that handles multiple date formats including Excel serial numbers
 const formatDateToMMDDYYYY = (dateValue: any): string => {
@@ -345,6 +345,14 @@ const MaterialPurchaseOrderLines: React.FC = () => {
   const [isNewEntry, setIsNewEntry] = useState(false);
   const [expanded, setExpanded] = useState<{ row: number, col: string } | null>(null);
 
+  const mainDivRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (mainDivRef.current) {
+      mainDivRef.current.focus();
+    }
+  }, []);
+
   // Filtered columns for selector
   const filteredColumnList = allColumns.filter(col =>
     col.toLowerCase().includes(columnSearch.toLowerCase())
@@ -560,7 +568,7 @@ const MaterialPurchaseOrderLines: React.FC = () => {
   const displayRows = filteredRows ?? rows;
 
   return (
-    <div className="p-6" onKeyDown={handleKeyDown} tabIndex={0}>
+    <div className="p-6" onKeyDown={handleKeyDown} tabIndex={0} ref={mainDivRef}>
       {/* Enhanced Header with Modern Button Design */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -809,7 +817,10 @@ const MaterialPurchaseOrderLines: React.FC = () => {
                     ${selectedRows.has(idx) && selectedIndex === idx ? 'bg-gradient-to-r from-blue-100 to-green-100 border-2 border-blue-500 shadow-lg animate-pulse' : ''}
                   `}
                   title="Click to select for editing"
-                  onClick={() => setSelectedIndex(idx)}
+                  onClick={() => {
+                    setSelectedIndex(idx);
+                    if (mainDivRef.current) mainDivRef.current.focus();
+                  }}
                 >
                   {/* Checkbox column */}
                   <td 
@@ -919,14 +930,15 @@ const MaterialPurchaseOrderLines: React.FC = () => {
       </div>
 
       {/* Edit Modal */}
-      {/* <MaterialPurchaseOrderLinesEditModal
+      <MaterialPurchaseOrderLinesEditModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         onSave={handleSaveEdit}
         onDelete={handleDelete}
         data={editModalData}
         isNew={isNewEntry}
-      /> */}
+        allColumns={allColumns}
+      />
     </div>
   );
 };

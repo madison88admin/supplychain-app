@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import ReportBar from '../components/ReportBar';
-import { Users, Grid, Menu, ChevronRight, ChevronDown, X } from 'lucide-react';
+import ProductFilterSidebar from '../components/ProductFilterSidebar';
+import TabContent from '../components/TabContent';
 import { useSidebar } from '../contexts/SidebarContext';
+import { LEFT_TABS, RIGHT_TABS } from '../types/productManager';
 
 const ProductManager: React.FC = () => {
+  // State management
   const [leftActiveTab, setLeftActiveTab] = useState('Tech Pack Version');
   const [rightActiveTab, setRightActiveTab] = useState('Products');
   const [selectedSeasons, setSelectedSeasons] = useState<string[]>(['Spring/Summer 2024']);
@@ -20,311 +23,22 @@ const ProductManager: React.FC = () => {
   // Sidebar context
   const { sidebarCollapsed } = useSidebar();
 
-  // ProductFilterSidebar Component (moved inside ProductManager)
-  const ProductFilterSidebar: React.FC<{ collapsed: boolean; setCollapsed: (collapsed: boolean) => void }> = ({ 
-    collapsed, 
-    setCollapsed 
-  }) => {
-    const [selectedSeasons, setSelectedSeasons] = useState<string[]>(['FH:2024', 'FH:2018']);
-    const [selectedProductSeason, setSelectedProductSeason] = useState('Library');
-    const [expandedItems, setExpandedItems] = useState<string[]>(['Library']);
-    const [selectedCategory, setSelectedCategory] = useState('Youth');
-    const [isSeasonDropdownOpen, setIsSeasonDropdownOpen] = useState(false);
-    const [isProductSeasonDropdownOpen, setIsProductSeasonDropdownOpen] = useState(false);
+  // Memoized event handlers
+  const handleLeftTabChange = useCallback((tab: string) => {
+    setLeftActiveTab(tab);
+  }, []);
 
-    // Season data
-    const availableSeasons = [
-      'FH:2018',
-      'FH:2019', 
-      'FH:2020',
-      'FH:2021',
-      'FH:2022',
-      'FH:2023',
-      'FH:2024',
-      'FH:2025'
-    ];
+  const handleRightTabChange = useCallback((tab: string) => {
+    setRightActiveTab(tab);
+  }, []);
 
-    // Product season tree data - now dynamically generated based on selected seasons
-    const generateSeasonTreeData = () => {
-      const seasonItems = selectedSeasons.map(season => ({
-        id: season.toLowerCase().replace(/[^a-z0-9]/g, ''),
-        label: season,
-        type: 'category' as const,
-        expanded: false,
-        children: [
-          { id: 'mens', label: 'Mens', type: 'subcategory' as const },
-          { id: 'womens', label: 'Womens', type: 'subcategory' as const },
-          { id: 'home', label: 'Home', type: 'subcategory' as const },
-          { id: 'unisex', label: 'Unisex', type: 'subcategory' as const },
-          { id: 'youth', label: 'Youth', type: 'subcategory' as const }
-        ]
-      }));
+  const handleRowClick = useCallback((row: any) => {
+    setSelectedRowIndex(row.id);
+  }, []);
 
-      return [
-        ...seasonItems,
-        { 
-          id: 'library', 
-          label: 'Library', 
-          type: 'category' as const, 
-          expanded: true,
-          children: [
-            { id: 'mens', label: 'Mens', type: 'subcategory' as const },
-            { id: 'womens', label: 'Womens', type: 'subcategory' as const },
-            { id: 'home', label: 'Home', type: 'subcategory' as const },
-            { id: 'unisex', label: 'Unisex', type: 'subcategory' as const },
-            { id: 'youth', label: 'Youth', type: 'subcategory' as const }
-          ]
-        },
-        { 
-          id: 'none', 
-          label: 'None', 
-          type: 'category' as const, 
-          expanded: false,
-          children: [
-            { id: 'mens', label: 'Mens', type: 'subcategory' as const },
-            { id: 'womens', label: 'Womens', type: 'subcategory' as const },
-            { id: 'home', label: 'Home', type: 'subcategory' as const },
-            { id: 'unisex', label: 'Unisex', type: 'subcategory' as const },
-            { id: 'youth', label: 'Youth', type: 'subcategory' as const }
-          ]
-        },
-        { 
-          id: 'all', 
-          label: 'All', 
-          type: 'category' as const, 
-          expanded: false,
-          children: [
-            { id: 'mens', label: 'Mens', type: 'subcategory' as const },
-            { id: 'womens', label: 'Womens', type: 'subcategory' as const },
-            { id: 'home', label: 'Home', type: 'subcategory' as const },
-            { id: 'unisex', label: 'Unisex', type: 'subcategory' as const },
-            { id: 'youth', label: 'Youth', type: 'subcategory' as const }
-          ]
-        }
-      ];
-    };
-
-    const seasonTreeData = generateSeasonTreeData();
-
-    const toggleSeason = (season: string) => {
-      setSelectedSeasons(prev => 
-        prev.includes(season) 
-          ? prev.filter(s => s !== season)
-          : [...prev, season]
-      );
-    };
-
-    const removeSeason = (season: string) => {
-      setSelectedSeasons(prev => prev.filter(s => s !== season));
-    };
-
-    const toggleExpanded = (itemId: string) => {
-      setExpandedItems(prev => 
-        prev.includes(itemId) 
-          ? prev.filter(id => id !== itemId)
-          : [...prev, itemId]
-      );
-    };
-
-    const handleCategorySelect = (category: string) => {
-      setSelectedCategory(category);
-    };
-
-    const handleSeasonRemoveFromTree = (season: string) => {
-      setSelectedSeasons(prev => prev.filter(s => s !== season));
-    };
-
-    const renderTreeItem = (item: any) => {
-      const isExpanded = expandedItems.includes(item.id);
-      const isSelected = selectedCategory === item.label;
-      const hasChildren = item.children && item.children.length > 0;
-
-      return (
-        <div key={item.id} className="flex flex-col">
-          <div 
-            className={`flex items-center p-2 cursor-pointer rounded-md transition-all duration-200 ${
-              isSelected 
-                ? 'bg-blue-50 border border-blue-500' 
-                : 'hover:bg-gray-50'
-            }`}
-            onClick={() => {
-              if (hasChildren) {
-                toggleExpanded(item.id);
-              } else {
-                handleCategorySelect(item.label);
-              }
-            }}
-          >
-            <div className="flex items-center gap-2 flex-1">
-              {hasChildren && (
-                <span className="flex items-center justify-center w-4 h-4 text-gray-500">
-                  {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                </span>
-              )}
-              <span className="text-sm text-gray-700 flex-1">{item.label}</span>
-              {isSelected && <ChevronRight size={14} className="text-blue-500" />}
-            </div>
-          </div>
-          
-          {hasChildren && isExpanded && (
-            <div className="ml-6 flex flex-col gap-0.5">
-              {item.children.map((child: any) => (
-                <div 
-                  key={child.id} 
-                  className={`flex items-center justify-between p-1.5 cursor-pointer rounded transition-all duration-200 ${
-                    selectedCategory === child.label 
-                      ? 'bg-blue-50 border border-blue-500' 
-                      : 'hover:bg-gray-50'
-                  }`}
-                  onClick={() => handleCategorySelect(child.label)}
-                >
-                  <span className="text-sm text-gray-700">{child.label}</span>
-                  {selectedCategory === child.label && <ChevronRight size={14} className="text-blue-500" />}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      );
-    };
-
-         return (
-       <div className={`bg-white border-r border-gray-200 flex flex-col transition-all duration-300 overflow-hidden h-screen ${
-         collapsed ? 'w-16' : 'w-72'
-       }`}>
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200 min-h-14">
-          <h3 className={`font-semibold text-gray-900 transition-opacity duration-300 ${
-            collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'
-          }`}>
-            Product Filters
-          </h3>
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all duration-300"
-          >
-            <ChevronRight className={`transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`} />
-          </button>
-        </div>
-
-        {/* Season Section */}
-        <div className="p-4 border-b border-gray-100">
-          <div className="flex items-center gap-2 mb-3">
-            <Users size={16} className="text-gray-500" />
-            <span className={`text-sm font-semibold text-gray-700 uppercase tracking-wide transition-opacity duration-300 ${
-              collapsed ? 'opacity-0' : 'opacity-100'
-            }`}>
-              Season
-            </span>
-          </div>
-          
-          <div className={`flex flex-wrap gap-2 mb-3 transition-opacity duration-300 ${
-            collapsed ? 'opacity-0' : 'opacity-100'
-          }`}>
-            {selectedSeasons.map(season => (
-              <div key={season} className="flex items-center gap-1 px-2 py-1 bg-indigo-100 border border-indigo-500 rounded-md">
-                <span className="text-xs text-indigo-700">{season}</span>
-                <button
-                  onClick={() => removeSeason(season)}
-                  className="flex items-center justify-center w-4 h-4 bg-transparent border-none cursor-pointer text-indigo-700 hover:bg-indigo-200 rounded-full transition-all duration-200"
-                >
-                  <X size={12} />
-                </button>
-              </div>
-            ))}
-          </div>
-          
-          <div className={`relative transition-opacity duration-300 ${
-            collapsed ? 'opacity-0' : 'opacity-100'
-          }`}>
-            <button 
-              onClick={() => setIsSeasonDropdownOpen(!isSeasonDropdownOpen)}
-              className="flex items-center justify-between w-full px-3 py-2 bg-white border border-gray-300 rounded-md cursor-pointer text-sm text-gray-700 hover:border-blue-500 hover:bg-gray-50 transition-all duration-200"
-            >
-              <span>Add Season</span>
-              <ChevronDown size={14} className={`transition-transform duration-200 ${isSeasonDropdownOpen ? 'rotate-180' : ''}`} />
-            </button>
-            {isSeasonDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg z-10 max-h-48 overflow-y-auto">
-                {availableSeasons
-                  .filter(season => !selectedSeasons.includes(season))
-                  .map(season => (
-                    <button
-                      key={season}
-                      onClick={() => {
-                        toggleSeason(season);
-                        setIsSeasonDropdownOpen(false);
-                      }}
-                      className="block w-full px-3 py-2 bg-transparent border-none cursor-pointer text-sm text-gray-700 text-left hover:bg-gray-100 transition-colors duration-200"
-                    >
-                      {season}
-                    </button>
-                  ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Product Season Trees Section */}
-        <div className="p-4 border-b border-gray-100">
-          <div className="flex items-center gap-2 mb-3">
-            <Grid size={16} className="text-gray-500" />
-            <span className={`text-sm font-semibold text-gray-700 uppercase tracking-wide transition-opacity duration-300 ${
-              collapsed ? 'opacity-0' : 'opacity-100'
-            }`}>
-              Product Season Trees
-            </span>
-          </div>
-          
-          <div className={`relative transition-opacity duration-300 ${
-            collapsed ? 'opacity-0' : 'opacity-100'
-          }`}>
-            <button 
-              onClick={() => setIsProductSeasonDropdownOpen(!isProductSeasonDropdownOpen)}
-              className="flex items-center justify-between w-full px-3 py-2 bg-white border border-gray-300 rounded-md cursor-pointer text-sm text-gray-700 hover:border-blue-500 hover:bg-gray-50 transition-all duration-200"
-            >
-              <span>{selectedProductSeason}</span>
-              <ChevronDown size={14} className={`transition-transform duration-200 ${isProductSeasonDropdownOpen ? 'rotate-180' : ''}`} />
-            </button>
-            {isProductSeasonDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg z-10 max-h-48 overflow-y-auto">
-                {['Library', 'Custom', 'Shared', 'Archived'].map(option => (
-                  <button
-                    key={option}
-                    onClick={() => {
-                      setSelectedProductSeason(option);
-                      setIsProductSeasonDropdownOpen(false);
-                    }}
-                    className="block w-full px-3 py-2 bg-transparent border-none cursor-pointer text-sm text-gray-700 text-left hover:bg-gray-100 transition-colors duration-200"
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Season Tree Section */}
-        <div className="p-4 border-b border-gray-100">
-          <div className="flex items-center gap-2 mb-3">
-            <Menu size={16} className="text-gray-500" />
-            <span className={`text-sm font-semibold text-gray-700 uppercase tracking-wide transition-opacity duration-300 ${
-              collapsed ? 'opacity-0' : 'opacity-100'
-            }`}>
-              Season Tree
-            </span>
-          </div>
-          
-          <div className={`flex flex-col gap-1 transition-opacity duration-300 ${
-            collapsed ? 'opacity-0' : 'opacity-100'
-          }`}>
-            {seasonTreeData.map(item => renderTreeItem(item))}
-          </div>
-        </div>
-      </div>
-    );
-  };
+  // Memoized tab arrays
+  const leftTabs = useMemo(() => LEFT_TABS, []);
+  const rightTabs = useMemo(() => RIGHT_TABS, []);
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -991,130 +705,258 @@ const ProductManager: React.FC = () => {
                         <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FACTORY SURCHARGE PERCENTAGE</th>
                         <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-l border-gray-300">
                           <div className="flex items-center justify-between">
-                            <span>CUSTOMER PROTO APPROVAL</span>
-                            <div className="w-4 h-4 border border-gray-400 rounded bg-gray-100 flex items-center justify-center">
-                              <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
-                            </div>
+                            <span>TARGET DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
                           </div>
                         </th>
-                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           <div className="flex items-center justify-between">
-                            <span>TOP SAMPLE EX-M88</span>
-                            <div className="w-4 h-4 border border-gray-400 rounded bg-gray-100 flex items-center justify-center">
-                              <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
-                            </div>
+                            <span>COMPLETED DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
                           </div>
                         </th>
-                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           <div className="flex items-center justify-between">
-                            <span>TOP SAMPLE EX-FACTORY</span>
-                            <div className="w-4 h-4 border border-gray-400 rounded bg-gray-100 flex items-center justify-center">
-                              <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
-                            </div>
+                            <span>TARGET DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
                           </div>
                         </th>
-                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           <div className="flex items-center justify-between">
-                            <span>TOP SAMPLE REQUEST</span>
-                            <div className="w-4 h-4 border border-gray-400 rounded bg-gray-100 flex items-center justify-center">
-                              <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
-                            </div>
+                            <span>COMPLETED DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
                           </div>
                         </th>
-                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           <div className="flex items-center justify-between">
-                            <span>PPS SAMPLE EX-M88</span>
-                            <div className="w-4 h-4 border border-gray-400 rounded bg-gray-100 flex items-center justify-center">
-                              <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
-                            </div>
+                            <span>TARGET DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
                           </div>
                         </th>
-                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           <div className="flex items-center justify-between">
-                            <span>PPS SAMPLE EX-FACTORY</span>
-                            <div className="w-4 h-4 border border-gray-400 rounded bg-gray-100 flex items-center justify-center">
-                              <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
-                            </div>
+                            <span>COMPLETED DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
                           </div>
                         </th>
-                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           <div className="flex items-center justify-between">
-                            <span>PPS SAMPLE REQUEST</span>
-                            <div className="w-4 h-4 border border-gray-400 rounded bg-gray-100 flex items-center justify-center">
-                              <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
-                            </div>
+                            <span>TARGET DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
                           </div>
                         </th>
-                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           <div className="flex items-center justify-between">
-                            <span>TEST REPORT RECEIVED</span>
-                            <div className="w-4 h-4 border border-gray-400 rounded bg-gray-100 flex items-center justify-center">
-                              <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
-                            </div>
+                            <span>COMPLETED DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
                           </div>
                         </th>
-                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           <div className="flex items-center justify-between">
-                            <span>TEST SAMPLE EX-FACTORY</span>
-                            <div className="w-4 h-4 border border-gray-400 rounded bg-gray-100 flex items-center justify-center">
-                              <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
-                            </div>
+                            <span>TARGET DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
                           </div>
                         </th>
-                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           <div className="flex items-center justify-between">
-                            <span>TESTING SAMPLE REQUEST</span>
-                            <div className="w-4 h-4 border border-gray-400 rounded bg-gray-100 flex items-center justify-center">
-                              <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
-                            </div>
+                            <span>COMPLETED DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
                           </div>
                         </th>
-                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           <div className="flex items-center justify-between">
-                            <span>PROTO SAMPLE REQUEST</span>
-                            <div className="w-4 h-4 border border-gray-400 rounded bg-gray-100 flex items-center justify-center">
-                              <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
-                            </div>
+                            <span>TARGET DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
                           </div>
                         </th>
-                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           <div className="flex items-center justify-between">
-                            <span>PROTO SAMPLE EX-FACTORY</span>
-                            <div className="w-4 h-4 border border-gray-400 rounded bg-gray-100 flex items-center justify-center">
-                              <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
-                            </div>
+                            <span>COMPLETED DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
                           </div>
                         </th>
-                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-l border-gray-300">
                           <div className="flex items-center justify-between">
-                            <span>PROTO SAMPLE EX-M88</span>
-                            <div className="w-4 h-4 border border-gray-400 rounded bg-gray-100 flex items-center justify-center">
-                              <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
-                            </div>
+                            <span>TARGET DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
                           </div>
                         </th>
-                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           <div className="flex items-center justify-between">
-                            <span>CUSTOMER PPS APPROVAL</span>
-                            <div className="w-4 h-4 border border-gray-400 rounded bg-gray-100 flex items-center justify-center">
-                              <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
-                            </div>
+                            <span>COMPLETED DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
                           </div>
                         </th>
-                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-l border-gray-300">
                           <div className="flex items-center justify-between">
-                            <span>CUSTOMER TOP APPROVAL</span>
-                            <div className="w-4 h-4 border border-gray-400 rounded bg-gray-100 flex items-center justify-center">
-                              <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
-                            </div>
+                            <span>TARGET DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
                           </div>
                         </th>
-                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           <div className="flex items-center justify-between">
-                            <span>SAMPLE DELIVERY DATE</span>
-                            <div className="w-4 h-4 border border-gray-400 rounded bg-gray-100 flex items-center justify-center">
-                              <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
-                            </div>
+                            <span>COMPLETED DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </th>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-l border-gray-300">
+                          <div className="flex items-center justify-between">
+                            <span>TARGET DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </th>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div className="flex items-center justify-between">
+                            <span>COMPLETED DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </th>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-l border-gray-300">
+                          <div className="flex items-center justify-between">
+                            <span>TARGET DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </th>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div className="flex items-center justify-between">
+                            <span>COMPLETED DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </th>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-l border-gray-300">
+                          <div className="flex items-center justify-between">
+                            <span>TARGET DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </th>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div className="flex items-center justify-between">
+                            <span>COMPLETED DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </th>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-l border-gray-300">
+                          <div className="flex items-center justify-between">
+                            <span>TARGET DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </th>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div className="flex items-center justify-between">
+                            <span>COMPLETED DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </th>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-l border-gray-300">
+                          <div className="flex items-center justify-between">
+                            <span>TARGET DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </th>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div className="flex items-center justify-between">
+                            <span>COMPLETED DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </th>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-l border-gray-300">
+                          <div className="flex items-center justify-between">
+                            <span>TARGET DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </th>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div className="flex items-center justify-between">
+                            <span>COMPLETED DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </th>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-l border-gray-300">
+                          <div className="flex items-center justify-between">
+                            <span>TARGET DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </th>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div className="flex items-center justify-between">
+                            <span>COMPLETED DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </th>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-l border-gray-300">
+                          <div className="flex items-center justify-between">
+                            <span>TARGET DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </th>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <div className="flex items-center justify-between">
+                            <span>COMPLETED DATE</span>
+                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
                           </div>
                         </th>
                       </tr>
@@ -1339,370 +1181,45 @@ const ProductManager: React.FC = () => {
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PO Line</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fit Comment</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fit Log Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fit Log Type</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fit Log Name</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Collection</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Division</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Group</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transport Method</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deliver To</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Delivery Date</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comments</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Selling Quantity</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Closed Date</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Line Purchase Price</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Line Selling Price</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Note Count</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Latest Note</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Quantity Increment</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Lead Time</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier Ref.</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Template</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ex-Factory</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Purchase Order Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier Purchase Currency</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Selling Currency</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Purchase Currency</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Selling Currency</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Minimum Order Quantity</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Description</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Type</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Sub Type</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Buyer Style Name</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Buyer Style Number</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Standard Minute Value</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Costing</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Costing Purchase Currency</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Costing Selling Currency</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Costing Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier Payment Term</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier Payment Term Description</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Purchase Payment Term</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Purchase Payment Term Description</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Supplier Purchase Payment Term</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Supplier Purchase Payment Term Description</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Selling Payment Term</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Selling Payment Term Description</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Supplier Selling Payment Term</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Supplier Selling Payment Term Description</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Purchase Price</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Selling Price</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Production</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MLA - Purchasing</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">China - QC</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MLA - Planning</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MLA - Shipping</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PO Key User 6</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PO Key User 7</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PO Key User 8</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Season</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Parent</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RECIPIENT PRODUCT SUPPLIER-FACTORY</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FG PO Number</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Received</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Over Received</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Size</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Main Material</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Main Material Description</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Delivery Contact</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PO Key Working Group 1</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PO Key Working Group 2</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PO Key Working Group 3</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PO Key Working Group 4</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created By</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Edited</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Edited By</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Color</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vessel Schedule</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Buyer PO Number</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shipment ID</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Factory Invoiced</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Suppliers Invoice</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">QuickBooks Invoice</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shipment Noted</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Buy Information</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Handling Charges</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Original Forecast Quantity</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cancelled Date</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Factory Date Paid</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Invoice Raised</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted inspection date</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remarks</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inspection Result</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Report Type</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inspector</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approval Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shipment Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">QC Comment</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Delay Shipment Code</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount Percentage</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SELL INC COMM</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Buyer Surcharge</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Buyer Surcharge Percentage</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MOQ</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount Cost</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Special Sur</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Factory Surcharge</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Factory Surcharge Percentage</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">LINE ITEM</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DESCRIPTION</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">QUANTITY</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">UNIT PRICE</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TOTAL</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">PO-2024-001</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">001</td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Cotton T-Shirt - Navy Blue</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">1</td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">500</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Fits well</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Approved</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Initial</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Spring Fit</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Acme Corp</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Spring 2024</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Menswear</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">A</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Air</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Warehouse 5</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Open</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">08/01/2024</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Urgent</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">500</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">-</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$10.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$15.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">3</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-01-15</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">50</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">30</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">SUP001</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Standard</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-07-15</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Confirmed</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">USD</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">EUR</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Best Supplier</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">USD</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">EUR</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">100</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Premium cotton t-shirt</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Apparel</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">T-Shirt</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Active</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">ARC-Merbau</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">U53180654</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">25</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$12.50</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">USD</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">EUR</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Approved</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Net 30</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">30 days payment</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Net 45</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">45 days payment</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Net 30</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">30 days payment</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Net 60</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">60 days payment</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Net 45</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">45 days payment</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$10.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$15.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">In Progress</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-06-01</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-06-15</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-07-01</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-07-15</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">John Smith</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Jane Doe</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Mike Wilson</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Spring 2024</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Menswear</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Acme Corp</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Factory A</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">FG-001</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">450</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">50</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">0</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">L</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Cotton</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Premium cotton fabric</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">John Contact</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Team A</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Team B</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Team C</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Team D</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Mike Wilson</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-01-18</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-01-25</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Lisa Chen</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Navy</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">VS-001</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">BPO-001</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">SHIP-001</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Yes</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">50</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">INV-001</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">QB-001</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Yes</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Standard</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$200.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">500</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-06-01</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">-</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-07-01</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-07-15</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-06-15</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Passed</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Final</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">John Inspector</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Approved</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Shipped</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Good quality</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">None</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">5%</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$18,304.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$1,300.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">10.7%</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">100</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$976.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$0.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$0.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">0%</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$14.00</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">$7,000.00</td>
                     </tr>
                     <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">PO-2024-002</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Denim Jeans - Blue</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">1</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">002</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Cotton T-Shirt - Black</td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">300</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Good fit</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Pending</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Revision</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Summer Fit</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Fashion Co</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Summer 2024</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Womenswear</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">B</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Sea</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Warehouse 3</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">In Progress</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">09/15/2024</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Standard</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">300</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">-</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$25.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$35.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-02-10</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">25</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">45</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">SUP002</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Premium</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-08-20</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Draft</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">EUR</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">USD</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Denim Supplier</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">EUR</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">USD</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$14.00</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">$4,200.00</td>
+                    </tr>
+                    <tr className="hover:bg-gray-50">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">003</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Cotton T-Shirt - White</td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">200</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Premium denim jeans</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Apparel</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Jeans</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Active</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">ARC-Denim</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">U53180655</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">35</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$28.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">EUR</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">USD</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Pending</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Net 45</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">45 days payment</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Net 60</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">60 days payment</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Net 45</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">45 days payment</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Net 90</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">90 days payment</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Net 60</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">60 days payment</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$25.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$35.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Planning</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-07-01</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-07-15</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-08-01</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-08-15</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Sarah Johnson</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Tom Brown</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Alex Davis</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Summer 2024</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Womenswear</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Fashion Co</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Factory B</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">FG-002</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">250</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">50</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">0</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">M</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Denim</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Premium denim fabric</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Sarah Contact</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Team X</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Team Y</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Team Z</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Team W</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Tom Brown</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-02-15</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-02-20</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Alex Davis</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Blue</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">VS-002</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">BPO-002</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">SHIP-002</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">No</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">50</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">INV-002</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">QB-002</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">No</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Premium</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$150.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">300</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-07-01</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">-</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-08-01</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-08-15</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-07-15</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Pending</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Initial</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Jane Inspector</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Pending</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">In Transit</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Awaiting review</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">None</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">8%</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$12,200.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$1,300.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">10.7%</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">200</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$976.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$0.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$0.00</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">0%</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$14.00</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">$2,800.00</td>
+                    </tr>
+                    <tr className="hover:bg-gray-50">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">004</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Cotton T-Shirt - Red</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">150</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$14.00</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">$2,100.00</td>
+                    </tr>
+                    <tr className="hover:bg-gray-50 bg-blue-50">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-gray-900" colSpan={4}>TOTAL</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-gray-900">$16,100.00</td>
                     </tr>
                   </tbody>
                 </table>
@@ -1762,316 +1279,66 @@ const ProductManager: React.FC = () => {
           </div>
         </div>
 
-        {/* Vertical Divider */}
-        <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px bg-gray-300 transform -translate-x-1/2"></div>
-        
-        {/* Right Column - Product Details Tabs */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          {/* Tab Navigation */}
-          <div className="border-b" style={{ borderColor: '#3D75A3' }}>
-            <div className="flex">
-              {['Products', 'Product Colors', 'Product Color Sizes', 'Images', 'Option Images', 'Details'].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setRightActiveTab(tab)}
-                  className={`px-4 py-3 font-medium text-xs ${
-                    rightActiveTab === tab
-                      ? 'bg-gray-100 text-gray-900 border-t-2 border-l-2 shadow-sm'
-                      : 'bg-white text-gray-700 border border-gray-300'
-                  }`}
-                  style={rightActiveTab === tab ? { borderColor: '#3D75A3' } : {}}
-                >
-                  {tab}
-                </button>
-              ))}
+              {/* Vertical Divider */}
+              <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px bg-gray-300 transform -translate-x-1/2"></div>
+              
+              {/* Right Column - Product Details Tabs */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                {/* Tab Navigation */}
+                <div className="border-b" style={{ borderColor: '#3D75A3' }}>
+                  <div className="flex">
+                    {rightTabs.map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => handleRightTabChange(tab)}
+                        className={`px-4 py-3 font-medium text-xs ${
+                          rightActiveTab === tab
+                            ? 'bg-gray-100 text-gray-900 border-t-2 border-l-2 shadow-sm'
+                            : 'bg-white text-gray-700 border border-gray-300'
+                        }`}
+                        style={rightActiveTab === tab ? { borderColor: '#3D75A3' } : {}}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Tab Content */}
+                <TabContent
+                  activeTab={rightActiveTab}
+                  selectedRowId={selectedRowIndex?.toString()}
+                  onRowClick={handleRowClick}
+                />
+              </div>
             </div>
-          </div>
-          
-          {/* Tab Content */}
-          <div className="p-4">
-            <div className="overflow-x-auto">
-              {rightActiveTab === 'Products' && (
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PRODUCT ID</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NAME</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CATEGORY</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">P001</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">Cotton T-Shirt</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">Apparel</td>
-                      <td className="px-3 py-2 whitespace-nowrap">
-                        <span className="px-1.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full bg-green-100 text-green-800">
-                          Active
-                        </span>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">P002</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">Denim Jeans</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">Apparel</td>
-                      <td className="px-3 py-2 whitespace-nowrap">
-                        <span className="px-1.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                          Pending
-                        </span>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">P003</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">Leather Bag</td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-900">Accessories</td>
-                      <td className="px-3 py-2 whitespace-nowrap">
-                        <span className="px-1.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full bg-green-100 text-green-800">
-                          Active
-                        </span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              )}
 
-              {rightActiveTab === 'Product Colors' && (
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">COLOR CODE</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">COLOR NAME</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">HEX CODE</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AVAILABLE</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">BLK</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Black</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">#000000</td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          Yes
-                        </span>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">NAV</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Navy Blue</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">#000080</td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          Yes
-                        </span>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">WHT</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">White</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">#FFFFFF</td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                          No
-                        </span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              )}
-
-              {rightActiveTab === 'Product Color Sizes' && (
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SIZE</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CHEST (CM)</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">LENGTH (CM)</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STOCK</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">XS</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">86</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">58</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">25</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">S</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">91</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">60</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">45</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">M</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">96</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">62</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">67</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">L</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">101</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">64</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">52</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">XL</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">106</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">66</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">38</td>
-                    </tr>
-                  </tbody>
-                </table>
-              )}
-
-              {rightActiveTab === 'Images' && (
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IMAGE TYPE</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FILENAME</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SIZE</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">UPLOADED</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Main</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">tshirt_main.jpg</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2.4 MB</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-01-15</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Detail</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">tshirt_detail.png</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">1.8 MB</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-01-16</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Back</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">tshirt_back.jpg</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2.1 MB</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">2024-01-17</td>
-                    </tr>
-                  </tbody>
-                </table>
-              )}
-
-              {rightActiveTab === 'Option Images' && (
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">OPTION</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">COLOR</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IMAGE</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Option 1</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Black</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">black_tshirt.jpg</td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          Uploaded
-                        </span>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Option 2</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Navy</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">navy_tshirt.jpg</td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          Uploaded
-                        </span>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Option 3</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">White</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">-</td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                          Pending
-                        </span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              )}
-
-              {rightActiveTab === 'Details' && (
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PROPERTY</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">VALUE</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">UNIT</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NOTES</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Weight</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">180</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">GSM</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Fabric weight</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Material</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">100% Cotton</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">-</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Main fabric</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Care</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Machine wash</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">-</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">30°C</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">Origin</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Bangladesh</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">-</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Manufacturing</td>
-                    </tr>
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ReportBar Component */}
-      <ReportBar
-        showSlideUpContainer={showSlideUpContainer}
-        setShowSlideUpContainer={setShowSlideUpContainer}
-        activeContent={activeContent}
-        setActiveContent={setActiveContent}
-        sidebarCollapsed={sidebarCollapsed}
-        pageData={{
-          'Created': '2024-01-15',
-          'Last Edited': '2024-01-20',
-          'PO Issue Date': '2024-01-25',
-          'Order References': selectedRowIndex !== null ? `Product-${selectedRowIndex + 1}` : 'Product-001',
-          'Status': selectedRowIndex !== null ? (selectedRowIndex % 2 === 0 ? 'Active' : 'Pending') : 'Active',
-          'Production': 'In Progress',
-          'Purchase Order Status': 'Issued',
-          'Template': 'Standard Product Template',
-          'Default PO Line Template': 'Product Line Template',
-          'Customer': 'ABC Corp',
-          'Supplier': 'XYZ Textiles',
-          'Purchase Currency': 'USD',
-          'Selling Currency': 'EUR',
-          'Total Qty': '1000',
-          'Total Cost': '$10,000',
-          'Total Value': '$12,000'
-        }}
-      />
+            {/* ReportBar Component */}
+            <ReportBar
+              showSlideUpContainer={showSlideUpContainer}
+              setShowSlideUpContainer={setShowSlideUpContainer}
+              activeContent={activeContent}
+              setActiveContent={setActiveContent}
+              sidebarCollapsed={sidebarCollapsed}
+              pageData={{
+                'Created': '2024-01-15',
+                'Last Edited': '2024-01-20',
+                'PO Issue Date': '2024-01-25',
+                'Order References': selectedRowIndex !== null ? `Product-${selectedRowIndex + 1}` : 'Product-001',
+                'Status': selectedRowIndex !== null ? (selectedRowIndex % 2 === 0 ? 'Active' : 'Pending') : 'Active',
+                'Production': 'In Progress',
+                'Purchase Order Status': 'Issued',
+                'Template': 'Standard Product Template',
+                'Default PO Line Template': 'Product Line Template',
+                'Customer': 'ABC Corp',
+                'Supplier': 'XYZ Textiles',
+                'Purchase Currency': 'USD',
+                'Selling Currency': 'EUR',
+                'Total Qty': '1000',
+                'Total Cost': '$10,000',
+                'Total Value': '$12,000'
+              }}
+            />
           </div>
         </div>
       </div>
@@ -2079,4 +1346,4 @@ const ProductManager: React.FC = () => {
   );
 };
 
-export default ProductManager;
+export default ProductManager; 

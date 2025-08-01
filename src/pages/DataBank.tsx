@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Package, FileText, Clipboard, Layers, Truck, Upload, Download, Trash2, Database, Loader2, Eye, Filter, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ShoppingCart, Package, FileText, Clipboard, Layers, Truck, Upload, Download, Trash2, Database, Loader2, Eye, Filter, RefreshCw, X } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 // Database tables that will be created by test10.py
 const databaseTables = [
@@ -44,9 +45,161 @@ const DataBank: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage] = useState<number>(10);
+  
+  // File upload states
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [selectedSection, setSelectedSection] = useState<string>('');
+  const [uploadStatus, setUploadStatus] = useState<string>('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAction = (action: string, label: string) => {
-    alert(`${action} for ${label} coming soon!`);
+    if (action === 'Import') {
+      setSelectedSection(label);
+      setShowUploadModal(true);
+      setUploadStatus('');
+    } else {
+      alert(`${action} for ${label} coming soon!`);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setSelectedFile(file);
+
+    // Check file size (25MB limit for better reliability)
+    const maxSize = 25 * 1024 * 1024; // 25MB
+    if (file.size > maxSize) {
+      setUploadStatus(`❌ File too large. Maximum size is 25MB. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadStatus('Processing file...');
+
+    try {
+      const data = await readExcelFile(file);
+      
+      if (data.length === 0) {
+        throw new Error('No data found in file');
+      }
+
+      // Map section to corresponding table name
+      const tableMapping: { [key: string]: string } = {
+        'Purchase Order': 'PurchaseOrder',
+        'Purchase Order Lines': 'PurchaseOrderLines',
+        'Product Manager': 'Products',
+        'Techpacks': 'ProductBillOfMaterials',
+        'Sample Requests': 'ProductOptions',
+        'Material Manager': 'Materials',
+        'Supplier Loading': 'MaterialSuppliers'
+      };
+
+      const tableName = tableMapping[selectedSection];
+      if (!tableName) {
+        throw new Error('No table mapping found for this section');
+      }
+
+      setUploadStatus(`Uploading ${data.length} records...`);
+
+      // Upload data in chunks if it's large
+      const chunkSize = 100; // Upload 100 records at a time
+      const chunks = [];
+      
+      for (let i = 0; i < data.length; i += chunkSize) {
+        chunks.push(data.slice(i, i + chunkSize));
+      }
+
+      let uploadedCount = 0;
+      
+      for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
+        setUploadStatus(`Uploading chunk ${i + 1}/${chunks.length} (${uploadedCount + chunk.length}/${data.length} records)...`);
+
+        try {
+          const response = await fetch(`http://localhost:3001/api/upload-data`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              tableName: tableName,
+              data: chunk,
+              isChunk: i > 0, // Skip table creation for subsequent chunks
+              chunkIndex: i
+            })
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            uploadedCount += chunk.length;
+          } else {
+            const errorText = await response.text();
+            console.error(`Chunk ${i + 1} failed:`, errorText);
+            throw new Error(`Failed to upload chunk ${i + 1}: ${errorText.substring(0, 200)}...`);
+          }
+        } catch (error) {
+          console.error(`Error uploading chunk ${i + 1}:`, error);
+          throw new Error(`Failed to upload chunk ${i + 1}: ${error instanceof Error ? error.message : 'Network error'}`);
+        }
+      }
+
+      setUploadStatus(`✅ Successfully uploaded ${uploadedCount} records to ${tableName}`);
+      // Refresh available tables and data
+      fetchAvailableTables();
+      if (selectedTable === tableName) {
+        fetchTableData(tableName);
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      setUploadStatus(`❌ Error uploading file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const readExcelFile = (file: File): Promise<any[]> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+          
+          resolve(jsonData);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const closeUploadModal = () => {
+    setShowUploadModal(false);
+    setSelectedSection('');
+    setUploadStatus('');
+    setIsUploading(false);
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleCollectData = async () => {
@@ -371,6 +524,114 @@ const DataBank: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {/* File Upload Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Upload Data to {selectedSection}</h3>
+              <button
+                onClick={closeUploadModal}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-4">
+                Upload an Excel (.xlsx) or CSV file to populate the {selectedSection} table.
+                The file should have headers that match the table columns.
+              </p>
+
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                {selectedFile ? (
+                  <div className="text-center">
+                    <div className="flex items-center justify-center mb-2">
+                      <FileText className="h-6 w-6 text-green-600 mr-2" />
+                      <span className="text-sm font-medium text-gray-900">{selectedFile.name}</span>
+                    </div>
+                    <div className="text-xs text-gray-500 mb-3">
+                      Size: {(selectedFile.size / 1024 / 1024).toFixed(2)}MB
+                    </div>
+                    <button
+                      onClick={handleUploadClick}
+                      disabled={isUploading}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                        isUploading 
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
+                    >
+                      {isUploading ? 'Uploading...' : 'Change File'}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleUploadClick}
+                    disabled={isUploading}
+                    className={`flex flex-col items-center mx-auto ${
+                      isUploading 
+                        ? 'text-gray-400 cursor-not-allowed' 
+                        : 'text-blue-600 hover:text-blue-700'
+                    }`}
+                  >
+                    {isUploading ? (
+                      <Loader2 className="h-8 w-8 animate-spin mb-2" />
+                    ) : (
+                      <Upload className="h-8 w-8 mb-2" />
+                    )}
+                    <span className="text-sm font-medium">
+                      {isUploading ? 'Uploading...' : 'Click to select file'}
+                    </span>
+                    <span className="text-xs text-gray-500 mt-1">
+                      Supports .xlsx, .xls, .csv (Max 25MB)
+                    </span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {uploadStatus && (
+              <div className={`p-3 rounded-md text-sm ${
+                uploadStatus.includes('✅') 
+                  ? 'bg-green-50 text-green-700 border border-green-200' 
+                  : uploadStatus.includes('❌')
+                  ? 'bg-red-50 text-red-700 border border-red-200'
+                  : 'bg-blue-50 text-blue-700 border border-blue-200'
+              }`}>
+                {uploadStatus}
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3 mt-6">
+              {selectedFile && !isUploading && !uploadStatus.includes('✅') && (
+                <button
+                  onClick={() => handleFileUpload({ target: { files: [selectedFile] } } as any)}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  Upload Data
+                </button>
+              )}
+              <button
+                onClick={closeUploadModal}
+                disabled={isUploading}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

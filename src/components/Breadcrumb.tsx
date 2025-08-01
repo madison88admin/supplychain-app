@@ -30,13 +30,13 @@ const Breadcrumb: React.FC = () => {
   }
 
   return (
-    <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-4 px-6 pt-4" aria-label="Breadcrumb">
+    <nav className="flex items-center space-x-1 text-xs text-gray-600 mb-2 px-4 pt-2" aria-label="Breadcrumb">
       <Link 
         to="/" 
         className="flex items-center hover:text-blue-600 transition-colors"
         aria-label="Go to home page"
       >
-        <Home className="h-4 w-4 mr-1" />
+        <Home className="h-3 w-3 mr-1" />
         Home
       </Link>
       {pathnames.map((name, index) => {
@@ -46,7 +46,7 @@ const Breadcrumb: React.FC = () => {
         
         return (
           <React.Fragment key={name}>
-            <ChevronRight className="h-4 w-4 text-gray-400" />
+            <ChevronRight className="h-3 w-3 text-gray-400" />
             {isLast ? (
               <span className="text-gray-900 font-medium" aria-current="page">
                 {displayName}

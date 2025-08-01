@@ -1,6 +1,6 @@
 /* Sidebar CSS Variables */
 :root {
-  --sidebar-width: 20rem;
+  --sidebar-width: 16.5rem;
   --sidebar-collapsed-width: 4rem;
   --list-gap: 0.5rem;
   --item-height: 3.5rem;
@@ -25,7 +25,6 @@
   flex-flow: column;
   gap: var(--list-gap);
   position: fixed;
-  inset-y: 0;
   left: 0;
   z-index: 30;
   background-color: var(--sidebar-bg);

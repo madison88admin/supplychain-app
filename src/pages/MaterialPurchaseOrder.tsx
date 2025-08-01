@@ -1,6 +1,8 @@
 import React, { useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
+
 import { ChevronDown, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, Copy as CopyIcon, Plus, Filter as FilterIcon, Download, X, Search } from 'lucide-react';
+
 
 // Grouped columns with subfields
 const groupedColumns = [
@@ -45,6 +47,7 @@ const MaterialPurchaseOrder: React.FC = () => {
   const [visibleColumns, setVisibleColumns] = useState<string[]>(allColumns);
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
   const [activeSubTab, setActiveSubTab] = useState('MPO Details');
+
   const [columnSearch, setColumnSearch] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -62,6 +65,7 @@ const MaterialPurchaseOrder: React.FC = () => {
   const filteredColumnList = allColumns.filter(col =>
     col.toLowerCase().includes(columnSearch.toLowerCase())
   );
+
 
   // Sample order reference data for demonstration
   const getOrderReferencesData = (orderRef: string) => {
@@ -175,6 +179,7 @@ const MaterialPurchaseOrder: React.FC = () => {
 
   const isRowExpanded = (index: number) => expandedRows.has(index);
 
+
   // Multi-row selection handlers
   const handleRowSelect = (rowIndex: number) => {
     const newSelectedRows = new Set(selectedRows);
@@ -211,6 +216,7 @@ const MaterialPurchaseOrder: React.FC = () => {
     XLSX.utils.book_append_sheet(wb, ws, 'MaterialPurchaseOrders');
     XLSX.writeFile(wb, `material_purchase_orders_${selectedRows.size > 0 ? 'selected' : 'all'}_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
+
 
   const handleEdit = () => {
     if (selectedIndex >= 0 && selectedIndex < displayRows.length) {
@@ -460,6 +466,7 @@ const MaterialPurchaseOrder: React.FC = () => {
 
   const renderOrderReferencesSubTable = (orderRef: string) => {
     return (
+
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-l-4 border-blue-500">
         <div className="max-w-6xl w-full">
           {/* Header */}
@@ -694,6 +701,7 @@ const MaterialPurchaseOrder: React.FC = () => {
               <div className="text-xs text-purple-600 font-medium mb-1">Finance</div>
               <div className="text-sm text-purple-800">Approved</div>
             </div>
+
           </div>
         </div>
       </div>
@@ -904,6 +912,7 @@ const MaterialPurchaseOrder: React.FC = () => {
             {displayRows.map((row, idx) => (
               <React.Fragment key={idx}>
                 <tr
+
                   className={`
                     transition-all duration-300 cursor-pointer
                     ${selectedIndex === idx ? 'bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-500 shadow-lg animate-pulse' : 'hover:bg-gray-50'}
@@ -939,19 +948,23 @@ const MaterialPurchaseOrder: React.FC = () => {
                         <td
                           key={col.key + '-' + subCol}
                           className={
+
                             `px-2 py-1 border-b text-center align-middle whitespace-nowrap` +
                             ((subIdx === 0 || subCol === 'Target Date') ? ' border-r-2 border-gray-200' : '') +
                             (colIdx === arr.length - 1 && subCol === 'Completed Date' ? '' : '')
                           }
                                                  >
                            {row[col.key]?.[subCol] || ''}
+
                         </td>
                       ));
                     } else {
                       return [
+
                         <td key={col.key} className={`px-2 py-1 border-b text-center align-middle whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>
                           {col.key === 'Order References' ? (
                             <div className="flex items-center justify-center space-x-1">
+
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -977,9 +990,11 @@ const MaterialPurchaseOrder: React.FC = () => {
                                 </span>
                               )}
                             </div>
+
                                                      ) : (
                              row[col.key] || ''
                            )}
+
                         </td>
                       ];
                     }
@@ -990,7 +1005,9 @@ const MaterialPurchaseOrder: React.FC = () => {
                     <td colSpan={visibleColumns.reduce((acc, col) => {
                       const group = groupedColumns.find(g => g.key === col);
                       return acc + (group ? 2 : 1);
+
                     }, 0) + 1} className="p-0">
+
                       {renderOrderReferencesSubTable(row['Order References'])}
                     </td>
                   </tr>

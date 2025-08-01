@@ -2,6 +2,99 @@ import React, { useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
 import { ChevronDown, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, Copy as CopyIcon, Plus, Filter as FilterIcon, Download, X, Trash2, Search, Eye } from 'lucide-react';
 import PurchaseOrderEditModal from '../components/modals/PurchaseOrderEditModal';
+import { parse, format, isValid } from 'date-fns';
+
+// Robust date formatting utility function that handles multiple date formats including Excel serial numbers
+const formatDateToMMDDYYYY = (dateValue: any): string => {
+  if (!dateValue) return '';
+  
+  // If it's already a string in MM/DD/YYYY format
+  if (typeof dateValue === 'string' && /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateValue)) {
+    return dateValue;
+  }
+  
+  // If it's a Date object or Excel serial number
+  let date: Date;
+  if (typeof dateValue === 'number') {
+    // Excel serial number (days since 1900-01-01)
+    date = new Date((dateValue - 25569) * 86400 * 1000);
+  } else if (dateValue instanceof Date) {
+    date = dateValue;
+  } else {
+    // Try to parse as string using date-fns for robust parsing
+    const knownFormats = [
+      'yyyy-MM-dd',           // ISO format: 2024-01-15
+      'MM/dd/yyyy',           // US format: 01/15/2024
+      'dd/MM/yyyy',           // European format: 15/01/2024
+      'yyyy/MM/dd',           // Alternative ISO: 2024/01/15
+      'MM-dd-yyyy',           // US with dashes: 01-15-2024
+      'dd-MM-yyyy',           // European with dashes: 15-01-2024
+      'MMM d, yyyy',          // Month name: Jan 15, 2024
+      'd MMM yyyy',           // Day first: 15 Jan 2024
+      'MMMM d, yyyy',         // Full month: January 15, 2024
+      'd MMMM yyyy',          // Full month day first: 15 January 2024
+      'yyyy-MM-dd\'T\'HH:mm:ss', // ISO with time: 2024-01-15T10:30:00
+      'yyyy-MM-dd\'T\'HH:mm:ss.SSS', // ISO with milliseconds: 2024-01-15T10:30:00.000
+    ];
+
+    for (const fmt of knownFormats) {
+      try {
+        const parsed = parse(dateValue, fmt, new Date());
+        if (isValid(parsed)) {
+          return format(parsed, 'MM/dd/yyyy');
+        }
+      } catch (error) {
+        // Continue to next format if parsing fails
+        continue;
+      }
+    }
+    
+    // Fallback to JavaScript Date constructor for other formats
+    date = new Date(dateValue);
+  }
+  
+  // Check if valid date
+  if (isNaN(date.getTime())) return '';
+  
+  // Format as MM/DD/YYYY
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const year = date.getFullYear();
+  
+  return `${month}/${day}/${year}`;
+};
+
+// Helper function to check if a column is a date column
+const isDateColumn = (columnName: string): boolean => {
+  const dateKeywords = ['Date', 'Created', 'Last Edited', 'Closed', 'Delivery', 'Issue', 'Factory'];
+  return dateKeywords.some(keyword => columnName.includes(keyword));
+};
+
+// Helper function to find matching column names with flexible matching
+const findMatchingColumn = (importedHeaders: string[], targetColumn: string): string | null => {
+  // Exact match
+  if (importedHeaders.includes(targetColumn)) {
+    return targetColumn;
+  }
+  
+  // Case-insensitive match
+  const lowerTarget = targetColumn.toLowerCase();
+  const match = importedHeaders.find(header => header.toLowerCase() === lowerTarget);
+  if (match) {
+    return match;
+  }
+  
+  // Partial match (contains the target column name)
+  const partialMatch = importedHeaders.find(header => 
+    header.toLowerCase().includes(lowerTarget) || 
+    lowerTarget.includes(header.toLowerCase())
+  );
+  if (partialMatch) {
+    return partialMatch;
+  }
+  
+  return null;
+};
 
 // Define grouped columns (from Downloads file)
 const groupedColumns = [
@@ -129,11 +222,11 @@ const PurchaseOrders: React.FC = () => {
     'Transport Method': index % 3 === 0 ? 'Air' : index % 3 === 1 ? 'Sea' : 'Land',
     'Deliver To': `Warehouse ${index + 1}`,
     'Status': index % 4 === 0 ? 'Open' : index % 4 === 1 ? 'Confirmed' : index % 4 === 2 ? 'In Production' : 'Shipped',
-    'Delivery Date': `2024-${String(8 + (index % 3)).padStart(2, '0')}-${String(1 + (index % 28)).padStart(2, '0')}`,
+    'Delivery Date': formatDateToMMDDYYYY(`2024-${String(8 + (index % 3)).padStart(2, '0')}-${String(1 + (index % 28)).padStart(2, '0')}`),
     'Comments': `Comment for row ${index + 1}`,
     'Quantity': 100 + (index * 50),
     'Selling Quantity': 100 + (index * 50),
-    'Closed Date': index % 3 === 0 ? `2024-${String(7 + (index % 3)).padStart(2, '0')}-${String(15 + (index % 15)).padStart(2, '0')}` : '',
+    'Closed Date': index % 3 === 0 ? formatDateToMMDDYYYY(`2024-${String(7 + (index % 3)).padStart(2, '0')}-${String(15 + (index % 15)).padStart(2, '0')}`) : '',
     'Line Purchase Price': `$${10 + index}`,
     'Line Selling Price': `$${15 + index}`,
     'Note Count': 1 + (index % 5),
@@ -142,7 +235,7 @@ const PurchaseOrders: React.FC = () => {
     'Order Lead Time': `${30 + (index * 5)} days`,
     'Supplier Ref.': `SUP-${String(index + 1).padStart(3, '0')}`,
     'Template': index % 2 === 0 ? 'Standard' : 'Custom',
-    'Ex-Factory': `2024-${String(7 + (index % 3)).padStart(2, '0')}-${String(15 + (index % 15)).padStart(2, '0')}`,
+    'Ex-Factory': formatDateToMMDDYYYY(`2024-${String(7 + (index % 3)).padStart(2, '0')}-${String(15 + (index % 15)).padStart(2, '0')}`),
     'Purchase Order Status': index % 3 === 0 ? 'Confirmed' : index % 3 === 1 ? 'Pending' : 'Draft',
     'Supplier Purchase Currency': index % 2 === 0 ? 'USD' : 'EUR',
     'Customer Selling Currency': index % 2 === 0 ? 'EUR' : 'USD',
@@ -198,7 +291,7 @@ const PurchaseOrders: React.FC = () => {
     'PO Key Working Group 3': `WG${index + 3}`,
     'PO Key Working Group 4': `WG${index + 4}`,
     'Created By': `User${index + 1}`,
-    'Last Edited': `2024-${String(6 + (index % 3)).padStart(2, '0')}-${String(30 - (index % 15)).padStart(2, '0')}`,
+    'Last Edited': formatDateToMMDDYYYY(`2024-${String(6 + (index % 3)).padStart(2, '0')}-${String(30 - (index % 15)).padStart(2, '0')}`),
     'Last Edited By': `Editor${index + 1}`,
     'Color': ['Blue', 'Red', 'Green', 'Black', 'White'][index % 5],
     'Vessel Schedule': `VS-2024-${String(index + 1).padStart(3, '0')}`,
@@ -211,11 +304,11 @@ const PurchaseOrders: React.FC = () => {
     'Buy Information': index % 2 === 0 ? 'Standard' : 'Express',
     'Handling Charges': `$${50 + (index * 10)}`,
     'Original Forecasts Quantity': 100 + (index * 50),
-    'Start Date': `2024-${String(6 + (index % 3)).padStart(2, '0')}-${String(1 + (index % 28)).padStart(2, '0')}`,
-    'Cancelled Date': index % 5 === 0 ? `2024-${String(7 + (index % 3)).padStart(2, '0')}-${String(15 + (index % 15)).padStart(2, '0')}` : '',
-    'Factory Date Paid': index % 3 === 0 ? `2024-${String(7 + (index % 3)).padStart(2, '0')}-${String(15 + (index % 15)).padStart(2, '0')}` : '',
-    'Date Invoice Raised': index % 2 === 0 ? `2024-${String(7 + (index % 3)).padStart(2, '0')}-${String(15 + (index % 15)).padStart(2, '0')}` : '',
-    'Submitted Inspection Date': index % 3 === 0 ? `2024-${String(7 + (index % 3)).padStart(2, '0')}-${String(15 + (index % 15)).padStart(2, '0')}` : '',
+    'Start Date': formatDateToMMDDYYYY(`2024-${String(6 + (index % 3)).padStart(2, '0')}-${String(1 + (index % 28)).padStart(2, '0')}`),
+    'Cancelled Date': index % 5 === 0 ? formatDateToMMDDYYYY(`2024-${String(7 + (index % 3)).padStart(2, '0')}-${String(15 + (index % 15)).padStart(2, '0')}`) : '',
+    'Factory Date Paid': index % 3 === 0 ? formatDateToMMDDYYYY(`2024-${String(7 + (index % 3)).padStart(2, '0')}-${String(15 + (index % 15)).padStart(2, '0')}`) : '',
+    'Date Invoice Raised': index % 2 === 0 ? formatDateToMMDDYYYY(`2024-${String(7 + (index % 3)).padStart(2, '0')}-${String(15 + (index % 15)).padStart(2, '0')}`) : '',
+    'Submitted Inspection Date': index % 3 === 0 ? formatDateToMMDDYYYY(`2024-${String(7 + (index % 3)).padStart(2, '0')}-${String(15 + (index % 15)).padStart(2, '0')}`) : '',
     'Remarks': `Remark for row ${index + 1}`,
     'Inspection Results': index % 2 === 0 ? 'Passed' : 'Failed',
     'Report Type': index % 2 === 0 ? 'Standard' : 'Detailed',
@@ -238,8 +331,8 @@ const PurchaseOrders: React.FC = () => {
     // Grouped columns
     ...groupedColumns.reduce((acc, g) => {
       acc[g.key] = { 
-        'Target Date': `2024-${String(7 + (index % 3)).padStart(2, '0')}-${String(1 + (index % 28)).padStart(2, '0')}`, 
-        'Completed Date': `2024-${String(7 + (index % 3)).padStart(2, '0')}-${String(10 + (index % 18)).padStart(2, '0')}` 
+        'Target Date': formatDateToMMDDYYYY(`2024-${String(7 + (index % 3)).padStart(2, '0')}-${String(1 + (index % 28)).padStart(2, '0')}`), 
+        'Completed Date': formatDateToMMDDYYYY(`2024-${String(7 + (index % 3)).padStart(2, '0')}-${String(10 + (index % 18)).padStart(2, '0')}`) 
       };
       return acc;
     }, {} as Record<string, any>),
@@ -324,7 +417,7 @@ const PurchaseOrders: React.FC = () => {
   // Add critical path state
   const [criticalPath, setCriticalPath] = useState({
     'Template': 'Standard',
-    'PO Issue Date': '2024-07-01',
+    'PO Issue Date': formatDateToMMDDYYYY('2024-07-01'),
   });
 
   // Sample BOM data for Techpacks
@@ -341,7 +434,7 @@ const PurchaseOrders: React.FC = () => {
       'Custom Text 4': '',
       'Season': 'FH:2018',
       'Note Count': '2',
-      'Latest Note': '2024-01-15',
+      'Latest Note': formatDateToMMDDYYYY('2024-01-15'),
       'Main Material': 'Yes',
       'Category Sequence': '1',
       'Default Material Color': 'Navy',
@@ -366,7 +459,7 @@ const PurchaseOrders: React.FC = () => {
       'Custom Text 4': '',
       'Season': 'FH:2018',
       'Note Count': '1',
-      'Latest Note': '2024-01-10',
+      'Latest Note': formatDateToMMDDYYYY('2024-01-10'),
       'Main Material': 'No',
       'Category Sequence': '2',
       'Default Material Color': 'White',
@@ -395,7 +488,7 @@ const PurchaseOrders: React.FC = () => {
       'Custom Text 4': '',
       'Season': 'FH:2018',
       'Note Count': '1',
-      'Latest Note': '2024-01-15',
+      'Latest Note': formatDateToMMDDYYYY('2024-01-15'),
       'Main Size': 'No',
       'Category Sequence': '1',
       'Default Size Color': 'Navy',
@@ -518,7 +611,7 @@ const PurchaseOrders: React.FC = () => {
     fileInputRef.current?.click();
   };
 
-  // Fix: handleFileChange maps imported data to objects
+  // Enhanced handleFileChange with date formatting and flexible column matching
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -529,18 +622,32 @@ const PurchaseOrders: React.FC = () => {
           const workbook = XLSX.read(data, { type: 'array' });
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
-          const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-          if (jsonData.length > 1) {
-            const headers = jsonData[0] as string[];
-            const mappedRows = jsonData.slice(1).map(rowArr => {
-              const obj: Record<string, any> = {};
-              headers.forEach((header, i) => {
-                obj[header] = rowArr[i];
+          const json: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+          
+          if (json.length > 0) {
+            // Process uploaded data while preserving all columns and applying date formatting only to date columns
+            const processedRows = json.map((row) => {
+              const processedRow: Record<string, any> = {};
+              const importedHeaders = Object.keys(row);
+              
+              // Process all imported columns, preserving all data
+              importedHeaders.forEach((header) => {
+                const value = row[header];
+                
+                // Check if this column name contains date-related keywords
+                if (isDateColumn(header)) {
+                  processedRow[header] = formatDateToMMDDYYYY(value);
+                } else {
+                  // Preserve the original value for non-date columns
+                  processedRow[header] = value;
+                }
               });
-              return obj;
+              
+              return processedRow;
             });
-            setRows(mappedRows.length ? mappedRows : dummyRows);
-    } else {
+            
+            setRows(processedRows.length ? processedRows : dummyRows);
+          } else {
             setRows(dummyRows);
           }
         }
@@ -653,7 +760,9 @@ const PurchaseOrders: React.FC = () => {
     const ws = XLSX.utils.json_to_sheet(rowsToExport);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'PurchaseOrders');
-    XLSX.writeFile(wb, `purchase_orders_${selectedRows.size > 0 ? 'selected' : 'all'}_${new Date().toISOString().split('T')[0]}.xlsx`);
+    const today = new Date();
+    const formattedDate = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}-${today.getFullYear()}`;
+    XLSX.writeFile(wb, `purchase_orders_${selectedRows.size > 0 ? 'selected' : 'all'}_${formattedDate}.xlsx`);
   };
 
   const handleColumnToggle = (col: string) => {
@@ -1318,10 +1427,10 @@ const PurchaseOrders: React.FC = () => {
                           )}
                         </div>
                       </div>
-                    </td>
-                  </tr>
-                )}
-                {expandedProductIndex === idx && safeVisibleColumns.includes('Product') && (
+                                          </td>
+                    </tr>
+                  )}
+                  {expandedProductIndex === idx && safeVisibleColumns.includes('Product') && (
                   <tr>
                     <td colSpan={renderColumns().reduce((acc, col) => acc + (col.isGroup ? 2 : 1), 0) + 1} className="bg-blue-50 px-6 py-4 sticky left-0 z-10">
                       <div>

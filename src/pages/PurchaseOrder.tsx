@@ -1648,14 +1648,14 @@ const PurchaseOrder: React.FC = () => {
                   >
                     {/* Checkbox column */}
                     <td 
-                      className="px-3 py-3 border-b align-top whitespace-nowrap"
+                      className="px-3 py-3 border-b text-center align-middle whitespace-nowrap"
                       style={{
                         ...getStickyStyle('checkbox-header', false),
                         borderTop: '1px solid #e5e7eb',
                         borderBottom: '1px solid #e5e7eb'
                       }}
                     >
-                      <div className="flex items-center justify-center">
+                      <div className="flex items-center justify-center w-full">
                         <input
                           type="checkbox"
                           checked={selectedRows.has(idx)}
@@ -1673,14 +1673,14 @@ const PurchaseOrder: React.FC = () => {
                         return [
                           <td 
                             key={col.key} 
-                            className="px-2 py-1 border-b align-top whitespace-nowrap"
+                            className="px-2 py-1 border-b text-center align-middle whitespace-nowrap"
                             style={{
                               ...getStickyStyle(col.key, false),
                               borderTop: '1px solid #e5e7eb',
                               borderBottom: '1px solid #e5e7eb'
                             }}
                           > 
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-center space-x-1">
                               <div className="flex-1">
                                 {editIndex === idx ? (
                                   <input
@@ -1720,7 +1720,7 @@ const PurchaseOrder: React.FC = () => {
                           <td
                             key={col.key + '-' + subCol}
                             className={
-                              `px-2 py-1 border-b align-top whitespace-nowrap` +
+                              `px-2 py-1 border-b text-center align-middle whitespace-nowrap` +
                               ((subIdx === 0 || subCol === 'Target Date') ? ' border-r-2 border-gray-200' : '') +
                               (colIdx === arr.length - 1 && subCol === 'Completed Date' ? '' : '')
                             }
@@ -1738,7 +1738,7 @@ const PurchaseOrder: React.FC = () => {
                         ));
                       } else {
                         return [
-                          <td key={col.key} className={`px-2 py-1 border-b align-top whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>
+                          <td key={col.key} className={`px-2 py-1 border-b text-center align-middle whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>
                             {editIndex === idx ? (
                               <input
                                 className="border px-1 py-0.5 rounded w-32 text-xs"

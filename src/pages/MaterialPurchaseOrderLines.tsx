@@ -1445,6 +1445,7 @@ const MaterialPurchaseOrderLines: React.FC = () => {
             </tbody>
           </table>
         </div>
+      </div>
 
       {/* Edit Modal */}
       <MaterialPurchaseOrderLinesEditModal

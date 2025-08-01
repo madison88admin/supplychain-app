@@ -195,7 +195,7 @@ const PivotReports: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Products</h3>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead>
+                  <thead className="bg-gray-50 sticky top-0 z-40">
                     <tr className="border-b border-gray-200">
                       <th className="text-left py-2 text-sm font-medium text-gray-600">Product</th>
                       <th className="text-left py-2 text-sm font-medium text-gray-600">Orders</th>
@@ -222,7 +222,7 @@ const PivotReports: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Suppliers</h3>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead>
+                  <thead className="bg-gray-50 sticky top-0 z-40">
                     <tr className="border-b border-gray-200">
                       <th className="text-left py-2 text-sm font-medium text-gray-600">Supplier</th>
                       <th className="text-left py-2 text-sm font-medium text-gray-600">Orders</th>

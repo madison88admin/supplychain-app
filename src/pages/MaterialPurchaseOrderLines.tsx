@@ -331,7 +331,7 @@ const MaterialPurchaseOrderLines: React.FC = () => {
   };
 
   const [rows, setRows] = useState(generateDummyEntries());
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const [search, setSearch] = useState('');
   const [filteredRows, setFilteredRows] = useState<typeof rows | null>(null);
   const [showColumnSelector, setShowColumnSelector] = useState(false);
@@ -339,6 +339,9 @@ const MaterialPurchaseOrderLines: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [selectAll, setSelectAll] = useState(false);
+
+  // Cell selection states
+  const [selectedCell, setSelectedCell] = useState<{rowIndex: number, colKey: string} | null>(null);
   const [columnSearch, setColumnSearch] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editModalData, setEditModalData] = useState<any>(null);
@@ -514,6 +517,23 @@ const MaterialPurchaseOrderLines: React.FC = () => {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'MaterialPurchaseOrderLines');
     XLSX.writeFile(wb, `material_purchase_order_lines_${selectedRows.size > 0 ? 'selected' : 'all'}_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  // Cell selection handlers - now highlights entire row
+  const handleCellClick = (rowIndex: number, colKey: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedIndex(rowIndex);
+    // Clear any previous cell selection
+    setSelectedCell(null);
+  };
+
+  const handleCellKeyDown = (rowIndex: number, colKey: string, e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setSelectedIndex(rowIndex);
+      // Clear any previous cell selection
+      setSelectedCell(null);
+    }
   };
 
   const handleSaveEdit = (data: any) => {
@@ -1425,7 +1445,6 @@ const MaterialPurchaseOrderLines: React.FC = () => {
             </tbody>
           </table>
         </div>
-      </div>
 
       {/* Edit Modal */}
       <MaterialPurchaseOrderLinesEditModal

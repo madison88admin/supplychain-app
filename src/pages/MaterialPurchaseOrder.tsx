@@ -40,7 +40,7 @@ const MaterialPurchaseOrder: React.FC = () => {
   const [rows, setRows] = useState([initialRow]);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [editRow, setEditRow] = useState<Record<string, any> | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const [search, setSearch] = useState('');
   const [filteredRows, setFilteredRows] = useState<typeof rows | null>(null);
   const [showColumnSelector, setShowColumnSelector] = useState(false);
@@ -61,123 +61,126 @@ const MaterialPurchaseOrder: React.FC = () => {
   const [editingRow, setEditingRow] = useState<Record<string, any> | null>(null);
   const [editingSubTableData, setEditingSubTableData] = useState<Record<string, any> | null>(null);
 
+  // Cell selection states
+  const [selectedCell, setSelectedCell] = useState<{rowIndex: number, colKey: string} | null>(null);
+
   // Filtered columns for selector
   const filteredColumnList = allColumns.filter(col =>
     col.toLowerCase().includes(columnSearch.toLowerCase())
   );
 
-
-  // Sample order reference data for demonstration
-  const getOrderReferencesData = (orderRef: string) => {
-    if (!orderRef) return [];
-    
-    // Special case for MPO-012345
-    if (orderRef === 'MPO-012345') {
+  
+    // Sample order reference data for demonstration
+    const getOrderReferencesData = (orderRef: string) => {
+      if (!orderRef) return [];
+      
+      // Special case for MPO-012345
+      if (orderRef === 'MPO-012345') {
+        return [
+          {
+            id: 1,
+            reference: 'MPO-012345',
+            orderType: 'Material Purchase Order',
+            status: 'Active',
+            supplier: 'Premium Textiles Co.',
+            orderDate: '2024-01-10',
+            deliveryDate: '2024-02-10',
+            totalValue: '$25,750',
+            currency: 'USD',
+            items: [
+              { material: 'Premium Cotton Fabric', quantity: '2000m', unitPrice: '$8.50', total: '$17,000' },
+              { material: 'Elastic Band', quantity: '1000m', unitPrice: '$2.25', total: '$2,250' },
+              { material: 'Metal Buttons', quantity: '500pcs', unitPrice: '$0.75', total: '$375' },
+              { material: 'Polyester Thread', quantity: '800m', unitPrice: '$1.80', total: '$1,440' },
+              { material: 'Care Labels', quantity: '1000pcs', unitPrice: '$0.35', total: '$350' },
+              { material: 'Size Labels', quantity: '1000pcs', unitPrice: '$0.40', total: '$400' }
+            ]
+          },
+          {
+            id: 2,
+            reference: 'MPO-012345-SUB',
+            orderType: 'Sub Contract',
+            status: 'In Progress',
+            supplier: 'Quality Dyeing Services',
+            orderDate: '2024-01-12',
+            deliveryDate: '2024-02-08',
+            totalValue: '$12,300',
+            currency: 'USD',
+            items: [
+              { material: 'Fabric Dyeing Service', quantity: '2000m', unitPrice: '$4.50', total: '$9,000' },
+              { material: 'Color Matching Service', quantity: '1 lot', unitPrice: '$500', total: '$500' },
+              { material: 'Quality Testing', quantity: '1 lot', unitPrice: '$800', total: '$800' },
+              { material: 'Packaging Service', quantity: '2000m', unitPrice: '$1.00', total: '$2,000' }
+            ]
+          },
+          {
+            id: 3,
+            reference: 'MPO-012345-TRIM',
+            orderType: 'Trim Order',
+            status: 'Completed',
+            supplier: 'Accessories Plus Ltd',
+            orderDate: '2024-01-08',
+            deliveryDate: '2024-01-25',
+            totalValue: '$8,900',
+            currency: 'USD',
+            items: [
+              { material: 'Zipper Pulls', quantity: '300pcs', unitPrice: '$1.20', total: '$360' },
+              { material: 'Drawstring Cord', quantity: '600m', unitPrice: '$0.85', total: '$510' },
+              { material: 'Hook & Loop Tape', quantity: '400m', unitPrice: '$2.10', total: '$840' },
+              { material: 'Ribbon Trim', quantity: '500m', unitPrice: '$1.45', total: '$725' },
+              { material: 'Decorative Patches', quantity: '200pcs', unitPrice: '$2.50', total: '$500' }
+            ]
+          }
+        ];
+      }
+      
+      // Default data for other order references
       return [
         {
           id: 1,
-          reference: 'MPO-012345',
-          orderType: 'Material Purchase Order',
+          reference: orderRef,
+          orderType: 'Purchase Order',
           status: 'Active',
-          supplier: 'Premium Textiles Co.',
-          orderDate: '2024-01-10',
-          deliveryDate: '2024-02-10',
-          totalValue: '$25,750',
+          supplier: 'Textile Solutions Ltd',
+          orderDate: '2024-01-15',
+          deliveryDate: '2024-02-15',
+          totalValue: '$15,000',
           currency: 'USD',
           items: [
-            { material: 'Premium Cotton Fabric', quantity: '2000m', unitPrice: '$8.50', total: '$17,000' },
-            { material: 'Elastic Band', quantity: '1000m', unitPrice: '$2.25', total: '$2,250' },
-            { material: 'Metal Buttons', quantity: '500pcs', unitPrice: '$0.75', total: '$375' },
-            { material: 'Polyester Thread', quantity: '800m', unitPrice: '$1.80', total: '$1,440' },
-            { material: 'Care Labels', quantity: '1000pcs', unitPrice: '$0.35', total: '$350' },
-            { material: 'Size Labels', quantity: '1000pcs', unitPrice: '$0.40', total: '$400' }
+            { material: 'Cotton Fabric', quantity: '1000m', unitPrice: '$5.50', total: '$5,500' },
+            { material: 'Polyester Thread', quantity: '500m', unitPrice: '$2.00', total: '$1,000' },
+            { material: 'Zippers', quantity: '200pcs', unitPrice: '$1.25', total: '$250' }
           ]
         },
         {
           id: 2,
-          reference: 'MPO-012345-SUB',
+          reference: `${orderRef}-SUB`,
           orderType: 'Sub Contract',
-          status: 'In Progress',
-          supplier: 'Quality Dyeing Services',
-          orderDate: '2024-01-12',
-          deliveryDate: '2024-02-08',
-          totalValue: '$12,300',
+          status: 'Pending',
+          supplier: 'Fashion Factory Inc',
+          orderDate: '2024-01-20',
+          deliveryDate: '2024-02-20',
+          totalValue: '$8,500',
           currency: 'USD',
           items: [
-            { material: 'Fabric Dyeing Service', quantity: '2000m', unitPrice: '$4.50', total: '$9,000' },
-            { material: 'Color Matching Service', quantity: '1 lot', unitPrice: '$500', total: '$500' },
-            { material: 'Quality Testing', quantity: '1 lot', unitPrice: '$800', total: '$800' },
-            { material: 'Packaging Service', quantity: '2000m', unitPrice: '$1.00', total: '$2,000' }
-          ]
-        },
-        {
-          id: 3,
-          reference: 'MPO-012345-TRIM',
-          orderType: 'Trim Order',
-          status: 'Completed',
-          supplier: 'Accessories Plus Ltd',
-          orderDate: '2024-01-08',
-          deliveryDate: '2024-01-25',
-          totalValue: '$8,900',
-          currency: 'USD',
-          items: [
-            { material: 'Zipper Pulls', quantity: '300pcs', unitPrice: '$1.20', total: '$360' },
-            { material: 'Drawstring Cord', quantity: '600m', unitPrice: '$0.85', total: '$510' },
-            { material: 'Hook & Loop Tape', quantity: '400m', unitPrice: '$2.10', total: '$840' },
-            { material: 'Ribbon Trim', quantity: '500m', unitPrice: '$1.45', total: '$725' },
-            { material: 'Decorative Patches', quantity: '200pcs', unitPrice: '$2.50', total: '$500' }
+            { material: 'Dyeing Service', quantity: '500m', unitPrice: '$3.00', total: '$1,500' },
+            { material: 'Printing Service', quantity: '300m', unitPrice: '$2.50', total: '$750' }
           ]
         }
       ];
-    }
-    
-    // Default data for other order references
-    return [
-      {
-        id: 1,
-        reference: orderRef,
-        orderType: 'Purchase Order',
-        status: 'Active',
-        supplier: 'Textile Solutions Ltd',
-        orderDate: '2024-01-15',
-        deliveryDate: '2024-02-15',
-        totalValue: '$15,000',
-        currency: 'USD',
-        items: [
-          { material: 'Cotton Fabric', quantity: '1000m', unitPrice: '$5.50', total: '$5,500' },
-          { material: 'Polyester Thread', quantity: '500m', unitPrice: '$2.00', total: '$1,000' },
-          { material: 'Zippers', quantity: '200pcs', unitPrice: '$1.25', total: '$250' }
-        ]
-      },
-      {
-        id: 2,
-        reference: `${orderRef}-SUB`,
-        orderType: 'Sub Contract',
-        status: 'Pending',
-        supplier: 'Fashion Factory Inc',
-        orderDate: '2024-01-20',
-        deliveryDate: '2024-02-20',
-        totalValue: '$8,500',
-        currency: 'USD',
-        items: [
-          { material: 'Dyeing Service', quantity: '500m', unitPrice: '$3.00', total: '$1,500' },
-          { material: 'Printing Service', quantity: '300m', unitPrice: '$2.50', total: '$750' }
-        ]
+    };
+  
+    const toggleRowExpansion = (index: number) => {
+      const newExpandedRows = new Set(expandedRows);
+      if (newExpandedRows.has(index)) {
+        newExpandedRows.delete(index);
+      } else {
+        newExpandedRows.add(index);
       }
-    ];
-  };
-
-  const toggleRowExpansion = (index: number) => {
-    const newExpandedRows = new Set(expandedRows);
-    if (newExpandedRows.has(index)) {
-      newExpandedRows.delete(index);
-    } else {
-      newExpandedRows.add(index);
-    }
-    setExpandedRows(newExpandedRows);
-  };
-
-  const isRowExpanded = (index: number) => expandedRows.has(index);
+      setExpandedRows(newExpandedRows);
+    };
+  
+    const isRowExpanded = (index: number) => expandedRows.has(index);
 
 
   // Multi-row selection handlers
@@ -217,36 +220,36 @@ const MaterialPurchaseOrder: React.FC = () => {
     XLSX.writeFile(wb, `material_purchase_orders_${selectedRows.size > 0 ? 'selected' : 'all'}_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
-
-  const handleEdit = () => {
+  
+    const handleEdit = () => {
     if (selectedIndex >= 0 && selectedIndex < displayRows.length) {
       setEditingRow({ ...JSON.parse(JSON.stringify(displayRows[selectedIndex])) });
       setShowEditModal(true);
     }
-  };
-
-  const handleChange = (col: string, value: string, subCol?: string) => {
-    if (!editRow) return;
-    if (subCol) {
-      setEditRow({ ...editRow, [col]: { ...editRow[col], [subCol]: value } });
-    } else {
-      setEditRow({ ...editRow, [col]: value });
-    }
-  };
-
-  const handleSave = () => {
+    };
+  
+    const handleChange = (col: string, value: string, subCol?: string) => {
+      if (!editRow) return;
+      if (subCol) {
+        setEditRow({ ...editRow, [col]: { ...editRow[col], [subCol]: value } });
+      } else {
+        setEditRow({ ...editRow, [col]: value });
+      }
+    };
+  
+    const handleSave = () => {
     if (editingRow !== null && selectedIndex >= 0 && selectedIndex < displayRows.length) {
-      const newRows = [...(filteredRows ?? rows)];
+        const newRows = [...(filteredRows ?? rows)];
       newRows[selectedIndex] = { ...editingRow };
-      if (filteredRows) {
-        const mainRows = [...rows];
+        if (filteredRows) {
+          const mainRows = [...rows];
         const idxInMain = rows.indexOf(filteredRows[selectedIndex]);
         if (idxInMain !== -1) mainRows[idxInMain] = { ...editingRow };
-        setRows(mainRows);
-        setFilteredRows(newRows);
-      } else {
-        setRows(newRows);
-      }
+          setRows(mainRows);
+          setFilteredRows(newRows);
+        } else {
+          setRows(newRows);
+        }
       setShowEditModal(false);
       setEditingRow(null);
     }
@@ -282,158 +285,217 @@ const MaterialPurchaseOrder: React.FC = () => {
       console.log('Saving subtable data:', editingSubTableData);
       setShowSubTableEditModal(false);
       setEditingSubTableData(null);
-    }
-  };
-
-  const handleCopy = () => {
-    const baseRows = filteredRows ?? rows;
-    const newRows = [...baseRows];
-    newRows.splice(selectedIndex + 1, 0, JSON.parse(JSON.stringify(baseRows[selectedIndex])));
-    if (filteredRows) {
-      const mainRows = [...rows];
-      const idxInMain = rows.indexOf(baseRows[selectedIndex]);
-      mainRows.splice(idxInMain + 1, 0, JSON.parse(JSON.stringify(baseRows[selectedIndex])));
-      setRows(mainRows);
-      setFilteredRows(newRows);
-    } else {
-      setRows(newRows);
-    }
-  };
-
-  const handleAdd = () => {
-    const newRows = [ { ...initialRow }, ...(filteredRows ?? rows) ];
-    if (filteredRows) {
-      const mainRows = [ { ...initialRow }, ...rows ];
-      setRows(mainRows);
-      setFilteredRows(newRows);
-    } else {
-      setRows(newRows);
-    }
-    setSelectedIndex(0);
-    setEditIndex(0);
-    setEditRow({ ...initialRow });
-  };
-
-  const handleFilter = () => {
-    if (!search.trim()) {
+      }
+    };
+  
+    const handleCopy = () => {
+      const baseRows = filteredRows ?? rows;
+      const newRows = [...baseRows];
+      newRows.splice(selectedIndex + 1, 0, JSON.parse(JSON.stringify(baseRows[selectedIndex])));
+      if (filteredRows) {
+        const mainRows = [...rows];
+        const idxInMain = rows.indexOf(baseRows[selectedIndex]);
+        mainRows.splice(idxInMain + 1, 0, JSON.parse(JSON.stringify(baseRows[selectedIndex])));
+        setRows(mainRows);
+        setFilteredRows(newRows);
+      } else {
+        setRows(newRows);
+      }
+    };
+  
+    const handleAdd = () => {
+      const newRows = [ { ...initialRow }, ...(filteredRows ?? rows) ];
+      if (filteredRows) {
+        const mainRows = [ { ...initialRow }, ...rows ];
+        setRows(mainRows);
+        setFilteredRows(newRows);
+      } else {
+        setRows(newRows);
+      }
+      setSelectedIndex(0);
+      setEditIndex(0);
+      setEditRow({ ...initialRow });
+    };
+  
+    const handleFilter = () => {
+      if (!search.trim()) {
+        setFilteredRows(null);
+        setSelectedIndex(0);
+        return;
+      }
+      const lower = search.toLowerCase();
+      const filtered = rows.filter(row =>
+        allColumns.some(col => {
+          const val = row[col];
+          if (typeof val === 'object' && val !== null && 'Target Date' in val) {
+            return (
+              (val['Target Date'] ?? '').toLowerCase().includes(lower) ||
+              (val['Completed Date'] ?? '').toLowerCase().includes(lower)
+            );
+          }
+          return String(val ?? '').toLowerCase().includes(lower);
+        })
+      );
+      setFilteredRows(filtered);
+      setSelectedIndex(0);
+    };
+  
+    const handleClear = () => {
+      setSearch('');
       setFilteredRows(null);
       setSelectedIndex(0);
-      return;
+    };
+  
+    const handleColumnToggle = (col: string) => {
+      setVisibleColumns((prev) =>
+        prev.includes(col) ? prev.filter(c => c !== col) : [...prev, col]
+      );
+    };
+  
+    const handleExport = () => {
+      const data = displayRows.map(row => {
+        const obj: Record<string, string> = {};
+        visibleColumns.forEach(col => {
+          const group = groupedColumns.find(g => g.key === col);
+          if (group) {
+            obj[`${col} - Target Date`] = row[col]?.['Target Date'] || '';
+            obj[`${col} - Completed Date`] = row[col]?.['Completed Date'] || '';
+          } else {
+            let val = row[col];
+            if (typeof val === 'object' && val !== null) {
+              val = (val as any).props?.children?.toString() || '';
+            }
+            obj[col] = String(val ?? '');
+          }
+        });
+        return obj;
+      });
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'MaterialPurchaseOrders');
+      XLSX.writeFile(wb, 'material_purchase_orders.xlsx');
+    };
+  
+    const handleImportClick = () => {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      fileInputRef.current?.click();
+    };
+  
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const data = new Uint8Array(evt.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const json: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+        // Map uploaded data to table columns
+        const mappedRows = json.map((row) => {
+          const newRow: Record<string, any> = { ...initialRow };
+          // Map base columns
+          baseColumns.forEach((col) => {
+            if (row[col] !== undefined) newRow[col] = row[col];
+          });
+          // Map grouped columns
+          groupedColumns.forEach((group) => {
+            newRow[group.key] = {
+              'Target Date': row[`${group.label} - Target Date`] || '',
+              'Completed Date': row[`${group.label} - Completed Date`] || '',
+            };
+          });
+          return newRow;
+        });
+        setRows((prev) => [...prev, ...mappedRows]);
+      };
+      reader.readAsArrayBuffer(file);
+    };
+  
+    const displayRows = filteredRows ?? rows;
+
+  // Sticky column configuration with precise positioning
+  const stickyColumns = [
+    { key: 'checkbox-header', left: 0, zIndex: 50, width: 48 },
+    { key: 'Order References', left: 48, zIndex: 40, width: 180 }
+  ];
+
+  const getStickyStyle = (key: string, isHeader: boolean = false) => {
+    const stickyCol = stickyColumns.find(c => c.key === key);
+    if (!stickyCol) return {};
+    
+    const baseStyle = {
+      position: 'sticky' as const,
+      left: `${stickyCol.left}px`,
+      zIndex: stickyCol.zIndex,
+      backgroundColor: isHeader ? '#f9fafb' : '#ffffff',
+      boxSizing: 'border-box' as const,
+      borderCollapse: 'separate' as const,
+      borderSpacing: 0,
+      width: `${stickyCol.width}px`,
+      minWidth: `${stickyCol.width}px`,
+      maxWidth: `${stickyCol.width}px`
+    };
+
+    // Add specific border styling for each sticky column
+    if (key === 'checkbox-header') {
+      return {
+        ...baseStyle,
+        borderRight: '1px solid #e5e7eb',
+        borderLeft: '1px solid #e5e7eb'
+      };
+    } else if (key === 'Order References') {
+      return {
+        ...baseStyle,
+        borderRight: '2px solid #e5e7eb',
+        borderLeft: '1px solid #e5e7eb'
+      };
     }
-    const lower = search.toLowerCase();
-    const filtered = rows.filter(row =>
-      allColumns.some(col => {
-        const val = row[col];
-        if (typeof val === 'object' && val !== null && 'Target Date' in val) {
-          return (
-            (val['Target Date'] ?? '').toLowerCase().includes(lower) ||
-            (val['Completed Date'] ?? '').toLowerCase().includes(lower)
-          );
-        }
-        return String(val ?? '').toLowerCase().includes(lower);
-      })
-    );
-    setFilteredRows(filtered);
-    setSelectedIndex(0);
+
+    return baseStyle;
   };
 
-  const handleClear = () => {
-    setSearch('');
-    setFilteredRows(null);
-    setSelectedIndex(0);
+  // Cell selection handlers - now highlights entire row
+  const handleCellClick = (rowIndex: number, colKey: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedIndex(rowIndex);
+    // Clear any previous cell selection
+    setSelectedCell(null);
   };
 
-  const handleColumnToggle = (col: string) => {
-    setVisibleColumns((prev) =>
-      prev.includes(col) ? prev.filter(c => c !== col) : [...prev, col]
-    );
+  const handleCellKeyDown = (rowIndex: number, colKey: string, e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setSelectedIndex(rowIndex);
+      // Clear any previous cell selection
+      setSelectedCell(null);
+    }
   };
-
-  const handleExport = () => {
-    const data = displayRows.map(row => {
-      const obj: Record<string, string> = {};
+  
+    // For rendering, expand grouped columns into subcolumns
+    const renderColumns = () => {
+      const cols: { label: string; key: string; isGroup?: boolean; children?: string[] }[] = [];
       visibleColumns.forEach(col => {
         const group = groupedColumns.find(g => g.key === col);
         if (group) {
-          obj[`${col} - Target Date`] = row[col]?.['Target Date'] || '';
-          obj[`${col} - Completed Date`] = row[col]?.['Completed Date'] || '';
+          cols.push({ label: group.label, key: group.key, isGroup: true, children: group.children });
         } else {
-          let val = row[col];
-          if (typeof val === 'object' && val !== null) {
-            val = (val as any).props?.children?.toString() || '';
-          }
-          obj[col] = String(val ?? '');
+          cols.push({ label: col, key: col });
         }
       });
-      return obj;
-    });
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'MaterialPurchaseOrders');
-    XLSX.writeFile(wb, 'material_purchase_orders.xlsx');
-  };
-
-  const handleImportClick = () => {
-    if (fileInputRef.current) fileInputRef.current.value = '';
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      const data = new Uint8Array(evt.target?.result as ArrayBuffer);
-      const workbook = XLSX.read(data, { type: 'array' });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      const json: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
-      // Map uploaded data to table columns
-      const mappedRows = json.map((row) => {
-        const newRow: Record<string, any> = { ...initialRow };
-        // Map base columns
-        baseColumns.forEach((col) => {
-          if (row[col] !== undefined) newRow[col] = row[col];
-        });
-        // Map grouped columns
-        groupedColumns.forEach((group) => {
-          newRow[group.key] = {
-            'Target Date': row[`${group.label} - Target Date`] || '',
-            'Completed Date': row[`${group.label} - Completed Date`] || '',
-          };
-        });
-        return newRow;
-      });
-      setRows((prev) => [...prev, ...mappedRows]);
+      return cols;
     };
-    reader.readAsArrayBuffer(file);
-  };
-
-  const displayRows = filteredRows ?? rows;
-
-  // For rendering, expand grouped columns into subcolumns
-  const renderColumns = () => {
-    const cols: { label: string; key: string; isGroup?: boolean; children?: string[] }[] = [];
-    visibleColumns.forEach(col => {
-      const group = groupedColumns.find(g => g.key === col);
-      if (group) {
-        cols.push({ label: group.label, key: group.key, isGroup: true, children: group.children });
-      } else {
-        cols.push({ label: col, key: col });
-      }
-    });
-    return cols;
-  };
-
-  const renderHeaderRows = () => {
-    const cols = renderColumns();
-    // First row: group headers
+  
+    const renderHeaderRows = () => {
+      const cols = renderColumns();
+      // First row: group headers
     const firstRow = [
       // Add checkbox column header
       <th 
         key="checkbox-header" 
         rowSpan={2} 
         className="px-3 py-1 border-b text-center whitespace-nowrap"
+        style={getStickyStyle('checkbox-header', true)}
       >
         <div className="flex items-center justify-center w-full">
           <input
@@ -448,24 +510,31 @@ const MaterialPurchaseOrder: React.FC = () => {
         col.isGroup ? (
           <th key={col.key} colSpan={2} className={`px-2 py-1 border-b text-center whitespace-nowrap${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
         ) : (
-          <th key={col.key} rowSpan={2} className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>{col.label}</th>
+          <th 
+            key={col.key} 
+            rowSpan={2} 
+            className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle${i < cols.length - 1 ? ' border-r-2 border-gray-200' : ''}`}
+            style={getStickyStyle(col.key, true)}
+          >
+            {col.label}
+          </th>
         )
       )
     ];
-    // Second row: subheaders
-    const secondRow = cols.flatMap((col, idx) =>
-      col.isGroup
-        ? [
-            <th key={col.key + '-target'} className={`px-2 py-1 border-b text-center whitespace-nowrap border-r-2 border-gray-200`}>Target Date</th>,
-            <th key={col.key + '-completed'} className={`${idx < cols.length - 1 ? 'border-r-2 border-gray-200' : ''} px-2 py-1 border-b text-center whitespace-nowrap`}>Completed Date</th>,
-          ]
-        : []
-    );
-    return [firstRow, secondRow];
-  };
-
-  const renderOrderReferencesSubTable = (orderRef: string) => {
-    return (
+      // Second row: subheaders
+      const secondRow = cols.flatMap((col, idx) =>
+        col.isGroup
+          ? [
+              <th key={col.key + '-target'} className={`px-2 py-1 border-b text-center whitespace-nowrap border-r-2 border-gray-200`}>Target Date</th>,
+              <th key={col.key + '-completed'} className={`${idx < cols.length - 1 ? 'border-r-2 border-gray-200' : ''} px-2 py-1 border-b text-center whitespace-nowrap`}>Completed Date</th>,
+            ]
+          : []
+      );
+      return [firstRow, secondRow];
+    };
+  
+    const renderOrderReferencesSubTable = (orderRef: string) => {
+      return (
 
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-l-4 border-blue-500">
         <div className="max-w-6xl w-full">
@@ -475,7 +544,7 @@ const MaterialPurchaseOrder: React.FC = () => {
               <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
               <h3 className="text-lg font-bold text-gray-900">Material Purchase Order Details</h3>
               <span className="text-sm text-gray-500">• {orderRef || 'MPO-012345'}</span>
-            </div>
+                </div>
             <div className="flex items-center space-x-2">
               <span className="inline-flex px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
                 Open
@@ -485,10 +554,10 @@ const MaterialPurchaseOrder: React.FC = () => {
                  className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
                >
                  <EditIcon className="w-3 h-3 mr-1" />
-                 Edit
-               </button>
-            </div>
-          </div>
+                    Edit
+                  </button>
+                </div>
+              </div>
 
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -503,7 +572,7 @@ const MaterialPurchaseOrder: React.FC = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Template:</span>
                   <span className="font-medium">Standard MPO</span>
-                </div>
+            </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Transport Method:</span>
                   <span className="font-medium">Sea Freight</span>
@@ -703,13 +772,13 @@ const MaterialPurchaseOrder: React.FC = () => {
             </div>
 
           </div>
+          </div>
         </div>
-      </div>
-    );
-  };
-
-  return (
-    <div className="p-6">
+      );
+    };
+  
+    return (
+      <div className="p-6">
       {/* Enhanced Header with Modern Button Design */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -727,13 +796,13 @@ const MaterialPurchaseOrder: React.FC = () => {
               <Upload className="w-4 h-4 mr-2" />
               Import
             </button>
-            <input
-              type="file"
-              accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              className="hidden"
-            />
+          <input
+            type="file"
+            accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+          />
             
             <button 
               onClick={handleEdit}
@@ -825,7 +894,7 @@ const MaterialPurchaseOrder: React.FC = () => {
       </div>
 
       {/* Column Selector Modal */}
-      {showColumnSelector && (
+          {showColumnSelector && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999999] p-4">
           <div className="bg-white rounded-xl shadow-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between mb-4">
@@ -833,7 +902,7 @@ const MaterialPurchaseOrder: React.FC = () => {
               <button onClick={() => setShowColumnSelector(false)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                 <X className="h-5 w-5 text-gray-500" />
               </button>
-            </div>
+              </div>
             <div className="mb-4">
               <input
                 type="text"
@@ -871,18 +940,18 @@ const MaterialPurchaseOrder: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {filteredColumnList.map(col => (
                     <label key={col} className="flex items-center cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={visibleColumns.includes(col)}
-                        onChange={() => handleColumnToggle(col)}
+                  <input
+                    type="checkbox"
+                    checked={visibleColumns.includes(col)}
+                    onChange={() => handleColumnToggle(col)}
                         className="mr-3 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                      />
+                  />
                       <span className="text-sm text-gray-700">{col}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
+                </label>
+              ))}
             </div>
+          )}
+        </div>
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
               <span className="text-sm text-gray-600">{visibleColumns.length} of {allColumns.length} columns selected</span>
               <button 
@@ -896,39 +965,49 @@ const MaterialPurchaseOrder: React.FC = () => {
         </div>
       )}
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200 rounded-lg text-xs">
-          <thead>
-            <tr>
-              {renderHeaderRows()[0]}
-            </tr>
-            {renderHeaderRows()[1].length > 0 && (
+      <div className="overflow-x-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
+          <table className="min-w-full bg-white border border-gray-200 rounded-lg text-xs" style={{ 
+            boxSizing: 'border-box',
+            borderCollapse: 'separate',
+            borderSpacing: 0,
+            tableLayout: 'auto'
+          }}>
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0 z-40">
               <tr>
-                {renderHeaderRows()[1]}
+                {renderHeaderRows()[0]}
               </tr>
-            )}
-          </thead>
-          <tbody>
-            {displayRows.map((row, idx) => (
-              <React.Fragment key={idx}>
-                <tr
+              {renderHeaderRows()[1].length > 0 && (
+                <tr>
+                  {renderHeaderRows()[1]}
+                </tr>
+              )}
+            </thead>
+            <tbody>
+              {displayRows.map((row, idx) => (
+                <React.Fragment key={idx}>
+                  <tr
 
                   className={`
                     transition-all duration-300 cursor-pointer
-                    ${selectedIndex === idx ? 'bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-500 shadow-lg animate-pulse' : 'hover:bg-gray-50'}
-                    ${selectedRows.has(idx) && selectedIndex !== idx ? 'bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-500 shadow-md' : ''}
-                                         ${selectedRows.has(idx) && selectedIndex === idx ? 'bg-gradient-to-r from-blue-100 to-green-100 border-2 border-blue-500 shadow-lg animate-pulse' : ''}
+                    ${selectedIndex === idx ? 'bg-blue-50 border border-blue-500' : 'hover:bg-gray-50'}
+                    ${selectedRows.has(idx) && selectedIndex !== idx ? 'bg-green-50 border border-green-500' : ''}
+                    ${selectedRows.has(idx) && selectedIndex === idx ? 'bg-blue-50 border border-blue-500' : ''}
                   `}
                   onClick={(e) => {
                     // Don't trigger row selection if clicking on checkbox
                     if ((e.target as HTMLElement).closest('input[type="checkbox"]')) {
                       return;
                     }
+                    // When a row is clicked (not its checkbox), treat it as a single selection:
+                    // Clear all previous multi-selections and set this as the only selected row.
+                    setSelectedRows(new Set([idx]));
+                    setSelectAll(false); // Since it's a single selection, selectAll should be false
                     setSelectedIndex(idx);
                   }}
                 >
                   {/* Checkbox column */}
-                  <td className="px-3 py-3 border-b text-center align-middle whitespace-nowrap">
+                  <td className="px-3 py-3 border-b text-center align-middle whitespace-nowrap" style={getStickyStyle('checkbox-header', false)}>
                     <div className="flex items-center justify-center w-full">
                       <input
                         type="checkbox"
@@ -942,87 +1021,94 @@ const MaterialPurchaseOrder: React.FC = () => {
                     </div>
                   </td>
                   
-                  {renderColumns().flatMap((col, colIdx, arr) => {
-                    if (col.isGroup) {
-                      return col.children!.map((subCol, subIdx) => (
-                        <td
-                          key={col.key + '-' + subCol}
-                          className={
-
-                            `px-2 py-1 border-b text-center align-middle whitespace-nowrap` +
-                            ((subIdx === 0 || subCol === 'Target Date') ? ' border-r-2 border-gray-200' : '') +
-                            (colIdx === arr.length - 1 && subCol === 'Completed Date' ? '' : '')
+                    {renderColumns().flatMap((col, colIdx, arr) => {
+                      if (col.isGroup) {
+                        return col.children!.map((subCol, subIdx) => (
+                          <td
+                            key={col.key + '-' + subCol}
+                            className={
+                            `px-2 py-1 border-b text-center align-middle whitespace-nowrap cursor-pointer transition-all duration-200` +
+                              ((subIdx === 0 || subCol === 'Target Date') ? ' border-r-2 border-gray-200' : '') +
+                            (colIdx === arr.length - 1 && subCol === 'Completed Date' ? '' : '') +
+                            (selectedIndex === idx ? ' bg-blue-50' : ' hover:bg-gray-50')
                           }
-                                                 >
-                           {row[col.key]?.[subCol] || ''}
+                          onClick={(e) => handleCellClick(idx, col.key + '-' + subCol, e)}
+                          onKeyDown={(e) => handleCellKeyDown(idx, col.key + '-' + subCol, e)}
+                          tabIndex={0}
+                        >
+                          {row[col.key]?.[subCol] || ''}
+                          </td>
+                        ));
+                      } else {
+                        return [
 
-                        </td>
-                      ));
-                    } else {
-                      return [
-
-                        <td key={col.key} className={`px-2 py-1 border-b text-center align-middle whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>
-                          {col.key === 'Order References' ? (
+                        <td 
+                          key={col.key} 
+                          className={`px-2 py-1 border-b text-center align-middle whitespace-nowrap cursor-pointer transition-all duration-200${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}${selectedIndex === idx ? ' bg-blue-50' : ' hover:bg-gray-50'}`}
+                          style={getStickyStyle(col.key, false)}
+                          onClick={(e) => handleCellClick(idx, col.key, e)}
+                          onKeyDown={(e) => handleCellKeyDown(idx, col.key, e)}
+                          tabIndex={0}
+                        >
+                            {col.key === 'Order References' ? (
                             <div className="flex items-center justify-center space-x-1">
-
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleRowExpansion(idx);
-                                }}
-                                className="p-1 hover:bg-gray-200 rounded"
-                              >
-                                {isRowExpanded(idx) ? (
-                                  <ChevronDown className="h-3 w-3" />
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleRowExpansion(idx);
+                                  }}
+                                  className="p-1 hover:bg-gray-200 rounded"
+                                >
+                                  {isRowExpanded(idx) ? (
+                                  <ChevronDown className="h-5 w-5 text-blue-600 transition-transform duration-200" />
+                                  ) : (
+                                  <ChevronRight className="h-5 w-5 text-gray-500 hover:text-blue-600 transition-transform duration-200" />
+                                  )}
+                                </button>
+                                {editIndex === idx ? (
+                                  <input
+                                    className="border px-1 py-0.5 rounded w-32 text-xs"
+                                    value={editRow ? editRow[col.key] : ''}
+                                    onChange={e => handleChange(col.key, e.target.value)}
+                                  />
                                 ) : (
-                                  <ChevronRight className="h-3 w-3" />
+                                  <span className="text-blue-600 hover:text-blue-800 cursor-pointer">
+                                    {row[col.key] || 'MPO-012345'}
+                                  </span>
                                 )}
-                              </button>
-                              {editIndex === idx ? (
-                                <input
-                                  className="border px-1 py-0.5 rounded w-32 text-xs"
-                                  value={editRow ? editRow[col.key] : ''}
-                                  onChange={e => handleChange(col.key, e.target.value)}
-                                />
+                              </div>
                               ) : (
-                                <span className="text-blue-600 hover:text-blue-800 cursor-pointer">
-                                  {row[col.key] || 'MPO-012345'}
-                                </span>
-                              )}
-                            </div>
-
-                                                     ) : (
-                             row[col.key] || ''
-                           )}
-
-                        </td>
-                      ];
-                    }
-                  })}
-                </tr>
-                {isRowExpanded(idx) && (
-                  <tr>
-                    <td colSpan={visibleColumns.reduce((acc, col) => {
-                      const group = groupedColumns.find(g => g.key === col);
-                      return acc + (group ? 2 : 1);
+                                row[col.key] || ''
+                            )}
+                          </td>
+                        ];
+                      }
+                    })}
+                  </tr>
+                  {isRowExpanded(idx) && (
+                    <tr>
+                      <td colSpan={visibleColumns.reduce((acc, col) => {
+                        const group = groupedColumns.find(g => g.key === col);
+                        return acc + (group ? 2 : 1);
 
                     }, 0) + 1} className="p-0">
 
-                      {renderOrderReferencesSubTable(row['Order References'])}
-                    </td>
-                  </tr>
-                )}
-              </React.Fragment>
-            ))}
-            {displayRows.length === 0 && (
-              <tr><td colSpan={visibleColumns.reduce((acc, col) => {
-                const group = groupedColumns.find(g => g.key === col);
-                return acc + (group ? 2 : 1);
+                        {renderOrderReferencesSubTable(row['Order References'])}
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              ))}
+              {displayRows.length === 0 && (
+                <tr><td colSpan={visibleColumns.reduce((acc, col) => {
+                  const group = groupedColumns.find(g => g.key === col);
+                  return acc + (group ? 2 : 1);
               }, 0) + 1} className="text-center py-4 text-gray-400">No results found.</td></tr>
-            )}
-          </tbody>
-                 </table>
-       </div>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
        {/* Edit Row Modal */}
        {showEditModal && editingRow && (
@@ -1323,31 +1409,31 @@ const MaterialPurchaseOrder: React.FC = () => {
                    <div className="space-y-3">
                      <div>
                        <label className="block text-sm font-medium text-gray-700 mb-1">Total Quantity</label>
-                       <input
+        <input
                          type="text"
                          value={editingSubTableData.totalQty || ''}
                          onChange={(e) => setEditingSubTableData({...editingSubTableData, totalQty: e.target.value})}
                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                        />
-                     </div>
+            </div>
                      <div>
                        <label className="block text-sm font-medium text-gray-700 mb-1">Total Cost</label>
-                       <input
+                <input
                          type="text"
                          value={editingSubTableData.totalCost || ''}
                          onChange={(e) => setEditingSubTableData({...editingSubTableData, totalCost: e.target.value})}
                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                        />
-                     </div>
+          </div>
                      <div>
                        <label className="block text-sm font-medium text-gray-700 mb-1">Total Value</label>
-                       <input
-                         type="text"
+        <input
+          type="text"
                          value={editingSubTableData.totalValue || ''}
                          onChange={(e) => setEditingSubTableData({...editingSubTableData, totalValue: e.target.value})}
                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                        />
-                     </div>
+      </div>
                      <div>
                        <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Currency</label>
                        <select
@@ -1383,7 +1469,7 @@ const MaterialPurchaseOrder: React.FC = () => {
                    <div className="space-y-3">
                      <div>
                        <label className="block text-sm font-medium text-gray-700 mb-1">Customer</label>
-                       <input
+                          <input
                          type="text"
                          value={editingSubTableData.customer || ''}
                          onChange={(e) => setEditingSubTableData({...editingSubTableData, customer: e.target.value})}
@@ -1392,13 +1478,13 @@ const MaterialPurchaseOrder: React.FC = () => {
                      </div>
                      <div>
                        <label className="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
-                       <input
+                          <input
                          type="text"
                          value={editingSubTableData.supplier || ''}
                          onChange={(e) => setEditingSubTableData({...editingSubTableData, supplier: e.target.value})}
                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                        />
-                     </div>
+      </div>
                      <div>
                        <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Payment Term</label>
                        <input
@@ -1482,8 +1568,8 @@ const MaterialPurchaseOrder: React.FC = () => {
            </div>
          </div>
        )}
-     </div>
-   );
- };
+    </div>
+  );
+};
 
 export default MaterialPurchaseOrder; 

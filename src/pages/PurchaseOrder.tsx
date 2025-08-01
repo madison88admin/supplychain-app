@@ -723,7 +723,7 @@ const PurchaseOrder: React.FC = () => {
   const [rows, setRows] = useState(generateDummyEntries());
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [editRow, setEditRow] = useState<Record<string, any> | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const [search, setSearch] = useState('');
   const [filteredRows, setFilteredRows] = useState<typeof rows | null>(null);
   const [showColumnSelector, setShowColumnSelector] = useState(false);
@@ -745,6 +745,9 @@ const PurchaseOrder: React.FC = () => {
   // Multi-row selection states
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [selectAll, setSelectAll] = useState(false);
+
+  // Cell selection states
+  const [selectedCell, setSelectedCell] = useState<{rowIndex: number, colKey: string} | null>(null);
 
   // Sidebar context
   const { sidebarCollapsed } = useSidebar();
@@ -1424,8 +1427,26 @@ const PurchaseOrder: React.FC = () => {
     XLSX.writeFile(wb, `purchase_orders_${selectedRows.size > 0 ? 'selected' : 'all'}_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
+  // Cell selection handlers - now highlights entire row
+  const handleCellClick = (rowIndex: number, colKey: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedIndex(rowIndex);
+    // Clear any previous cell selection
+    setSelectedCell(null);
+  };
+
+  const handleCellKeyDown = (rowIndex: number, colKey: string, e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setSelectedIndex(rowIndex);
+      // Clear any previous cell selection
+      setSelectedCell(null);
+    }
+  };
+
   return (
     <div className="p-4">
+      <h1 className="text-3xl font-bold text-gray-900 mb-4">Purchase Order</h1>
       <div className="flex flex-wrap items-center gap-3 mb-4">
         {/* Primary Actions */}
         <div className="flex items-center space-x-2">
@@ -1631,10 +1652,10 @@ const PurchaseOrder: React.FC = () => {
                   <tr
                     className={`
                       transition-all duration-300 cursor-pointer group
-                      ${selectedIndex === idx ? 'bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-500 shadow-lg animate-pulse' : 'hover:bg-gray-50'}
-                      ${selectedRows.has(idx) && selectedIndex !== idx ? 'bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-500 shadow-md' : ''}
-                      ${selectedRows.has(idx) && selectedIndex === idx ? 'bg-gradient-to-r from-blue-100 to-green-100 border-2 border-blue-500 shadow-lg animate-pulse' : ''}
-                      ${editIndex === idx ? 'bg-yellow-50 border-2 border-yellow-500' : ''}
+                      ${selectedIndex === idx ? 'bg-blue-50 border border-blue-500' : 'hover:bg-gray-50'}
+                      ${selectedRows.has(idx) && selectedIndex !== idx ? 'bg-green-50 border border-green-500' : ''}
+                      ${selectedRows.has(idx) && selectedIndex === idx ? 'bg-blue-50 border border-blue-500' : ''}
+                      ${editIndex === idx ? 'bg-yellow-50 border border-yellow-500' : ''}
                     `}
                     title="Click to select for editing • Click chevron to view details"
                     onClick={(e) => {
@@ -1642,7 +1663,10 @@ const PurchaseOrder: React.FC = () => {
                           (e.target as HTMLElement).closest('button[data-action="expand"]')) {
                         return;
                       }
-                      // Single click: Only highlight/select the row for editing
+                      // When a row is clicked (not its checkbox), treat it as a single selection:
+                      // Clear all previous multi-selections and set this as the only selected row.
+                      setSelectedRows(new Set([idx]));
+                      setSelectAll(false); // Since it's a single selection, selectAll should be false
                       setSelectedIndex(idx);
                     }}
                   >
@@ -1673,12 +1697,15 @@ const PurchaseOrder: React.FC = () => {
                         return [
                           <td 
                             key={col.key} 
-                            className="px-2 py-1 border-b text-center align-middle whitespace-nowrap"
+                            className="px-2 py-1 border-b text-center align-middle whitespace-nowrap cursor-pointer transition-all duration-200"
                             style={{
                               ...getStickyStyle(col.key, false),
                               borderTop: '1px solid #e5e7eb',
                               borderBottom: '1px solid #e5e7eb'
                             }}
+                            onClick={(e) => handleCellClick(idx, col.key, e)}
+                            onKeyDown={(e) => handleCellKeyDown(idx, col.key, e)}
+                            tabIndex={0}
                           > 
                             <div className="flex items-center justify-center space-x-1">
                               <div className="flex-1">
@@ -1706,9 +1733,9 @@ const PurchaseOrder: React.FC = () => {
                                 title={expandedIndex === idx ? 'Collapse details' : 'Expand details'}
                               >
                                 {expandedIndex === idx ? (
-                                  <ChevronDown className="h-3 w-3 text-blue-600" />
+                                  <ChevronDown className="h-5 w-5 text-blue-600 transition-transform duration-200" />
                                 ) : (
-                                  <ChevronRight className="h-3 w-3 text-gray-500 hover:text-blue-600" />
+                                  <ChevronRight className="h-5 w-5 text-gray-500 hover:text-blue-600 transition-transform duration-200" />
                                 )}
                               </button>
                             </div>
@@ -1720,10 +1747,14 @@ const PurchaseOrder: React.FC = () => {
                           <td
                             key={col.key + '-' + subCol}
                             className={
-                              `px-2 py-1 border-b text-center align-middle whitespace-nowrap` +
+                              `px-2 py-1 border-b text-center align-middle whitespace-nowrap cursor-pointer transition-all duration-200` +
                               ((subIdx === 0 || subCol === 'Target Date') ? ' border-r-2 border-gray-200' : '') +
-                              (colIdx === arr.length - 1 && subCol === 'Completed Date' ? '' : '')
+                              (colIdx === arr.length - 1 && subCol === 'Completed Date' ? '' : '') +
+                              (selectedIndex === idx ? ' bg-blue-50' : ' hover:bg-gray-50')
                             }
+                            onClick={(e) => handleCellClick(idx, col.key + '-' + subCol, e)}
+                            onKeyDown={(e) => handleCellKeyDown(idx, col.key + '-' + subCol, e)}
+                            tabIndex={0}
                           >
                             {editIndex === idx ? (
                               <input
@@ -1738,7 +1769,13 @@ const PurchaseOrder: React.FC = () => {
                         ));
                       } else {
                         return [
-                          <td key={col.key} className={`px-2 py-1 border-b text-center align-middle whitespace-nowrap${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}`}>
+                          <td 
+                            key={col.key} 
+                            className={`px-2 py-1 border-b text-center align-middle whitespace-nowrap cursor-pointer transition-all duration-200${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}${selectedIndex === idx ? ' bg-blue-50' : ' hover:bg-gray-50'}`}
+                            onClick={(e) => handleCellClick(idx, col.key, e)}
+                            onKeyDown={(e) => handleCellKeyDown(idx, col.key, e)}
+                            tabIndex={0}
+                          >
                             {editIndex === idx ? (
                               <input
                                 className="border px-1 py-0.5 rounded w-32 text-xs"

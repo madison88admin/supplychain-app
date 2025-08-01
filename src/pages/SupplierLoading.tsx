@@ -251,7 +251,7 @@ const SupplierLoading: React.FC = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-gray-50 border-b border-gray-200 sticky top-0 z-40">
               <tr>
                 <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Shipment ID</th>
                 <th className="text-left py-4 px-6 text-sm font-medium text-gray-900">Customer</th>

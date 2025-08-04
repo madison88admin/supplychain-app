@@ -3,6 +3,8 @@ import * as XLSX from 'xlsx';
 import { ChevronDown, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, Copy as CopyIcon, Plus, Filter as FilterIcon, Download, X, Trash2, Search, Eye } from 'lucide-react';
 import { parse, format, isValid } from 'date-fns';
 import MaterialPurchaseOrderLinesEditModal from '../components/modals/MaterialPurchaseOrderLinesEditModal';
+import ReportBar from '../components/ReportBar';
+import { useSidebar } from '../contexts/SidebarContext';
 
 // Robust date formatting utility function that handles multiple date formats including Excel serial numbers
 const formatDateToMMDDYYYY = (dateValue: any): string => {
@@ -275,6 +277,12 @@ const generateDummyEntries = (): Record<string, any>[] => {
 };
 
 const MaterialPurchaseOrderLines: React.FC = () => {
+  const { sidebarCollapsed } = useSidebar();
+  
+  // ReportBar state
+  const [showSlideUpContainer, setShowSlideUpContainer] = useState(false);
+  const [activeContent, setActiveContent] = useState('');
+  
   // Sticky column configuration with precise positioning
   const stickyColumns = [
     { key: 'checkbox-header', left: 0, zIndex: 50, width: 48 },
@@ -793,7 +801,7 @@ const MaterialPurchaseOrderLines: React.FC = () => {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <div className="overflow-y-auto" style={{ maxHeight: 'calc(86vh - 220px)' }}>
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(86vh - 280px)' }}>
           <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs" style={{ 
             boxSizing: 'border-box',
             borderCollapse: 'separate',
@@ -1456,6 +1464,16 @@ const MaterialPurchaseOrderLines: React.FC = () => {
         data={editModalData}
         isNew={isNewEntry}
         allColumns={allColumns}
+      />
+
+      {/* ReportBar Component */}
+      <ReportBar
+        showSlideUpContainer={showSlideUpContainer}
+        setShowSlideUpContainer={setShowSlideUpContainer}
+        activeContent={activeContent}
+        setActiveContent={setActiveContent}
+        sidebarCollapsed={sidebarCollapsed}
+        pageData={displayRows[selectedIndex] || {}}
       />
     </div>
   );

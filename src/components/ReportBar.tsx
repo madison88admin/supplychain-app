@@ -241,7 +241,7 @@ const ReportBar: React.FC<ReportBarProps> = ({
       style={{ 
         backgroundColor: '#2C5A7A', 
         borderColor: '#1e3f52', 
-        zIndex: 40,
+        zIndex: 500,
         left: sidebarCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)',
         right: '0px',
         transition: 'all var(--transition-duration) var(--transition-timing)'
@@ -353,10 +353,14 @@ const ReportBar: React.FC<ReportBarProps> = ({
       
       {/* Slide-up Container */}
       <div 
-        className={`absolute bottom-full left-0 right-0 bg-white border border-gray-200 shadow-lg transition-all duration-500 ease-in-out p-4 z-50 transform ${
+        className={`absolute bottom-full left-0 right-0 bg-white border border-gray-200 shadow-lg transition-all duration-500 ease-in-out p-4 transform ${
           showSlideUpContainer ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
         }`}
-        style={{ maxHeight: showSlideUpContainer ? '400px' : '0px', overflow: 'hidden' }}
+        style={{ 
+          maxHeight: showSlideUpContainer ? '400px' : '0px', 
+          overflow: 'hidden',
+          zIndex: 600
+        }}
       >
         {activeContent === 'activities' && <ActivitiesTable />}
         {activeContent === 'audit' && <AuditTable />}

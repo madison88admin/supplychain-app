@@ -1,8 +1,8 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState} from 'react';
 import * as XLSX from 'xlsx';
-import { ChevronDown, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, Copy as CopyIcon, Plus, Filter as FilterIcon, Download, X, Trash2, Search, Eye } from 'lucide-react';
+import { ChevronDown, Upload, Edit as EditIcon, Plus, Filter as FilterIcon, Download, X, Search} from 'lucide-react';
 import { parse, format, isValid } from 'date-fns';
-// import MaterialPurchaseOrderLinesEditModal from '../components/modals/MaterialPurchaseOrderLinesEditModal';
+import MaterialPurchaseOrderLinesEditModal from '../components/modals/MaterialPurchaseOrderLinesEditModal';
 
 // Robust date formatting utility function that handles multiple date formats including Excel serial numbers
 const formatDateToMMDDYYYY = (dateValue: any): string => {
@@ -285,7 +285,14 @@ const MaterialPurchaseOrderLines: React.FC = () => {
 
   const getStickyStyle = (key: string, isHeader: boolean = false) => {
     const stickyCol = stickyColumns.find(c => c.key === key);
-    if (!stickyCol) return {};
+    if (!stickyCol) {
+      // For non-sticky columns, provide adequate width
+      return {
+        minWidth: '150px',
+        maxWidth: '300px',
+        width: 'auto'
+      };
+    }
     
     const baseStyle = {
       position: 'sticky' as const,
@@ -776,11 +783,12 @@ const MaterialPurchaseOrderLines: React.FC = () => {
 
       {/* Table */}
       <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: 'calc(86vh - 220px)' }}>
-        <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs" style={{ 
+        <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs"         style={{
           boxSizing: 'border-box',
           borderCollapse: 'separate',
           borderSpacing: 0,
-          tableLayout: 'auto'
+          tableLayout: 'auto',
+          width: '100%'
         }}>
             <thead className="bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0 z-40">
               <tr>
@@ -805,7 +813,7 @@ const MaterialPurchaseOrderLines: React.FC = () => {
                 {visibleColumns.map((col, i) => (
                   <th 
                     key={col} 
-                    className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle min-w-32${i < visibleColumns.length - 1 ? ' border-r-2 border-gray-200' : ''}`}
+                    className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle${i < visibleColumns.length - 1 ? ' border-r-2 border-gray-200' : ''}`}
                     style={{
                       ...getStickyStyle(col, true),
                       borderTop: '1px solid #e5e7eb',
@@ -872,7 +880,7 @@ const MaterialPurchaseOrderLines: React.FC = () => {
                     return (
                       <td 
                         key={col} 
-                        className={`px-2 py-1 border-b align-top whitespace-nowrap cursor-pointer transition-all duration-200${colIdx < visibleColumns.length - 1 ? ' border-r-2 border-gray-200' : ''}${selectedIndex === idx ? ' bg-blue-50' : ' hover:bg-gray-50'}`}
+                        className={`px-2 py-1 border-b align-top transition-all duration-200${colIdx < visibleColumns.length - 1 ? ' border-r-2 border-gray-200' : ''}${selectedIndex === idx ? ' bg-blue-50' : ' hover:bg-gray-50'}`}
                         style={{
                           ...getStickyStyle(col, false),
                           borderTop: '1px solid #e5e7eb',
@@ -883,19 +891,26 @@ const MaterialPurchaseOrderLines: React.FC = () => {
                         tabIndex={0}
                       >
                         {showArrow ? (
-                          <button
-                            type="button"
-                            className="flex items-center justify-between w-full group focus:outline-none"
-                            onClick={e => {
-                              e.stopPropagation();
-                              setExpanded(isExpanded ? null : { row: idx, col });
-                            }}
-                          >
-                            <span>{row[col] || ''}</span>
-                            <ChevronDown className={`inline w-5 h-5 ml-1 text-gray-500 hover:text-blue-600 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
-                          </button>
+                          <div className="flex items-center justify-between w-full">
+                            <span className="cursor-pointer break-words" onClick={(e) => handleCellClick(idx, col, e)}>
+                              {row[col] || ''}
+                            </span>
+                            <button
+                              type="button"
+                              className="ml-1 p-1 hover:bg-gray-100 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 flex-shrink-0"
+                              onClick={e => {
+                                e.stopPropagation();
+                                setExpanded(isExpanded ? null : { row: idx, col });
+                              }}
+                              title="Click to expand/collapse details"
+                            >
+                              <ChevronDown className={`w-4 h-4 text-gray-500 hover:text-blue-600 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                            </button>
+                          </div>
                         ) : (
-                          row[col] || ''
+                          <span className="cursor-pointer break-words" onClick={(e) => handleCellClick(idx, col, e)}>
+                            {row[col] || ''}
+                          </span>
                         )}
                       </td>
                     );
@@ -903,37 +918,98 @@ const MaterialPurchaseOrderLines: React.FC = () => {
                 </tr>,
                 expanded && expanded.row === idx ? (
                   <tr key={`expanded-${idx}-${expanded.col}`}> 
-                    <td colSpan={visibleColumns.length + 1} className="bg-blue-50 border-b border-blue-200">
-                      {expanded.col === 'Material Purchase Order' && (
-                        <div className="p-4">
-                          <div className="font-bold mb-2 text-blue-900">Material Purchase Order Details</div>
-                          <div><span className="font-semibold">Order:</span> {row['Material Purchase Order']}</div>
-                          <div><span className="font-semibold">Customer:</span> {row['Customer']}</div>
-                          <div><span className="font-semibold">Status:</span> {row['Status']}</div>
-                          <div><span className="font-semibold">Delivery Date:</span> {row['Delivery Date']}</div>
-                          {/* Add more details as needed */}
-                        </div>
-                      )}
-                      {expanded.col === 'Material' && (
-                        <div className="p-4">
-                          <div className="font-bold mb-2 text-green-900">Material Details</div>
-                          <div><span className="font-semibold">Material:</span> {row['Material']}</div>
-                          <div><span className="font-semibold">Type:</span> {row['Material Type']}</div>
-                          <div><span className="font-semibold">Sub Type:</span> {row['Material Sub Type']}</div>
-                          <div><span className="font-semibold">Description:</span> {row['Material Description']}</div>
-                          {/* Add more details as needed */}
-                        </div>
-                      )}
-                      {expanded.col === 'Material Purchase Order Line' && (
-                        <div className="p-4">
-                          <div className="font-bold mb-2 text-purple-900">Purchase Order Line Details</div>
-                          <div><span className="font-semibold">Line:</span> {row['Material Purchase Order Line']}</div>
-                          <div><span className="font-semibold">Quantity:</span> {row['Quantity']}</div>
-                          <div><span className="font-semibold">Line Purchase Price:</span> {row['Line Purchase Price']}</div>
-                          <div><span className="font-semibold">Line Selling Price:</span> {row['Line Selling Price']}</div>
-                          {/* Add more details as needed */}
-                        </div>
-                      )}
+                    <td colSpan={visibleColumns.length + 1} className="bg-blue-50 border-b border-blue-200 p-0">
+                      <div className="w-full overflow-hidden">
+                        {expanded.col === 'Material Purchase Order' && (
+                          <div className="p-4" style={{ minWidth: '800px', maxWidth: '1200px' }}>
+                            <div className="font-bold mb-3 text-blue-900 text-lg">Material Purchase Order Details</div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" style={{ tableLayout: 'fixed' }}>
+                              <div className="bg-white p-3 rounded border">
+                                <div className="font-semibold text-blue-700 mb-2">Order Information</div>
+                                <div className="truncate"><span className="font-medium">Order:</span> {row['Material Purchase Order'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Customer:</span> {row['Customer'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Status:</span> {row['Status'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Delivery Date:</span> {row['Delivery Date'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Closed Date:</span> {row['Closed Date'] || 'N/A'}</div>
+                              </div>
+                              <div className="bg-white p-3 rounded border">
+                                <div className="font-semibold text-blue-700 mb-2">Order Details</div>
+                                <div className="truncate"><span className="font-medium">Collection:</span> {row['Collection'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Division:</span> {row['Division'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Group:</span> {row['Group'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Transport Method:</span> {row['Transport Method'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Deliver To:</span> {row['Deliver To'] || 'N/A'}</div>
+                              </div>
+                              <div className="bg-white p-3 rounded border">
+                                <div className="font-semibold text-blue-700 mb-2">Financial Info</div>
+                                <div className="truncate"><span className="font-medium">Purchase Currency:</span> {row['Purchase Currency'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Selling Currency:</span> {row['Selling Currency'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Payment Term:</span> {row['Supplier Payment Term'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Comments:</span> {row['Comments'] || 'N/A'}</div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        {expanded.col === 'Material' && (
+                          <div className="p-4" style={{ minWidth: '800px', maxWidth: '1200px' }}>
+                            <div className="font-bold mb-3 text-green-900 text-lg">Material Details</div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" style={{ tableLayout: 'fixed' }}>
+                              <div className="bg-white p-3 rounded border">
+                                <div className="font-semibold text-green-700 mb-2">Material Information</div>
+                                <div className="truncate"><span className="font-medium">Material:</span> {row['Material'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Type:</span> {row['Material Type'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Sub Type:</span> {row['Material Sub Type'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Status:</span> {row['Material Status'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Description:</span> {row['Material Description'] || 'N/A'}</div>
+                              </div>
+                              <div className="bg-white p-3 rounded border">
+                                <div className="font-semibold text-green-700 mb-2">Specifications</div>
+                                <div className="truncate"><span className="font-medium">Size:</span> {row['Size'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Color:</span> {row['Color'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Composition:</span> {row['Composition'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Season:</span> {row['Season'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Department:</span> {row['Material Department'] || 'N/A'}</div>
+                              </div>
+                              <div className="bg-white p-3 rounded border">
+                                <div className="font-semibold text-green-700 mb-2">Ordering Details</div>
+                                <div className="truncate"><span className="font-medium">Min Order Qty:</span> {row['Minimum Order Quantity'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Min Colour Qty:</span> {row['Minimum Colour Quantity'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Costing Status:</span> {row['Costing Status'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Sample Status:</span> {row['Material Sample Log Status'] || 'N/A'}</div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        {expanded.col === 'Material Purchase Order Line' && (
+                          <div className="p-4" style={{ minWidth: '800px', maxWidth: '1200px' }}>
+                            <div className="font-bold mb-3 text-purple-900 text-lg">Purchase Order Line Details</div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" style={{ tableLayout: 'fixed' }}>
+                              <div className="bg-white p-3 rounded border">
+                                <div className="font-semibold text-purple-700 mb-2">Line Information</div>
+                                <div className="truncate"><span className="font-medium">Line:</span> {row['Material Purchase Order Line'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Quantity:</span> {row['Quantity'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Selling Quantity:</span> {row['Selling Quantity'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Order Increment:</span> {row['Order Quantity Increment'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Lead Time:</span> {row['Order Lead Time'] || 'N/A'}</div>
+                              </div>
+                              <div className="bg-white p-3 rounded border">
+                                <div className="font-semibold text-purple-700 mb-2">Pricing</div>
+                                <div className="truncate"><span className="font-medium">Line Purchase Price:</span> {row['Line Purchase Price'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Line Selling Price:</span> {row['Line Selling Price'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Purchase Price:</span> {row['Purchase Price'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Selling Price:</span> {row['Selling Price'] || 'N/A'}</div>
+                              </div>
+                              <div className="bg-white p-3 rounded border">
+                                <div className="font-semibold text-purple-700 mb-2">Receipt Status</div>
+                                <div className="truncate"><span className="font-medium">Received:</span> {row['Received'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Balance:</span> {row['Balance'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Over Received:</span> {row['Over Received'] || 'N/A'}</div>
+                                <div className="truncate"><span className="font-medium">Note Count:</span> {row['Note Count'] || 'N/A'}</div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ) : null
@@ -950,14 +1026,14 @@ const MaterialPurchaseOrderLines: React.FC = () => {
         </div>
 
       {/* Edit Modal */}
-      {/* <MaterialPurchaseOrderLinesEditModal
+      <MaterialPurchaseOrderLinesEditModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         onSave={handleSaveEdit}
         onDelete={handleDelete}
         data={editModalData}
         isNew={isNewEntry}
-      /> */}
+      />
     </div>
   );
 };

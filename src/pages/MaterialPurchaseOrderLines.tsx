@@ -1,10 +1,12 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState} from 'react';
 import * as XLSX from 'xlsx';
-import { ChevronDown, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, Copy as CopyIcon, Plus, Filter as FilterIcon, Download, X, Trash2, Search, Eye } from 'lucide-react';
+import { ChevronDown, Upload, Edit as EditIcon, Plus, Filter as FilterIcon, Download, X, Search} from 'lucide-react';
 import { parse, format, isValid } from 'date-fns';
 import MaterialPurchaseOrderLinesEditModal from '../components/modals/MaterialPurchaseOrderLinesEditModal';
+
 import ReportBar from '../components/ReportBar';
 import { useSidebar } from '../contexts/SidebarContext';
+
 
 // Robust date formatting utility function that handles multiple date formats including Excel serial numbers
 const formatDateToMMDDYYYY = (dateValue: any): string => {
@@ -293,7 +295,14 @@ const MaterialPurchaseOrderLines: React.FC = () => {
 
   const getStickyStyle = (key: string, isHeader: boolean = false) => {
     const stickyCol = stickyColumns.find(c => c.key === key);
-    if (!stickyCol) return {};
+    if (!stickyCol) {
+      // For non-sticky columns, provide adequate width
+      return {
+        minWidth: '150px',
+        maxWidth: '300px',
+        width: 'auto'
+      };
+    }
     
     const baseStyle = {
       position: 'sticky' as const,
@@ -800,6 +809,7 @@ const MaterialPurchaseOrderLines: React.FC = () => {
       </div>
 
       {/* Table */}
+
       <div className="overflow-x-auto">
         <div className="overflow-y-auto" style={{ maxHeight: 'calc(86vh - 280px)' }}>
           <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs" style={{ 
@@ -808,6 +818,7 @@ const MaterialPurchaseOrderLines: React.FC = () => {
             borderSpacing: 0,
             tableLayout: 'auto'
           }}>
+
             <thead className="bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0 z-40">
               <tr>
                 {/* Checkbox column header */}
@@ -831,7 +842,7 @@ const MaterialPurchaseOrderLines: React.FC = () => {
                 {visibleColumns.map((col, i) => (
                   <th 
                     key={col} 
-                    className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle min-w-32${i < visibleColumns.length - 1 ? ' border-r-2 border-gray-200' : ''}`}
+                    className={`px-2 py-1 border-b text-left whitespace-nowrap align-middle${i < visibleColumns.length - 1 ? ' border-r-2 border-gray-200' : ''}`}
                     style={{
                       ...getStickyStyle(col, true),
                       borderTop: '1px solid #e5e7eb',
@@ -919,6 +930,7 @@ const MaterialPurchaseOrderLines: React.FC = () => {
                     })}
                   </tr>
                   
+
                   {expanded && expanded.row === idx && (
                     <tr key={`expanded-${idx}-${expanded.col}`} className="expanded-row"> 
                       <td colSpan={visibleColumns.length + 1} className="bg-blue-50 border-b border-blue-200 p-4">
@@ -1443,6 +1455,7 @@ const MaterialPurchaseOrderLines: React.FC = () => {
                   )}
                 </React.Fragment>
               ))}
+
               {displayRows.length === 0 && (
                 <tr>
                   <td colSpan={visibleColumns.length + 1} className="text-center py-4 text-gray-400">
@@ -1463,6 +1476,7 @@ const MaterialPurchaseOrderLines: React.FC = () => {
         onDelete={handleDelete}
         data={editModalData}
         isNew={isNewEntry}
+
         allColumns={allColumns}
       />
 
@@ -1474,6 +1488,7 @@ const MaterialPurchaseOrderLines: React.FC = () => {
         setActiveContent={setActiveContent}
         sidebarCollapsed={sidebarCollapsed}
         pageData={displayRows[selectedIndex] || {}}
+
       />
     </div>
   );

@@ -14,7 +14,8 @@ import {
   Users,
   X,
   Database,
-  History
+  History,
+  FileBarChart
 } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
 import './Sidebar.css';
@@ -65,6 +66,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen, collapsed: externalCol
         { icon: Clipboard, label: 'Sample Requests', path: '/sample-requests' },
         { icon: FileText, label: 'Techpacks', path: '/techpacks' },
         { icon: FolderOpen, label: 'Documents', path: '/documents' },
+        { icon: FileBarChart, label: 'Reports', path: '/reports' },
       ]
     },
     {
@@ -110,7 +112,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen, collapsed: externalCol
     items: section.items.filter(item => {
       // Show all items except admin-specific ones
       if (item.path === '/user-administration' || item.path === '/data-bank') {
-        return user?.role === 'Admin' || user?.role === 'Administrator';
+        return user?.role === 'Admin';
       }
       return true;
     })

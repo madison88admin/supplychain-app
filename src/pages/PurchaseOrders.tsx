@@ -2,6 +2,8 @@ import React, { useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
 import { ChevronDown, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, Copy as CopyIcon, Plus, Filter as FilterIcon, Download, X, Trash2, Search, Eye } from 'lucide-react';
 import PurchaseOrderEditModal from '../components/modals/PurchaseOrderEditModal';
+import ReportBar from '../components/ReportBar';
+import { useSidebar } from '../contexts/SidebarContext';
 import { parse, format, isValid } from 'date-fns';
 
 // Robust date formatting utility function that handles multiple date formats including Excel serial numbers
@@ -158,6 +160,12 @@ const statusOptions = [
 ];
 
 const PurchaseOrders: React.FC = () => {
+  const { sidebarCollapsed } = useSidebar();
+  
+  // ReportBar state
+  const [showSlideUpContainer, setShowSlideUpContainer] = useState(false);
+  const [activeContent, setActiveContent] = useState('');
+  
   // Sticky column configuration with precise positioning
   const stickyColumns = [
     { key: 'checkbox-header', left: 0, zIndex: 50, width: 48 },
@@ -1073,6 +1081,7 @@ const PurchaseOrders: React.FC = () => {
       {/* Enhanced Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
+          <div className="overflow-y-auto" style={{ maxHeight: 'calc(90vh - 260px)' }}>
           <table className="w-full text-xs" style={{ 
             boxSizing: 'border-box',
             borderCollapse: 'separate',
@@ -4596,6 +4605,7 @@ const PurchaseOrders: React.FC = () => {
               ))}
                               </tbody>
                             </table>
+                          </div>
                             </div>
                           </div>
 
@@ -4644,6 +4654,16 @@ const PurchaseOrders: React.FC = () => {
         onSave={handleSaveEdit}
         data={editingData}
         isNew={true}
+      />
+      
+      {/* ReportBar Component */}
+      <ReportBar
+        showSlideUpContainer={showSlideUpContainer}
+        setShowSlideUpContainer={setShowSlideUpContainer}
+        activeContent={activeContent}
+        setActiveContent={setActiveContent}
+        sidebarCollapsed={sidebarCollapsed}
+        pageData={displayRows[selectedIndex] || {}}
       />
     </div>
   );

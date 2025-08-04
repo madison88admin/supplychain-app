@@ -4,6 +4,10 @@ import { ChevronDown, Upload, Edit as EditIcon, Plus, Filter as FilterIcon, Down
 import { parse, format, isValid } from 'date-fns';
 import MaterialPurchaseOrderLinesEditModal from '../components/modals/MaterialPurchaseOrderLinesEditModal';
 
+import ReportBar from '../components/ReportBar';
+import { useSidebar } from '../contexts/SidebarContext';
+
+
 // Robust date formatting utility function that handles multiple date formats including Excel serial numbers
 const formatDateToMMDDYYYY = (dateValue: any): string => {
   if (!dateValue) return '';
@@ -275,6 +279,12 @@ const generateDummyEntries = (): Record<string, any>[] => {
 };
 
 const MaterialPurchaseOrderLines: React.FC = () => {
+  const { sidebarCollapsed } = useSidebar();
+  
+  // ReportBar state
+  const [showSlideUpContainer, setShowSlideUpContainer] = useState(false);
+  const [activeContent, setActiveContent] = useState('');
+  
   // Sticky column configuration with precise positioning
   const stickyColumns = [
     { key: 'checkbox-header', left: 0, zIndex: 50, width: 48 },
@@ -354,6 +364,20 @@ const MaterialPurchaseOrderLines: React.FC = () => {
   const [editModalData, setEditModalData] = useState<any>(null);
   const [isNewEntry, setIsNewEntry] = useState(false);
   const [expanded, setExpanded] = useState<{ row: number, col: string } | null>(null);
+  const [editingSection, setEditingSection] = useState<{ row: number, col: string, section: string } | null>(null);
+  const [activeTab, setActiveTab] = useState('Purchase Order Details');
+  
+  // Form state for editing
+  const [mpoForm, setMpoForm] = useState<any>(null);
+  const [mpoEditIdx, setMpoEditIdx] = useState<number | null>(null);
+
+  const mainDivRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (mainDivRef.current) {
+      mainDivRef.current.focus();
+    }
+  }, []);
 
   // Filtered columns for selector
   const filteredColumnList = allColumns.filter(col =>
@@ -587,7 +611,7 @@ const MaterialPurchaseOrderLines: React.FC = () => {
   const displayRows = filteredRows ?? rows;
 
   return (
-    <div className="p-6" onKeyDown={handleKeyDown} tabIndex={0}>
+    <div className="p-6" onKeyDown={handleKeyDown} tabIndex={0} ref={mainDivRef}>
       {/* Enhanced Header with Modern Button Design */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -690,6 +714,8 @@ const MaterialPurchaseOrderLines: React.FC = () => {
           </div>
         )}
 
+
+
         {/* Interaction Guide */}
         <div className="mt-2 p-2 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg">
           <div className="flex items-center space-x-2 text-xs text-blue-700">
@@ -698,6 +724,7 @@ const MaterialPurchaseOrderLines: React.FC = () => {
             <span>• Click row to select for editing</span>
             <span>• Press Enter to edit selected row</span>
             <span>• Use column filter to customize view</span>
+            <span>• Click "Details" to expand row information</span>
           </div>
         </div>
 
@@ -782,14 +809,16 @@ const MaterialPurchaseOrderLines: React.FC = () => {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: 'calc(86vh - 220px)' }}>
-        <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs"         style={{
-          boxSizing: 'border-box',
-          borderCollapse: 'separate',
-          borderSpacing: 0,
-          tableLayout: 'auto',
-          width: '100%'
-        }}>
+
+      <div className="overflow-x-auto">
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(86vh - 280px)' }}>
+          <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs" style={{ 
+            boxSizing: 'border-box',
+            borderCollapse: 'separate',
+            borderSpacing: 0,
+            tableLayout: 'auto'
+          }}>
+
             <thead className="bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0 z-40">
               <tr>
                 {/* Checkbox column header */}
@@ -826,194 +855,607 @@ const MaterialPurchaseOrderLines: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {displayRows.map((row, idx) => [
-                <tr
-                  key={idx}
-                  className={`
-                    transition-all duration-300 cursor-pointer group
-                    ${selectedIndex === idx ? 'bg-blue-50 border border-blue-500' : 'hover:bg-gray-50'}
-                    ${selectedRows.has(idx) && selectedIndex !== idx ? 'bg-green-50 border border-green-500' : ''}
-                    ${selectedRows.has(idx) && selectedIndex === idx ? 'bg-blue-50 border border-blue-500' : ''}
-                  `}
-                  title="Click to select for editing"
-                  onClick={(e) => {
-                    // Don't trigger row selection if clicking on checkbox
-                    if ((e.target as HTMLElement).closest('input[type="checkbox"]')) {
-                      return;
-                    }
-                    // When a row is clicked (not its checkbox), treat it as a single selection:
-                    // Clear all previous multi-selections and set this as the only selected row.
-                    setSelectedRows(new Set([idx]));
-                    setSelectAll(false); // Since it's a single selection, selectAll should be false
-                    setSelectedIndex(idx);
-                  }}
-                >
-                  {/* Checkbox column */}
-                  <td 
-                    className="px-3 py-3 border-b align-top whitespace-nowrap"
-                    style={{
-                      ...getStickyStyle('checkbox-header', false),
-                      borderTop: '1px solid #e5e7eb',
-                      borderBottom: '1px solid #e5e7eb'
+              {displayRows.map((row, idx) => (
+                <React.Fragment key={idx}>
+                  <tr
+                    className={`
+                      transition-all duration-300 cursor-pointer group
+                      ${selectedIndex === idx ? 'bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-500 shadow-lg animate-pulse' : 'hover:bg-gray-50'}
+                      ${selectedRows.has(idx) && selectedIndex !== idx ? 'bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-500 shadow-md' : ''}
+                      ${selectedRows.has(idx) && selectedIndex === idx ? 'bg-gradient-to-r from-blue-100 to-green-100 border-2 border-blue-500 shadow-lg animate-pulse' : ''}
+                    `}
+                    title="Click to select for editing"
+                    onClick={() => {
+                      setSelectedIndex(idx);
+                      if (mainDivRef.current) mainDivRef.current.focus();
                     }}
                   >
-                    <div className="flex items-center justify-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedRows.has(idx)}
-                        onChange={(e) => {
-                          e.stopPropagation();
-                          handleRowSelect(idx);
-                        }}
-                        className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
-                      />
-                    </div>
-                  </td>
-                  
-                  {visibleColumns.map((col, colIdx) => {
-                    const showArrow = (
-                      col === 'Material Purchase Order' ||
-                      col === 'Material' ||
-                      col === 'Material Purchase Order Line'
-                    );
-                    const isExpanded = expanded && expanded.row === idx && expanded.col === col;
-                    return (
-                      <td 
-                        key={col} 
-                        className={`px-2 py-1 border-b align-top transition-all duration-200${colIdx < visibleColumns.length - 1 ? ' border-r-2 border-gray-200' : ''}${selectedIndex === idx ? ' bg-blue-50' : ' hover:bg-gray-50'}`}
-                        style={{
-                          ...getStickyStyle(col, false),
-                          borderTop: '1px solid #e5e7eb',
-                          borderBottom: '1px solid #e5e7eb'
-                        }}
-                        onClick={(e) => handleCellClick(idx, col, e)}
-                        onKeyDown={(e) => handleCellKeyDown(idx, col, e)}
-                        tabIndex={0}
-                      >
-                        {showArrow ? (
-                          <div className="flex items-center justify-between w-full">
-                            <span className="cursor-pointer break-words" onClick={(e) => handleCellClick(idx, col, e)}>
-                              {row[col] || ''}
-                            </span>
+                    {/* Checkbox column */}
+                    <td 
+                      className="px-3 py-3 border-b align-top whitespace-nowrap"
+                      style={{
+                        ...getStickyStyle('checkbox-header', false),
+                        borderTop: '1px solid #e5e7eb',
+                        borderBottom: '1px solid #e5e7eb'
+                      }}
+                    >
+                      <div className="flex items-center justify-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedRows.has(idx)}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            handleRowSelect(idx);
+                          }}
+                          className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
+                        />
+                      </div>
+                    </td>
+                    
+                    {visibleColumns.map((col, colIdx) => {
+                      const showArrow = (
+                        col === 'Material Purchase Order' ||
+                        col === 'Material' ||
+                        col === 'Material Purchase Order Line'
+                      );
+                      const isExpanded = expanded && expanded.row === idx && expanded.col === col;
+                      return (
+                        <td 
+                          key={col} 
+                          className={`px-2 py-1 border-b align-top whitespace-nowrap${colIdx < visibleColumns.length - 1 ? ' border-r-2 border-gray-200' : ''}`}
+                          style={{
+                            ...getStickyStyle(col, false),
+                            borderTop: '1px solid #e5e7eb',
+                            borderBottom: '1px solid #e5e7eb'
+                          }}
+                        >
+                          {showArrow ? (
                             <button
                               type="button"
-                              className="ml-1 p-1 hover:bg-gray-100 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 flex-shrink-0"
+                              className="flex items-center justify-between w-full group focus:outline-none hover:bg-gray-100 rounded px-1 py-1"
                               onClick={e => {
                                 e.stopPropagation();
                                 setExpanded(isExpanded ? null : { row: idx, col });
                               }}
-                              title="Click to expand/collapse details"
+                              title={`Click to ${isExpanded ? 'collapse' : 'expand'} details`}
                             >
-                              <ChevronDown className={`w-4 h-4 text-gray-500 hover:text-blue-600 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                              <span className="flex-1 text-left">{row[col] || ''}</span>
+                              <ChevronDown className={`w-4 h-4 text-blue-600 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
                             </button>
-                          </div>
-                        ) : (
-                          <span className="cursor-pointer break-words" onClick={(e) => handleCellClick(idx, col, e)}>
-                            {row[col] || ''}
-                          </span>
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>,
-                expanded && expanded.row === idx ? (
-                  <tr key={`expanded-${idx}-${expanded.col}`}> 
-                    <td colSpan={visibleColumns.length + 1} className="bg-blue-50 border-b border-blue-200 p-0">
-                      <div className="w-full overflow-hidden">
+                          ) : (
+                            <span className="block w-full">{row[col] || ''}</span>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                  
+
+                  {expanded && expanded.row === idx && (
+                    <tr key={`expanded-${idx}-${expanded.col}`} className="expanded-row"> 
+                      <td colSpan={visibleColumns.length + 1} className="bg-blue-50 border-b border-blue-200 p-4">
                         {expanded.col === 'Material Purchase Order' && (
-                          <div className="p-4" style={{ minWidth: '800px', maxWidth: '1200px' }}>
-                            <div className="font-bold mb-3 text-blue-900 text-lg">Material Purchase Order Details</div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" style={{ tableLayout: 'fixed' }}>
-                              <div className="bg-white p-3 rounded border">
-                                <div className="font-semibold text-blue-700 mb-2">Order Information</div>
-                                <div className="truncate"><span className="font-medium">Order:</span> {row['Material Purchase Order'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Customer:</span> {row['Customer'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Status:</span> {row['Status'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Delivery Date:</span> {row['Delivery Date'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Closed Date:</span> {row['Closed Date'] || 'N/A'}</div>
-                              </div>
-                              <div className="bg-white p-3 rounded border">
-                                <div className="font-semibold text-blue-700 mb-2">Order Details</div>
-                                <div className="truncate"><span className="font-medium">Collection:</span> {row['Collection'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Division:</span> {row['Division'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Group:</span> {row['Group'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Transport Method:</span> {row['Transport Method'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Deliver To:</span> {row['Deliver To'] || 'N/A'}</div>
-                              </div>
-                              <div className="bg-white p-3 rounded border">
-                                <div className="font-semibold text-blue-700 mb-2">Financial Info</div>
-                                <div className="truncate"><span className="font-medium">Purchase Currency:</span> {row['Purchase Currency'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Selling Currency:</span> {row['Selling Currency'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Payment Term:</span> {row['Supplier Payment Term'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Comments:</span> {row['Comments'] || 'N/A'}</div>
-                              </div>
+                          <div className="bg-blue-50 px-6 py-4">
+                            <div className="flex justify-between items-center mb-4">
+                              <div className="font-semibold text-blue-700">Material Purchase Order Details</div>
+                            </div>
+                            
+                            {/* Horizontal Tabs */}
+                            <div className="mb-4 flex gap-2 border-b border-blue-200">
+                              {['Purchase Order Details', 'Critical Path', 'Special Instructions', 'Delivery Details', 'Activities'].map(tab => (
+                                <button
+                                  key={tab}
+                                  className={`px-4 py-2 -mb-px rounded-t font-medium transition-colors border-b-2 ${activeTab === tab ? 'bg-white border-blue-500 text-blue-700' : 'bg-blue-50 border-transparent text-gray-600 hover:text-blue-600'}`}
+                                  onClick={() => setActiveTab(tab)}
+                                >
+                                  {tab}
+                                </button>
+                              ))}
+                            </div>
+                            
+                                                         {/* Tab Content */}
+                             <div className="max-w-4xl w-full">
+                               {activeTab === 'Purchase Order Details' && (
+                                 <>
+                                   <table className="text-sm border border-blue-200 rounded mb-2 w-full">
+                                     <tbody>
+                                                                               <tr><td className="px-2 py-1 font-semibold">Order Reference</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="text" value={mpoForm?.['Material Purchase Order'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Material Purchase Order': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Material Purchase Order']}</td></tr>
+                                        <tr><td className="px-2 py-1 font-semibold">Status</td><td className="px-2 py-1">{mpoEditIdx === idx ? <select value={mpoForm?.['Status'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Status': e.target.value}))} className="border px-1 py-0.5 rounded w-full"><option value="Open">Open</option><option value="Confirmed">Confirmed</option><option value="In Production">In Production</option><option value="Shipped">Shipped</option><option value="Delivered">Delivered</option></select> : row['Status']}</td></tr>
+                                        <tr><td className="px-2 py-1 font-semibold">Supplier Currency</td><td className="px-2 py-1">{mpoEditIdx === idx ? <select value={mpoForm?.['Supplier Purchase Currency'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Supplier Purchase Currency': e.target.value}))} className="border px-1 py-0.5 rounded w-full"><option value="USD">USD</option><option value="EUR">EUR</option><option value="CNY">CNY</option><option value="INR">INR</option></select> : row['Supplier Purchase Currency']}</td></tr>
+                                        <tr><td className="px-2 py-1 font-semibold">Recipient Product Supplier</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="text" value={mpoForm?.['Recipient Product Supplier'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Recipient Product Supplier': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Recipient Product Supplier']}</td></tr>
+                                        <tr><td className="px-2 py-1 font-semibold">Purchase Currency</td><td className="px-2 py-1">{mpoEditIdx === idx ? <select value={mpoForm?.['Purchase Currency'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Purchase Currency': e.target.value}))} className="border px-1 py-0.5 rounded w-full"><option value="USD">USD</option><option value="EUR">EUR</option><option value="CNY">CNY</option><option value="INR">INR</option></select> : row['Purchase Currency']}</td></tr>
+                                        <tr><td className="px-2 py-1 font-semibold">Purchase Payment Term</td><td className="px-2 py-1">{mpoEditIdx === idx ? <select value={mpoForm?.['Material Purchase Order Purchase Payment Term'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Material Purchase Order Purchase Payment Term': e.target.value}))} className="border px-1 py-0.5 rounded w-full"><option value="Net 30">Net 30</option><option value="Net 60">Net 60</option><option value="Net 90">Net 90</option><option value="Cash on Delivery">Cash on Delivery</option></select> : row['Material Purchase Order Purchase Payment Term']}</td></tr>
+                                     </tbody>
+                                   </table>
+                                   <div className="flex gap-2 mt-2">
+                                     {mpoEditIdx === idx ? (
+                                       <>
+                                         <button className="bg-green-600 text-white px-3 py-1 rounded text-sm" onClick={() => {
+                                           const newRows = [...(filteredRows ?? rows)];
+                                           newRows[idx] = { ...row, ...mpoForm };
+                                           if (filteredRows) {
+                                             const mainRows = [...rows];
+                                             const idxInMain = rows.indexOf(filteredRows[idx]);
+                                             mainRows[idxInMain] = { ...row, ...mpoForm };
+                                             setRows(mainRows);
+                                             setFilteredRows(newRows);
+                                           } else {
+                                             setRows(newRows);
+                                           }
+                                           setMpoEditIdx(null);
+                                           setMpoForm(null);
+                                         }}>Save</button>
+                                         <button className="bg-gray-500 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(null); setMpoForm(null); }}>Cancel</button>
+                                       </>
+                                     ) : (
+                                       <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(idx); setMpoForm({ ...row }); }}>Edit</button>
+                                     )}
+                                   </div>
+                                 </>
+                               )}
+                              
+                                                             {activeTab === 'Critical Path' && (
+                                 <>
+                                   <table className="text-sm border border-blue-200 rounded mb-2 w-full">
+                                     <tbody>
+                                       <tr><td className="px-2 py-1 font-semibold">MPO Line Key Date</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="date" value={mpoForm?.['MPO Line Key Date'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'MPO Line Key Date': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['MPO Line Key Date']}</td></tr>
+                                       <tr><td className="px-2 py-1 font-semibold">Template</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="text" value={mpoForm?.['Template'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Template': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Template']}</td></tr>
+                                       <tr><td className="px-2 py-1 font-semibold">Purchasing</td><td className="px-2 py-1">{mpoEditIdx === idx ? <select value={mpoForm?.['Purchasing'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Purchasing': e.target.value}))} className="border px-1 py-0.5 rounded w-full"><option value="In Progress">In Progress</option><option value="Completed">Completed</option><option value="Pending">Pending</option></select> : row['Purchasing']}</td></tr>
+                                     </tbody>
+                                   </table>
+                                   <div className="flex gap-2 mt-2">
+                                     {mpoEditIdx === idx ? (
+                                       <>
+                                         <button className="bg-green-600 text-white px-3 py-1 rounded text-sm" onClick={() => {
+                                           const newRows = [...(filteredRows ?? rows)];
+                                           newRows[idx] = { ...row, ...mpoForm };
+                                           if (filteredRows) {
+                                             const mainRows = [...rows];
+                                             const idxInMain = rows.indexOf(filteredRows[idx]);
+                                             mainRows[idxInMain] = { ...row, ...mpoForm };
+                                             setRows(mainRows);
+                                             setFilteredRows(newRows);
+                                           } else {
+                                             setRows(newRows);
+                                           }
+                                           setMpoEditIdx(null);
+                                           setMpoForm(null);
+                                         }}>Save</button>
+                                         <button className="bg-gray-500 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(null); setMpoForm(null); }}>Cancel</button>
+                                       </>
+                                     ) : (
+                                       <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(idx); setMpoForm({ ...row }); }}>Edit</button>
+                                     )}
+                                   </div>
+                                 </>
+                               )}
+                              
+                                                             {activeTab === 'Special Instructions' && (
+                                 <>
+                                   <table className="text-sm border border-blue-200 rounded mb-2 w-full">
+                                     <tbody>
+                                       <tr><td className="px-2 py-1 font-semibold">Comments</td><td className="px-2 py-1">{mpoEditIdx === idx ? <textarea value={mpoForm?.['Comments'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Comments': e.target.value}))} className="border px-1 py-0.5 rounded w-full h-20 resize-none" /> : row['Comments']}</td></tr>
+                                     </tbody>
+                                   </table>
+                                   <div className="flex gap-2 mt-2">
+                                     {mpoEditIdx === idx ? (
+                                       <>
+                                         <button className="bg-green-600 text-white px-3 py-1 rounded text-sm" onClick={() => {
+                                           const newRows = [...(filteredRows ?? rows)];
+                                           newRows[idx] = { ...row, ...mpoForm };
+                                           if (filteredRows) {
+                                             const mainRows = [...rows];
+                                             const idxInMain = rows.indexOf(filteredRows[idx]);
+                                             mainRows[idxInMain] = { ...row, ...mpoForm };
+                                             setRows(mainRows);
+                                             setFilteredRows(newRows);
+                                           } else {
+                                             setRows(newRows);
+                                           }
+                                           setMpoEditIdx(null);
+                                           setMpoForm(null);
+                                         }}>Save</button>
+                                         <button className="bg-gray-500 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(null); setMpoForm(null); }}>Cancel</button>
+                                       </>
+                                     ) : (
+                                       <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(idx); setMpoForm({ ...row }); }}>Edit</button>
+                                     )}
+                                   </div>
+                                 </>
+                               )}
+                              
+                                                             {activeTab === 'Delivery Details' && (
+                                 <>
+                                   <table className="text-sm border border-blue-200 rounded mb-2 w-full">
+                                     <tbody>
+                                       <tr><td className="px-2 py-1 font-semibold">Deliver To</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="text" value={mpoForm?.['Deliver To'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Deliver To': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Deliver To']}</td></tr>
+                                       <tr><td className="px-2 py-1 font-semibold">Customer</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="text" value={mpoForm?.['Customer'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Customer': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Customer']}</td></tr>
+                                       <tr><td className="px-2 py-1 font-semibold">Delivery Date</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="date" value={mpoForm?.['Delivery Date'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Delivery Date': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Delivery Date']}</td></tr>
+                                     </tbody>
+                                   </table>
+                                   <div className="flex gap-2 mt-2">
+                                     {mpoEditIdx === idx ? (
+                                       <>
+                                         <button className="bg-green-600 text-white px-3 py-1 rounded text-sm" onClick={() => {
+                                           const newRows = [...(filteredRows ?? rows)];
+                                           newRows[idx] = { ...row, ...mpoForm };
+                                           if (filteredRows) {
+                                             const mainRows = [...rows];
+                                             const idxInMain = rows.indexOf(filteredRows[idx]);
+                                             mainRows[idxInMain] = { ...row, ...mpoForm };
+                                             setRows(mainRows);
+                                             setFilteredRows(newRows);
+                                           } else {
+                                             setRows(newRows);
+                                           }
+                                           setMpoEditIdx(null);
+                                           setMpoForm(null);
+                                         }}>Save</button>
+                                         <button className="bg-gray-500 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(null); setMpoForm(null); }}>Cancel</button>
+                                       </>
+                                     ) : (
+                                       <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(idx); setMpoForm({ ...row }); }}>Edit</button>
+                                     )}
+                                   </div>
+                                 </>
+                               )}
+                              
+                                                             {activeTab === 'Activities' && (
+                                 <>
+                                   <div className="text-sm border border-blue-200 rounded mb-2 w-full p-4">
+                                     <div className="text-gray-500">No activities available</div>
+                                   </div>
+                                   <div className="flex gap-2 mt-2">
+                                     {mpoEditIdx === idx ? (
+                                       <>
+                                         <button className="bg-green-600 text-white px-3 py-1 rounded text-sm" onClick={() => {
+                                           const newRows = [...(filteredRows ?? rows)];
+                                           newRows[idx] = { ...row, ...mpoForm };
+                                           if (filteredRows) {
+                                             const mainRows = [...rows];
+                                             const idxInMain = rows.indexOf(filteredRows[idx]);
+                                             mainRows[idxInMain] = { ...row, ...mpoForm };
+                                             setRows(mainRows);
+                                             setFilteredRows(newRows);
+                                           } else {
+                                             setRows(newRows);
+                                           }
+                                           setMpoEditIdx(null);
+                                           setMpoForm(null);
+                                         }}>Save</button>
+                                         <button className="bg-gray-500 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(null); setMpoForm(null); }}>Cancel</button>
+                                       </>
+                                     ) : (
+                                       <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(idx); setMpoForm({ ...row }); }}>Edit</button>
+                                     )}
+                                   </div>
+                                 </>
+                               )}
                             </div>
                           </div>
                         )}
                         {expanded.col === 'Material' && (
-                          <div className="p-4" style={{ minWidth: '800px', maxWidth: '1200px' }}>
-                            <div className="font-bold mb-3 text-green-900 text-lg">Material Details</div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" style={{ tableLayout: 'fixed' }}>
-                              <div className="bg-white p-3 rounded border">
-                                <div className="font-semibold text-green-700 mb-2">Material Information</div>
-                                <div className="truncate"><span className="font-medium">Material:</span> {row['Material'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Type:</span> {row['Material Type'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Sub Type:</span> {row['Material Sub Type'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Status:</span> {row['Material Status'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Description:</span> {row['Material Description'] || 'N/A'}</div>
-                              </div>
-                              <div className="bg-white p-3 rounded border">
-                                <div className="font-semibold text-green-700 mb-2">Specifications</div>
-                                <div className="truncate"><span className="font-medium">Size:</span> {row['Size'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Color:</span> {row['Color'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Composition:</span> {row['Composition'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Season:</span> {row['Season'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Department:</span> {row['Material Department'] || 'N/A'}</div>
-                              </div>
-                              <div className="bg-white p-3 rounded border">
-                                <div className="font-semibold text-green-700 mb-2">Ordering Details</div>
-                                <div className="truncate"><span className="font-medium">Min Order Qty:</span> {row['Minimum Order Quantity'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Min Colour Qty:</span> {row['Minimum Colour Quantity'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Costing Status:</span> {row['Costing Status'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Sample Status:</span> {row['Material Sample Log Status'] || 'N/A'}</div>
-                              </div>
+                          <div className="bg-green-50 px-6 py-4">
+                            <div className="flex justify-between items-center mb-4">
+                              <div className="font-semibold text-green-700">Material Details</div>
+                            </div>
+                            
+                            {/* Horizontal Tabs */}
+                            <div className="mb-4 flex gap-2 border-b border-green-200">
+                              {['Material Detail', 'Swatch', 'Critical Path', 'Audit', 'Supplier Profile', 'Colors'].map(tab => (
+                                <button
+                                  key={tab}
+                                  className={`px-4 py-2 -mb-px rounded-t font-medium transition-colors border-b-2 ${activeTab === tab ? 'bg-white border-green-500 text-green-700' : 'bg-green-50 border-transparent text-gray-600 hover:text-green-600'}`}
+                                  onClick={() => setActiveTab(tab)}
+                                >
+                                  {tab}
+                                </button>
+                              ))}
+                            </div>
+                            
+                            {/* Tab Content */}
+                            <div className="max-w-4xl w-full">
+                              {activeTab === 'Material Detail' && (
+                                <>
+                                  <table className="text-sm border border-green-200 rounded mb-2 w-full">
+                                    <tbody>
+                                      <tr><td className="px-2 py-1 font-semibold">Material</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="text" value={mpoForm?.['Material'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Material': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Material']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Material Type</td><td className="px-2 py-1">{mpoEditIdx === idx ? <select value={mpoForm?.['Material Type'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Material Type': e.target.value}))} className="border px-1 py-0.5 rounded w-full"><option value="Fabric">Fabric</option><option value="Trims">Trims</option><option value="Hardware">Hardware</option><option value="Packaging">Packaging</option><option value="Labels">Labels</option></select> : row['Material Type']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Material Sub Type</td><td className="px-2 py-1">{mpoEditIdx === idx ? <select value={mpoForm?.['Material Sub Type'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Material Sub Type': e.target.value}))} className="border px-1 py-0.5 rounded w-full"><option value="Cotton">Cotton</option><option value="Polyester">Polyester</option><option value="Zippers">Zippers</option><option value="Buttons">Buttons</option><option value="Tags">Tags</option></select> : row['Material Sub Type']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Material Description</td><td className="px-2 py-1">{mpoEditIdx === idx ? <textarea value={mpoForm?.['Material Description'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Material Description': e.target.value}))} className="border px-1 py-0.5 rounded w-full h-20 resize-none" /> : row['Material Description']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Material Status</td><td className="px-2 py-1">{mpoEditIdx === idx ? <select value={mpoForm?.['Material Status'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Material Status': e.target.value}))} className="border px-1 py-0.5 rounded w-full"><option value="Active">Active</option><option value="Inactive">Inactive</option><option value="Discontinued">Discontinued</option><option value="New">New</option><option value="Pending">Pending</option></select> : row['Material Status']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Material Buyer Style Name</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="text" value={mpoForm?.['Material Buyer Style Name'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Material Buyer Style Name': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Material Buyer Style Name']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Material Buyer Style Number</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="text" value={mpoForm?.['Material Buyer Style Number'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Material Buyer Style Number': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Material Buyer Style Number']}</td></tr>
+                                    </tbody>
+                                  </table>
+                                  <div className="flex gap-2 mt-2">
+                                    {mpoEditIdx === idx ? (
+                                      <>
+                                        <button className="bg-green-600 text-white px-3 py-1 rounded text-sm" onClick={() => {
+                                          const newRows = [...(filteredRows ?? rows)];
+                                          newRows[idx] = { ...row, ...mpoForm };
+                                          if (filteredRows) {
+                                            const mainRows = [...rows];
+                                            const idxInMain = rows.indexOf(filteredRows[idx]);
+                                            mainRows[idxInMain] = { ...row, ...mpoForm };
+                                            setRows(mainRows);
+                                            setFilteredRows(newRows);
+                                          } else {
+                                            setRows(newRows);
+                                          }
+                                          setMpoEditIdx(null);
+                                          setMpoForm(null);
+                                        }}>Save</button>
+                                        <button className="bg-gray-500 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(null); setMpoForm(null); }}>Cancel</button>
+                                      </>
+                                    ) : (
+                                      <button className="bg-green-600 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(idx); setMpoForm({ ...row }); }}>Edit</button>
+                                    )}
+                                  </div>
+                                </>
+                              )}
+                              
+                              {activeTab === 'Swatch' && (
+                                <>
+                                  <table className="text-sm border border-green-200 rounded mb-2 w-full">
+                                    <tbody>
+                                      <tr><td className="px-2 py-1 font-semibold">Color</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="text" value={mpoForm?.['Color'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Color': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Color']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Size</td><td className="px-2 py-1">{mpoEditIdx === idx ? <select value={mpoForm?.['Size'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Size': e.target.value}))} className="border px-1 py-0.5 rounded w-full"><option value="XS">XS</option><option value="S">S</option><option value="M">M</option><option value="L">L</option><option value="XL">XL</option><option value="XXL">XXL</option><option value="One Size">One Size</option></select> : row['Size']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Composition</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="text" value={mpoForm?.['Composition'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Composition': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Composition']}</td></tr>
+                                    </tbody>
+                                  </table>
+                                  <div className="flex gap-2 mt-2">
+                                    {mpoEditIdx === idx ? (
+                                      <>
+                                        <button className="bg-green-600 text-white px-3 py-1 rounded text-sm" onClick={() => {
+                                          const newRows = [...(filteredRows ?? rows)];
+                                          newRows[idx] = { ...row, ...mpoForm };
+                                          if (filteredRows) {
+                                            const mainRows = [...rows];
+                                            const idxInMain = rows.indexOf(filteredRows[idx]);
+                                            mainRows[idxInMain] = { ...row, ...mpoForm };
+                                            setRows(mainRows);
+                                            setFilteredRows(newRows);
+                                          } else {
+                                            setRows(newRows);
+                                          }
+                                          setMpoEditIdx(null);
+                                          setMpoForm(null);
+                                        }}>Save</button>
+                                        <button className="bg-gray-500 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(null); setMpoForm(null); }}>Cancel</button>
+                                      </>
+                                    ) : (
+                                      <button className="bg-green-600 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(idx); setMpoForm({ ...row }); }}>Edit</button>
+                                    )}
+                                  </div>
+                                </>
+                              )}
+                              
+                              {activeTab === 'Critical Path' && (
+                                <>
+                                  <table className="text-sm border border-green-200 rounded mb-2 w-full">
+                                    <tbody>
+                                      <tr><td className="px-2 py-1 font-semibold">Order Lead Time</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="number" value={mpoForm?.['Order Lead Time'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Order Lead Time': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Order Lead Time']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Minimum Order Quantity</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="number" value={mpoForm?.['Minimum Order Quantity'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Minimum Order Quantity': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Minimum Order Quantity']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Minimum Colour Quantity</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="number" value={mpoForm?.['Minimum Colour Quantity'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Minimum Colour Quantity': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Minimum Colour Quantity']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Order Quantity Increment</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="number" value={mpoForm?.['Order Quantity Increment'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Order Quantity Increment': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Order Quantity Increment']}</td></tr>
+                                    </tbody>
+                                  </table>
+                                  <div className="flex gap-2 mt-2">
+                                    {mpoEditIdx === idx ? (
+                                      <>
+                                        <button className="bg-green-600 text-white px-3 py-1 rounded text-sm" onClick={() => {
+                                          const newRows = [...(filteredRows ?? rows)];
+                                          newRows[idx] = { ...row, ...mpoForm };
+                                          if (filteredRows) {
+                                            const mainRows = [...rows];
+                                            const idxInMain = rows.indexOf(filteredRows[idx]);
+                                            mainRows[idxInMain] = { ...row, ...mpoForm };
+                                            setRows(mainRows);
+                                            setFilteredRows(newRows);
+                                          } else {
+                                            setRows(newRows);
+                                          }
+                                          setMpoEditIdx(null);
+                                          setMpoForm(null);
+                                        }}>Save</button>
+                                        <button className="bg-gray-500 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(null); setMpoForm(null); }}>Cancel</button>
+                                      </>
+                                    ) : (
+                                      <button className="bg-green-600 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(idx); setMpoForm({ ...row }); }}>Edit</button>
+                                    )}
+                                  </div>
+                                </>
+                              )}
+                              
+                              {activeTab === 'Audit' && (
+                                <>
+                                  <table className="text-sm border border-green-200 rounded mb-2 w-full">
+                                    <tbody>
+                                      <tr><td className="px-2 py-1 font-semibold">Created By</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="text" value={mpoForm?.['Created By'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Created By': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Created By']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Created</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="date" value={mpoForm?.['Created'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Created': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Created']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Last Edited By</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="text" value={mpoForm?.['Last Edited By'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Last Edited By': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Last Edited By']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Last Edited</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="date" value={mpoForm?.['Last Edited'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Last Edited': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Last Edited']}</td></tr>
+                                    </tbody>
+                                  </table>
+                                  <div className="flex gap-2 mt-2">
+                                    {mpoEditIdx === idx ? (
+                                      <>
+                                        <button className="bg-green-600 text-white px-3 py-1 rounded text-sm" onClick={() => {
+                                          const newRows = [...(filteredRows ?? rows)];
+                                          newRows[idx] = { ...row, ...mpoForm };
+                                          if (filteredRows) {
+                                            const mainRows = [...rows];
+                                            const idxInMain = rows.indexOf(filteredRows[idx]);
+                                            mainRows[idxInMain] = { ...row, ...mpoForm };
+                                            setRows(mainRows);
+                                            setFilteredRows(newRows);
+                                          } else {
+                                            setRows(newRows);
+                                          }
+                                          setMpoEditIdx(null);
+                                          setMpoForm(null);
+                                        }}>Save</button>
+                                        <button className="bg-gray-500 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(null); setMpoForm(null); }}>Cancel</button>
+                                      </>
+                                    ) : (
+                                      <button className="bg-green-600 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(idx); setMpoForm({ ...row }); }}>Edit</button>
+                                    )}
+                                  </div>
+                                </>
+                              )}
+                              
+                              {activeTab === 'Supplier Profile' && (
+                                <>
+                                  <table className="text-sm border border-green-200 rounded mb-2 w-full">
+                                    <tbody>
+                                      <tr><td className="px-2 py-1 font-semibold">Material Supplier Profile</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="text" value={mpoForm?.['Material Supplier Profile'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Material Supplier Profile': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Material Supplier Profile']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Material Supplier Profile Purchase Currency</td><td className="px-2 py-1">{mpoEditIdx === idx ? <select value={mpoForm?.['Material Supplier Profile Purchase Currency'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Material Supplier Profile Purchase Currency': e.target.value}))} className="border px-1 py-0.5 rounded w-full"><option value="USD">USD</option><option value="EUR">EUR</option><option value="CNY">CNY</option><option value="INR">INR</option></select> : row['Material Supplier Profile Purchase Currency']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Material Supplier Profile Selling Currency</td><td className="px-2 py-1">{mpoEditIdx === idx ? <select value={mpoForm?.['Material Supplier Profile Selling Currency'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Material Supplier Profile Selling Currency': e.target.value}))} className="border px-1 py-0.5 rounded w-full"><option value="USD">USD</option><option value="EUR">EUR</option><option value="CNY">CNY</option><option value="INR">INR</option></select> : row['Material Supplier Profile Selling Currency']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Supplier Payment Term</td><td className="px-2 py-1">{mpoEditIdx === idx ? <select value={mpoForm?.['Supplier Payment Term'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Supplier Payment Term': e.target.value}))} className="border px-1 py-0.5 rounded w-full"><option value="Net 30">Net 30</option><option value="Net 60">Net 60</option><option value="Net 90">Net 90</option><option value="Cash on Delivery">Cash on Delivery</option></select> : row['Supplier Payment Term']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Supplier Payment Term Description</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="text" value={mpoForm?.['Supplier Payment Term Description'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Supplier Payment Term Description': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Supplier Payment Term Description']}</td></tr>
+                                    </tbody>
+                                  </table>
+                                  <div className="flex gap-2 mt-2">
+                                    {mpoEditIdx === idx ? (
+                                      <>
+                                        <button className="bg-green-600 text-white px-3 py-1 rounded text-sm" onClick={() => {
+                                          const newRows = [...(filteredRows ?? rows)];
+                                          newRows[idx] = { ...row, ...mpoForm };
+                                          if (filteredRows) {
+                                            const mainRows = [...rows];
+                                            const idxInMain = rows.indexOf(filteredRows[idx]);
+                                            mainRows[idxInMain] = { ...row, ...mpoForm };
+                                            setRows(mainRows);
+                                            setFilteredRows(newRows);
+                                          } else {
+                                            setRows(newRows);
+                                          }
+                                          setMpoEditIdx(null);
+                                          setMpoForm(null);
+                                        }}>Save</button>
+                                        <button className="bg-gray-500 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(null); setMpoForm(null); }}>Cancel</button>
+                                      </>
+                                    ) : (
+                                      <button className="bg-green-600 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(idx); setMpoForm({ ...row }); }}>Edit</button>
+                                    )}
+                                  </div>
+                                </>
+                              )}
+                              
+                              {activeTab === 'Colors' && (
+                                <>
+                                  <table className="text-sm border border-green-200 rounded mb-2 w-full">
+                                    <tbody>
+                                      <tr><td className="px-2 py-1 font-semibold">Color</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="text" value={mpoForm?.['Color'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Color': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Color']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Season</td><td className="px-2 py-1">{mpoEditIdx === idx ? <select value={mpoForm?.['Season'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Season': e.target.value}))} className="border px-1 py-0.5 rounded w-full"><option value="Spring">Spring</option><option value="Summer">Summer</option><option value="Fall">Fall</option><option value="Winter">Winter</option><option value="All Season">All Season</option></select> : row['Season']}</td></tr>
+                                      <tr><td className="px-2 py-1 font-semibold">Collection</td><td className="px-2 py-1">{mpoEditIdx === idx ? <input type="text" value={mpoForm?.['Collection'] || ''} onChange={e => setMpoForm((f: any) => ({...f, 'Collection': e.target.value}))} className="border px-1 py-0.5 rounded w-full" /> : row['Collection']}</td></tr>
+                                    </tbody>
+                                  </table>
+                                  <div className="flex gap-2 mt-2">
+                                    {mpoEditIdx === idx ? (
+                                      <>
+                                        <button className="bg-green-600 text-white px-3 py-1 rounded text-sm" onClick={() => {
+                                          const newRows = [...(filteredRows ?? rows)];
+                                          newRows[idx] = { ...row, ...mpoForm };
+                                          if (filteredRows) {
+                                            const mainRows = [...rows];
+                                            const idxInMain = rows.indexOf(filteredRows[idx]);
+                                            mainRows[idxInMain] = { ...row, ...mpoForm };
+                                            setRows(mainRows);
+                                            setFilteredRows(newRows);
+                                          } else {
+                                            setRows(newRows);
+                                          }
+                                          setMpoEditIdx(null);
+                                          setMpoForm(null);
+                                        }}>Save</button>
+                                        <button className="bg-gray-500 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(null); setMpoForm(null); }}>Cancel</button>
+                                      </>
+                                    ) : (
+                                      <button className="bg-green-600 text-white px-3 py-1 rounded text-sm" onClick={() => { setMpoEditIdx(idx); setMpoForm({ ...row }); }}>Edit</button>
+                                    )}
+                                  </div>
+                                </>
+                              )}
                             </div>
                           </div>
                         )}
                         {expanded.col === 'Material Purchase Order Line' && (
-                          <div className="p-4" style={{ minWidth: '800px', maxWidth: '1200px' }}>
-                            <div className="font-bold mb-3 text-purple-900 text-lg">Purchase Order Line Details</div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" style={{ tableLayout: 'fixed' }}>
-                              <div className="bg-white p-3 rounded border">
-                                <div className="font-semibold text-purple-700 mb-2">Line Information</div>
-                                <div className="truncate"><span className="font-medium">Line:</span> {row['Material Purchase Order Line'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Quantity:</span> {row['Quantity'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Selling Quantity:</span> {row['Selling Quantity'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Order Increment:</span> {row['Order Quantity Increment'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Lead Time:</span> {row['Order Lead Time'] || 'N/A'}</div>
-                              </div>
-                              <div className="bg-white p-3 rounded border">
-                                <div className="font-semibold text-purple-700 mb-2">Pricing</div>
-                                <div className="truncate"><span className="font-medium">Line Purchase Price:</span> {row['Line Purchase Price'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Line Selling Price:</span> {row['Line Selling Price'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Purchase Price:</span> {row['Purchase Price'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Selling Price:</span> {row['Selling Price'] || 'N/A'}</div>
-                              </div>
-                              <div className="bg-white p-3 rounded border">
-                                <div className="font-semibold text-purple-700 mb-2">Receipt Status</div>
-                                <div className="truncate"><span className="font-medium">Received:</span> {row['Received'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Balance:</span> {row['Balance'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Over Received:</span> {row['Over Received'] || 'N/A'}</div>
-                                <div className="truncate"><span className="font-medium">Note Count:</span> {row['Note Count'] || 'N/A'}</div>
-                              </div>
+                          <div className="p-4">
+                            <div className="flex justify-start mb-4">
+                              <button 
+                                onClick={() => {
+                                  const isEditing = editingSection && editingSection.row === idx && editingSection.col === expanded.col;
+                                  if (isEditing) {
+                                    setEditingSection(null);
+                                  } else {
+                                    setEditingSection({ row: idx, col: expanded.col, section: 'purchase-order-line' });
+                                  }
+                                }}
+                                className="px-3 py-1 bg-purple-600 text-white rounded text-xs hover:bg-purple-700 transition-colors"
+                                title={editingSection && editingSection.row === idx && editingSection.col === expanded.col ? "Save Changes" : "Edit Purchase Order Line Details"}
+                              >
+                                {editingSection && editingSection.row === idx && editingSection.col === expanded.col ? "Save" : "Edit"}
+                              </button>
+                            </div>
+                            <div className="font-bold text-purple-900 text-lg mb-4">Purchase Order Line Details</div>
+                            <div className="mb-2">
+                              <span className="font-semibold">Line:</span> 
+                              {editingSection && editingSection.row === idx && editingSection.col === expanded.col ? (
+                                <input 
+                                  type="text" 
+                                  defaultValue={row['Material Purchase Order Line']} 
+                                  className="ml-2 px-2 py-1 border border-gray-300 rounded text-sm w-full"
+                                />
+                              ) : (
+                                <span className="ml-2">{row['Material Purchase Order Line']}</span>
+                              )}
+                            </div>
+                            <div className="mb-2">
+                              <span className="font-semibold">Quantity:</span> 
+                              {editingSection && editingSection.row === idx && editingSection.col === expanded.col ? (
+                                <input 
+                                  type="number" 
+                                  defaultValue={row['Quantity']} 
+                                  className="ml-2 px-2 py-1 border border-gray-300 rounded text-sm w-full"
+                                />
+                              ) : (
+                                <span className="ml-2">{row['Quantity']}</span>
+                              )}
+                            </div>
+                            <div className="mb-2">
+                              <span className="font-semibold">Line Purchase Price:</span> 
+                              {editingSection && editingSection.row === idx && editingSection.col === expanded.col ? (
+                                <input 
+                                  type="text" 
+                                  defaultValue={row['Line Purchase Price']} 
+                                  className="ml-2 px-2 py-1 border border-gray-300 rounded text-sm w-full"
+                                />
+                              ) : (
+                                <span className="ml-2">{row['Line Purchase Price']}</span>
+                              )}
+                            </div>
+                            <div className="mb-2">
+                              <span className="font-semibold">Line Selling Price:</span> 
+                              {editingSection && editingSection.row === idx && editingSection.col === expanded.col ? (
+                                <input 
+                                  type="text" 
+                                  defaultValue={row['Line Selling Price']} 
+                                  className="ml-2 px-2 py-1 border border-gray-300 rounded text-sm w-full"
+                                />
+                              ) : (
+                                <span className="ml-2">{row['Line Selling Price']}</span>
+                              )}
                             </div>
                           </div>
                         )}
-                      </div>
-                    </td>
-                  </tr>
-                ) : null
-              ])}
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              ))}
+
               {displayRows.length === 0 && (
                 <tr>
                   <td colSpan={visibleColumns.length + 1} className="text-center py-4 text-gray-400">
@@ -1024,6 +1466,7 @@ const MaterialPurchaseOrderLines: React.FC = () => {
             </tbody>
           </table>
         </div>
+      </div>
 
       {/* Edit Modal */}
       <MaterialPurchaseOrderLinesEditModal
@@ -1033,6 +1476,19 @@ const MaterialPurchaseOrderLines: React.FC = () => {
         onDelete={handleDelete}
         data={editModalData}
         isNew={isNewEntry}
+
+        allColumns={allColumns}
+      />
+
+      {/* ReportBar Component */}
+      <ReportBar
+        showSlideUpContainer={showSlideUpContainer}
+        setShowSlideUpContainer={setShowSlideUpContainer}
+        activeContent={activeContent}
+        setActiveContent={setActiveContent}
+        sidebarCollapsed={sidebarCollapsed}
+        pageData={displayRows[selectedIndex] || {}}
+
       />
     </div>
   );

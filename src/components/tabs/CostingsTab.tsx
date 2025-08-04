@@ -61,12 +61,16 @@ const CostingsTab: React.FC<CostingsTabProps> = memo(({
   ];
 
   return (
-    <DataTable
-      columns={columns}
-      data={costingData}
-      selectedRowId={selectedRowId}
-      onRowClick={onRowClick}
-    />
+    <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
+      <div style={{ minWidth: 'max-content' }}>
+        <DataTable
+          columns={columns}
+          data={costingData}
+          selectedRowId={selectedRowId}
+          onRowClick={onRowClick}
+        />
+      </div>
+    </div>
   );
 });
 

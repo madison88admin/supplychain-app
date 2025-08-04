@@ -28,12 +28,16 @@ const TechPackVersionTab: React.FC<TechPackVersionTabProps> = memo(({
   ];
 
   return (
-    <DataTable
-      columns={columns}
-      data={techPackVersionData}
-      selectedRowId={selectedRowId}
-      onRowClick={onRowClick}
-    />
+    <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
+      <div style={{ minWidth: 'max-content' }}>
+        <DataTable
+          columns={columns}
+          data={techPackVersionData}
+          selectedRowId={selectedRowId}
+          onRowClick={onRowClick}
+        />
+      </div>
+    </div>
   );
 });
 

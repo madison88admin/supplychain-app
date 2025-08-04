@@ -35,14 +35,14 @@ const DataTable: React.FC<TableProps> = memo(({
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-max">
+    <div className="overflow-auto">
+      <table className="w-full">
         <thead className="bg-gray-50">
           <tr>
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={`px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
+                                className={`px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
                   column.width ? `w-${column.width}` : ''
                 } ${column.align ? `text-${column.align}` : 'text-left'}`}
               >
@@ -63,9 +63,9 @@ const DataTable: React.FC<TableProps> = memo(({
               {columns.map((column) => (
                 <td
                   key={`${row.id}-${column.key}`}
-                  className={`px-2 py-2 whitespace-nowrap text-xs text-gray-900 ${
-                    column.align ? `text-${column.align}` : 'text-left'
-                  }`}
+                                  className={`px-2 py-2 whitespace-nowrap text-xs text-gray-900 ${
+                  column.align ? `text-${column.align}` : 'text-left'
+                }`}
                 >
                   {renderCellValue(row[column.key], column.key)}
                 </td>

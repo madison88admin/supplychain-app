@@ -57,10 +57,10 @@ const ProductManager: React.FC = () => {
         <h1 className="text-2xl font-bold text-gray-900">Product Manager</h1>
       </div>
       
-      {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative">
-        {/* Left Column - Tech Pack Tabs */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+             {/* Vertical Layout - Top to Bottom */}
+       <div className="flex flex-col gap-6">
+                 {/* Top Section - Tech Pack Tabs */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200" style={{ maxWidth: '1200px', maxHeight: '400px' }}>
           {/* Tab Navigation */}
           <div className="border-b" style={{ borderColor: '#3D75A3' }}>
             <div className="flex">
@@ -82,25 +82,27 @@ const ProductManager: React.FC = () => {
           </div>
           
           {/* Tab Content */}
-          <TabContent
-            activeTab={leftActiveTab}
-                  selectedRowId={selectedRowIndex?.toString()}
-            onRowClick={handleRowClick}
-          />
+          <div className="overflow-auto" style={{ maxHeight: '300px' }}>
+            <TabContent
+              activeTab={leftActiveTab}
+              selectedRowId={selectedRowIndex?.toString()}
+              onRowClick={handleRowClick}
+            />
+          </div>
         </div>
 
-        {/* Vertical Divider */}
-        <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px bg-gray-300 transform -translate-x-1/2"></div>
-        
-        {/* Right Column - Product Details Tabs */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+         {/* Horizontal Divider */}
+         <div className="w-full h-px bg-gray-300"></div>
+         
+                 {/* Bottom Section - Product Details Tabs */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200" style={{ maxWidth: '1200px', maxHeight: '400px' }}>
           {/* Tab Navigation */}
           <div className="border-b" style={{ borderColor: '#3D75A3' }}>
             <div className="flex">
-                    {rightTabs.map((tab) => (
+              {rightTabs.map((tab) => (
                 <button
                   key={tab}
-                        onClick={() => handleRightTabChange(tab)}
+                  onClick={() => handleRightTabChange(tab)}
                   className={`px-4 py-3 font-medium text-xs ${
                     rightActiveTab === tab
                       ? 'bg-gray-100 text-gray-900 border-t-2 border-l-2 shadow-sm'
@@ -115,13 +117,15 @@ const ProductManager: React.FC = () => {
           </div>
           
           {/* Tab Content */}
-                <TabContent
-                  activeTab={rightActiveTab}
-                  selectedRowId={selectedRowIndex?.toString()}
-                  onRowClick={handleRowClick}
-                />
+          <div className="overflow-auto" style={{ maxHeight: '300px' }}>
+            <TabContent
+              activeTab={rightActiveTab}
+              selectedRowId={selectedRowIndex?.toString()}
+              onRowClick={handleRowClick}
+            />
+          </div>
         </div>
-      </div>
+       </div>
 
       {/* ReportBar Component */}
       <ReportBar

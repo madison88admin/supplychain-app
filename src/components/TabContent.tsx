@@ -233,9 +233,7 @@ const TabContent: React.FC<TabContentProps> = memo(({
 
   return (
     <div className="p-4">
-      <div className="overflow-x-auto">
-        {renderTabContent()}
-      </div>
+      {renderTabContent()}
     </div>
   );
 });

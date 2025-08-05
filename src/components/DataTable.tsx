@@ -35,8 +35,8 @@ const DataTable: React.FC<TableProps> = memo(({
   }
 
   return (
-    <div className="overflow-auto">
-      <table className="w-full">
+    <div className="overflow-x-auto">
+      <table className="w-full table-fixed">
         <thead className="bg-gray-50">
           <tr>
             {columns.map((column) => (
@@ -45,6 +45,7 @@ const DataTable: React.FC<TableProps> = memo(({
                                 className={`px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
                   column.width ? `w-${column.width}` : ''
                 } ${column.align ? `text-${column.align}` : 'text-left'}`}
+                style={{ minWidth: '80px', maxWidth: '200px' }}
               >
                 {column.label}
               </th>
@@ -63,9 +64,10 @@ const DataTable: React.FC<TableProps> = memo(({
               {columns.map((column) => (
                 <td
                   key={`${row.id}-${column.key}`}
-                                  className={`px-2 py-2 whitespace-nowrap text-xs text-gray-900 ${
+                                  className={`px-2 py-2 text-xs text-gray-900 ${
                   column.align ? `text-${column.align}` : 'text-left'
                 }`}
+                  style={{ minWidth: '80px', maxWidth: '200px' }}
                 >
                   {renderCellValue(row[column.key], column.key)}
                 </td>
@@ -113,7 +115,7 @@ const renderCellValue = (value: any, key: string) => {
       'default': 'bg-gray-100 text-gray-800'
     };
 
-    const colorClass = statusColors[value.toLowerCase()] || statusColors.default;
+    const colorClass = statusColors[value.toLowerCase() as keyof typeof statusColors] || statusColors.default;
     
     return (
       <span className={`px-1.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full ${colorClass}`}>

@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import TechPackVersionTab from './tabs/TechPackVersionTab';
 import CostingsTab from './tabs/CostingsTab';
+import SampleLineTab from './tabs/SampleLineTab'
 import DataTable from './DataTable';
 import { TableColumn } from '../types/productManager';
 import { 
@@ -111,36 +112,44 @@ const TabContent: React.FC<TabContentProps> = memo(({
 
       case 'Sample Lines':
         return (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-max">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SAMPLE REQUEST</th>
-                  <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PRODUCT</th>
-                  <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">QUANTITY</th>
-                  <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS</th>
-                  <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">EX-FACTORY</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                <tr className="hover:bg-gray-50">
-                  <td className="px-2 py-2 whitespace-nowrap text-xs font-medium text-gray-900">SR-001</td>
-                  <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">Cotton T-Shirt</td>
-                  <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">5</td>
-                  <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">Completed</td>
-                  <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">2024-01-15</td>
-                </tr>
-                <tr className="hover:bg-gray-50">
-                  <td className="px-2 py-2 whitespace-nowrap text-xs font-medium text-gray-900">SR-002</td>
-                  <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">Denim Jeans</td>
-                  <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">3</td>
-                  <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">In Progress</td>
-                  <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">2024-02-01</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <CostingsTab
+            selectedRowId={selectedRowId}
+            onRowClick={onRowClick}
+          />
         );
+
+      // case 'Sample Lines':
+      //   return (
+      //     <div className="overflow-x-auto">
+      //       <table className="w-full min-w-max">
+      //         <thead className="bg-gray-50">
+      //           <tr>
+      //             <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SAMPLE REQUEST</th>
+      //             <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PRODUCT</th>
+      //             <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">QUANTITY</th>
+      //             <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS</th>
+      //             <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">EX-FACTORY</th>
+      //           </tr>
+      //         </thead>
+      //         <tbody className="bg-white divide-y divide-gray-200">
+      //           <tr className="hover:bg-gray-50">
+      //             <td className="px-2 py-2 whitespace-nowrap text-xs font-medium text-gray-900">SR-001</td>
+      //             <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">Cotton T-Shirt</td>
+      //             <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">5</td>
+      //             <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">Completed</td>
+      //             <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">2024-01-15</td>
+      //           </tr>
+      //           <tr className="hover:bg-gray-50">
+      //             <td className="px-2 py-2 whitespace-nowrap text-xs font-medium text-gray-900">SR-002</td>
+      //             <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">Denim Jeans</td>
+      //             <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">3</td>
+      //             <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">In Progress</td>
+      //             <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-900">2024-02-01</td>
+      //           </tr>
+      //         </tbody>
+      //       </table>
+      //     </div>
+      //   );
 
       case 'Lines':
         return (

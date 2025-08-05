@@ -8,10 +8,7 @@ interface CostingsTabProps {
   onRowClick?: (row: any) => void;
 }
 
-const CostingsTab: React.FC<CostingsTabProps> = memo(({
-  selectedRowId,
-  onRowClick
-}) => {
+const CostingsTab: React.FC<CostingsTabProps> = memo(({ selectedRowId, onRowClick }) => {
   const columns: TableColumn[] = [
     { key: 'costingReference', label: 'COSTING REFERENCE' },
     { key: 'productName', label: 'PRODUCT NAME' },
@@ -61,15 +58,49 @@ const CostingsTab: React.FC<CostingsTabProps> = memo(({
   ];
 
   return (
-    <DataTable
-      columns={columns}
-      data={costingData}
-      selectedRowId={selectedRowId}
-      onRowClick={onRowClick}
-    />
+    <div className="w-full overflow-x-auto border border-gray-200 rounded">
+      <table className="min-w-[2000px] table-auto border-collapse text-xs">
+        <thead>
+          <tr className="bg-gray-100">
+            {columns.map((col, index) => (
+              <th
+                key={col.key}
+                className={`px-4 py-2 text-left border border-gray-300 whitespace-nowrap font-medium ${
+                  index === 0 ? 'sticky left-0 bg-white z-10' : ''
+                }`}
+              >
+                {col.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {costingData.map((row, rowIndex) => (
+            <tr
+              key={row.costingReference || rowIndex}
+              className={`hover:bg-gray-50 cursor-pointer ${
+                selectedRowId === row.costingReference ? 'bg-blue-50' : ''
+              }`}
+              onClick={() => onRowClick?.(row)}
+            >
+              {columns.map((col, colIndex) => (
+                <td
+                  key={col.key}
+                  className={`px-4 py-2 border border-gray-200 whitespace-nowrap ${
+                    colIndex === 0 ? 'sticky left-0 bg-white z-0' : ''
+                  }`}
+                >
+                  {row[col.key]}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 });
 
 CostingsTab.displayName = 'CostingsTab';
 
-export default CostingsTab; 
+export default CostingsTab;

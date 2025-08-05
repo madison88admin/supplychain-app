@@ -1,19 +1,17 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { auth, supabase, SupabaseUser, userManagement } from '../lib/supabase';
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'Production' | 'Admin' | 'QA' | 'Product Developer' | 'Buyer' | 'Logistics Manager' | 'Accountant' | 'Costing Analyst';
-  department: string;
-  avatar?: string;
-}
+interface User extends SupabaseUser {}
 
 interface UserContextType {
   user: User | null;
   setUser: (user: User | null) => void;
   isAuthenticated: boolean;
   logout: () => void;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string, userData: Omit<User, 'id'>) => Promise<void>;
+  updateProfile: (profileData: Partial<User>) => Promise<void>;
+  loading: boolean;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -24,8 +22,40 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const savedUser = localStorage.getItem('user');
     return savedUser ? JSON.parse(savedUser) : null;
   });
+  const [loading, setLoading] = useState(true);
 
   const isAuthenticated = !!user;
+
+  // Initialize auth state
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const session = await auth.getSession();
+        if (session?.user) {
+          setUser(session.user);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        // Clear any invalid session data
+        localStorage.removeItem('user');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        setUser(session.user);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Save user to localStorage when it changes
   useEffect(() => {
@@ -36,13 +66,64 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, [user]);
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+  const login = async (email: string, password: string) => {
+    try {
+      const { user: authUser } = await auth.signIn(email, password);
+      if (authUser) {
+        setUser(authUser);
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const signup = async (email: string, password: string, userData: Omit<User, 'id'>) => {
+    try {
+      const { user: authUser } = await auth.signUp(email, password, userData);
+      if (authUser) {
+        setUser(authUser);
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const updateProfile = async (profileData: Partial<User>) => {
+    if (!user) {
+      throw new Error('No user logged in');
+    }
+
+    try {
+      const updatedUser = await userManagement.updateProfile(user.id, profileData);
+      setUser(updatedUser);
+      // Update localStorage with new user data
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await auth.signOut();
+      setUser(null);
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
 
   return (
-    <UserContext.Provider value={{ user, setUser, isAuthenticated, logout }}>
+    <UserContext.Provider value={{ 
+      user, 
+      setUser, 
+      isAuthenticated, 
+      logout, 
+      login, 
+      signup, 
+      updateProfile,
+      loading 
+    }}>
       {children}
     </UserContext.Provider>
   );

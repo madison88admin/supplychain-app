@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Breadcrumb from './components/Breadcrumb';
 import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import TestQuickWins from './components/TestQuickWins';
 import SearchPage from './pages/SearchPage';
@@ -37,6 +38,7 @@ function AppContent() {
     <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
             <Route
               path="/*"
               element={

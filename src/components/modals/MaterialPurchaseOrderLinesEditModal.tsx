@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+
 import { X, Save, Trash2, AlertTriangle } from 'lucide-react';
+
 
 interface MaterialPurchaseOrderLinesEditModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: any) => void;
+
   onDelete: (data: any) => void;
   data: any;
   isNew: boolean;
@@ -26,20 +29,26 @@ const MaterialPurchaseOrderLinesEditModal: React.FC<MaterialPurchaseOrderLinesEd
   data,
   isNew,
   allColumns,
+
 }) => {
   const [formData, setFormData] = useState<any>({});
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+
 
   useEffect(() => {
     if (isOpen) {
       setFormData(data || {});
       setErrors({});
       setShowDeleteConfirm(false);
+
+
     }
   }, [isOpen, data]);
 
   const handleInputChange = (field: string, value: any) => {
+
     setFormData((prev: any) => ({
       ...prev,
       [field]: value,
@@ -146,19 +155,24 @@ const MaterialPurchaseOrderLinesEditModal: React.FC<MaterialPurchaseOrderLinesEd
           <div className="flex items-center space-x-3">
             <button
               onClick={onClose}
+
               className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
+
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
             >
               <Save className="h-4 w-4" />
               <span>{isNew ? 'Create' : 'Save Changes'}</span>
+
             </button>
           </div>
         </div>
+
 
         {/* Delete Confirmation Modal */}
         {showDeleteConfirm && (
@@ -181,15 +195,18 @@ const MaterialPurchaseOrderLinesEditModal: React.FC<MaterialPurchaseOrderLinesEd
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
                   className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDelete}
+
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2"
                 >
                   <Trash2 className="h-4 w-4" />
                   <span>Delete</span>
+
                 </button>
               </div>
             </div>
@@ -197,7 +214,9 @@ const MaterialPurchaseOrderLinesEditModal: React.FC<MaterialPurchaseOrderLinesEd
         )}
       </div>
     </div>
+
   );
 };
 
 export default MaterialPurchaseOrderLinesEditModal;
+

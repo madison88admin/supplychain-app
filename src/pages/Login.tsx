@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
 import darkLogo from '../images/darklogo.png';
@@ -11,24 +11,22 @@ const Login: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { setUser } = useUser();
+  const { login } = useUser();
 
-  // Admin credentials (in a real app, this would be handled server-side)
-  const adminCredentials = {
-    email: 'admin@madison88.com',
-    password: 'admin123',
-    user: {
-      id: 'admin-1',
-      name: 'Sample Admin User',
-      email: 'admin@madison88.com',
-      role: 'Admin' as const,
-      department: 'IT',
-      avatar: ''
-    }
-  };
-
-  // Demo users for testing
+  // Demo users for testing (you can keep these for development)
   const demoUsers = [
+    {
+      email: 'admin@madison88.com',
+      password: 'admin123',
+      user: {
+        id: 'admin-1',
+        name: 'Sample Admin User',
+        email: 'admin@madison88.com',
+        role: 'Admin' as const,
+        department: 'IT',
+        avatar: ''
+      }
+    },
     {
       email: 'production@madison88.com',
       password: 'demo123',
@@ -52,30 +50,6 @@ const Login: React.FC = () => {
         department: 'Quality Assurance',
         avatar: ''
       }
-    },
-    {
-      email: 'sarah.johnson@madison88.com',
-      password: 'demo123',
-      user: {
-        id: '1',
-        name: 'Sample Product Developer',
-        email: 'developer@madison88.com',
-        role: 'Product Developer' as const,
-        department: 'Product Development',
-        avatar: ''
-      }
-    },
-    {
-      email: 'buyer@madison88.com',
-      password: 'demo123',
-      user: {
-        id: '2',
-        name: 'Sample Buyer',
-        email: 'buyer@madison88.com',
-        role: 'Buyer' as const,
-        department: 'Procurement',
-        avatar: ''
-      }
     }
   ];
 
@@ -84,32 +58,16 @@ const Login: React.FC = () => {
     setIsLoading(true);
     setError('');
 
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
     try {
-      // Check admin credentials first
-      if (email === adminCredentials.email && password === adminCredentials.password) {
-        setUser(adminCredentials.user);
-        navigate('/');
-        return;
+      await login(email, password);
+      navigate('/');
+    } catch (err: any) {
+      // Handle specific Supabase errors
+      if (err.message) {
+        setError(err.message);
+      } else {
+        setError('Invalid email or password. Please try again.');
       }
-
-      // Check demo users
-      const demoUser = demoUsers.find(user => 
-        user.email === email && user.password === password
-      );
-
-      if (demoUser) {
-        setUser(demoUser.user);
-        navigate('/');
-        return;
-      }
-
-      // If no match found
-      setError('Invalid email or password. Please try again.');
-    } catch (err) {
-      setError('An error occurred during login. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -247,7 +205,7 @@ const Login: React.FC = () => {
 
           <div className="mt-6 space-y-3">
             <button
-              onClick={() => handleDemoLogin(adminCredentials.email, adminCredentials.password)}
+              onClick={() => handleDemoLogin('admin@madison88.com', 'admin123')}
               className="w-full flex items-center justify-center px-4 py-3 border border-gray-200 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
             >
               <User className="h-4 w-4 mr-2" />
@@ -276,6 +234,12 @@ const Login: React.FC = () => {
           <p className="mt-1">Admin: admin@madison88.com / admin123 (Full Access)</p>
           <p className="mt-1">Production: production@madison88.com / demo123 (No Techpack Edit)</p>
           <p className="mt-1">QA: qa@madison88.com / demo123 (Techpack Access)</p>
+          <p className="mt-3">
+            Don't have an account?{' '}
+            <Link to="/signup" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+              Sign up
+            </Link>
+          </p>
         </div>
       </div>
     </div>

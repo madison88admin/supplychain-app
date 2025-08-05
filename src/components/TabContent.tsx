@@ -112,7 +112,7 @@ const TabContent: React.FC<TabContentProps> = memo(({
 
       case 'Sample Lines':
         return (
-          <CostingsTab
+          <SampleLineTab
             selectedRowId={selectedRowId}
             onRowClick={onRowClick}
           />

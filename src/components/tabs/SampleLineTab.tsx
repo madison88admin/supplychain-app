@@ -131,9 +131,9 @@ const SampleLineTab: React.FC<SampleLineTabProps> = memo(({
           <tbody>
             {SampleLineData.map((row, rowIndex) => (
               <tr
-                key={row.product || rowIndex}
+                key={row.sampleRequest || rowIndex}
                 className={`hover:bg-gray-50 cursor-pointer ${
-                  selectedRowId === row.product ? 'bg-blue-50' : ''
+                  selectedRowId === row.sampleRequest ? 'bg-blue-50' : ''
                 }`}
                 onClick={() => onRowClick?.(row)}
               >
@@ -155,6 +155,6 @@ const SampleLineTab: React.FC<SampleLineTabProps> = memo(({
     );
 });
 
-TechPackVersionTab.displayName = 'TechPackVersionTab';
+SampleLineTab.displayName = 'SampleLineTab';
 
-export default TechPackVersionTab; 
+export default SampleLineTab; 

@@ -5,8 +5,7 @@ import SampleLineTab from './tabs/SampleLineTab';
 import LineItemTab from './tabs/LineItemTab';
 import DataTable from './DataTable';
 import { TableColumn } from '../types/productManager';
-import { 
-  lineItemsData, 
+import {  
   billOfMaterialsData, 
   productsData, 
   productColorsData, 
@@ -27,14 +26,6 @@ const TabContent: React.FC<TabContentProps> = memo(({
   selectedRowId,
   onRowClick
 }) => {
-  // Line Items columns
-  const lineItemsColumns: TableColumn[] = [
-    { key: 'lineItem', label: 'LINE ITEM' },
-    { key: 'description', label: 'DESCRIPTION' },
-    { key: 'quantity', label: 'QUANTITY' },
-    { key: 'unitPrice', label: 'UNIT PRICE' },
-    { key: 'total', label: 'TOTAL' }
-  ];
 
   // Bill of Materials columns
   const billOfMaterialsColumns: TableColumn[] = [

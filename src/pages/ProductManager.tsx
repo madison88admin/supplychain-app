@@ -60,7 +60,7 @@ const ProductManager: React.FC = () => {
              {/* Vertical Layout - Top to Bottom */}
        <div className="flex flex-col gap-6">
                  {/* Top Section - Tech Pack Tabs */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 w-full max-w-6xl" style={{ maxHeight: '400px' }}>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 w-full" style={{ maxHeight: '400px' }}>
           {/* Tab Navigation */}
           <div className="border-b" style={{ borderColor: '#3D75A3' }}>
             <div className="overflow-x-auto">
@@ -97,7 +97,7 @@ const ProductManager: React.FC = () => {
          <div className="w-full h-px bg-gray-300"></div>
          
                  {/* Bottom Section - Product Details Tabs */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 w-full max-w-6xl" style={{ maxHeight: '400px' }}>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 w-full" style={{ maxHeight: '400px' }}>
           {/* Tab Navigation */}
           <div className="border-b" style={{ borderColor: '#3D75A3' }}>
             <div className="overflow-x-auto">

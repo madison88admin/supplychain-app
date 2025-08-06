@@ -249,13 +249,156 @@ export interface SampleLine {
 }
 
 // Line Item Types
-export interface LineItem {
-  lineItem: string;
-  description: string;
+export interface Line {
+  order: string;
+  product: string;
+  poLine: string;
   quantity: number;
-  unitPrice: number;
-  total: number;
+  fitComment: string;
+  fitLogStatus: string;
+  fitLogType: string;
+  fitLogName: string;
+  customer: string;
+  collection: string;
+  division: string;
+  group: string;
+  transportMethod: string;
+  deliverTo: string;
+  status: string;
+  deliveryDate: string; // Use `Date` if parsed
+  comments: string;
+  sellingQuantity: number;
+  closedDate: string; // Use `Date` if parsed
+  linePurchasePrice: number;
+  lineSellingPrice: number;
+  noteCount: number;
+  latestNote: string;
+  orderQuantityIncrement: number;
+  orderLeadTime: number;
+  supplierRef: string;
+  template: string;
+  exFactory: string; // Use `Date` if parsed
+  purchaseOrderStatus: string;
+  supplierPurchaseCurrency: string;
+  customerSellingCurrency: string;
+  supplier: string;
+  purchaseCurrency: string;
+  sellingCurrency: string;
+  minimumOrderQuantity: number;
+  productDescription: string;
+  productType: string;
+  productSubType: string;
+  productStatus: string;
+  productBuyerStyleName: string;
+  productBuyerStyleNumber: string;
+  standardMinuteValue: number;
+  costing: number;
+  costingPurchaseCurrency: string;
+  costingSellingCurrency: string;
+  costingStatus: string;
+  supplierPaymentTerm: string;
+  supplierPaymentTermDescription: string;
+  orderPurchasePaymentTerm: string;
+  orderPurchasePaymentTermDescription: string;
+  productSupplierPurchasePaymentTerm: string;
+  productSupplierPurchasePaymentTermDescription: string;
+  orderSellingPaymentTerm: string;
+  orderSellingPaymentTermDescription: string;
+  productSupplierSellingPaymentTerm: string;
+  productSupplierSellingPaymentTermDescription: string;
+  purchasePrice: number;
+  sellingPrice: number;
+  production: string;
+  mlaPurchasing: string;
+  chinaQC: string;
+  mlaPlanning: string;
+  mlaShipping: string;
+  poKeyUser6: string;
+  poKeyUser7: string;
+  poKeyUser8: string;
+  season: string;
+  department: string;
+  customerParent: string;
+  recipientProductSupplierFactory: string;
+  fgPONumber: string;
+  received: number;
+  balance: number;
+  overReceived: number;
+  size: string;
+  mainMaterial: string;
+  mainMaterialDescription: string;
+  deliveryContact: string;
+  poKeyWorkingGroup1: string;
+  poKeyWorkingGroup2: string;
+  poKeyWorkingGroup3: string;
+  poKeyWorkingGroup4: string;
+  createdBy: string;
+  created: string; // Use `Date` if parsed
+  lastEdited: string; // Use `Date` if parsed
+  lastEditedBy: string;
+  color: string;
+  vesselSchedule: string;
+  buyerPONumber: string;
+  shipmentId: string;
+  factoryInvoiced: number;
+  suppliersInvoice: string;
+  quickBooksInvoice: string;
+  shipmentNoted: string;
+  buyInformation: string;
+  handlingCharges: number;
+  originalForecastQuantity: number;
+  startDate: string; // Use `Date` if parsed
+  cancelledDate: string; // Use `Date` if parsed
+  factoryDatePaid: string; // Use `Date` if parsed
+  dateInvoiceRaised: string; // Use `Date` if parsed
+  submittedInspectionDate: string; // Use `Date` if parsed
+  remarks: string;
+  inspectionResult: string;
+  reportType: string;
+  inspector: string;
+  approvalStatus: string;
+  shipmentStatus: string;
+  qcComment: string;
+  delayShipmentCode: string;
+  discountPercentage: number;
+  sellIncComm: number;
+  buyerSurcharge: number;
+  buyerSurchargePercentage: number;
+  moq: number;
+  discountCost: number;
+  specialSur: number;
+  factorySurcharge: number;
+  factorySurchargePercentage: number;
+  packingAndLabelInstructionTargetDate: string;
+  packingAndLabelInstructionCompletedDate: string;
+  inlineInspectionTargetDate: string;
+  inlineInspectionCompletedDate: string;
+  factoryPackingListTargetDate: string;
+  factoryPackingListCompletedDate: string;
+  uccLabelTargetDate: string;
+  uccLabelCompletedDate: string;
+  finalInspectionTargetDate: string;
+  finalInspectionCompletedDate: string;
+  exFactoryDateTargetDate: string;
+  exFactoryDateCompletedDate: string;
+  uploadShippingDocsTargetDate: string;
+  uploadShippingDocsCompletedDate: string;
+  invoiceCustomerTargetDate: string;
+  invoiceCustomerCompletedDate: string;
+  customerDeliveryDateTargetDate: string;
+  customerDeliveryDateCompletedDate: string;
+  shipmentBookingTargetDate: string;
+  shipmentBookingCompletedDate: string;
+  warehouseUccLabelTargetDate: string;
+  warehouseUccLabelCompletedDate: string;
+  projectedDeliveryDateTargetDate: string;
+  projectedDeliveryDateCompletedDate: string;
+  bookingTargetDate: string;
+  bookingCompletedDate: string;
+  orderPlacementTargetDate: string;
+  orderPlacementCompletedDate: string;
 }
+
 
 // Bill of Materials Types
 export interface BillOfMaterial {

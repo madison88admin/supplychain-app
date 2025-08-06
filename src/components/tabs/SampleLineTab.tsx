@@ -116,153 +116,139 @@ const SampleLineTab: React.FC<SampleLineTabProps> = memo(({
     { key: 'specialSur', label: 'Special Sur' },
     { key: 'factorySurcharge', label: 'Factory Surcharge' },
     { key: 'factorySurchargePercentage', label: 'Factory Surcharge Percentage' },
-    { key: 'customerProtoApproval', label: 'Customer Proto Approval' },
     { key: 'customerProtoApprovalTargetDate', label: 'Target Date', parent: 'customerProtoApproval' },
     { key: 'customerProtoApprovalCompletedDate', label: 'Completed Date', parent: 'customerProtoApproval' },
-    { key: 'topSampleExM88', label: 'Top Sample Ex-M88' },
     { key: 'topSampleExM88TargetDate', label: 'Target Date', parent: 'topSampleExM88' },
     { key: 'topSampleExM88CompletedDate', label: 'Completed Date', parent: 'topSampleExM88' },
-    { key: 'topSampleExFactory', label: 'Top Sample Ex-Factory' },
     { key: 'topSampleExFactoryTargetDate', label: 'Target Date', parent: 'topSampleExFactory' },
     { key: 'topSampleExFactoryCompletedDate', label: 'Completed Date', parent: 'topSampleExFactory' },
-    { key: 'topSampleRequest', label: 'Top Sample Request' },
     { key: 'topSampleRequestTargetDate', label: 'Target Date', parent: 'topSampleRequest' },
     { key: 'topSampleRequestCompletedDate', label: 'Completed Date', parent: 'topSampleRequest' },
-    { key: 'ppsSampleExM88', label: 'PPS Sample Ex-M88' },
     { key: 'ppsSampleExM88TargetDate', label: 'Target Date', parent: 'ppsSampleExM88' },
     { key: 'ppsSampleExM88CompletedDate', label: 'Completed Date', parent: 'ppsSampleExM88' },
-    { key: 'ppsSampleExFactory', label: 'PPS Sample Ex-Factory' },
     { key: 'ppsSampleExFactoryTargetDate', label: 'Target Date', parent: 'ppsSampleExFactory' },
     { key: 'ppsSampleExFactoryCompletedDate', label: 'Completed Date', parent: 'ppsSampleExFactory' },
-    { key: 'ppsSampleRequest', label: 'PPS Sample Request' },
     { key: 'ppsSampleRequestTargetDate', label: 'Target Date', parent: 'ppsSampleRequest' },
     { key: 'ppsSampleRequestCompletedDate', label: 'Completed Date', parent: 'ppsSampleRequest' },
-    { key: 'testReportReceived', label: 'Test Report Received' },
     { key: 'testReportReceivedTargetDate', label: 'Target Date', parent: 'testReportReceived' },
     { key: 'testReportReceivedCompletedDate', label: 'Completed Date', parent: 'testReportReceived' },
-    { key: 'testSampleExFactory', label: 'Test Sample Ex-Factory' },
     { key: 'testSampleExFactoryTargetDate', label: 'Target Date', parent: 'testSampleExFactory' },
     { key: 'testSampleExFactoryCompletedDate', label: 'Completed Date', parent: 'testSampleExFactory' },
-    { key: 'testingSampleRequest', label: 'Testing Sample Request' },
     { key: 'testingSampleRequestTargetDate', label: 'Target Date', parent: 'testingSampleRequest' },
     { key: 'testingSampleRequestCompletedDate', label: 'Completed Date', parent: 'testingSampleRequest' },
-    { key: 'protoSampleRequest', label: 'Proto Sample Request' },
     { key: 'protoSampleRequestTargetDate', label: 'Target Date', parent: 'protoSampleRequest' },
     { key: 'protoSampleRequestCompletedDate', label: 'Completed Date', parent: 'protoSampleRequest' },
-    { key: 'protoSampleExFactory', label: 'Proto Sample Ex-Factory' },
     { key: 'protoSampleExFactoryTargetDate', label: 'Target Date', parent: 'protoSampleExFactory' },
     { key: 'protoSampleExFactoryCompletedDate', label: 'Completed Date', parent: 'protoSampleExFactory' },
-    { key: 'protoSampleExM88', label: 'Proto Sample Ex-M88' },
     { key: 'protoSampleExM88TargetDate', label: 'Target Date', parent: 'protoSampleExM88' },
     { key: 'protoSampleExM88CompletedDate', label: 'Completed Date', parent: 'protoSampleExM88' },
-    { key: 'customerPpsApproval', label: 'Customer PPS Approval' },
     { key: 'customerPpsApprovalTargetDate', label: 'Target Date', parent: 'customerPpsApproval' },
     { key: 'customerPpsApprovalCompletedDate', label: 'Completed Date', parent: 'customerPpsApproval' },
-    { key: 'customerTopApproval', label: 'Customer Top Approval' },
     { key: 'customerTopApprovalTargetDate', label: 'Target Date', parent: 'customerTopApproval' },
     { key: 'customerTopApprovalCompletedDate', label: 'Completed Date', parent: 'customerTopApproval' },
-    { key: 'sampleDeliveryDate', label: 'Same Delivery Date' },
     { key: 'sampleDeliveryDateTargetDate', label: 'Target Date', parent: 'sampleDeliveryDate' },
     { key: 'sampleDeliveryDateCompletedDate', label: 'Completed Date', parent: 'sampleDeliveryDate' },
   ];
 
   return (
-      <div className="w-full overflow-x-auto border border-gray-200 rounded">
-        <table className="min-w-[2000px] table-auto border-collapse text-xs">
-          <thead>
-            {/* First row — group headers and standalone column headers */}
-            <tr className="bg-gray-100">
-                {(() => {
-                const groupMap: { [parent: string]: TableColumn[] } = {};
-                const standaloneCols: TableColumn[] = [];
+      <div className="relative w-full overflow-x-auto border border-gray-200 rounded">
+        <div className="max-w-[800px]">
+          <table className="table-auto border-collapse text-xs w-max">
+            <thead>
+              {/* First row — group headers and standalone column headers */}
+              <tr className="bg-gray-100">
+                  {(() => {
+                  const groupMap: { [parent: string]: TableColumn[] } = {};
+                  const standaloneCols: TableColumn[] = [];
 
-                columns.forEach((col) => {
-                    if (col.parent) {
-                    if (!groupMap[col.parent]) groupMap[col.parent] = [];
-                    groupMap[col.parent].push(col);
-                    } else if (!columns.find(c => c.parent === col.key)) {
-                    standaloneCols.push(col);
-                    }
-                });
+                  columns.forEach((col) => {
+                      if (col.parent) {
+                      if (!groupMap[col.parent]) groupMap[col.parent] = [];
+                      groupMap[col.parent].push(col);
+                      } else if (!columns.find(c => c.parent === col.key)) {
+                      standaloneCols.push(col);
+                      }
+                  });
 
-                // First: standalone columns (rowSpan=2)
-                const standaloneHeaders = standaloneCols.map((col, index) => (
-                    <th
-                    key={col.key}
-                    rowSpan={2}
-                    className={`px-4 py-2 text-left border border-gray-300 font-medium whitespace-nowrap ${
-                        index === 0 ? 'sticky left-0 bg-white z-10' : ''
-                    }`}
-                    >
-                    {col.label}
-                    </th>
-                ));
+                  // First: standalone columns (rowSpan=2)
+                  const standaloneHeaders = standaloneCols.map((col, index) => (
+                      <th
+                      key={col.key}
+                      rowSpan={2}
+                      className={`px-4 py-2 text-left border border-gray-300 font-medium whitespace-nowrap ${
+                          index === 0 ? 'sticky left-0 bg-white z-10' : ''
+                      }`}
+                      >
+                      {col.label}
+                      </th>
+                  ));
 
-                // Second: grouped columns (render group headers here, sub-columns in next row)
-                const groupHeaders = Object.keys(groupMap).map((groupKey) => {
-                    const group = columns.find(c => c.key === groupKey);
-                    const colSpan = groupMap[groupKey].length;
+                  // Second: grouped columns (render group headers here, sub-columns in next row)
+                  const groupHeaders = Object.keys(groupMap).map((groupKey) => {
+                      const group = columns.find(c => c.key === groupKey);
+                      const colSpan = groupMap[groupKey].length;
 
-                    return (
-                    <th
-                        key={groupKey}
-                        colSpan={colSpan}
-                        className="px-4 py-2 text-center border border-gray-300 font-medium bg-gray-200 whitespace-nowrap"
-                    >
-                        {group?.label || toTitleCase(groupKey)}
-                    </th>
-                    );
-                });
+                      return (
+                      <th
+                          key={groupKey}
+                          colSpan={colSpan}
+                          className="px-4 py-2 text-center border border-gray-300 font-medium bg-gray-200 whitespace-nowrap"
+                      >
+                          {group?.label || toTitleCase(groupKey)}
+                      </th>
+                      );
+                  });
 
-                return [...standaloneHeaders, ...groupHeaders];
-                })()}
-            </tr>
-
-            {/* Second row — sub-columns for grouped headers */}
-            <tr className="bg-gray-100">
-                {(() => {
-                const groupMap: { [parent: string]: TableColumn[] } = {};
-                columns.forEach((col) => {
-                    if (col.parent) {
-                    if (!groupMap[col.parent]) groupMap[col.parent] = [];
-                    groupMap[col.parent].push(col);
-                    }
-                });
-
-                return Object.values(groupMap).flat().map((col) => (
-                    <th
-                    key={col.key}
-                    className="px-4 py-2 text-left border border-gray-300 font-medium whitespace-nowrap"
-                    >
-                    {col.label}
-                    </th>
-                ));
-                })()}
-            </tr>
-          </thead>
-          <tbody>
-            {SampleLineData.map((row, rowIndex) => (
-              <tr
-                key={row.sampleRequest || rowIndex}
-                className={`hover:bg-gray-50 cursor-pointer ${
-                  selectedRowId === row.sampleRequest ? 'bg-blue-50' : ''
-                }`}
-                onClick={() => onRowClick?.(row)}
-              >
-                {columns.map((col, colIndex) => (
-                  <td
-                    key={col.key}
-                    className={`px-4 py-2 border border-gray-200 whitespace-nowrap ${
-                      colIndex === 0 ? 'sticky left-0 bg-white z-0' : ''
-                    }`}
-                  >
-                    {row[col.key]}
-                  </td>
-                ))}
+                  return [...standaloneHeaders, ...groupHeaders];
+                  })()}
               </tr>
-            ))}
-          </tbody>
-        </table>
+
+              {/* Second row — sub-columns for grouped headers */}
+              <tr className="bg-gray-100">
+                  {(() => {
+                  const groupMap: { [parent: string]: TableColumn[] } = {};
+                  columns.forEach((col) => {
+                      if (col.parent) {
+                      if (!groupMap[col.parent]) groupMap[col.parent] = [];
+                      groupMap[col.parent].push(col);
+                      }
+                  });
+
+                  return Object.values(groupMap).flat().map((col) => (
+                      <th
+                      key={col.key}
+                      className="px-4 py-2 text-left border border-gray-300 font-medium whitespace-nowrap"
+                      >
+                      {col.label}
+                      </th>
+                  ));
+                  })()}
+              </tr>
+            </thead>
+            <tbody>
+              {SampleLineData.map((row, rowIndex) => (
+                <tr
+                  key={row.sampleRequest || rowIndex}
+                  className={`hover:bg-gray-50 cursor-pointer ${
+                    selectedRowId === row.sampleRequest ? 'bg-blue-50' : ''
+                  }`}
+                  onClick={() => onRowClick?.(row)}
+                >
+                  {columns.map((col, colIndex) => (
+                    <td
+                      key={col.key}
+                      className={`px-4 py-2 border border-gray-200 whitespace-nowrap ${
+                        colIndex === 0 ? 'sticky left-0 bg-white z-0' : ''
+                      }`}
+                    >
+                      {row[col.key]}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
 });

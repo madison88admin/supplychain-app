@@ -28,8 +28,9 @@ const TechPackVersionTab: React.FC<TechPackVersionTabProps> = memo(({
   ];
 
   return (
-      <div className="w-full overflow-x-auto border border-gray-200 rounded">
-        <table className="min-w-[2000px] table-auto border-collapse text-xs">
+    <div className="relative w-full overflow-x-auto border border-gray-200 rounded">
+      <div className="max-w-[800px]"> {/* Force minimum table width so scroll happens */}
+        <table className="table-auto border-collapse text-xs w-max">
           <thead>
             <tr className="bg-gray-100">
               {columns.map((col, index) => (
@@ -68,6 +69,7 @@ const TechPackVersionTab: React.FC<TechPackVersionTabProps> = memo(({
           </tbody>
         </table>
       </div>
+    </div>
     );
 });
 

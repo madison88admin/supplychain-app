@@ -167,102 +167,104 @@ const SampleLineTab: React.FC<SampleLineTabProps> = memo(({
   ];
 
   return (
-      <div className="w-full overflow-x-auto border border-gray-200 rounded">
-        <table className="min-w-[2000px] table-auto border-collapse text-xs">
-          <thead>
-            {/* First row — group headers and standalone column headers */}
-            <tr className="bg-gray-100">
-                {(() => {
-                const groupMap: { [parent: string]: TableColumn[] } = {};
-                const standaloneCols: TableColumn[] = [];
+      <div className="relative w-full overflow-x-auto border border-gray-200 rounded">
+        <div className="max-w-[800px]">
+          <table className="table-auto border-collapse text-xs w-max">
+            <thead>
+              {/* First row — group headers and standalone column headers */}
+              <tr className="bg-gray-100">
+                  {(() => {
+                  const groupMap: { [parent: string]: TableColumn[] } = {};
+                  const standaloneCols: TableColumn[] = [];
 
-                columns.forEach((col) => {
-                    if (col.parent) {
-                    if (!groupMap[col.parent]) groupMap[col.parent] = [];
-                    groupMap[col.parent].push(col);
-                    } else if (!columns.find(c => c.parent === col.key)) {
-                    standaloneCols.push(col);
-                    }
-                });
+                  columns.forEach((col) => {
+                      if (col.parent) {
+                      if (!groupMap[col.parent]) groupMap[col.parent] = [];
+                      groupMap[col.parent].push(col);
+                      } else if (!columns.find(c => c.parent === col.key)) {
+                      standaloneCols.push(col);
+                      }
+                  });
 
-                // First: standalone columns (rowSpan=2)
-                const standaloneHeaders = standaloneCols.map((col, index) => (
-                    <th
-                    key={col.key}
-                    rowSpan={2}
-                    className={`px-4 py-2 text-left border border-gray-300 font-medium whitespace-nowrap ${
-                        index === 0 ? 'sticky left-0 bg-white z-10' : ''
-                    }`}
-                    >
-                    {col.label}
-                    </th>
-                ));
+                  // First: standalone columns (rowSpan=2)
+                  const standaloneHeaders = standaloneCols.map((col, index) => (
+                      <th
+                      key={col.key}
+                      rowSpan={2}
+                      className={`px-4 py-2 text-left border border-gray-300 font-medium whitespace-nowrap ${
+                          index === 0 ? 'sticky left-0 bg-white z-10' : ''
+                      }`}
+                      >
+                      {col.label}
+                      </th>
+                  ));
 
-                // Second: grouped columns (render group headers here, sub-columns in next row)
-                const groupHeaders = Object.keys(groupMap).map((groupKey) => {
-                    const group = columns.find(c => c.key === groupKey);
-                    const colSpan = groupMap[groupKey].length;
+                  // Second: grouped columns (render group headers here, sub-columns in next row)
+                  const groupHeaders = Object.keys(groupMap).map((groupKey) => {
+                      const group = columns.find(c => c.key === groupKey);
+                      const colSpan = groupMap[groupKey].length;
 
-                    return (
-                    <th
-                        key={groupKey}
-                        colSpan={colSpan}
-                        className="px-4 py-2 text-center border border-gray-300 font-medium bg-gray-200 whitespace-nowrap"
-                    >
-                        {group?.label || toTitleCase(groupKey)}
-                    </th>
-                    );
-                });
+                      return (
+                      <th
+                          key={groupKey}
+                          colSpan={colSpan}
+                          className="px-4 py-2 text-center border border-gray-300 font-medium bg-gray-200 whitespace-nowrap"
+                      >
+                          {group?.label || toTitleCase(groupKey)}
+                      </th>
+                      );
+                  });
 
-                return [...standaloneHeaders, ...groupHeaders];
-                })()}
-            </tr>
-
-            {/* Second row — sub-columns for grouped headers */}
-            <tr className="bg-gray-100">
-                {(() => {
-                const groupMap: { [parent: string]: TableColumn[] } = {};
-                columns.forEach((col) => {
-                    if (col.parent) {
-                    if (!groupMap[col.parent]) groupMap[col.parent] = [];
-                    groupMap[col.parent].push(col);
-                    }
-                });
-
-                return Object.values(groupMap).flat().map((col) => (
-                    <th
-                    key={col.key}
-                    className="px-4 py-2 text-left border border-gray-300 font-medium whitespace-nowrap"
-                    >
-                    {col.label}
-                    </th>
-                ));
-                })()}
-            </tr>
-          </thead>
-          <tbody>
-            {SampleLineData.map((row, rowIndex) => (
-              <tr
-                key={row.sampleRequest || rowIndex}
-                className={`hover:bg-gray-50 cursor-pointer ${
-                  selectedRowId === row.sampleRequest ? 'bg-blue-50' : ''
-                }`}
-                onClick={() => onRowClick?.(row)}
-              >
-                {columns.map((col, colIndex) => (
-                  <td
-                    key={col.key}
-                    className={`px-4 py-2 border border-gray-200 whitespace-nowrap ${
-                      colIndex === 0 ? 'sticky left-0 bg-white z-0' : ''
-                    }`}
-                  >
-                    {row[col.key]}
-                  </td>
-                ))}
+                  return [...standaloneHeaders, ...groupHeaders];
+                  })()}
               </tr>
-            ))}
-          </tbody>
-        </table>
+
+              {/* Second row — sub-columns for grouped headers */}
+              <tr className="bg-gray-100">
+                  {(() => {
+                  const groupMap: { [parent: string]: TableColumn[] } = {};
+                  columns.forEach((col) => {
+                      if (col.parent) {
+                      if (!groupMap[col.parent]) groupMap[col.parent] = [];
+                      groupMap[col.parent].push(col);
+                      }
+                  });
+
+                  return Object.values(groupMap).flat().map((col) => (
+                      <th
+                      key={col.key}
+                      className="px-4 py-2 text-left border border-gray-300 font-medium whitespace-nowrap"
+                      >
+                      {col.label}
+                      </th>
+                  ));
+                  })()}
+              </tr>
+            </thead>
+            <tbody>
+              {SampleLineData.map((row, rowIndex) => (
+                <tr
+                  key={row.sampleRequest || rowIndex}
+                  className={`hover:bg-gray-50 cursor-pointer ${
+                    selectedRowId === row.sampleRequest ? 'bg-blue-50' : ''
+                  }`}
+                  onClick={() => onRowClick?.(row)}
+                >
+                  {columns.map((col, colIndex) => (
+                    <td
+                      key={col.key}
+                      className={`px-4 py-2 border border-gray-200 whitespace-nowrap ${
+                        colIndex === 0 ? 'sticky left-0 bg-white z-0' : ''
+                      }`}
+                    >
+                      {row[col.key]}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
 });

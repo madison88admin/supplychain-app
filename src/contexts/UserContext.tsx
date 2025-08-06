@@ -11,6 +11,7 @@ interface UserContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, userData: Omit<User, 'id'>) => Promise<void>;
   updateProfile: (profileData: Partial<User>) => Promise<void>;
+  refreshCurrentUser: () => Promise<void>;
   loading: boolean;
 }
 
@@ -25,6 +26,29 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   const isAuthenticated = !!user;
+
+  // Function to refresh current user data from database
+  const refreshCurrentUser = async () => {
+    if (!user) return;
+    
+    try {
+      const updatedUser = await userManagement.getUserById(user.id);
+      if (updatedUser) {
+        const userData: User = {
+          id: updatedUser.id,
+          name: updatedUser.name,
+          email: updatedUser.email,
+          role: updatedUser.role,
+          department: updatedUser.department,
+          avatar: updatedUser.avatar
+        };
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+      }
+    } catch (error) {
+      console.error('Error refreshing current user:', error);
+    }
+  };
 
   // Initialize auth state
   useEffect(() => {
@@ -122,6 +146,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       login, 
       signup, 
       updateProfile,
+      refreshCurrentUser,
       loading 
     }}>
       {children}

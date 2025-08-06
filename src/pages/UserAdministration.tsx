@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Search, Filter, MoreVertical, UserPlus, Shield, Mail, Phone, Users, Eye, EyeOff, Copy, User } from 'lucide-react';
 import { userManagement, AdminUser } from '../lib/supabase';
+import { useUser } from '../contexts/UserContext';
 
 interface User {
   id: string;
@@ -16,6 +17,7 @@ interface User {
 }
 
 const UserAdministration: React.FC = () => {
+  const { user: currentUser, refreshCurrentUser } = useUser();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,9 +30,9 @@ const UserAdministration: React.FC = () => {
     name: '',
     email: '',
     password: '',
-    role: 'Product Developer' as const,
+    role: 'Product Developer' as 'Production' | 'Admin' | 'QA' | 'Product Developer' | 'Buyer' | 'Logistics Manager' | 'Accountant' | 'Costing Analyst',
     department: 'Product Development',
-    status: 'Active' as const,
+    status: 'Active' as 'Active' | 'Inactive' | 'Pending',
     phone: ''
   });
 
@@ -38,6 +40,13 @@ const UserAdministration: React.FC = () => {
   useEffect(() => {
     loadUsers();
   }, []);
+
+  // Refresh current user data when component mounts
+  useEffect(() => {
+    if (currentUser) {
+      refreshCurrentUser();
+    }
+  }, [currentUser, refreshCurrentUser]);
 
   const loadUsers = async () => {
     try {
@@ -124,6 +133,12 @@ const UserAdministration: React.FC = () => {
         setUsers(users.map(user => 
           user.id === editingUser.id ? updatedUser : user
         ));
+        
+        // If the updated user is the currently logged-in user, refresh their data
+        if (currentUser && editingUser.id === currentUser.id) {
+          await refreshCurrentUser();
+        }
+        
         setEditingUser(null);
         setFormData({
           name: '',
@@ -147,6 +162,12 @@ const UserAdministration: React.FC = () => {
         setError(null);
         await userManagement.deleteUser(userId);
         setUsers(users.filter(user => user.id !== userId));
+        
+        // If the deleted user is the currently logged-in user, log them out
+        if (currentUser && userId === currentUser.id) {
+          // Redirect to login page or show a message
+          window.location.href = '/login';
+        }
       } catch (err) {
         console.error('Error deleting user:', err);
         setError('Failed to delete user. Please try again.');

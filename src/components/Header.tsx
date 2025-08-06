@@ -18,8 +18,20 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const { user, logout } = useUser();
   const [profileOpen, setProfileOpen] = useState(false);
+  const [showProfileUpdate, setShowProfileUpdate] = useState(false);
 
   const profileRef = useRef<HTMLDivElement>(null);
+
+  // Show notification when user data changes
+  useEffect(() => {
+    if (user) {
+      setShowProfileUpdate(true);
+      const timer = setTimeout(() => {
+        setShowProfileUpdate(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [user?.name, user?.email, user?.role]);
 
   // Close profile dropdown when clicking outside
   useEffect(() => {
@@ -107,9 +119,14 @@ const Header: React.FC<HeaderProps> = ({
 
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-3">
-            <div className="text-right">
+            <div className="text-right relative">
               <p className="text-sm font-medium text-white">{user?.name}</p>
               <p className="text-xs text-white/80">{user?.role}</p>
+              {showProfileUpdate && (
+                <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">
+                  Updated
+                </div>
+              )}
             </div>
             <div className="relative" ref={profileRef}>
               <button

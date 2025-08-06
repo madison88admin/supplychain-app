@@ -5,6 +5,7 @@ import PurchaseOrderEditModal from '../components/modals/PurchaseOrderEditModal'
 import ReportBar from '../components/ReportBar';
 import { useSidebar } from '../contexts/SidebarContext';
 import { parse, format, isValid } from 'date-fns';
+import { purchaseOrderService, convertDbRowToDisplayFormat, PurchaseOrderLine } from '../lib/purchaseOrderData';
 
 // Robust date formatting utility function that handles multiple date formats including Excel serial numbers
 const formatDateToMMDDYYYY = (dateValue: any): string => {
@@ -351,11 +352,36 @@ const PurchaseOrders: React.FC = () => {
 
   // Fix: Always ensure rows is an array of objects - force refresh with new data structure
   const [rows, setRows] = useState<Record<string, any>[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
-  // Initialize rows with dummy data
+  // Load data from database on component mount
   React.useEffect(() => {
-    setRows(dummyRows);
+    loadDataFromDatabase();
   }, []);
+
+  const loadDataFromDatabase = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const dbRows = await purchaseOrderService.getAllPurchaseOrderLines();
+      
+      if (dbRows.length > 0) {
+        // Convert database rows to display format
+        const displayRows = dbRows.map(convertDbRowToDisplayFormat);
+        setRows(displayRows);
+      } else {
+        // If no data in database, use dummy data
+        setRows(dummyRows);
+      }
+    } catch (err) {
+      console.error('Error loading data from database:', err);
+      setError('Failed to load data from database. Using dummy data.');
+      setRows(dummyRows);
+    } finally {
+      setLoading(false);
+    }
+  };
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const [search, setSearch] = useState('');
   const [filteredRows, setFilteredRows] = useState<typeof rows | null>(null);
@@ -623,47 +649,85 @@ const PurchaseOrders: React.FC = () => {
   };
 
   // Enhanced handleFileChange with date formatting and flexible column matching
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const data = e.target?.result;
-        if (data) {
-          const workbook = XLSX.read(data, { type: 'array' });
-          const sheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[sheetName];
-          const json: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
-          
-          if (json.length > 0) {
-            // Process uploaded data while preserving all columns and applying date formatting only to date columns
-            const processedRows = json.map((row) => {
-              const processedRow: Record<string, any> = {};
-              const importedHeaders = Object.keys(row);
-              
-              // Process all imported columns, preserving all data
-              importedHeaders.forEach((header) => {
-                const value = row[header];
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          const data = e.target?.result;
+          if (data) {
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const json: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+            
+            if (json.length > 0) {
+              // Process uploaded data while preserving all columns and applying date formatting only to date columns
+              const processedRows = json.map((row) => {
+                const processedRow: Record<string, any> = {};
+                const importedHeaders = Object.keys(row);
                 
-                // Check if this column name contains date-related keywords
-                if (isDateColumn(header)) {
-                  processedRow[header] = formatDateToMMDDYYYY(value);
-                } else {
-                  // Preserve the original value for non-date columns
-                  processedRow[header] = value;
-                }
+                // Process all imported columns, preserving all data
+                importedHeaders.forEach((header) => {
+                  const value = row[header];
+                  
+                  // Check if this column name contains date-related keywords
+                  if (isDateColumn(header)) {
+                    processedRow[header] = formatDateToMMDDYYYY(value);
+                  } else {
+                    // Preserve the original value for non-date columns
+                    processedRow[header] = value;
+                  }
+                });
+                
+                return processedRow;
               });
               
-              return processedRow;
-            });
-            
-            setRows(processedRows.length ? processedRows : dummyRows);
-          } else {
-            setRows(dummyRows);
+              // Clear existing data and import new data to database
+              await purchaseOrderService.clearAllPurchaseOrderLines();
+              
+              // Convert to PurchaseOrderLine format and save to database
+              const purchaseOrderLines: PurchaseOrderLine[] = processedRows.map((row, index) => {
+                // Safely convert Line Purchase Price to number
+                let unitPrice = 0;
+                const linePurchasePrice = row['Line Purchase Price'];
+                if (linePurchasePrice) {
+                  if (typeof linePurchasePrice === 'string') {
+                    unitPrice = parseFloat(linePurchasePrice.replace(/[^0-9.-]+/g, '')) || 0;
+                  } else if (typeof linePurchasePrice === 'number') {
+                    unitPrice = linePurchasePrice;
+                  }
+                }
+                
+                return {
+                  quantity: row['Quantity'] || 0,
+                  unit_price: unitPrice,
+                  received_quantity: row['Received'] || 0,
+                  notes: row['Comments'] || '',
+                  ...row // Include all other fields
+                };
+              });
+              
+              await purchaseOrderService.bulkImportPurchaseOrderLines(purchaseOrderLines);
+              
+              // Update local state
+              setRows(processedRows);
+            } else {
+              setRows(dummyRows);
+            }
           }
-        }
-      };
-      reader.readAsArrayBuffer(file);
+        };
+        reader.readAsArrayBuffer(file);
+      } catch (err) {
+        console.error('Error importing file:', err);
+        setError('Failed to import file. Please try again.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -679,24 +743,100 @@ const PurchaseOrders: React.FC = () => {
     setIsAddModalOpen(true);
   };
 
-  const handleSaveEdit = (data: any) => {
-      const newRows = [...rows];
-    if (isAddModalOpen) {
-      // Add new row
-      newRows.push(data);
-      setSelectedIndex(newRows.length - 1);
-    } else {
-      // Update existing row
-      newRows[selectedIndex] = data;
+  const handleSaveEdit = async (data: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      if (isAddModalOpen) {
+        // Add new row to database
+        const purchaseOrderLine: PurchaseOrderLine = {
+          quantity: data['Quantity'] || 0,
+          unit_price: (() => {
+            const linePurchasePrice = data['Line Purchase Price'];
+            if (linePurchasePrice) {
+              if (typeof linePurchasePrice === 'string') {
+                return parseFloat(linePurchasePrice.replace(/[^0-9.-]+/g, '')) || 0;
+              } else if (typeof linePurchasePrice === 'number') {
+                return linePurchasePrice;
+              }
+            }
+            return 0;
+          })(),
+          received_quantity: data['Received'] || 0,
+          notes: data['Comments'] || '',
+          ...data // Include all other fields
+        };
+        
+        await purchaseOrderService.createPurchaseOrderLine(purchaseOrderLine);
+        
+        // Reload data from database
+        await loadDataFromDatabase();
+        setSelectedIndex(rows.length);
+      } else {
+        // Update existing row in database
+        const currentRow = rows[selectedIndex];
+        if (currentRow?.id) {
+          const purchaseOrderLine: Partial<PurchaseOrderLine> = {
+            quantity: data['Quantity'] || 0,
+            unit_price: (() => {
+              const linePurchasePrice = data['Line Purchase Price'];
+              if (linePurchasePrice) {
+                if (typeof linePurchasePrice === 'string') {
+                  return parseFloat(linePurchasePrice.replace(/[^0-9.-]+/g, '')) || 0;
+                } else if (typeof linePurchasePrice === 'number') {
+                  return linePurchasePrice;
+                }
+              }
+              return 0;
+            })(),
+            received_quantity: data['Received'] || 0,
+            notes: data['Comments'] || '',
+            ...data // Include all other fields
+          };
+          
+          await purchaseOrderService.updatePurchaseOrderLine(currentRow.id, purchaseOrderLine);
+          
+          // Reload data from database
+          await loadDataFromDatabase();
+        }
+      }
+    } catch (err) {
+      console.error('Error saving data:', err);
+      setError('Failed to save data. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    setRows(newRows);
   };
 
-  const handleDelete = (data: any) => {
-    const newRows = rows.filter(row => row !== data);
-    setRows(newRows.length ? newRows : dummyRows);
-    if (selectedIndex >= newRows.length) {
-      setSelectedIndex(Math.max(0, newRows.length - 1));
+  const handleDelete = async (data: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      if (data?.id) {
+        // Delete from database
+        await purchaseOrderService.deletePurchaseOrderLine(data.id);
+        
+        // Reload data from database
+        await loadDataFromDatabase();
+        
+        if (selectedIndex >= rows.length) {
+          setSelectedIndex(Math.max(0, rows.length - 1));
+        }
+      } else {
+        // If no ID, just remove from local state (for dummy data)
+        const newRows = rows.filter(row => row !== data);
+        setRows(newRows.length ? newRows : dummyRows);
+        if (selectedIndex >= newRows.length) {
+          setSelectedIndex(Math.max(0, newRows.length - 1));
+        }
+      }
+    } catch (err) {
+      console.error('Error deleting data:', err);
+      setError('Failed to delete data. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -917,6 +1057,20 @@ const PurchaseOrders: React.FC = () => {
 
   return (
     <div className="p-6">
+      {/* Error Message */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          {error}
+        </div>
+      )}
+      
+      {/* Loading State */}
+      {loading && (
+        <div className="mb-4 p-4 bg-blue-100 border border-blue-400 text-blue-700 rounded-lg">
+          Loading data...
+        </div>
+      )}
+      
       {/* Enhanced Header with Modern Button Design */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -1313,12 +1467,32 @@ const PurchaseOrders: React.FC = () => {
                               <div className="flex gap-2 mt-2">
                                 {poDetailsEditIdx === idx ? (
                                   <>
-                                    <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={() => {
-                                      const newRows = [...rows];
-                                      newRows[idx] = { ...row, ...poDetailsForm };
-                                      setRows(newRows);
-                                      setPoDetailsEditIdx(null);
-                                      setPoDetailsForm(null);
+                                    <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={async () => {
+                                      try {
+                                        setLoading(true);
+                                        const newRows = [...rows];
+                                        newRows[idx] = { ...row, ...poDetailsForm };
+                                        
+                                        // Update in database if row has ID
+                                        if (row?.id) {
+                                          const purchaseOrderLine: Partial<PurchaseOrderLine> = {
+                                            ...poDetailsForm
+                                          };
+                                          await purchaseOrderService.updatePurchaseOrderLine(row.id, purchaseOrderLine);
+                                          await loadDataFromDatabase();
+                                        } else {
+                                          // Update local state for dummy data
+                                          setRows(newRows);
+                                        }
+                                        
+                                        setPoDetailsEditIdx(null);
+                                        setPoDetailsForm(null);
+                                      } catch (err) {
+                                        console.error('Error saving PO details:', err);
+                                        setError('Failed to save PO details. Please try again.');
+                                      } finally {
+                                        setLoading(false);
+                                      }
                                     }}>Save</button>
                                     <button className="bg-gray-500 text-white px-3 py-1 rounded" onClick={() => { setPoDetailsEditIdx(null); setPoDetailsForm(null); }}>Cancel</button>
                                   </>

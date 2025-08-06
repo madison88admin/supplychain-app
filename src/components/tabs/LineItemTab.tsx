@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { TableColumn } from '../../types/productManager';
-import { lineItemsData as SampleLineData } from '../../data/productManagerData';
+import { lineItemsData } from '../../data/productManagerData';
 
 function toTitleCase(str: string) {
   return str
@@ -236,7 +236,7 @@ const LineItemTab: React.FC<LineItemTabProps> = memo(({ selectedRowId, onRowClic
             </tr>
           </thead>
           <tbody>
-            {SampleLineData.map((row, rowIndex) => (
+            {lineItemsData.map((row, rowIndex) => (
               <tr
                 key={row.Order || rowIndex}
                 className={`hover:bg-gray-50 cursor-pointer ${

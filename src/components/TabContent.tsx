@@ -3,6 +3,7 @@ import TechPackVersionTab from './tabs/TechPackVersionTab';
 import CostingsTab from './tabs/CostingsTab';
 import SampleLineTab from './tabs/SampleLineTab';
 import LineItemTab from './tabs/LineItemTab';
+import BOMTab from './tabs/BOMTab';
 import DataTable from './DataTable';
 import { TableColumn } from '../types/productManager';
 import {  
@@ -120,9 +121,7 @@ const TabContent: React.FC<TabContentProps> = memo(({
 
       case 'Bill Of Materials':
         return (
-          <DataTable
-            columns={billOfMaterialsColumns}
-            data={billOfMaterialsData}
+          <BOMTab
             selectedRowId={selectedRowId}
             onRowClick={onRowClick}
           />

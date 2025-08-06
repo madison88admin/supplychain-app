@@ -470,44 +470,60 @@ export const lineItemsData: LineItem[] = [
 // Bill of Materials Data
 export const billOfMaterialsData: BillOfMaterial[] = [
   {
-    id: '1',
-    material: 'Main Fabric',
-    specification: '100% Cotton, 180 GSM',
-    consumption: '1.2 m',
-    wastagePercentage: 5,
-    supplier: 'Textile Corp'
-  },
-  {
-    id: '2',
-    material: 'Thread',
-    specification: 'Polyester, 40/2',
-    consumption: '150 m',
-    wastagePercentage: 2,
-    supplier: 'Thread Co'
-  },
-  {
-    id: '3',
-    material: 'Buttons',
-    specification: 'Plastic, 15mm',
-    consumption: '3 pcs',
-    wastagePercentage: 1,
-    supplier: 'Button World'
-  },
-  {
-    id: '4',
-    material: 'Label',
-    specification: 'Woven, 100% Cotton',
-    consumption: '1 pc',
-    wastagePercentage: 0.5,
-    supplier: 'Label Pro'
-  },
-  {
-    id: '5',
-    material: 'Hang Tag',
-    specification: 'Cardboard, 80 GSM',
-    consumption: '1 pc',
-    wastagePercentage: 1,
-    supplier: 'Tag Solutions'
+    productName: 'Classic Denim Jacket',
+    billOfMaterialCategory: 'Main Fabric',
+    material: 'Cotton Twill 12oz',
+    comment: 'Prewashed for softness',
+    customText1: 'CT1 Info',
+    customText2: 'CT2 Info',
+    customText3: 'CT3 Info',
+    customText4: 'CT4 Info',
+    type: 'Fabric',
+    sizeSet: 'XS-XL',
+    productStatus: 'Active',
+    materialStatus: 'Confirmed',
+    template: 'Standard BOM',
+    season: 'Fall 2025',
+    customer: 'RetailCo',
+    collection: 'Heritage Collection',
+    divisionName: 'Womenswear',
+    group: 'Outerwear',
+    phase: 'Production',
+    billOfMaterialStatus: 'Final',
+    versionNumber: 2.1,
+    versionComment: 'Updated lining fabric',
+    materialUsage: '1.4 yd',
+    materialSize: '58” width',
+    materialDescription: '100% Cotton, Indigo-dyed',
+    materialSeason: 'Fall',
+    noteCount: 3,
+    latestNote: 'Lining approved on July 1st',
+    mainMaterial: 'Cotton Twill',
+    categorySequence: '1',
+    composition: '100% Cotton',
+    buyerStyleName: 'Indigo Icon',
+    supplierRef: 'SUP-4598-A',
+    buyerStyleNumber: 'JJ2005',
+    billOfMaterialLineRef: 'BOM-2025-001',
+    defaultMaterialColorColor: 'Midnight Blue',
+
+    techPackReceivedTargetDate: '2025-05-01',
+    techPackReceivedCompletedDate: '2025-05-02',
+
+    labDipRequestTargetDate: '2025-05-03',
+    labDipRequestCompletedDate: '2025-05-04',
+
+    labDipApprovedTargetDate: '2025-05-07',
+    labDipApprovedCompletedDate: '2025-05-08',
+
+    testingRequestTargetDate: '2025-05-09',
+    testingRequestCompletedDate: '2025-05-10',
+
+    testingApprovedTargetDate: '2025-05-12',
+    testingApprovedCompletedDate: '2025-05-13',
+
+    linkToColTargetDate: '2025-05-14',
+    linkToColCompletedDate: '2025-05-15'
   }
 ];
 

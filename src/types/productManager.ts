@@ -402,11 +402,54 @@ export interface Line {
 
 // Bill of Materials Types
 export interface BillOfMaterial {
+  productName: string;
+  billOfMaterialCategory: string;
   material: string;
-  specification: string;
-  consumption: string;
-  wastagePercentage: number;
-  supplier: string;
+  comment: string;
+  customText1: string;
+  customText2: string;
+  customText3: string;
+  customText4: string;
+  type: string;
+  sizeSet: string;
+  productStatus: string;
+  materialStatus: string;
+  template: string;
+  season: string;
+  customer: string;
+  collection: string;
+  divisionName: string;
+  group: string;
+  phase: string;
+  billOfMaterialStatus: string;
+  versionNumber: number;
+  versionComment: string;
+  materialUsage: string;
+  materialSize: string;
+  materialDescription: string;
+  materialSeason: string;
+  noteCount: number;
+  latestNote: string;
+  mainMaterial: string;
+  categorySequence: string;
+  composition: string;
+  buyerStyleName: string;
+  supplierRef: string;
+  buyerStyleNumber: string;
+  billOfMaterialLineRef: string;
+  defaultMaterialColorColor: string;
+  techPackReceivedTargetDate: string;
+  techPackReceivedCompletedDate: string;
+  labDipRequestTargetDate: string;
+  labDipRequestCompletedDate: string;
+  labDipApprovedTargetDate: string;
+  labDipApprovedCompletedDate: string;
+  testingRequestTargetDate: string;
+  testingRequestCompletedDate: string;
+  testingApprovedTargetDate: string;
+  testingApprovedCompletedDate: string;
+  linkToColTargetDate: string;
+  linkToColCompletedDate: string;
 }
 
 // Product Types

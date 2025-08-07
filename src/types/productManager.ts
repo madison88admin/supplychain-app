@@ -453,30 +453,165 @@ export interface BillOfMaterial {
 }
 
 // Product Types
-export interface Product {
-  id: string;
-  productId: string;
-  name: string;
-  category: string;
+export interface ProductMaster {
+  m88Ref: string;
+  description: string;
   status: string;
+  sizeSet: string;
+  commodityCode: string;
+  comments: string;
+  closedDate: string;
+  template: string;
+  receiveTechPack: string;
+  costingReference: string;
+  purchasePrice: number;
+  sellingPrice: number;
+  costingPurchaseCurrency: string;
+  costingSellingCurrency: string;
+  supplier: string;
+  costingType: string;
+  costingStatus: string;
+  location: string;
+  countryOfOrigin: string;
+  standardMinuteValue: number;
+  minimumSellingPrice: number;
+  maximumSellingPrice: number;
+  minimumPurchasePrice: number;
+  maximumPurchasePrice: number;
+  productColorCountPerProduct: number;
+  productType: string;
+  productSubType: string;
+  collection: string;
+  division: string;
+  group: string;
+  season: string;
+  productDevelopment: string;
+  production: string;
+  techDesign: string;
+  chinaQc: string;
+  productKeyUser5: string;
+  productKeyUser6: string;
+  productKeyUser7: string;
+  productKeyUser8: string;
+  originalProductName: string;
+  originalProductSeason: string;
+  noteCount: number;
+  latestNote: string;
+  buyerStyleName: string;
+  supplierRef: string;
+  buyerStyleNumber: string;
+  purchasePaymentTerm: string;
+  purchasePaymentTermDescription: string;
+  sellingPaymentTerm: string;
+  sellingPaymentTermDescription: string;
+  mainMaterial: string;
+  mainMaterialDescription: string;
+  mainMaterialStatus: string;
+  composition: string;
+  blockProduct: string;
+  productKeyWorkingGroup1: string;
+  productKeyWorkingGroup2: string;
+  productKeyWorkingGroup3: string;
+  productKeyWorkingGroup4: string;
+  palette: string;
+  createdBy: string;
+  created: string;
+  lastEdited: string;
+  lastEditedBy: string;
+  color: string;
+  customer: string;
+  department: string;
+  customerParent: string;
+  buyerSeason: string;
+  lookbook: string;
+  finishedGoodTestingStatus: string;
+  sampleSentDate: string;
+  buyerComments: string;
+  factoryComments: string;
+  receiveTechpackTargetDate: string;         // e.g., '2025-08-01'
+  receiveTechpackCompletedDate: string;      // e.g., '2025-08-03'
+  protoApprovalTargetDate: string;
+  protoApprovalCompletedDate: string;
+  colorApprovalTargetDate: string;
+  colorApprovalCompletedDate: string;
+  costApprovalTargetDate: string;
+  costApprovalCompletedDate: string;
+  linkToProdTargetDate: string;
+  linkToProdCompletedDate: string;
+  apTestTargetDate: string;
+  apTestCompletedDate: string;
 }
 
 // Product Color Types
 export interface ProductColor {
-  id: string;
-  colorCode: string;
-  colorName: string;
-  hexCode: string;
-  available: boolean;
+  season: string;
+  product: string;
+  productDescription: string;
+  supplier: string;
+  buyerStyleName: string;
+  supplierRef: string;
+  buyerStyleNumber: string;
+  active: boolean;
+  status: string;
+  productType: string;
+  productSubType: string;
+  collection: string;
+  division: string;
+  group: string;
+  template: string;
+  productColorKeyDate: string;
+  closedDate: string;
+  color: string;
+  colorDescription: string;
+  colorFamily: string;
+  colorStandard: string;
+  colorExternalRef: string;
+  colorExternalRef2: string;
+  department: string;
+  customer: string;
+  customerParent: string;
+  approvedToSMS: boolean;
+  approvedToBulk: boolean;
+  inDevelopment: boolean;
+  buyerSeason: string;
+  lookbook: string;
+  finishedGoodTestingStatus: string;
+  sampleSentDate: string;
+  buyerComments: string;
+  factoryComments: string;
+  colourwayApprovalTargetDate: string;
+  colourwayApprovalCompletedDate: string;
+  productLinkTargetDate: string;
+  productLinkCompletedDate: string;
 }
 
 // Product Color Size Types
 export interface ProductColorSize {
-  id: string;
+  product: string;
+  productDescription: string;
+  name: string;
   size: string;
-  chestCm: number;
-  lengthCm: number;
-  stock: number;
+  productType: string;
+  ratio: string;
+  color: string;
+  customer: string;
+  customerParent: string;
+  department: string;
+  sizeSet: string;
+  closedDate: string;
+  active: boolean;
+  collection: string;
+  division: string;
+  group: string;
+  season: string;
+  supplier: string;
+  colorDescription: string;
+  colorFamily: string;
+  colorStandard: string;
+  colorExternalRef: string;
+  colorExternalRef2: string;
+  upc: string;
+  ean: string;
 }
 
 // Product Image Types

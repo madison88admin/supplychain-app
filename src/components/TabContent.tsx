@@ -5,6 +5,9 @@ import SampleLineTab from './tabs/SampleLineTab';
 import LineItemTab from './tabs/LineItemTab';
 import BOMTab from './tabs/BOMTab';
 import DataTable from './DataTable';
+import ProductsTab from './tabs/ProductsTab';
+import ProductsColorTab from './tabs/ProductsColorTab';
+import ProductColorSizeTab from './tabs/ProductColorSizeTab';
 import { TableColumn } from '../types/productManager';
 import {  
   billOfMaterialsData, 
@@ -129,9 +132,7 @@ const TabContent: React.FC<TabContentProps> = memo(({
 
       case 'Products':
         return (
-          <DataTable
-            columns={productsColumns}
-            data={productsData}
+          <ProductsTab
             selectedRowId={selectedRowId}
             onRowClick={onRowClick}
           />
@@ -139,9 +140,7 @@ const TabContent: React.FC<TabContentProps> = memo(({
 
       case 'Product Colors':
         return (
-          <DataTable
-            columns={productColorsColumns}
-            data={productColorsData}
+          <ProductsColorTab
             selectedRowId={selectedRowId}
             onRowClick={onRowClick}
           />
@@ -149,9 +148,7 @@ const TabContent: React.FC<TabContentProps> = memo(({
 
       case 'Product Color Sizes':
         return (
-          <DataTable
-            columns={productColorSizesColumns}
-            data={productColorSizesData}
+          <ProductColorSizeTab
             selectedRowId={selectedRowId}
             onRowClick={onRowClick}
           />

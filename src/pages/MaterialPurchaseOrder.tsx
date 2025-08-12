@@ -4,29 +4,30 @@ import { ChevronDown, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, 
 // import logo from '../images/logo no bg.png';
 import ReportBar from '../components/ReportBar';
 import { useSidebar } from '../contexts/SidebarContext';
-// import { purchaseOrderService, convertDbRowToDisplayFormat } from '../lib/purchaseOrderData';
+import { materialPurchaseOrderService, type PurchaseOrderLine, convertDbRowToDisplayFormat } from '../lib/materialPurchaseOrderData';
 
 
-// Grouped columns with subfields
+// Grouped columns with subfields (using PurchaseOrderLine interface structure)
 const groupedColumns = [
   { label: 'Trim Order', key: 'Trim Order', children: ['Target Date', 'Completed Date'] },
-  { label: 'Ex-factory', key: 'Ex-factory', children: ['Target Date', 'Completed Date'] },
+  { label: 'Ex-Factory', key: 'Ex-Factory', children: ['Target Date', 'Completed Date'] },
   { label: 'Trims Received', key: 'Trims Received', children: ['Target Date', 'Completed Date'] },
   { label: 'MPO Issue Date', key: 'MPO Issue Date', children: ['Target Date', 'Completed Date'] },
   { label: 'Main Material Order', key: 'Main Material Order', children: ['Target Date', 'Completed Date'] },
-  { label: 'Main Material Received', key: 'Main Material Received', children: ['Target Date', 'Completed Date'] },
+  { label: 'Main Material received', key: 'Main Material received', children: ['Target Date', 'Completed Date'] },
 ];
 
-// All other columns
+// All other columns (using PurchaseOrderLine interface structure)
 const baseColumns = [
-  'Order References', 'Template', 'Transport Method', 'Deliver to', 'Status', 'Total Qty', 'Total Cost', 'Total Value', 'Customer',
-  'Supplier', 'Purchase Currency', 'Selling Currency', 'Purchase Payment Term', 'Selling Payment Term', 'Supplier Parent',
-  'Delivery Contact', 'Division', 'Group', 'Supplier Location', 'Closed Date', 'MPO Key Date', 'Supplier Currency',
-  'Supplier Description', 'Delivery Date', 'Recipient Product Supplier', 'Comments', 'Purchasing', 'MPO Key Use 2',
-  'MPO Key Use 3', 'MPO Key Use 4', 'MPO Key Use 5', 'MPO Key Use 6', 'MPO Key Use 7', 'MPO Key Use 8', 'Note Count',
-  'Latest Note', 'Purchase Payment Term Description', 'Selling Payment Term Description',
-  'Default Material Purchase ORder Line Template', 'Default MPO Line Key Date', 'MPO Key Working Group 1',
-  'MPO Key Working Group 2', 'MPO Key Working Group 3', 'MPO Key Working Group 4', 'Created By', 'Created', 'Last Edited',
+  'Order Reference', 'Template', 'Transport Method', 'Deliver To', 'Status', 'Total Qty', 'Total Cost', 'Total Value', 
+  'Customer', 'Supplier', 'Purchase Currency', 'Purchase Payment Term', 'Closed Date', 'MPO Key Date', 
+  'Supplier Currency', 'Supplier Description', 'Supplier Parent', 'Delivery Date', 'Recipient Product Supplier', 
+  'Comments', 'Purchasing', 'MPO Key User 2', 'MPO Key User 3', 'MPO Key User 4', 'MPO Key User 5', 
+  'MPO Key User 6', 'MPO Key User 7', 'MPO Key User 8', 'Note Count', 'Latest Note', 'Purchase Payment Term Description', 
+  'Created By', 'Created', 'Last Edited', 'Selling Currency', 'Selling Payment Term', 'Delivery Contact', 
+  'Division', 'Group', 'Supplier Location', 'Supplier Country', 'Selling Payment Term Description', 
+  'Default Material Purchase Order Line Template', 'Default MPO Line Key Date', 'MPO Key Working Group 1', 
+  'MPO Key Working Group 2', 'MPO Key Working Group 3', 'MPO Key Working Group 4', 'Last Edited By'
 ];
 
 const allColumns = [
@@ -76,6 +77,7 @@ const MaterialPurchaseOrder: React.FC = () => {
   const [activeContent, setActiveContent] = useState('');
   const [activeProductTab, setActiveProductTab] = useState('Product Details');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmIndex, setDeleteConfirmIndex] = useState<number>(-1);
   const { sidebarCollapsed } = useSidebar();
 
   // Sub-table edit states
@@ -96,25 +98,30 @@ const MaterialPurchaseOrder: React.FC = () => {
   const [poLinesData, setPoLinesData] = useState<Record<string, any>[]>([]);
   const [selectedProductDetails, setSelectedProductDetails] = useState<Record<string, any> | null>(null);
 
+  // Supabase integration states
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [dbRows, setDbRows] = useState<PurchaseOrderLine[]>([]);
+
   // Filtered PO lines for display
   const filteredPoLines = poLinesData.filter((line: Record<string, any>) => 
-    line.orderRef === displayRows[expandedIndex || 0]?.['Order References']
+    line.orderRef === displayRows[expandedIndex || 0]?.['Order Reference']
   );
 
   // Define displayRows early to avoid "used before declaration" errors
   const displayRows = filteredRows ?? rows;
 
   // Define subTabs array for the expanded row
-  const subTabs = ['MPO Details', 'Delivery', 'Critical Path', 'Audit', 'Totals', 'Comments', 'PO Lines'];
+  const subTabs = ['MPO Details', 'Delivery', 'Critical Path', 'Audit', 'Totals', 'Comments'];
 
-  // Column definitions for sub-tables
-  const poDetailsColumns = ['Order References', 'Customer', 'Deliver to', 'Transport Method'];
-  const deliveryDetailsColumns = ['Template', 'PO Issue Date', 'Delivery Date', 'Status'];
-  const criticalPathColumns = ['Created By', 'Created', 'Last Edited', 'Approved By'];
-  const auditColumns = ['Total Qty', 'Total Cost', 'Total Value', 'Currency'];
-  const totalsColumns = ['Comments', 'Notes', 'Special Instructions'];
-  const commentsColumns = ['Internal Notes', 'Supplier Notes', 'Quality Notes'];
-  const poLinesColumns = ['Product', 'Description', 'Quantity', 'Unit Price', 'Total'];
+  // Column definitions for sub-tables (using PurchaseOrderLine interface structure)
+  const mpoDetailsColumns = ['Order Reference', 'Customer', 'Deliver To', 'Transport Method'];
+  const deliveryDetailsColumns = ['Template', 'Delivery Date', 'Status', 'Purchase Order Status'];
+  const criticalPathColumns = ['Created By', 'Created', 'Last Edited', 'Last Edited By'];
+  const auditColumns = ['Total Qty', 'Total Cost', 'Total Value', 'Purchase Currency'];
+  const totalsColumns = ['Comments', 'Latest Note', 'Note Count'];
+  const commentsColumns = ['Comments', 'QC Comment', 'Remarks'];
+  const poLinesColumns = ['Product', 'Product Type', 'Product Sub Type', 'Product Status'];
 
   
     // Sample order reference data for demonstration
@@ -279,31 +286,15 @@ const MaterialPurchaseOrder: React.FC = () => {
       }
     };
   
-    const handleSave = () => {
-    if (editingRow !== null && selectedIndex >= 0 && selectedIndex < displayRows.length) {
-        const newRows = [...(filteredRows ?? rows)];
-      newRows[selectedIndex] = { ...editingRow };
-        if (filteredRows) {
-          const mainRows = [...rows];
-        const idxInMain = rows.indexOf(filteredRows[selectedIndex]);
-        if (idxInMain !== -1) mainRows[idxInMain] = { ...editingRow };
-          setRows(mainRows);
-          setFilteredRows(newRows);
-        } else {
-          setRows(newRows);
-        }
-      setShowEditModal(false);
-      setEditingRow(null);
-    }
-  };
+
 
   const handleSubTableEdit = (tableType: string) => {
     switch (tableType) {
       case 'mpoDetails':
         setPoDetailsForm({
-          'Order References': displayRows[expandedIndex!]?.['Order References'] || '',
+          'Order Reference': displayRows[expandedIndex!]?.['Order Reference'] || '',
           'Customer': displayRows[expandedIndex!]?.['Customer'] || '',
-          'Deliver to': displayRows[expandedIndex!]?.['Deliver to'] || '',
+          'Deliver To': displayRows[expandedIndex!]?.['Deliver To'] || '',
           'Transport Method': displayRows[expandedIndex!]?.['Transport Method'] || '',
         });
         setPoDetailsEditMode(true);
@@ -311,7 +302,7 @@ const MaterialPurchaseOrder: React.FC = () => {
       case 'delivery':
         setDeliveryForm({
           'Template': displayRows[expandedIndex!]?.['Template'] || '',
-          'PO Issue Date': displayRows[expandedIndex!]?.['PO Issue Date'] || '',
+          'MPO Issue Date': displayRows[expandedIndex!]?.['MPO Issue Date'] || '',
           'Delivery Date': displayRows[expandedIndex!]?.['Delivery Date'] || '',
           'Status': displayRows[expandedIndex!]?.['Status'] || '',
         });
@@ -322,7 +313,7 @@ const MaterialPurchaseOrder: React.FC = () => {
           'Created By': displayRows[expandedIndex!]?.['Created By'] || '',
           'Created': displayRows[expandedIndex!]?.['Created'] || '',
           'Last Edited': displayRows[expandedIndex!]?.['Last Edited'] || '',
-          'Approved By': displayRows[expandedIndex!]?.['Approved By'] || '',
+          'Last Edited By': displayRows[expandedIndex!]?.['Last Edited By'] || '',
         });
         setCriticalPathEditMode(true);
         break;
@@ -331,23 +322,23 @@ const MaterialPurchaseOrder: React.FC = () => {
           'Total Qty': displayRows[expandedIndex!]?.['Total Qty'] || '',
           'Total Cost': displayRows[expandedIndex!]?.['Total Cost'] || '',
           'Total Value': displayRows[expandedIndex!]?.['Total Value'] || '',
-          'Currency': displayRows[expandedIndex!]?.['Purchase Currency'] || '',
+          'Purchase Currency': displayRows[expandedIndex!]?.['Purchase Currency'] || '',
         });
         setAuditEditMode(true);
         break;
       case 'totals':
         setTotalsForm({
-          'Total Qty': displayRows[expandedIndex!]?.['Total Qty'] || '',
-          'Total Cost': displayRows[expandedIndex!]?.['Total Cost'] || '',
-          'Total Value': displayRows[expandedIndex!]?.['Total Value'] || '',
+          'Comments': displayRows[expandedIndex!]?.['Comments'] || '',
+          'Latest Note': displayRows[expandedIndex!]?.['Latest Note'] || '',
+          'Note Count': displayRows[expandedIndex!]?.['Note Count'] || '',
         });
         setTotalsEditMode(true);
         break;
       case 'comments':
         setCommentsForm({
           'Comments': displayRows[expandedIndex!]?.['Comments'] || '',
-          'Notes': displayRows[expandedIndex!]?.['Notes'] || '',
-          'Special Instructions': displayRows[expandedIndex!]?.['Special Instructions'] || '',
+          'QC Comment': displayRows[expandedIndex!]?.['QC Comment'] || '',
+          'Remarks': displayRows[expandedIndex!]?.['Remarks'] || '',
         });
         setCommentsEditMode(true);
         break;
@@ -368,8 +359,8 @@ const MaterialPurchaseOrder: React.FC = () => {
       case 'mpoDetails':
         if (poDetailsForm) {
           Object.keys(poDetailsForm).forEach(key => {
-            if (key === 'Order References') {
-              currentRow['Order References'] = poDetailsForm[key];
+            if (key === 'Order Reference') {
+              currentRow['Order Reference'] = poDetailsForm[key];
             } else {
               currentRow[key] = poDetailsForm[key];
             }
@@ -487,42 +478,7 @@ const MaterialPurchaseOrder: React.FC = () => {
       }
     };
   
-    const handleAdd = () => {
-      const newRows = [ { ...initialRow }, ...(filteredRows ?? rows) ];
-      if (filteredRows) {
-        const mainRows = [ { ...initialRow }, ...rows ];
-        setRows(mainRows);
-        setFilteredRows(newRows);
-      } else {
-        setRows(newRows);
-      }
-      setSelectedIndex(0);
-      setEditIndex(0);
-      setEditRow({ ...initialRow });
-    };
-  
-    const handleFilter = () => {
-      if (!search.trim()) {
-        setFilteredRows(null);
-        setSelectedIndex(0);
-        return;
-      }
-      const lower = search.toLowerCase();
-      const filtered = rows.filter(row =>
-        allColumns.some(col => {
-          const val = row[col];
-          if (typeof val === 'object' && val !== null && 'Target Date' in val) {
-            return (
-              (val['Target Date'] ?? '').toLowerCase().includes(lower) ||
-              (val['Completed Date'] ?? '').toLowerCase().includes(lower)
-            );
-          }
-          return String(val ?? '').toLowerCase().includes(lower);
-        })
-      );
-      setFilteredRows(filtered);
-      setSelectedIndex(0);
-    };
+
   
     const handleClear = () => {
       setSearch('');
@@ -565,13 +521,160 @@ const MaterialPurchaseOrder: React.FC = () => {
       fileInputRef.current?.click();
     };
   
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        const data = new Uint8Array(evt.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: 'array' });
+      // Supabase data loading functions
+  const loadMaterialPurchaseOrders = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await materialPurchaseOrderService.getAllMaterialPurchaseOrderLines();
+      const convertedData = data.map(convertDbRowToDisplayFormat);
+      setDbRows(data);
+      setRows(convertedData);
+      setFilteredRows(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load data');
+      console.error('Error loading material purchase orders:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!editRow || selectedIndex < 0) return;
+    
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const rowData = editRow;
+      if (dbRows[selectedIndex]?.id) {
+        // Update existing record
+        await materialPurchaseOrderService.updatePurchaseOrderLine(dbRows[selectedIndex].id!, rowData);
+      } else {
+        // Create new record
+        const newRecord = await materialPurchaseOrderService.createMaterialPurchaseOrderLine(rowData as any);
+        setDbRows(prev => [...prev, newRecord]);
+      }
+      
+      // Reload data
+      await loadMaterialPurchaseOrders();
+      setShowEditModal(false);
+      setEditRow(null);
+      setEditIndex(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save data');
+      console.error('Error saving material purchase order:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAdd = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const newRecord = await materialPurchaseOrderService.createMaterialPurchaseOrderLine(initialRow as any);
+      setDbRows(prev => [...prev, newRecord]);
+      
+      // Reload data
+      await loadMaterialPurchaseOrders();
+      setSelectedIndex(0);
+      setEditIndex(0);
+      setEditRow({ ...initialRow });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add new record');
+      console.error('Error adding material purchase order:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFilter = async () => {
+    if (!search.trim()) {
+      setFilteredRows(null);
+      setSelectedIndex(0);
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Try to search in Supabase first
+      const allData = await materialPurchaseOrderService.getAllMaterialPurchaseOrderLines();
+      const searchResults = allData.filter(item => 
+        Object.values(item).some(val => 
+          String(val).toLowerCase().includes(search.toLowerCase())
+        )
+      );
+      if (searchResults.length > 0) {
+        const convertedResults = searchResults.map(convertDbRowToDisplayFormat);
+        setFilteredRows(convertedResults);
+        setSelectedIndex(0);
+        return;
+      }
+      
+      // Fallback to local search
+      const lower = search.toLowerCase();
+      const filtered = rows.filter(row =>
+        allColumns.some(col => {
+          const val = row[col];
+          if (typeof val === 'object' && val !== null && 'Target Date' in val) {
+            return (
+              (val['Target Date'] ?? '').toLowerCase().includes(lower) ||
+              (val['Completed Date'] ?? '').toLowerCase().includes(lower)
+            );
+          }
+          return String(val ?? '').toLowerCase().includes(lower);
+        })
+      );
+      setFilteredRows(filtered);
+      setSelectedIndex(0);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to search data');
+      console.error('Error searching material purchase orders:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (selectedIndex < 0 || selectedIndex >= displayRows.length) return;
+    
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const rowToDelete = dbRows[selectedIndex];
+      if (rowToDelete?.id) {
+        await materialPurchaseOrderService.deletePurchaseOrderLine(rowToDelete.id);
+        setDbRows(prev => prev.filter((_, index) => index !== selectedIndex));
+        await loadMaterialPurchaseOrders();
+      }
+      
+      setShowDeleteConfirm(false);
+      setDeleteConfirmIndex(-1);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete record');
+      console.error('Error deleting material purchase order:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load data on component mount
+  useEffect(() => {
+    loadMaterialPurchaseOrders();
+  }, []);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const data = new Uint8Array(evt.target?.result as ArrayBuffer);
+      const workbook = XLSX.read(data, { type: 'array' });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const json: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
@@ -599,7 +702,7 @@ const MaterialPurchaseOrder: React.FC = () => {
   // Sticky column configuration with precise positioning
   const stickyColumns = [
     { key: 'checkbox-header', left: 0, zIndex: 50, width: 48 },
-    { key: 'Order References', left: 48, zIndex: 40, width: 180 }
+    { key: 'Order Reference', left: 48, zIndex: 40, width: 180 }
   ];
 
   const getStickyStyle = (key: string, isHeader: boolean = false) => {
@@ -626,7 +729,7 @@ const MaterialPurchaseOrder: React.FC = () => {
         borderRight: '1px solid #e5e7eb',
         borderLeft: '1px solid #e5e7eb'
       };
-    } else if (key === 'Order References') {
+    } else if (key === 'Order Reference') {
       return {
         ...baseStyle,
         borderRight: '2px solid #e5e7eb',
@@ -1157,8 +1260,8 @@ const MaterialPurchaseOrder: React.FC = () => {
         </div>
       )}
 
-<div className="overflow-x-auto" style={{ maxHeight: 'calc(86vh - 220px)' }}>
-        <div className="overflow-y-auto" style={{ maxHeight: 'calc(86vh - 220px)' }}>
+<div className="overflow-x-auto" style={{ maxHeight: 'calc(84vh - 220px)' }}>
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(84vh - 220px)' }}>
           <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs" style={{ 
             boxSizing: 'border-box',
             borderCollapse: 'separate',
@@ -1222,7 +1325,7 @@ const MaterialPurchaseOrder: React.FC = () => {
                     </td>
                     
                     {renderColumns().flatMap((col, colIdx, arr) => {
-                      if (col.key === 'Order References') {
+                      if (col.key === 'Order Reference') {
                         return [
                           <td 
                             key={col.key} 
@@ -1338,21 +1441,21 @@ const MaterialPurchaseOrder: React.FC = () => {
                                 ))}
                               </div>
                               {/* Tab content */}
-                              {activeSubTab === 'PO Details' && (
+                              {activeSubTab === 'MPO Details' && (
                                 <>
                                   <div className="font-semibold text-blue-700 mb-1 text-xs">Purchase Order Details</div>
                                   <div className="overflow-x-auto" style={{ maxWidth: '800px' }}>
                                     <table className="text-xs border border-blue-200 rounded-md mb-1" style={{ minWidth: '600px' }}>
                                     <thead className="bg-blue-100">
                                       <tr>
-                                        {poDetailsColumns.map(col => (
+                                        {mpoDetailsColumns.map(col => (
                                           <th key={col} className="px-1 py-0.5 text-left font-semibold text-xs">{col}</th>
                                         ))}
                                       </tr>
                                     </thead>
                                     <tbody>
                                       <tr>
-                                        {poDetailsColumns.map(col => (
+                                        {mpoDetailsColumns.map(col => (
                                           <td key={col} className="px-1 py-0.5">
                                             {poDetailsEditMode ? (
                                               <input
@@ -1361,9 +1464,9 @@ const MaterialPurchaseOrder: React.FC = () => {
                                                 onChange={e => setPoDetailsForm(f => ({ ...(f || {}), [col]: e.target.value }))}
                                               />
                                             ) : (
-                                              col === 'Order Reference'
-                                                ? displayRows[expandedIndex]?.['Order References'] || ''
-                                                : displayRows[expandedIndex]?.[col] || ''
+                                                                                          col === 'Order Reference'
+                                              ? displayRows[expandedIndex]?.['Order Reference'] || ''
+                                              : displayRows[expandedIndex]?.[col] || ''
                                             )}
                                           </td>
                                         ))}
@@ -1391,33 +1494,44 @@ const MaterialPurchaseOrder: React.FC = () => {
                                           {deliveryEditMode ? (
                                             <input
                                               className="border px-0.5 py-0 rounded w-full text-xs"
-                                              value={deliveryForm?.['Customer'] ?? ''}
-                                              onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Customer': e.target.value }))}
+                                              value={deliveryForm?.['Template'] ?? ''}
+                                              onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Template': e.target.value }))}
                                             />
                                           ) : (
-                                            displayRows[expandedIndex]?.['Customer'] || ''
+                                            displayRows[expandedIndex]?.['Template'] || ''
                                           )}
                                         </td>
                                         <td className="px-1 py-0.5">
                                           {deliveryEditMode ? (
                                             <input
                                               className="border px-0.5 py-0 rounded w-full text-xs"
-                                              value={deliveryForm?.['Deliver To'] ?? ''}
-                                              onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Deliver To': e.target.value }))}
+                                              value={deliveryForm?.['Delivery Date'] ?? ''}
+                                              onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Delivery Date': e.target.value }))}
                                             />
                                           ) : (
-                                            displayRows[expandedIndex]?.['Deliver to'] || ''
+                                            displayRows[expandedIndex]?.['Delivery Date'] || ''
                                           )}
                                         </td>
                                         <td className="px-1 py-0.5">
                                           {deliveryEditMode ? (
                                             <input
                                               className="border px-0.5 py-0 rounded w-full text-xs"
-                                              value={deliveryForm?.['Transport Method'] ?? ''}
-                                              onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Transport Method': e.target.value }))}
+                                              value={deliveryForm?.['Status'] ?? ''}
+                                              onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Status': e.target.value }))}
                                             />
                                           ) : (
-                                            displayRows[expandedIndex]?.['Transport Method'] || ''
+                                            displayRows[expandedIndex]?.['Status'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {deliveryEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={deliveryForm?.['Purchase Order Status'] ?? ''}
+                                              onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Purchase Order Status': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Purchase Order Status'] || ''
                                           )}
                                         </td>
                                       </tr>
@@ -1444,22 +1558,44 @@ const MaterialPurchaseOrder: React.FC = () => {
                                           {criticalPathEditMode ? (
                                             <input
                                               className="border px-0.5 py-0 rounded w-full text-xs"
-                                              value={criticalPathForm?.['Template'] ?? ''}
-                                              onChange={e => setCriticalPathForm(f => ({ ...(f || {}), 'Template': e.target.value }))}
+                                              value={criticalPathForm?.['Created By'] ?? ''}
+                                              onChange={e => setCriticalPathForm(f => ({ ...(f || {}), 'Created By': e.target.value }))}
                                             />
                                           ) : (
-                                            displayRows[expandedIndex]?.['Template'] || ''
+                                            displayRows[expandedIndex]?.['Created By'] || ''
                                           )}
                                         </td>
                                         <td className="px-1 py-0.5">
                                           {criticalPathEditMode ? (
                                             <input
                                               className="border px-0.5 py-0 rounded w-full text-xs"
-                                              value={criticalPathForm?.['PO Issue Date'] ?? ''}
-                                              onChange={e => setCriticalPathForm(f => ({ ...(f || {}), 'PO Issue Date': e.target.value }))}
+                                              value={criticalPathForm?.['Created'] ?? ''}
+                                              onChange={e => setCriticalPathForm(f => ({ ...(f || {}), 'Created': e.target.value }))}
                                             />
                                           ) : (
-                                            displayRows[expandedIndex]?.['PO Issue Date'] || ''
+                                            displayRows[expandedIndex]?.['Created'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {criticalPathEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={criticalPathForm?.['Last Edited'] ?? ''}
+                                              onChange={e => setCriticalPathForm(f => ({ ...(f || {}), 'Last Edited': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Last Edited'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {criticalPathEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={criticalPathForm?.['Last Edited By'] ?? ''}
+                                              onChange={e => setCriticalPathForm(f => ({ ...(f || {}), 'Last Edited By': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Last Edited By'] || ''
                                           )}
                                         </td>
                                       </tr>
@@ -1485,33 +1621,44 @@ const MaterialPurchaseOrder: React.FC = () => {
                                           {auditEditMode ? (
                                             <input
                                               className="border px-0.5 py-0 rounded w-full text-xs"
-                                              value={auditForm?.['Created By'] ?? ''}
-                                              onChange={e => setAuditForm(f => ({ ...(f || {}), 'Created By': e.target.value }))}
+                                              value={auditForm?.['Total Qty'] ?? ''}
+                                              onChange={e => setAuditForm(f => ({ ...(f || {}), 'Total Qty': e.target.value }))}
                                             />
                                           ) : (
-                                            displayRows[expandedIndex]?.['Created By'] || ''
+                                            displayRows[expandedIndex]?.['Total Qty'] || ''
                                           )}
                                         </td>
                                         <td className="px-1 py-0.5">
                                           {auditEditMode ? (
                                             <input
                                               className="border px-0.5 py-0 rounded w-full text-xs"
-                                              value={auditForm?.['Created'] ?? ''}
-                                              onChange={e => setAuditForm(f => ({ ...(f || {}), 'Created': e.target.value }))}
+                                              value={auditForm?.['Total Cost'] ?? ''}
+                                              onChange={e => setAuditForm(f => ({ ...(f || {}), 'Total Cost': e.target.value }))}
                                             />
                                           ) : (
-                                            displayRows[expandedIndex]?.['Created'] || ''
+                                            displayRows[expandedIndex]?.['Total Cost'] || ''
                                           )}
                                         </td>
                                         <td className="px-1 py-0.5">
                                           {auditEditMode ? (
                                             <input
                                               className="border px-0.5 py-0 rounded w-full text-xs"
-                                              value={auditForm?.['Last Edited'] ?? ''}
-                                              onChange={e => setAuditForm(f => ({ ...(f || {}), 'Last Edited': e.target.value }))}
+                                              value={auditForm?.['Total Value'] ?? ''}
+                                              onChange={e => setAuditForm(f => ({ ...(f || {}), 'Total Value': e.target.value }))}
                                             />
                                           ) : (
-                                            displayRows[expandedIndex]?.['Last Edited'] || ''
+                                            displayRows[expandedIndex]?.['Total Value'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {auditEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={auditForm?.['Purchase Currency'] ?? ''}
+                                              onChange={e => setAuditForm(f => ({ ...(f || {}), 'Purchase Currency': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Purchase Currency'] || ''
                                           )}
                                         </td>
                                       </tr>
@@ -1536,33 +1683,33 @@ const MaterialPurchaseOrder: React.FC = () => {
                                           {totalsEditMode ? (
                                             <input
                                               className="border px-0.5 py-0 rounded w-full text-xs"
-                                              value={totalsForm?.['Total Qty'] ?? ''}
-                                              onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Total Qty': e.target.value }))}
+                                              value={totalsForm?.['Comments'] ?? ''}
+                                              onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Comments': e.target.value }))}
                                             />
                                           ) : (
-                                            displayRows[expandedIndex]?.['Total Qty'] || ''
+                                            displayRows[expandedIndex]?.['Comments'] || ''
                                           )}
                                         </td>
                                         <td className="px-1 py-0.5">
                                           {totalsEditMode ? (
                                             <input
                                               className="border px-0.5 py-0 rounded w-full text-xs"
-                                              value={totalsForm?.['Total Cost'] ?? ''}
-                                              onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Total Cost': e.target.value }))}
+                                              value={totalsForm?.['Latest Note'] ?? ''}
+                                              onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Latest Note': e.target.value }))}
                                             />
                                           ) : (
-                                            displayRows[expandedIndex]?.['Total Cost'] || ''
+                                            displayRows[expandedIndex]?.['Latest Note'] || ''
                                           )}
                                         </td>
                                         <td className="px-1 py-0.5">
                                           {totalsEditMode ? (
                                             <input
                                               className="border px-0.5 py-0 rounded w-full text-xs"
-                                              value={totalsForm?.['Total Value'] ?? ''}
-                                              onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Total Value': e.target.value }))}
+                                              value={totalsForm?.['Note Count'] ?? ''}
+                                              onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Note Count': e.target.value }))}
                                             />
                                           ) : (
-                                            displayRows[expandedIndex]?.['Total Value'] || ''
+                                            displayRows[expandedIndex]?.['Note Count'] || ''
                                           )}
                                         </td>
                                       </tr>
@@ -1593,6 +1740,30 @@ const MaterialPurchaseOrder: React.FC = () => {
                                             />
                                           ) : (
                                             displayRows[expandedIndex]?.['Comments'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {commentsEditMode ? (
+                                            <textarea
+                                              className="border px-0.5 py-0 rounded w-full text-xs resize-none"
+                                              rows={2}
+                                              value={commentsForm?.['QC Comment'] ?? ''}
+                                              onChange={e => setCommentsForm(f => ({ ...(f || {}), 'QC Comment': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['QC Comment'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {commentsEditMode ? (
+                                            <textarea
+                                              className="border px-0.5 py-0 rounded w-full text-xs resize-none"
+                                              rows={2}
+                                              value={commentsForm?.['Remarks'] ?? ''}
+                                              onChange={e => setCommentsForm(f => ({ ...(f || {}), 'Remarks': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Remarks'] || ''
                                           )}
                                         </td>
                                       </tr>
@@ -1897,11 +2068,11 @@ const MaterialPurchaseOrder: React.FC = () => {
                    <h4 className="font-semibold text-gray-900 border-b pb-2">Basic Information</h4>
                    <div className="space-y-3">
                      <div>
-                       <label className="block text-sm font-medium text-gray-700 mb-1">Order References</label>
+                       <label className="block text-sm font-medium text-gray-700 mb-1">Order Reference</label>
                        <input
                          type="text"
-                         value={editingRow['Order References'] || ''}
-                         onChange={(e) => setEditingRow({...editingRow, 'Order References': e.target.value})}
+                         value={editingRow['Order Reference'] || ''}
+                         onChange={(e) => setEditingRow({...editingRow, 'Order Reference': e.target.value})}
                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                        />
                      </div>

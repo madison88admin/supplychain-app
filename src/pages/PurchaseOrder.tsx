@@ -1691,8 +1691,8 @@ const PurchaseOrder: React.FC = () => {
         </div>
       )}
 
-      <div className="overflow-x-auto" style={{ maxHeight: 'calc(86vh - 220px)' }}>
-        <div className="overflow-y-auto" style={{ maxHeight: 'calc(86vh - 220px)' }}>
+      <div className="overflow-x-auto" style={{ maxHeight: 'calc(84vh - 220px)' }}>
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(84vh - 220px)' }}>
           <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs" style={{ 
             boxSizing: 'border-box',
             borderCollapse: 'separate',

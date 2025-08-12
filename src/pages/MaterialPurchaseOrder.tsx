@@ -48,7 +48,7 @@ const MaterialPurchaseOrder: React.FC = () => {
   const [filteredRows, setFilteredRows] = useState<typeof rows | null>(null);
   const [showColumnSelector, setShowColumnSelector] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState<string[]>(allColumns);
-  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [activeSubTab, setActiveSubTab] = useState('MPO Details');
 
   const [columnSearch, setColumnSearch] = useState('');
@@ -77,6 +77,44 @@ const MaterialPurchaseOrder: React.FC = () => {
   const [activeProductTab, setActiveProductTab] = useState('Product Details');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { sidebarCollapsed } = useSidebar();
+
+  // Sub-table edit states
+  const [poDetailsEditMode, setPoDetailsEditMode] = useState(false);
+  const [poDetailsForm, setPoDetailsForm] = useState<Record<string, any>>({});
+  const [deliveryEditMode, setDeliveryEditMode] = useState(false);
+  const [deliveryForm, setDeliveryForm] = useState<Record<string, any>>({});
+  const [criticalPathEditMode, setCriticalPathEditMode] = useState(false);
+  const [criticalPathForm, setCriticalPathForm] = useState<Record<string, any>>({});
+  const [auditEditMode, setAuditEditMode] = useState(false);
+  const [auditForm, setAuditForm] = useState<Record<string, any>>({});
+  const [totalsEditMode, setTotalsEditMode] = useState(false);
+  const [totalsForm, setTotalsForm] = useState<Record<string, any>>({});
+  const [commentsEditMode, setCommentsEditMode] = useState(false);
+  const [commentsForm, setCommentsForm] = useState<Record<string, any>>({});
+  const [poLinesEditMode, setPoLinesEditMode] = useState(false);
+  const [poLinesForm, setPoLinesForm] = useState<Record<string, any>>({});
+  const [poLinesData, setPoLinesData] = useState<Record<string, any>[]>([]);
+  const [selectedProductDetails, setSelectedProductDetails] = useState<Record<string, any> | null>(null);
+
+  // Filtered PO lines for display
+  const filteredPoLines = poLinesData.filter((line: Record<string, any>) => 
+    line.orderRef === displayRows[expandedIndex || 0]?.['Order References']
+  );
+
+  // Define displayRows early to avoid "used before declaration" errors
+  const displayRows = filteredRows ?? rows;
+
+  // Define subTabs array for the expanded row
+  const subTabs = ['MPO Details', 'Delivery', 'Critical Path', 'Audit', 'Totals', 'Comments', 'PO Lines'];
+
+  // Column definitions for sub-tables
+  const poDetailsColumns = ['Order References', 'Customer', 'Deliver to', 'Transport Method'];
+  const deliveryDetailsColumns = ['Template', 'PO Issue Date', 'Delivery Date', 'Status'];
+  const criticalPathColumns = ['Created By', 'Created', 'Last Edited', 'Approved By'];
+  const auditColumns = ['Total Qty', 'Total Cost', 'Total Value', 'Currency'];
+  const totalsColumns = ['Comments', 'Notes', 'Special Instructions'];
+  const commentsColumns = ['Internal Notes', 'Supplier Notes', 'Quality Notes'];
+  const poLinesColumns = ['Product', 'Description', 'Quantity', 'Unit Price', 'Total'];
 
   
     // Sample order reference data for demonstration
@@ -180,16 +218,11 @@ const MaterialPurchaseOrder: React.FC = () => {
     };
   
     const toggleRowExpansion = (index: number) => {
-      const newExpandedRows = new Set(expandedRows);
-      if (newExpandedRows.has(index)) {
-        newExpandedRows.delete(index);
-      } else {
-        newExpandedRows.add(index);
-      }
-      setExpandedRows(newExpandedRows);
+      const newExpandedIndex = expandedIndex === index ? null : index;
+      setExpandedIndex(newExpandedIndex);
     };
   
-    const isRowExpanded = (index: number) => expandedRows.has(index);
+    const isRowExpanded = (index: number) => expandedIndex === index;
 
 
   // Multi-row selection handlers
@@ -264,38 +297,180 @@ const MaterialPurchaseOrder: React.FC = () => {
     }
   };
 
-  const handleSubTableEdit = () => {
-    setEditingSubTableData({
-      orderReference: 'MPO-012345',
-      template: 'Standard MPO',
-      transportMethod: 'Sea Freight',
-      deliverTo: 'Main Warehouse',
-      status: 'Open',
-      totalQty: '10,000 pcs',
-      totalCost: '$45,750',
-      totalValue: '$52,500',
-      customer: 'Fashion Brand Inc',
-      supplier: 'Premium Textiles Co.',
-      purchaseCurrency: 'USD',
-      sellingCurrency: 'EUR',
-      purchasePaymentTerm: 'Net 30',
-      sellingPaymentTerm: 'Net 60',
-      mpoKeyDate: '2024-01-10',
-      deliveryDate: '2024-02-10',
-      closedDate: '2024-07-15',
-      comments: 'Priority order for Spring collection. All materials have been confirmed and suppliers are ready for production.'
-    });
-    setShowSubTableEditModal(true);
+  const handleSubTableEdit = (tableType: string) => {
+    switch (tableType) {
+      case 'mpoDetails':
+        setPoDetailsForm({
+          'Order References': displayRows[expandedIndex!]?.['Order References'] || '',
+          'Customer': displayRows[expandedIndex!]?.['Customer'] || '',
+          'Deliver to': displayRows[expandedIndex!]?.['Deliver to'] || '',
+          'Transport Method': displayRows[expandedIndex!]?.['Transport Method'] || '',
+        });
+        setPoDetailsEditMode(true);
+        break;
+      case 'delivery':
+        setDeliveryForm({
+          'Template': displayRows[expandedIndex!]?.['Template'] || '',
+          'PO Issue Date': displayRows[expandedIndex!]?.['PO Issue Date'] || '',
+          'Delivery Date': displayRows[expandedIndex!]?.['Delivery Date'] || '',
+          'Status': displayRows[expandedIndex!]?.['Status'] || '',
+        });
+        setDeliveryEditMode(true);
+        break;
+      case 'criticalPath':
+        setCriticalPathForm({
+          'Created By': displayRows[expandedIndex!]?.['Created By'] || '',
+          'Created': displayRows[expandedIndex!]?.['Created'] || '',
+          'Last Edited': displayRows[expandedIndex!]?.['Last Edited'] || '',
+          'Approved By': displayRows[expandedIndex!]?.['Approved By'] || '',
+        });
+        setCriticalPathEditMode(true);
+        break;
+      case 'audit':
+        setAuditForm({
+          'Total Qty': displayRows[expandedIndex!]?.['Total Qty'] || '',
+          'Total Cost': displayRows[expandedIndex!]?.['Total Cost'] || '',
+          'Total Value': displayRows[expandedIndex!]?.['Total Value'] || '',
+          'Currency': displayRows[expandedIndex!]?.['Purchase Currency'] || '',
+        });
+        setAuditEditMode(true);
+        break;
+      case 'totals':
+        setTotalsForm({
+          'Total Qty': displayRows[expandedIndex!]?.['Total Qty'] || '',
+          'Total Cost': displayRows[expandedIndex!]?.['Total Cost'] || '',
+          'Total Value': displayRows[expandedIndex!]?.['Total Value'] || '',
+        });
+        setTotalsEditMode(true);
+        break;
+      case 'comments':
+        setCommentsForm({
+          'Comments': displayRows[expandedIndex!]?.['Comments'] || '',
+          'Notes': displayRows[expandedIndex!]?.['Notes'] || '',
+          'Special Instructions': displayRows[expandedIndex!]?.['Special Instructions'] || '',
+        });
+        setCommentsEditMode(true);
+        break;
+      case 'poLines':
+        setPoLinesForm([...filteredPoLines]);
+        setPoLinesEditMode(true);
+        break;
+    }
   };
 
-  const handleSubTableSave = () => {
-    if (editingSubTableData) {
-      // Here you would typically save the subtable data to your backend
-      console.log('Saving subtable data:', editingSubTableData);
-      setShowSubTableEditModal(false);
-      setEditingSubTableData(null);
-      }
-    };
+  const handleSubTableSave = (tableType: string) => {
+    if (expandedIndex === null) return;
+
+    const newRows = [...(filteredRows ?? rows)];
+    const currentRow = { ...newRows[expandedIndex] };
+
+    switch (tableType) {
+      case 'mpoDetails':
+        if (poDetailsForm) {
+          Object.keys(poDetailsForm).forEach(key => {
+            if (key === 'Order References') {
+              currentRow['Order References'] = poDetailsForm[key];
+            } else {
+              currentRow[key] = poDetailsForm[key];
+            }
+          });
+        }
+        setPoDetailsEditMode(false);
+        setPoDetailsForm({});
+        break;
+      case 'delivery':
+        if (deliveryForm) {
+          Object.keys(deliveryForm).forEach(key => {
+            currentRow[key] = deliveryForm[key];
+          });
+        }
+        setDeliveryEditMode(false);
+        setDeliveryForm({});
+        break;
+      case 'criticalPath':
+        if (criticalPathForm) {
+          Object.keys(criticalPathForm).forEach(key => {
+            currentRow[key] = criticalPathForm[key];
+          });
+        }
+        setCriticalPathEditMode(false);
+        setCriticalPathForm({});
+        break;
+      case 'audit':
+        if (auditForm) {
+          Object.keys(auditForm).forEach(key => {
+            currentRow[key] = auditForm[key];
+          });
+        }
+        setAuditEditMode(false);
+        setAuditForm({});
+        break;
+      case 'totals':
+        if (totalsForm) {
+          Object.keys(totalsForm).forEach(key => {
+            currentRow[key] = totalsForm[key];
+          });
+        }
+        setTotalsEditMode(false);
+        setTotalsForm({});
+        break;
+      case 'comments':
+        if (commentsForm) {
+          Object.keys(commentsForm).forEach(key => {
+            currentRow[key] = commentsForm[key];
+          });
+        }
+        setCommentsEditMode(false);
+        setCommentsForm({});
+        break;
+      case 'poLines':
+        if (Array.isArray(poLinesForm)) {
+          setPoLinesData([...poLinesForm]);
+        }
+        setPoLinesEditMode(false);
+        setPoLinesForm({});
+        break;
+    }
+
+    newRows[expandedIndex] = currentRow;
+    setRows(newRows);
+    if (filteredRows) {
+      setFilteredRows(newRows);
+    }
+  };
+
+  const handleSubTableCancel = (tableType: string) => {
+    switch (tableType) {
+      case 'mpoDetails':
+        setPoDetailsEditMode(false);
+        setPoDetailsForm({});
+        break;
+      case 'delivery':
+        setDeliveryEditMode(false);
+        setDeliveryForm({});
+        break;
+      case 'criticalPath':
+        setCriticalPathEditMode(false);
+        setCriticalPathForm({});
+        break;
+      case 'audit':
+        setAuditEditMode(false);
+        setAuditForm({});
+        break;
+      case 'totals':
+        setTotalsEditMode(false);
+        setTotalsForm({});
+        break;
+      case 'comments':
+        setCommentsEditMode(false);
+        setCommentsForm({});
+        break;
+      case 'poLines':
+        setPoLinesEditMode(false);
+        setPoLinesForm({});
+        break;
+    }
+  };
   
     const handleCopy = () => {
       const baseRows = filteredRows ?? rows;
@@ -420,8 +595,6 @@ const MaterialPurchaseOrder: React.FC = () => {
       };
       reader.readAsArrayBuffer(file);
     };
-  
-    const displayRows = filteredRows ?? rows;
 
   // Sticky column configuration with precise positioning
   const stickyColumns = [
@@ -479,6 +652,16 @@ const MaterialPurchaseOrder: React.FC = () => {
       // Clear any previous cell selection
       setSelectedCell(null);
     }
+  };
+
+  const handlePoLinesChange = (lineIndex: number, field: string, value: string) => {
+    const newPoLinesData = [...poLinesData];
+    newPoLinesData[lineIndex] = { ...newPoLinesData[lineIndex], [field]: value };
+    setPoLinesData(newPoLinesData);
+  };
+
+  const handleProductClick = (productData: Record<string, any>) => {
+    setSelectedProductDetails(productData);
   };
   
     // For rendering, expand grouped columns into subcolumns
@@ -559,7 +742,7 @@ const MaterialPurchaseOrder: React.FC = () => {
                 Open
               </span>
                              <button 
-                 onClick={handleSubTableEdit}
+                 onClick={() => handleSubTableEdit('mpoDetails')}
                  className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
                >
                  <EditIcon className="w-3 h-3 mr-1" />
@@ -1646,7 +1829,7 @@ const MaterialPurchaseOrder: React.FC = () => {
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    {(poLinesEditMode ? poLinesForm : filteredPoLines)?.map((line, index) => (
+                                    {(poLinesEditMode ? poLinesForm : filteredPoLines)?.map((line: Record<string, any>, index: number) => (
                                       <tr key={line['PO Line']}>
                                         {poLinesColumns.map(col => (
                                           <td key={col} className="px-1 py-0.5 whitespace-nowrap">
@@ -2142,7 +2325,7 @@ const MaterialPurchaseOrder: React.FC = () => {
                  Cancel
                </button>
                <button
-                 onClick={handleSubTableSave}
+                 onClick={() => handleSubTableSave('mpoDetails')}
                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                >
                  Save Changes
@@ -2162,6 +2345,7 @@ const MaterialPurchaseOrder: React.FC = () => {
         pageData={displayRows[selectedIndex] || {}}
       />
 
+      </div>
     </div>
   );
 };

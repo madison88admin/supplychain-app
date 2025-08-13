@@ -103,7 +103,7 @@ const MaterialPurchaseOrder: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [dbRows, setDbRows] = useState<PurchaseOrderLine[]>([]);
 
-  // Filtered PO lines for display
+  // Filtered MPO Lines for display
   const filteredPoLines = poLinesData.filter((line: Record<string, any>) => 
     line.orderRef === displayRows[expandedIndex || 0]?.['Order Reference']
   );
@@ -1260,8 +1260,8 @@ const MaterialPurchaseOrder: React.FC = () => {
         </div>
       )}
 
-<div className="overflow-x-auto" style={{ maxHeight: 'calc(84vh - 220px)' }}>
-        <div className="overflow-y-auto" style={{ maxHeight: 'calc(84vh - 220px)' }}>
+<div className="overflow-x-auto" style={{ maxHeight: 'calc(80vh - 220px)' }}>
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(80vh - 220px)' }}>
           <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs" style={{ 
             boxSizing: 'border-box',
             borderCollapse: 'separate',
@@ -1983,13 +1983,13 @@ const MaterialPurchaseOrder: React.FC = () => {
                               )}
                               {activeSubTab === 'Product Details' && !selectedProductDetails && (
                                 <div className="p-4 text-center text-gray-500">
-                                  <p>Click on a product in the PO Lines table to view its details.</p>
+                                  <p>Click on a product in the MPO Lines table to view its details.</p>
                                 </div>
                               )}
                             </div>
-                            {/* Right: PO Lines table */}
+                            {/* Right: MPO Lines table */}
                             <div className="flex-1 min-w-0 overflow-x-auto">
-                              <div className="font-semibold text-blue-700 mb-1 text-xs">PO Lines</div>
+                              <div className="font-semibold text-blue-700 mb-1 text-xs">MPO Lines</div>
                               <div className="overflow-x-auto" style={{ maxWidth: '600px' }}>
                                 <table className="text-xs border border-blue-200 rounded-md mb-1" style={{ minWidth: '800px' }}>
                                   <thead className="bg-blue-100">
@@ -2001,7 +2001,7 @@ const MaterialPurchaseOrder: React.FC = () => {
                                   </thead>
                                   <tbody>
                                     {(poLinesEditMode ? poLinesForm : filteredPoLines)?.map((line: Record<string, any>, index: number) => (
-                                      <tr key={line['PO Line']}>
+                                      <tr key={line['MPO Line']}>
                                         {poLinesColumns.map(col => (
                                           <td key={col} className="px-1 py-0.5 whitespace-nowrap">
                                             {poLinesEditMode ? (

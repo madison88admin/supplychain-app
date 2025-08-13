@@ -1,29 +1,33 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
-
 import { ChevronDown, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, Copy as CopyIcon, Plus, Filter as FilterIcon, Download, X, Search } from 'lucide-react';
+// import logo from '../images/logo no bg.png';
+import ReportBar from '../components/ReportBar';
+import { useSidebar } from '../contexts/SidebarContext';
+import { materialPurchaseOrderService, type PurchaseOrderLine, convertDbRowToDisplayFormat } from '../lib/materialPurchaseOrderData';
 
 
-// Grouped columns with subfields
+// Grouped columns with subfields (using PurchaseOrderLine interface structure)
 const groupedColumns = [
   { label: 'Trim Order', key: 'Trim Order', children: ['Target Date', 'Completed Date'] },
-  { label: 'Ex-factory', key: 'Ex-factory', children: ['Target Date', 'Completed Date'] },
+  { label: 'Ex-Factory', key: 'Ex-Factory', children: ['Target Date', 'Completed Date'] },
   { label: 'Trims Received', key: 'Trims Received', children: ['Target Date', 'Completed Date'] },
   { label: 'MPO Issue Date', key: 'MPO Issue Date', children: ['Target Date', 'Completed Date'] },
   { label: 'Main Material Order', key: 'Main Material Order', children: ['Target Date', 'Completed Date'] },
-  { label: 'Main Material Received', key: 'Main Material Received', children: ['Target Date', 'Completed Date'] },
+  { label: 'Main Material received', key: 'Main Material received', children: ['Target Date', 'Completed Date'] },
 ];
 
-// All other columns
+// All other columns (using PurchaseOrderLine interface structure)
 const baseColumns = [
-  'Order References', 'Template', 'Transport Method', 'Deliver to', 'Status', 'Total Qty', 'Total Cost', 'Total Value', 'Customer',
-  'Supplier', 'Purchase Currency', 'Selling Currency', 'Purchase Payment Term', 'Selling Payment Term', 'Supplier Parent',
-  'Delivery Contact', 'Division', 'Group', 'Supplier Location', 'Closed Date', 'MPO Key Date', 'Supplier Currency',
-  'Supplier Description', 'Delivery Date', 'Recipient Product Supplier', 'Comments', 'Purchasing', 'MPO Key Use 2',
-  'MPO Key Use 3', 'MPO Key Use 4', 'MPO Key Use 5', 'MPO Key Use 6', 'MPO Key Use 7', 'MPO Key Use 8', 'Note Count',
-  'Latest Note', 'Purchase Payment Term Description', 'Selling Payment Term Description',
-  'Default Material Purchase ORder Line Template', 'Default MPO Line Key Date', 'MPO Key Working Group 1',
-  'MPO Key Working Group 2', 'MPO Key Working Group 3', 'MPO Key Working Group 4', 'Created By', 'Created', 'Last Edited',
+  'Order Reference', 'Template', 'Transport Method', 'Deliver To', 'Status', 'Total Qty', 'Total Cost', 'Total Value', 
+  'Customer', 'Supplier', 'Purchase Currency', 'Purchase Payment Term', 'Closed Date', 'MPO Key Date', 
+  'Supplier Currency', 'Supplier Description', 'Supplier Parent', 'Delivery Date', 'Recipient Product Supplier', 
+  'Comments', 'Purchasing', 'MPO Key User 2', 'MPO Key User 3', 'MPO Key User 4', 'MPO Key User 5', 
+  'MPO Key User 6', 'MPO Key User 7', 'MPO Key User 8', 'Note Count', 'Latest Note', 'Purchase Payment Term Description', 
+  'Created By', 'Created', 'Last Edited', 'Selling Currency', 'Selling Payment Term', 'Delivery Contact', 
+  'Division', 'Group', 'Supplier Location', 'Supplier Country', 'Selling Payment Term Description', 
+  'Default Material Purchase Order Line Template', 'Default MPO Line Key Date', 'MPO Key Working Group 1', 
+  'MPO Key Working Group 2', 'MPO Key Working Group 3', 'MPO Key Working Group 4', 'Last Edited By'
 ];
 
 const allColumns = [
@@ -45,7 +49,7 @@ const MaterialPurchaseOrder: React.FC = () => {
   const [filteredRows, setFilteredRows] = useState<typeof rows | null>(null);
   const [showColumnSelector, setShowColumnSelector] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState<string[]>(allColumns);
-  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [activeSubTab, setActiveSubTab] = useState('MPO Details');
 
   const [columnSearch, setColumnSearch] = useState('');
@@ -68,6 +72,56 @@ const MaterialPurchaseOrder: React.FC = () => {
   const filteredColumnList = allColumns.filter(col =>
     col.toLowerCase().includes(columnSearch.toLowerCase())
   );
+
+  const [showSlideUpContainer, setShowSlideUpContainer] = useState(false);
+  const [activeContent, setActiveContent] = useState('');
+  const [activeProductTab, setActiveProductTab] = useState('Product Details');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmIndex, setDeleteConfirmIndex] = useState<number>(-1);
+  const { sidebarCollapsed } = useSidebar();
+
+  // Sub-table edit states
+  const [poDetailsEditMode, setPoDetailsEditMode] = useState(false);
+  const [poDetailsForm, setPoDetailsForm] = useState<Record<string, any>>({});
+  const [deliveryEditMode, setDeliveryEditMode] = useState(false);
+  const [deliveryForm, setDeliveryForm] = useState<Record<string, any>>({});
+  const [criticalPathEditMode, setCriticalPathEditMode] = useState(false);
+  const [criticalPathForm, setCriticalPathForm] = useState<Record<string, any>>({});
+  const [auditEditMode, setAuditEditMode] = useState(false);
+  const [auditForm, setAuditForm] = useState<Record<string, any>>({});
+  const [totalsEditMode, setTotalsEditMode] = useState(false);
+  const [totalsForm, setTotalsForm] = useState<Record<string, any>>({});
+  const [commentsEditMode, setCommentsEditMode] = useState(false);
+  const [commentsForm, setCommentsForm] = useState<Record<string, any>>({});
+  const [poLinesEditMode, setPoLinesEditMode] = useState(false);
+  const [poLinesForm, setPoLinesForm] = useState<Record<string, any>>({});
+  const [poLinesData, setPoLinesData] = useState<Record<string, any>[]>([]);
+  const [selectedProductDetails, setSelectedProductDetails] = useState<Record<string, any> | null>(null);
+
+  // Supabase integration states
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [dbRows, setDbRows] = useState<PurchaseOrderLine[]>([]);
+
+  // Filtered MPO Lines for display
+  const filteredPoLines = poLinesData.filter((line: Record<string, any>) => 
+    line.orderRef === displayRows[expandedIndex || 0]?.['Order Reference']
+  );
+
+  // Define displayRows early to avoid "used before declaration" errors
+  const displayRows = filteredRows ?? rows;
+
+  // Define subTabs array for the expanded row
+  const subTabs = ['MPO Details', 'Delivery', 'Critical Path', 'Audit', 'Totals', 'Comments'];
+
+  // Column definitions for sub-tables (using PurchaseOrderLine interface structure)
+  const mpoDetailsColumns = ['Order Reference', 'Customer', 'Deliver To', 'Transport Method'];
+  const deliveryDetailsColumns = ['Template', 'Delivery Date', 'Status', 'Purchase Order Status'];
+  const criticalPathColumns = ['Created By', 'Created', 'Last Edited', 'Last Edited By'];
+  const auditColumns = ['Total Qty', 'Total Cost', 'Total Value', 'Purchase Currency'];
+  const totalsColumns = ['Comments', 'Latest Note', 'Note Count'];
+  const commentsColumns = ['Comments', 'QC Comment', 'Remarks'];
+  const poLinesColumns = ['Product', 'Product Type', 'Product Sub Type', 'Product Status'];
 
   
     // Sample order reference data for demonstration
@@ -171,16 +225,11 @@ const MaterialPurchaseOrder: React.FC = () => {
     };
   
     const toggleRowExpansion = (index: number) => {
-      const newExpandedRows = new Set(expandedRows);
-      if (newExpandedRows.has(index)) {
-        newExpandedRows.delete(index);
-      } else {
-        newExpandedRows.add(index);
-      }
-      setExpandedRows(newExpandedRows);
+      const newExpandedIndex = expandedIndex === index ? null : index;
+      setExpandedIndex(newExpandedIndex);
     };
   
-    const isRowExpanded = (index: number) => expandedRows.has(index);
+    const isRowExpanded = (index: number) => expandedIndex === index;
 
 
   // Multi-row selection handlers
@@ -237,56 +286,182 @@ const MaterialPurchaseOrder: React.FC = () => {
       }
     };
   
-    const handleSave = () => {
-    if (editingRow !== null && selectedIndex >= 0 && selectedIndex < displayRows.length) {
-        const newRows = [...(filteredRows ?? rows)];
-      newRows[selectedIndex] = { ...editingRow };
-        if (filteredRows) {
-          const mainRows = [...rows];
-        const idxInMain = rows.indexOf(filteredRows[selectedIndex]);
-        if (idxInMain !== -1) mainRows[idxInMain] = { ...editingRow };
-          setRows(mainRows);
-          setFilteredRows(newRows);
-        } else {
-          setRows(newRows);
-        }
-      setShowEditModal(false);
-      setEditingRow(null);
+
+
+  const handleSubTableEdit = (tableType: string) => {
+    switch (tableType) {
+      case 'mpoDetails':
+        setPoDetailsForm({
+          'Order Reference': displayRows[expandedIndex!]?.['Order Reference'] || '',
+          'Customer': displayRows[expandedIndex!]?.['Customer'] || '',
+          'Deliver To': displayRows[expandedIndex!]?.['Deliver To'] || '',
+          'Transport Method': displayRows[expandedIndex!]?.['Transport Method'] || '',
+        });
+        setPoDetailsEditMode(true);
+        break;
+      case 'delivery':
+        setDeliveryForm({
+          'Template': displayRows[expandedIndex!]?.['Template'] || '',
+          'MPO Issue Date': displayRows[expandedIndex!]?.['MPO Issue Date'] || '',
+          'Delivery Date': displayRows[expandedIndex!]?.['Delivery Date'] || '',
+          'Status': displayRows[expandedIndex!]?.['Status'] || '',
+        });
+        setDeliveryEditMode(true);
+        break;
+      case 'criticalPath':
+        setCriticalPathForm({
+          'Created By': displayRows[expandedIndex!]?.['Created By'] || '',
+          'Created': displayRows[expandedIndex!]?.['Created'] || '',
+          'Last Edited': displayRows[expandedIndex!]?.['Last Edited'] || '',
+          'Last Edited By': displayRows[expandedIndex!]?.['Last Edited By'] || '',
+        });
+        setCriticalPathEditMode(true);
+        break;
+      case 'audit':
+        setAuditForm({
+          'Total Qty': displayRows[expandedIndex!]?.['Total Qty'] || '',
+          'Total Cost': displayRows[expandedIndex!]?.['Total Cost'] || '',
+          'Total Value': displayRows[expandedIndex!]?.['Total Value'] || '',
+          'Purchase Currency': displayRows[expandedIndex!]?.['Purchase Currency'] || '',
+        });
+        setAuditEditMode(true);
+        break;
+      case 'totals':
+        setTotalsForm({
+          'Comments': displayRows[expandedIndex!]?.['Comments'] || '',
+          'Latest Note': displayRows[expandedIndex!]?.['Latest Note'] || '',
+          'Note Count': displayRows[expandedIndex!]?.['Note Count'] || '',
+        });
+        setTotalsEditMode(true);
+        break;
+      case 'comments':
+        setCommentsForm({
+          'Comments': displayRows[expandedIndex!]?.['Comments'] || '',
+          'QC Comment': displayRows[expandedIndex!]?.['QC Comment'] || '',
+          'Remarks': displayRows[expandedIndex!]?.['Remarks'] || '',
+        });
+        setCommentsEditMode(true);
+        break;
+      case 'poLines':
+        setPoLinesForm([...filteredPoLines]);
+        setPoLinesEditMode(true);
+        break;
     }
   };
 
-  const handleSubTableEdit = () => {
-    setEditingSubTableData({
-      orderReference: 'MPO-012345',
-      template: 'Standard MPO',
-      transportMethod: 'Sea Freight',
-      deliverTo: 'Main Warehouse',
-      status: 'Open',
-      totalQty: '10,000 pcs',
-      totalCost: '$45,750',
-      totalValue: '$52,500',
-      customer: 'Fashion Brand Inc',
-      supplier: 'Premium Textiles Co.',
-      purchaseCurrency: 'USD',
-      sellingCurrency: 'EUR',
-      purchasePaymentTerm: 'Net 30',
-      sellingPaymentTerm: 'Net 60',
-      mpoKeyDate: '2024-01-10',
-      deliveryDate: '2024-02-10',
-      closedDate: '2024-07-15',
-      comments: 'Priority order for Spring collection. All materials have been confirmed and suppliers are ready for production.'
-    });
-    setShowSubTableEditModal(true);
+  const handleSubTableSave = (tableType: string) => {
+    if (expandedIndex === null) return;
+
+    const newRows = [...(filteredRows ?? rows)];
+    const currentRow = { ...newRows[expandedIndex] };
+
+    switch (tableType) {
+      case 'mpoDetails':
+        if (poDetailsForm) {
+          Object.keys(poDetailsForm).forEach(key => {
+            if (key === 'Order Reference') {
+              currentRow['Order Reference'] = poDetailsForm[key];
+            } else {
+              currentRow[key] = poDetailsForm[key];
+            }
+          });
+        }
+        setPoDetailsEditMode(false);
+        setPoDetailsForm({});
+        break;
+      case 'delivery':
+        if (deliveryForm) {
+          Object.keys(deliveryForm).forEach(key => {
+            currentRow[key] = deliveryForm[key];
+          });
+        }
+        setDeliveryEditMode(false);
+        setDeliveryForm({});
+        break;
+      case 'criticalPath':
+        if (criticalPathForm) {
+          Object.keys(criticalPathForm).forEach(key => {
+            currentRow[key] = criticalPathForm[key];
+          });
+        }
+        setCriticalPathEditMode(false);
+        setCriticalPathForm({});
+        break;
+      case 'audit':
+        if (auditForm) {
+          Object.keys(auditForm).forEach(key => {
+            currentRow[key] = auditForm[key];
+          });
+        }
+        setAuditEditMode(false);
+        setAuditForm({});
+        break;
+      case 'totals':
+        if (totalsForm) {
+          Object.keys(totalsForm).forEach(key => {
+            currentRow[key] = totalsForm[key];
+          });
+        }
+        setTotalsEditMode(false);
+        setTotalsForm({});
+        break;
+      case 'comments':
+        if (commentsForm) {
+          Object.keys(commentsForm).forEach(key => {
+            currentRow[key] = commentsForm[key];
+          });
+        }
+        setCommentsEditMode(false);
+        setCommentsForm({});
+        break;
+      case 'poLines':
+        if (Array.isArray(poLinesForm)) {
+          setPoLinesData([...poLinesForm]);
+        }
+        setPoLinesEditMode(false);
+        setPoLinesForm({});
+        break;
+    }
+
+    newRows[expandedIndex] = currentRow;
+    setRows(newRows);
+    if (filteredRows) {
+      setFilteredRows(newRows);
+    }
   };
 
-  const handleSubTableSave = () => {
-    if (editingSubTableData) {
-      // Here you would typically save the subtable data to your backend
-      console.log('Saving subtable data:', editingSubTableData);
-      setShowSubTableEditModal(false);
-      setEditingSubTableData(null);
-      }
-    };
+  const handleSubTableCancel = (tableType: string) => {
+    switch (tableType) {
+      case 'mpoDetails':
+        setPoDetailsEditMode(false);
+        setPoDetailsForm({});
+        break;
+      case 'delivery':
+        setDeliveryEditMode(false);
+        setDeliveryForm({});
+        break;
+      case 'criticalPath':
+        setCriticalPathEditMode(false);
+        setCriticalPathForm({});
+        break;
+      case 'audit':
+        setAuditEditMode(false);
+        setAuditForm({});
+        break;
+      case 'totals':
+        setTotalsEditMode(false);
+        setTotalsForm({});
+        break;
+      case 'comments':
+        setCommentsEditMode(false);
+        setCommentsForm({});
+        break;
+      case 'poLines':
+        setPoLinesEditMode(false);
+        setPoLinesForm({});
+        break;
+    }
+  };
   
     const handleCopy = () => {
       const baseRows = filteredRows ?? rows;
@@ -303,42 +478,7 @@ const MaterialPurchaseOrder: React.FC = () => {
       }
     };
   
-    const handleAdd = () => {
-      const newRows = [ { ...initialRow }, ...(filteredRows ?? rows) ];
-      if (filteredRows) {
-        const mainRows = [ { ...initialRow }, ...rows ];
-        setRows(mainRows);
-        setFilteredRows(newRows);
-      } else {
-        setRows(newRows);
-      }
-      setSelectedIndex(0);
-      setEditIndex(0);
-      setEditRow({ ...initialRow });
-    };
-  
-    const handleFilter = () => {
-      if (!search.trim()) {
-        setFilteredRows(null);
-        setSelectedIndex(0);
-        return;
-      }
-      const lower = search.toLowerCase();
-      const filtered = rows.filter(row =>
-        allColumns.some(col => {
-          const val = row[col];
-          if (typeof val === 'object' && val !== null && 'Target Date' in val) {
-            return (
-              (val['Target Date'] ?? '').toLowerCase().includes(lower) ||
-              (val['Completed Date'] ?? '').toLowerCase().includes(lower)
-            );
-          }
-          return String(val ?? '').toLowerCase().includes(lower);
-        })
-      );
-      setFilteredRows(filtered);
-      setSelectedIndex(0);
-    };
+
   
     const handleClear = () => {
       setSearch('');
@@ -381,13 +521,160 @@ const MaterialPurchaseOrder: React.FC = () => {
       fileInputRef.current?.click();
     };
   
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        const data = new Uint8Array(evt.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: 'array' });
+      // Supabase data loading functions
+  const loadMaterialPurchaseOrders = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await materialPurchaseOrderService.getAllMaterialPurchaseOrderLines();
+      const convertedData = data.map(convertDbRowToDisplayFormat);
+      setDbRows(data);
+      setRows(convertedData);
+      setFilteredRows(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load data');
+      console.error('Error loading material purchase orders:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!editRow || selectedIndex < 0) return;
+    
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const rowData = editRow;
+      if (dbRows[selectedIndex]?.id) {
+        // Update existing record
+        await materialPurchaseOrderService.updatePurchaseOrderLine(dbRows[selectedIndex].id!, rowData);
+      } else {
+        // Create new record
+        const newRecord = await materialPurchaseOrderService.createMaterialPurchaseOrderLine(rowData as any);
+        setDbRows(prev => [...prev, newRecord]);
+      }
+      
+      // Reload data
+      await loadMaterialPurchaseOrders();
+      setShowEditModal(false);
+      setEditRow(null);
+      setEditIndex(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save data');
+      console.error('Error saving material purchase order:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAdd = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const newRecord = await materialPurchaseOrderService.createMaterialPurchaseOrderLine(initialRow as any);
+      setDbRows(prev => [...prev, newRecord]);
+      
+      // Reload data
+      await loadMaterialPurchaseOrders();
+      setSelectedIndex(0);
+      setEditIndex(0);
+      setEditRow({ ...initialRow });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add new record');
+      console.error('Error adding material purchase order:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFilter = async () => {
+    if (!search.trim()) {
+      setFilteredRows(null);
+      setSelectedIndex(0);
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Try to search in Supabase first
+      const allData = await materialPurchaseOrderService.getAllMaterialPurchaseOrderLines();
+      const searchResults = allData.filter(item => 
+        Object.values(item).some(val => 
+          String(val).toLowerCase().includes(search.toLowerCase())
+        )
+      );
+      if (searchResults.length > 0) {
+        const convertedResults = searchResults.map(convertDbRowToDisplayFormat);
+        setFilteredRows(convertedResults);
+        setSelectedIndex(0);
+        return;
+      }
+      
+      // Fallback to local search
+      const lower = search.toLowerCase();
+      const filtered = rows.filter(row =>
+        allColumns.some(col => {
+          const val = row[col];
+          if (typeof val === 'object' && val !== null && 'Target Date' in val) {
+            return (
+              (val['Target Date'] ?? '').toLowerCase().includes(lower) ||
+              (val['Completed Date'] ?? '').toLowerCase().includes(lower)
+            );
+          }
+          return String(val ?? '').toLowerCase().includes(lower);
+        })
+      );
+      setFilteredRows(filtered);
+      setSelectedIndex(0);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to search data');
+      console.error('Error searching material purchase orders:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (selectedIndex < 0 || selectedIndex >= displayRows.length) return;
+    
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const rowToDelete = dbRows[selectedIndex];
+      if (rowToDelete?.id) {
+        await materialPurchaseOrderService.deletePurchaseOrderLine(rowToDelete.id);
+        setDbRows(prev => prev.filter((_, index) => index !== selectedIndex));
+        await loadMaterialPurchaseOrders();
+      }
+      
+      setShowDeleteConfirm(false);
+      setDeleteConfirmIndex(-1);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete record');
+      console.error('Error deleting material purchase order:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load data on component mount
+  useEffect(() => {
+    loadMaterialPurchaseOrders();
+  }, []);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const data = new Uint8Array(evt.target?.result as ArrayBuffer);
+      const workbook = XLSX.read(data, { type: 'array' });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const json: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
@@ -411,13 +698,11 @@ const MaterialPurchaseOrder: React.FC = () => {
       };
       reader.readAsArrayBuffer(file);
     };
-  
-    const displayRows = filteredRows ?? rows;
 
   // Sticky column configuration with precise positioning
   const stickyColumns = [
     { key: 'checkbox-header', left: 0, zIndex: 50, width: 48 },
-    { key: 'Order References', left: 48, zIndex: 40, width: 180 }
+    { key: 'Order Reference', left: 48, zIndex: 40, width: 180 }
   ];
 
   const getStickyStyle = (key: string, isHeader: boolean = false) => {
@@ -444,7 +729,7 @@ const MaterialPurchaseOrder: React.FC = () => {
         borderRight: '1px solid #e5e7eb',
         borderLeft: '1px solid #e5e7eb'
       };
-    } else if (key === 'Order References') {
+    } else if (key === 'Order Reference') {
       return {
         ...baseStyle,
         borderRight: '2px solid #e5e7eb',
@@ -470,6 +755,16 @@ const MaterialPurchaseOrder: React.FC = () => {
       // Clear any previous cell selection
       setSelectedCell(null);
     }
+  };
+
+  const handlePoLinesChange = (lineIndex: number, field: string, value: string) => {
+    const newPoLinesData = [...poLinesData];
+    newPoLinesData[lineIndex] = { ...newPoLinesData[lineIndex], [field]: value };
+    setPoLinesData(newPoLinesData);
+  };
+
+  const handleProductClick = (productData: Record<string, any>) => {
+    setSelectedProductDetails(productData);
   };
   
     // For rendering, expand grouped columns into subcolumns
@@ -550,7 +845,7 @@ const MaterialPurchaseOrder: React.FC = () => {
                 Open
               </span>
                              <button 
-                 onClick={handleSubTableEdit}
+                 onClick={() => handleSubTableEdit('mpoDetails')}
                  className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
                >
                  <EditIcon className="w-3 h-3 mr-1" />
@@ -965,9 +1260,9 @@ const MaterialPurchaseOrder: React.FC = () => {
         </div>
       )}
 
-      <div className="overflow-x-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
-        <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
-          <table className="min-w-full bg-white border border-gray-200 rounded-lg text-xs" style={{ 
+<div className="overflow-x-auto" style={{ maxHeight: 'calc(80vh - 220px)' }}>
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(80vh - 220px)' }}>
+          <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs" style={{ 
             boxSizing: 'border-box',
             borderCollapse: 'separate',
             borderSpacing: 0,
@@ -987,84 +1282,65 @@ const MaterialPurchaseOrder: React.FC = () => {
               {displayRows.map((row, idx) => (
                 <React.Fragment key={idx}>
                   <tr
-
-                  className={`
-                    transition-all duration-300 cursor-pointer
-                    ${selectedIndex === idx ? 'bg-blue-50 border border-blue-500' : 'hover:bg-gray-50'}
-                    ${selectedRows.has(idx) && selectedIndex !== idx ? 'bg-green-50 border border-green-500' : ''}
-                    ${selectedRows.has(idx) && selectedIndex === idx ? 'bg-blue-50 border border-blue-500' : ''}
-                  `}
-                  onClick={(e) => {
-                    // Don't trigger row selection if clicking on checkbox
-                    if ((e.target as HTMLElement).closest('input[type="checkbox"]')) {
-                      return;
-                    }
-                    // When a row is clicked (not its checkbox), treat it as a single selection:
-                    // Clear all previous multi-selections and set this as the only selected row.
-                    setSelectedRows(new Set([idx]));
-                    setSelectAll(false); // Since it's a single selection, selectAll should be false
-                    setSelectedIndex(idx);
-                  }}
-                >
-                  {/* Checkbox column */}
-                  <td className="px-3 py-3 border-b text-center align-middle whitespace-nowrap" style={getStickyStyle('checkbox-header', false)}>
-                    <div className="flex items-center justify-center w-full">
-                      <input
-                        type="checkbox"
-                        checked={selectedRows.has(idx)}
-                        onChange={(e) => {
-                          e.stopPropagation();
-                          handleRowSelect(idx);
-                        }}
-                        className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
-                      />
-                    </div>
-                  </td>
-                  
+                    className={`
+                      transition-all duration-300 cursor-pointer group
+                      ${selectedIndex === idx ? 'bg-blue-50 border border-blue-500' : 'hover:bg-gray-50'}
+                      ${selectedRows.has(idx) && selectedIndex !== idx ? 'bg-green-50 border border-green-500' : ''}
+                      ${selectedRows.has(idx) && selectedIndex === idx ? 'bg-blue-50 border border-blue-500' : ''}
+                      ${editIndex === idx ? 'bg-yellow-50 border border-yellow-500' : ''}
+                    `}
+                    title="Click to select for editing • Click chevron to view details"
+                    onClick={(e) => {
+                      if ((e.target as HTMLElement).closest('input[type="checkbox"]') || 
+                          (e.target as HTMLElement).closest('button[data-action="expand"]')) {
+                        return;
+                      }
+                      // When a row is clicked (not its checkbox), treat it as a single selection:
+                      // Clear all previous multi-selections and set this as the only selected row.
+                      setSelectedRows(new Set([idx]));
+                      setSelectAll(false); // Since it's a single selection, selectAll should be false
+                      setSelectedIndex(idx);
+                    }}
+                  >
+                    {/* Checkbox column */}
+                    <td 
+                      className="px-3 py-3 border-b text-center align-middle whitespace-nowrap"
+                      style={{
+                        ...getStickyStyle('checkbox-header', false),
+                        borderTop: '1px solid #e5e7eb',
+                        borderBottom: '1px solid #e5e7eb'
+                      }}
+                    >
+                      <div className="flex items-center justify-center w-full">
+                        <input
+                          type="checkbox"
+                          checked={selectedRows.has(idx)}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            handleRowSelect(idx);
+                          }}
+                          className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
+                        />
+                      </div>
+                    </td>
+                    
                     {renderColumns().flatMap((col, colIdx, arr) => {
-                      if (col.isGroup) {
-                        return col.children!.map((subCol, subIdx) => (
-                          <td
-                            key={col.key + '-' + subCol}
-                            className={
-                            `px-2 py-1 border-b text-center align-middle whitespace-nowrap cursor-pointer transition-all duration-200` +
-                              ((subIdx === 0 || subCol === 'Target Date') ? ' border-r-2 border-gray-200' : '') +
-                            (colIdx === arr.length - 1 && subCol === 'Completed Date' ? '' : '') +
-                            (selectedIndex === idx ? ' bg-blue-50' : ' hover:bg-gray-50')
-                          }
-                          onClick={(e) => handleCellClick(idx, col.key + '-' + subCol, e)}
-                          onKeyDown={(e) => handleCellKeyDown(idx, col.key + '-' + subCol, e)}
-                          tabIndex={0}
-                        >
-                          {row[col.key]?.[subCol] || ''}
-                          </td>
-                        ));
-                      } else {
+                      if (col.key === 'Order Reference') {
                         return [
-
-                        <td 
-                          key={col.key} 
-                          className={`px-2 py-1 border-b text-center align-middle whitespace-nowrap cursor-pointer transition-all duration-200${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}${selectedIndex === idx ? ' bg-blue-50' : ' hover:bg-gray-50'}`}
-                          style={getStickyStyle(col.key, false)}
-                          onClick={(e) => handleCellClick(idx, col.key, e)}
-                          onKeyDown={(e) => handleCellKeyDown(idx, col.key, e)}
-                          tabIndex={0}
-                        >
-                            {col.key === 'Order References' ? (
+                          <td 
+                            key={col.key} 
+                            className="px-2 py-1 border-b text-center align-middle whitespace-nowrap cursor-pointer transition-all duration-200"
+                            style={{
+                              ...getStickyStyle(col.key, false),
+                              borderTop: '1px solid #e5e7eb',
+                              borderBottom: '1px solid #e5e7eb'
+                            }}
+                            onClick={(e) => handleCellClick(idx, col.key, e)}
+                            onKeyDown={(e) => handleCellKeyDown(idx, col.key, e)}
+                            tabIndex={0}
+                          > 
                             <div className="flex items-center justify-center space-x-1">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    toggleRowExpansion(idx);
-                                  }}
-                                  className="p-1 hover:bg-gray-200 rounded"
-                                >
-                                  {isRowExpanded(idx) ? (
-                                  <ChevronDown className="h-5 w-5 text-blue-600 transition-transform duration-200" />
-                                  ) : (
-                                  <ChevronRight className="h-5 w-5 text-gray-500 hover:text-blue-600 transition-transform duration-200" />
-                                  )}
-                                </button>
+                              <div className="flex-1">
                                 {editIndex === idx ? (
                                   <input
                                     className="border px-1 py-0.5 rounded w-32 text-xs"
@@ -1072,42 +1348,703 @@ const MaterialPurchaseOrder: React.FC = () => {
                                     onChange={e => handleChange(col.key, e.target.value)}
                                   />
                                 ) : (
-                                  <span className="text-blue-600 hover:text-blue-800 cursor-pointer">
-                                    {row[col.key] || 'MPO-012345'}
-                                  </span>
+                                  <span className="text-xs">{row[col.key] || ''}</span>
                                 )}
                               </div>
-                              ) : (
-                                row[col.key] || ''
+                              <button
+                                data-action="expand"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const newExpandedIndex = expandedIndex === idx ? null : idx;
+                                  setExpandedIndex(newExpandedIndex);
+                                  if (newExpandedIndex === null) {
+                                    setSelectedProductDetails(null);
+                                  }
+                                }}
+                                className="ml-2 p-1 hover:bg-blue-100 rounded transition-colors"
+                                title={expandedIndex === idx ? 'Collapse details' : 'Expand details'}
+                              >
+                                {expandedIndex === idx ? (
+                                  <ChevronDown className="h-5 w-5 text-blue-600 transition-transform duration-200" />
+                                ) : (
+                                  <ChevronRight className="h-5 w-5 text-gray-500 hover:text-blue-600 transition-transform duration-200" />
+                                )}
+                              </button>
+                            </div>
+                          </td>
+                        ];
+                      }
+                      if (col.isGroup) {
+                        return col.children!.map((subCol, subIdx) => (
+                          <td
+                            key={col.key + '-' + subCol}
+                            className={
+                              `px-2 py-1 border-b text-center align-middle whitespace-nowrap cursor-pointer transition-all duration-200` +
+                              ((subIdx === 0 || subCol === 'Target Date') ? ' border-r-2 border-gray-200' : '') +
+                              (colIdx === arr.length - 1 && subCol === 'Completed Date' ? '' : '') +
+                              (selectedIndex === idx ? ' bg-blue-50' : ' hover:bg-gray-50')
+                            }
+                            onClick={(e) => handleCellClick(idx, col.key + '-' + subCol, e)}
+                            onKeyDown={(e) => handleCellKeyDown(idx, col.key + '-' + subCol, e)}
+                            tabIndex={0}
+                          >
+                            {editIndex === idx ? (
+                              <input
+                                className="border px-1 py-0.5 rounded w-32 text-xs"
+                                value={editRow ? editRow[col.key]?.[subCol] || '' : ''}
+                                onChange={e => handleChange(col.key, e.target.value, subCol)}
+                              />
+                            ) : (
+                              row[col.key]?.[subCol] || ''
+                            )}
+                          </td>
+                        ));
+                      } else {
+                        return [
+                          <td 
+                            key={col.key} 
+                            className={`px-2 py-1 border-b text-center align-middle whitespace-nowrap cursor-pointer transition-all duration-200${colIdx < arr.length - 1 ? ' border-r-2 border-gray-200' : ''}${selectedIndex === idx ? ' bg-blue-50' : ' hover:bg-gray-50'}`}
+                            onClick={(e) => handleCellClick(idx, col.key, e)}
+                            onKeyDown={(e) => handleCellKeyDown(idx, col.key, e)}
+                            tabIndex={0}
+                          >
+                            {editIndex === idx ? (
+                              <input
+                                className="border px-1 py-0.5 rounded w-32 text-xs"
+                                value={editRow ? editRow[col.key] : ''}
+                                onChange={e => handleChange(col.key, e.target.value)}
+                              />
+                            ) : (
+                              row[col.key] || ''
                             )}
                           </td>
                         ];
                       }
                     })}
                   </tr>
-                  {isRowExpanded(idx) && (
-                    <tr>
-                      <td colSpan={visibleColumns.reduce((acc, col) => {
-                        const group = groupedColumns.find(g => g.key === col);
-                        return acc + (group ? 2 : 1);
-
-                    }, 0) + 1} className="p-0">
-
-                        {renderOrderReferencesSubTable(row['Order References'])}
-                      </td>
-                    </tr>
+                  {expandedIndex === idx && (
+                    <tr key={`expanded-${idx}`}>
+                      <td colSpan={visibleColumns.length + 1} className="bg-transparent p-0 border-none">
+                        <div className="bg-white w-full shadow-lg p-3 mt-1 overflow-x-auto" style={{ maxWidth: '100vw' }}>
+                          <div className="flex flex-row gap-4" style={{ minWidth: '1200px' }}>
+                            {/* Left: Tab bar and tab content */}
+                            <div className="flex-1 min-w-0 overflow-x-auto">
+                              <div className="mb-2 flex gap-1 border-b border-blue-200">
+                                {subTabs.map(tab => (
+                                  <button
+                                    key={tab}
+                                    className={`px-2 py-1 -mb-px rounded-t text-xs font-medium transition-colors border-b-2 ${activeSubTab === tab ? 'bg-white border-blue-500 text-blue-700' : 'bg-blue-50 border-transparent text-gray-600 hover:text-blue-600'}`}
+                                    onClick={() => setActiveSubTab(tab)}
+                                  >
+                                    {tab}
+                                  </button>
+                                ))}
+                              </div>
+                              {/* Tab content */}
+                              {activeSubTab === 'MPO Details' && (
+                                <>
+                                  <div className="font-semibold text-blue-700 mb-1 text-xs">Purchase Order Details</div>
+                                  <div className="overflow-x-auto" style={{ maxWidth: '800px' }}>
+                                    <table className="text-xs border border-blue-200 rounded-md mb-1" style={{ minWidth: '600px' }}>
+                                    <thead className="bg-blue-100">
+                                      <tr>
+                                        {mpoDetailsColumns.map(col => (
+                                          <th key={col} className="px-1 py-0.5 text-left font-semibold text-xs">{col}</th>
+                                        ))}
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        {mpoDetailsColumns.map(col => (
+                                          <td key={col} className="px-1 py-0.5">
+                                            {poDetailsEditMode ? (
+                                              <input
+                                                className="border px-0.5 py-0 rounded w-full text-xs"
+                                                value={poDetailsForm?.[col] ?? ''}
+                                                onChange={e => setPoDetailsForm(f => ({ ...(f || {}), [col]: e.target.value }))}
+                                              />
+                                            ) : (
+                                                                                          col === 'Order Reference'
+                                              ? displayRows[expandedIndex]?.['Order Reference'] || ''
+                                              : displayRows[expandedIndex]?.[col] || ''
+                                            )}
+                                          </td>
+                                        ))}
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                  </div>
+                                </>
+                              )}
+                              {activeSubTab === 'Delivery' && (
+                                <>
+                                  <div className="font-semibold text-blue-700 mb-1 text-xs">Delivery</div>
+                                  <div className="overflow-x-auto" style={{ maxWidth: '500px' }}>
+                                    <table className="text-xs border border-blue-200 rounded-md mb-1" style={{ minWidth: '400px' }}>
+                                    <thead className="bg-blue-100">
+                                      <tr>
+                                        {deliveryDetailsColumns.map(col => (
+                                          <th key={col} className="px-1 py-0.5 text-left font-semibold text-xs">{col}</th>
+                                        ))}
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td className="px-1 py-0.5">
+                                          {deliveryEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={deliveryForm?.['Template'] ?? ''}
+                                              onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Template': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Template'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {deliveryEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={deliveryForm?.['Delivery Date'] ?? ''}
+                                              onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Delivery Date': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Delivery Date'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {deliveryEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={deliveryForm?.['Status'] ?? ''}
+                                              onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Status': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Status'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {deliveryEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={deliveryForm?.['Purchase Order Status'] ?? ''}
+                                              onChange={e => setDeliveryForm(f => ({ ...(f || {}), 'Purchase Order Status': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Purchase Order Status'] || ''
+                                          )}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                  </div>
+                                </>
+                              )}
+                              {activeSubTab === 'Critical Path' && (
+                                <>
+                                  <div className="font-semibold text-blue-700 mb-1 text-xs">Critical Path</div>
+                                  <div className="overflow-x-auto" style={{ maxWidth: '500px' }}>
+                                    <table className="text-xs border border-blue-200 rounded-md mb-1" style={{ minWidth: '300px' }}>
+                                    <thead className="bg-blue-100">
+                                      <tr>
+                                        {criticalPathColumns.map(col => (
+                                          <th key={col} className="px-1 py-0.5 text-left font-semibold text-xs">{col}</th>
+                                        ))}
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td className="px-1 py-0.5">
+                                          {criticalPathEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={criticalPathForm?.['Created By'] ?? ''}
+                                              onChange={e => setCriticalPathForm(f => ({ ...(f || {}), 'Created By': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Created By'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {criticalPathEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={criticalPathForm?.['Created'] ?? ''}
+                                              onChange={e => setCriticalPathForm(f => ({ ...(f || {}), 'Created': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Created'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {criticalPathEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={criticalPathForm?.['Last Edited'] ?? ''}
+                                              onChange={e => setCriticalPathForm(f => ({ ...(f || {}), 'Last Edited': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Last Edited'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {criticalPathEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={criticalPathForm?.['Last Edited By'] ?? ''}
+                                              onChange={e => setCriticalPathForm(f => ({ ...(f || {}), 'Last Edited By': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Last Edited By'] || ''
+                                          )}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                  </div>
+                                </>
+                              )}
+                              {activeSubTab === 'Audit' && (
+                                <>
+                                  <div className="font-semibold text-blue-700 mb-1 text-xs">Audit</div>
+                                  <table className="text-xs border border-blue-200 rounded-md mb-1 w-full">
+                                    <thead className="bg-blue-100">
+                                      <tr>
+                                        {auditColumns.map(col => (
+                                          <th key={col} className="px-1 py-0.5 text-left font-semibold text-xs">{col}</th>
+                                        ))}
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td className="px-1 py-0.5">
+                                          {auditEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={auditForm?.['Total Qty'] ?? ''}
+                                              onChange={e => setAuditForm(f => ({ ...(f || {}), 'Total Qty': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Total Qty'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {auditEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={auditForm?.['Total Cost'] ?? ''}
+                                              onChange={e => setAuditForm(f => ({ ...(f || {}), 'Total Cost': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Total Cost'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {auditEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={auditForm?.['Total Value'] ?? ''}
+                                              onChange={e => setAuditForm(f => ({ ...(f || {}), 'Total Value': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Total Value'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {auditEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={auditForm?.['Purchase Currency'] ?? ''}
+                                              onChange={e => setAuditForm(f => ({ ...(f || {}), 'Purchase Currency': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Purchase Currency'] || ''
+                                          )}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </>
+                              )}
+                              {activeSubTab === 'Totals' && (
+                                <>
+                                  <div className="font-semibold text-blue-700 mb-1 text-xs">Totals</div>
+                                  <table className="text-xs border border-blue-200 rounded-md mb-1 w-full">
+                                    <thead className="bg-blue-100">
+                                      <tr>
+                                        {totalsColumns.map(col => (
+                                          <th key={col} className="px-1 py-0.5 text-left font-semibold text-xs">{col}</th>
+                                        ))}
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td className="px-1 py-0.5">
+                                          {totalsEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={totalsForm?.['Comments'] ?? ''}
+                                              onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Comments': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Comments'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {totalsEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={totalsForm?.['Latest Note'] ?? ''}
+                                              onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Latest Note': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Latest Note'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {totalsEditMode ? (
+                                            <input
+                                              className="border px-0.5 py-0 rounded w-full text-xs"
+                                              value={totalsForm?.['Note Count'] ?? ''}
+                                              onChange={e => setTotalsForm(f => ({ ...(f || {}), 'Note Count': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Note Count'] || ''
+                                          )}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </>
+                              )}
+                              {activeSubTab === 'Comments' && (
+                                <>
+                                  <div className="font-semibold text-blue-700 mb-1 text-xs">Comments</div>
+                                  <table className="text-xs border border-blue-200 rounded-md mb-1 w-full">
+                                    <thead className="bg-blue-100">
+                                      <tr>
+                                        {commentsColumns.map(col => (
+                                          <th key={col} className="px-1 py-0.5 text-left font-semibold text-xs">{col}</th>
+                                        ))}
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td className="px-1 py-0.5">
+                                          {commentsEditMode ? (
+                                            <textarea
+                                              className="border px-0.5 py-0 rounded w-full text-xs resize-none"
+                                              rows={2}
+                                              value={commentsForm?.['Comments'] ?? ''}
+                                              onChange={e => setCommentsForm(f => ({ ...(f || {}), 'Comments': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Comments'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {commentsEditMode ? (
+                                            <textarea
+                                              className="border px-0.5 py-0 rounded w-full text-xs resize-none"
+                                              rows={2}
+                                              value={commentsForm?.['QC Comment'] ?? ''}
+                                              onChange={e => setCommentsForm(f => ({ ...(f || {}), 'QC Comment': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['QC Comment'] || ''
+                                          )}
+                                        </td>
+                                        <td className="px-1 py-0.5">
+                                          {commentsEditMode ? (
+                                            <textarea
+                                              className="border px-0.5 py-0 rounded w-full text-xs resize-none"
+                                              rows={2}
+                                              value={commentsForm?.['Remarks'] ?? ''}
+                                              onChange={e => setCommentsForm(f => ({ ...(f || {}), 'Remarks': e.target.value }))}
+                                            />
+                                          ) : (
+                                            displayRows[expandedIndex]?.['Remarks'] || ''
+                                          )}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </>
+                              )}
+                              {activeSubTab === 'Product Details' && selectedProductDetails && (
+                                <>
+                                  <div className="font-semibold text-blue-700 mb-1 text-xs">Product Details</div>
+                                  <div className="mb-2 flex gap-1 border-b border-blue-200">
+                                    {['Product Details', 'Critical Path', 'Images', 'Comments', 'Bill Of Materials', 'Activities', 'Colorways'].map(tab => (
+                                      <button
+                                        key={tab}
+                                        className={`px-2 py-1 -mb-px rounded-t text-xs font-medium transition-colors border-b-2 ${activeProductTab === tab ? 'bg-white border-blue-500 text-blue-700' : 'bg-blue-50 border-transparent text-gray-600 hover:text-blue-600'}`}
+                                        onClick={() => setActiveProductTab(tab)}
+                                      >
+                                        {tab}
+                                      </button>
+                                    ))}
+                                  </div>
+                                  {/* Product Details Tab content */}
+                                  {activeProductTab === 'Product Details' && (
+                                    <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
+                                      <table className="text-xs border border-blue-200 rounded-md w-full">
+                                        <thead className="bg-blue-100">
+                                          <tr>
+                                            <th className="px-2 py-1 text-left font-semibold text-xs">Field</th>
+                                            <th className="px-2 py-1 text-left font-semibold text-xs">Value</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">M88 Ref</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['RECIPIENT PRODUCT SUPPLIER-NUMBER'] || ''}</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">Buyer Style Number</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Product Buyer Style Number'] || ''}</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">Buyer Style Name</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Product Buyer Style Name'] || ''}</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">Customer</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Customer'] || ''}</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">Department</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Department'] || ''}</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">Status</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Product Status'] || ''}</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">Description</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Purchase Description'] || ''}</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">Product Type</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Product Type'] || ''}</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">Season</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Season'] || ''}</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">Product Development</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">Tech Design</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">China - QC</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['China-QC'] || ''}</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">Lookbook</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Lookbook'] || '-'}</td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  )}
+                                  {activeProductTab === 'Critical Path' && (
+                                    <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
+                                      <table className="text-xs border border-blue-200 rounded-md w-full">
+                                        <thead className="bg-blue-100">
+                                          <tr>
+                                            <th className="px-2 py-1 text-left font-semibold text-xs">Milestone</th>
+                                            <th className="px-2 py-1 text-left font-semibold text-xs">Target Date</th>
+                                            <th className="px-2 py-1 text-left font-semibold text-xs">Completed Date</th>
+                                            <th className="px-2 py-1 text-left font-semibold text-xs">Status</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">Order Placement</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Order Placement']?.['Target Date'] || ''}</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Order Placement']?.['Completed Date'] || ''}</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">Production Start</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Production'] || ''}</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">Ex-Factory</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Ex-Factory'] || ''}</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  )}
+                                  {activeProductTab === 'Images' && (
+                                    <div className="p-4 text-center text-gray-500">
+                                      <p>No images available for this product.</p>
+                                    </div>
+                                  )}
+                                  {activeProductTab === 'Comments' && (
+                                    <div className="p-4">
+                                      <textarea
+                                        className="w-full border border-blue-200 rounded-md p-2 text-xs"
+                                        rows={4}
+                                        placeholder="Add comments about this product..."
+                                        defaultValue={selectedProductDetails['Comments'] || ''}
+                                      />
+                                    </div>
+                                  )}
+                                  {activeProductTab === 'Bill Of Materials' && (
+                                    <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
+                                      <table className="text-xs border border-blue-200 rounded-md w-full">
+                                        <thead className="bg-blue-100">
+                                          <tr>
+                                            <th className="px-2 py-1 text-left font-semibold text-xs">Material</th>
+                                            <th className="px-2 py-1 text-left font-semibold text-xs">Description</th>
+                                            <th className="px-2 py-1 text-left font-semibold text-xs">Quantity</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">{selectedProductDetails['Main Material'] || ''}</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Main Material Description'] || ''}</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Quantity'] || ''}</td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  )}
+                                  {activeProductTab === 'Activities' && (
+                                    <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
+                                      <table className="text-xs border border-blue-200 rounded-md w-full">
+                                        <thead className="bg-blue-100">
+                                          <tr>
+                                            <th className="px-2 py-1 text-left font-semibold text-xs">Activity</th>
+                                            <th className="px-2 py-1 text-left font-semibold text-xs">Status</th>
+                                            <th className="px-2 py-1 text-left font-semibold text-xs">Date</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">MLA-Purchasing</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['MLA-Purchasing'] || ''}</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">MLA-Planning</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['MLA-Planning'] || ''}</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                          </tr>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">MLA-Shipping</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['MLA-Shipping'] || ''}</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">-</td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  )}
+                                  {activeProductTab === 'Colorways' && (
+                                    <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
+                                      <table className="text-xs border border-blue-200 rounded-md w-full">
+                                        <thead className="bg-blue-100">
+                                          <tr>
+                                            <th className="px-2 py-1 text-left font-semibold text-xs">Color</th>
+                                            <th className="px-2 py-1 text-left font-semibold text-xs">Size</th>
+                                            <th className="px-2 py-1 text-left font-semibold text-xs">Quantity</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td className="px-2 py-1 border-t border-blue-100 font-medium">{selectedProductDetails['Color'] || ''}</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Size'] || ''}</td>
+                                            <td className="px-2 py-1 border-t border-blue-100">{selectedProductDetails['Quantity'] || ''}</td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  )}
+                                  <div className="flex justify-end mt-2">
+                                    <button
+                                      className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                                      onClick={() => setSelectedProductDetails(null)}
+                                    >
+                                      Close Details
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                              {activeSubTab === 'Product Details' && !selectedProductDetails && (
+                                <div className="p-4 text-center text-gray-500">
+                                  <p>Click on a product in the MPO Lines table to view its details.</p>
+                                </div>
+                              )}
+                            </div>
+                            {/* Right: MPO Lines table */}
+                            <div className="flex-1 min-w-0 overflow-x-auto">
+                              <div className="font-semibold text-blue-700 mb-1 text-xs">MPO Lines</div>
+                              <div className="overflow-x-auto" style={{ maxWidth: '600px' }}>
+                                <table className="text-xs border border-blue-200 rounded-md mb-1" style={{ minWidth: '800px' }}>
+                                  <thead className="bg-blue-100">
+                                    <tr>
+                                      {poLinesColumns.map(col => (
+                                        <th key={col} className="px-1 py-0.5 text-left font-semibold text-xs whitespace-nowrap">{col}</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {(poLinesEditMode ? poLinesForm : filteredPoLines)?.map((line: Record<string, any>, index: number) => (
+                                      <tr key={line['MPO Line']}>
+                                        {poLinesColumns.map(col => (
+                                          <td key={col} className="px-1 py-0.5 whitespace-nowrap">
+                                            {poLinesEditMode ? (
+                                              <input
+                                                className="border px-0.5 py-0 rounded w-full text-xs"
+                                                value={(line as any)[col] || ''}
+                                                onChange={e => handlePoLinesChange(index, col, e.target.value)}
+                                              />
+                                            ) : col === 'Product' ? (
+                                              <button
+                                                className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer text-xs"
+                                                onClick={() => handleProductClick(line)}
+                                              >
+                                                {(line as any)[col] || ''}
+                                              </button>
+                                            ) : (
+                                              (line as any)[col] || ''
+                                            )}
+                                          </td>
+                                        ))}
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                           </div>
+                          </div>
+                        </td>
+                      </tr>
+                    
                   )}
                 </React.Fragment>
-              ))}
-              {displayRows.length === 0 && (
-                <tr><td colSpan={visibleColumns.reduce((acc, col) => {
-                  const group = groupedColumns.find(g => g.key === col);
-                  return acc + (group ? 2 : 1);
+                
+            ))}
+            {displayRows.length === 0 && (
+              <tr><td colSpan={visibleColumns.reduce((acc, col) => {
+                const group = groupedColumns.find(g => g.key === col);
+                return acc + (group ? 2 : 1);
               }, 0) + 1} className="text-center py-4 text-gray-400">No results found.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+            )}
+          </tbody>
+        </table>
       </div>
 
        {/* Edit Row Modal */}
@@ -1131,11 +2068,11 @@ const MaterialPurchaseOrder: React.FC = () => {
                    <h4 className="font-semibold text-gray-900 border-b pb-2">Basic Information</h4>
                    <div className="space-y-3">
                      <div>
-                       <label className="block text-sm font-medium text-gray-700 mb-1">Order References</label>
+                       <label className="block text-sm font-medium text-gray-700 mb-1">Order Reference</label>
                        <input
                          type="text"
-                         value={editingRow['Order References'] || ''}
-                         onChange={(e) => setEditingRow({...editingRow, 'Order References': e.target.value})}
+                         value={editingRow['Order Reference'] || ''}
+                         onChange={(e) => setEditingRow({...editingRow, 'Order Reference': e.target.value})}
                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                        />
                      </div>
@@ -1559,7 +2496,7 @@ const MaterialPurchaseOrder: React.FC = () => {
                  Cancel
                </button>
                <button
-                 onClick={handleSubTableSave}
+                 onClick={() => handleSubTableSave('mpoDetails')}
                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                >
                  Save Changes
@@ -1568,6 +2505,18 @@ const MaterialPurchaseOrder: React.FC = () => {
            </div>
          </div>
        )}
+
+      {/* ReportBar Component */}
+      <ReportBar
+        showSlideUpContainer={showSlideUpContainer}
+        setShowSlideUpContainer={setShowSlideUpContainer}
+        activeContent={activeContent}
+        setActiveContent={setActiveContent}
+        sidebarCollapsed={sidebarCollapsed}
+        pageData={displayRows[selectedIndex] || {}}
+      />
+
+      </div>
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { ChevronDown, ChevronRight, Upload, Edit as EditIcon, Save as SaveIcon, 
 import logo from '../images/logo no bg.png';
 import ReportBar from '../components/ReportBar';
 import { useSidebar } from '../contexts/SidebarContext';
+import { purchaseOrderService, convertDbRowToDisplayFormat } from '../lib/purchaseOrderData';
 
 // Define grouped columns
 const groupedColumns = [
@@ -844,12 +845,70 @@ const PurchaseOrder: React.FC = () => {
   const [poLinesEditMode, setPoLinesEditMode] = useState(false);
   const [poLinesForm, setPoLinesForm] = useState<Record<string, any>[] | null>(null);
   const [selectedProductDetails, setSelectedProductDetails] = useState<Record<string, any> | null>(null);
+  // PO lines loaded from database (display format from purchaseOrderService)
+  const [poLinesData, setPoLinesData] = useState<Record<string, any>[]>([]);
   
   // State for slide-up container
   const [showSlideUpContainer, setShowSlideUpContainer] = useState(false);
   const [activeContent, setActiveContent] = useState('');
   const [activeProductTab, setActiveProductTab] = useState('Product Details');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Load data from Supabase (fallback to dummy if empty or error)
+  useEffect(() => {
+    const loadDataFromDatabase = async () => {
+      try {
+        const dbRows = await purchaseOrderService.getAllPurchaseOrderLines();
+        if (!dbRows || dbRows.length === 0) return; // keep dummy
+
+        const displayLines = dbRows.map(convertDbRowToDisplayFormat);
+
+        // Map line-level fields into this page's order-level schema
+        const mapped = displayLines.map((line: Record<string, any>) => {
+          const mappedRow: Record<string, any> = { ...blankRow };
+          mappedRow['Order References'] = line['Order'] || '';
+          mappedRow['Status'] = line['Status'] || '';
+          mappedRow['Customer'] = line['Customer'] || '';
+          mappedRow['Supplier'] = line['Supplier'] || '';
+          mappedRow['Purchase Currency'] = line['Purchase Currency'] || '';
+          mappedRow['Selling Currency'] = line['Selling Currency'] || '';
+          mappedRow['Division'] = line['Division'] || '';
+          mappedRow['Group'] = line['Group'] || '';
+          mappedRow['Template'] = line['Template'] || '';
+          mappedRow['Transport Method'] = line['Transport Method'] || '';
+          mappedRow['Deliver to'] = line['Deliver To'] || '';
+          mappedRow['Closed Date'] = line['Closed Date'] || '';
+          mappedRow['Delivery Date'] = line['Delivery Date'] || '';
+          mappedRow['PO Issue Date'] = line['Start Date'] || '';
+          mappedRow['Comments'] = line['Comments'] || '';
+          mappedRow['Production'] = line['Production'] || '';
+          mappedRow['MLA- Purchasing'] = line['MLA-Purchasing'] || '';
+          mappedRow['China -QC'] = line['China-QC'] || '';
+          mappedRow['MLA-Planning'] = line['MLA-Planning'] || '';
+          mappedRow['MLA-Shipping'] = line['MLA-Shipping'] || '';
+          mappedRow['PO Key User 6'] = line['PO Key User 6'] || '';
+          mappedRow['PO Key User 7'] = line['PO Key User 7'] || '';
+          mappedRow['PO Key User 8'] = line['PO Key User 8'] || '';
+          mappedRow['Created By'] = line['Created By'] || '';
+          mappedRow['Created'] = line['Created'] || '';
+          mappedRow['Last Edited'] = line['Last Edited'] || '';
+          mappedRow['Last Edited By'] = line['Last Edited By'] || '';
+          // Grouped fields for this page are not present in DB mapping; leave as empty objects
+          return mappedRow;
+        });
+
+        setRows(mapped);
+        setPoLinesData(displayLines);
+      } catch (e) {
+        // Keep dummy data on error
+        console.error('Failed loading purchase orders from database:', e);
+      }
+    };
+    loadDataFromDatabase();
+  }, []);
+
+  // Filtered PO lines for the currently selected order
+  // Note: computed after displayRows is defined further below
 
   const handleEdit = () => {
     // Only edit if a row is selected/highlighted
@@ -1088,6 +1147,10 @@ const PurchaseOrder: React.FC = () => {
 
   const displayRows = filteredRows ?? rows;
 
+  // Now that displayRows is available, compute selected order's PO lines
+  const selectedOrderRef = (displayRows[selectedIndex] || {})['Order References'];
+  const filteredPoLines = poLinesData.filter((line) => (line['Order'] || '') === (selectedOrderRef || ''));
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1243,7 +1306,7 @@ const PurchaseOrder: React.FC = () => {
         setCommentsEditMode(true);
         break;
       case 'poLines':
-        setPoLinesForm([...mockPOLines]);
+        setPoLinesForm([...filteredPoLines]);
         setPoLinesEditMode(true);
         break;
     }
@@ -1628,8 +1691,8 @@ const PurchaseOrder: React.FC = () => {
         </div>
       )}
 
-      <div className="overflow-x-auto" style={{ maxHeight: 'calc(86vh - 220px)' }}>
-        <div className="overflow-y-auto" style={{ maxHeight: 'calc(86vh - 220px)' }}>
+      <div className="overflow-x-auto" style={{ maxHeight: 'calc(84vh - 220px)' }}>
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(84vh - 220px)' }}>
           <table className="min-w-full bg-white border border-gray-200 rounded-md text-xs" style={{ 
             boxSizing: 'border-box',
             borderCollapse: 'separate',
@@ -2300,7 +2363,7 @@ const PurchaseOrder: React.FC = () => {
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    {(poLinesEditMode ? poLinesForm : mockPOLines)?.map((line, index) => (
+                                    {(poLinesEditMode ? poLinesForm : filteredPoLines)?.map((line, index) => (
                                       <tr key={line['PO Line']}>
                                         {poLinesColumns.map(col => (
                                           <td key={col} className="px-1 py-0.5 whitespace-nowrap">

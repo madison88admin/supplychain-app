@@ -1,8 +1,8 @@
 import { supabase } from './supabase';
-// import { MaterialPurchaseOrderLine } from './supplyChainData';
 
-// Interface for Material Purchase Order (MPO) Line data
+// Interface for Material Purchase Order (MPO) Line data - aligned with database schema
 export interface PurchaseOrderLine {
+  // Core database columns
   id?: string;
   purchase_order_id?: string;
   product_id?: string;
@@ -11,11 +11,77 @@ export interface PurchaseOrderLine {
   total_price?: number;
   received_quantity?: number;
   notes?: string;
+  additional_data?: Record<string, any>;
   created_at?: string;
   updated_at?: string;
   
-  // Additional fields from the current implementation
-  // Core MPO columns
+  // Database columns that map directly
+  order_reference?: string;
+  template?: string;
+  transport_method?: string;
+  deliver_to?: string;
+  status?: string;
+  total_qty?: number;
+  total_cost?: number;
+  total_value?: string;
+  customer?: string;
+  supplier?: string;
+  purchase_currency?: string;
+  purchase_payment_term?: string;
+  closed_date?: string;
+  mpo_key_date?: string;
+  supplier_currency?: string;
+  supplier_description?: string;
+  supplier_parent?: string;
+  delivery_date?: string;
+  recipient_product_supplier?: string;
+  comments?: string;
+  purchasing?: string;
+  mpo_key_user_2?: string;
+  mpo_key_user_3?: string;
+  mpo_key_user_4?: string;
+  mpo_key_user_5?: string;
+  mpo_key_user_6?: string;
+  mpo_key_user_7?: string;
+  mpo_key_user_8?: string;
+  note_count?: string;
+  latest_note?: string;
+  purchase_payment_term_description?: string;
+  created_by?: string;
+  created?: string;
+  last_edited?: string;
+  
+  // Milestone date columns
+  trim_order_target_date?: string;
+  trim_order_completed_date?: string;
+  ex_factory_target_date?: string;
+  ex_factory_completed_date?: string;
+  trims_received_target_date?: string;
+  trims_received_completed_date?: string;
+  mpo_issue_date_target_date?: string;
+  mpo_issue_date_completed_date?: string;
+  main_material_order_target_date?: string;
+  main_material_order_completed_date?: string;
+  main_material_received_target_date?: string;
+  main_material_received_completed_date?: string;
+  
+  selling_currency?: string;
+  selling_payment_term?: string;
+  delivery_contact?: string;
+  division?: string;
+  group?: string;
+  supplier_location?: string;
+  supplier_country?: string;
+  selling_payment_term_description?: string;
+  default_material_purchase_order_line_template?: string;
+  default_mpo_line_key_date?: string;
+  mpo_key_working_group_1?: string;
+  mpo_key_working_group_2?: string;
+  mpo_key_working_group_3?: string;
+  mpo_key_working_group_4?: string;
+  last_edited_by?: string;
+  
+  // Legacy interface fields for backward compatibility (stored in additional_data)
   'Order Reference'?: string;
   'Template'?: string;
   'Transport Method'?: string;
@@ -24,143 +90,28 @@ export interface PurchaseOrderLine {
   'Total Qty'?: string | number;
   'Total Cost'?: string;
   'Total Value'?: string;
-  'PO Line'?: string;
-  'Fit Comment'?: string;
-  'Fit Log Status'?: string;
-  'Fit Log Type'?: string;
-  'Fit Log Name'?: string;
   'Customer'?: string;
-  'Collection'?: string;
-  'Division'?: string;
-  'Group'?: string;
-  'Delivery Date'?: string;
-  'Comments'?: string;
-  'Selling Quantity'?: number;
+  'Supplier'?: string;
+  'Purchase Currency'?: string;
+  'Purchase Payment Term'?: string;
   'Closed Date'?: string;
-  'Line Purchase Price'?: string;
-  'Line Selling Price'?: string;
-  'Note Count'?: number;
-  'Latest Note'?: string;
-  'Order Quantity Increment'?: number;
-  'Order Lead Time'?: string;
-  'Supplier Ref.'?: string;
-  'Purchase Order Status'?: string;
   'MPO Key Date'?: string;
   'Supplier Currency'?: string;
   'Supplier Description'?: string;
   'Supplier Parent'?: string;
-  'Supplier Purchase Currency'?: string;
-  'Customer Selling Currency'?: string;
-  'Supplier'?: string;
-  'Purchase Currency'?: string;
-  'Selling Currency'?: string;
-  'Selling Payment Term'?: string;
-  'Minimum Order Quantity'?: number;
-  'Purchase Description'?: string;
-  'Product Type'?: string;
-  'Product Sub Type'?: string;
-  'Product Status'?: string;
-  'Product Buyer Style Name'?: string;
-  'Product Buyer Style Number'?: string;
-  'Standard Minute Value'?: number;
-  'Costing'?: string;
-  'Costong Purchase Currency'?: string;
-  'Costing Selling Currency'?: string;
-  'Costing Status'?: string;
-  'Supplier Payment Term'?: string;
-  'Purchase Payment Term'?: string;
-  'Supplier Payment Term Description'?: string;
-  'Order Purchase Payment Term'?: string;
-  'Order Purchase Payment Term Description'?: string;
-  'Product Supplier Purchase Payment Term'?: string;
-  'Product Supplier Purhcase Payment Term Description'?: string;
-  'Order Selling Payment Term'?: string;
-  'Order Selling Payment Term Description'?: string;
-  'Product Supplier Selling Payment Term'?: string;
-  'Product Supplier Selling Payment Term Description'?: string;
-  'Purchase Payment Term Description'?: string;
-  'Purchase Price'?: string;
-  'Selling Price'?: string;
-  'Production'?: string;
-  'MLA-Purchasing'?: string;
-  'China-QC'?: string;
-  'MLA-Planning'?: string;
-  'MLA-Shipping'?: string;
+  'Delivery Date'?: string;
+  'Recipient Product Supplier'?: string;
+  'Comments'?: string;
   'Purchasing'?: string;
   'MPO Key User 2'?: string;
   'MPO Key User 3'?: string;
   'MPO Key User 4'?: string;
   'MPO Key User 5'?: string;
-  'PO Key User 6'?: string;
-  'PO Key User 7'?: string;
-  'PO Key User 8'?: string;
-  'Season'?: string;
-  'Department'?: string;
-  'Customer Parent'?: string;
-  'RECIPIENT PRODUCT SUPPLIER-NUMBER'?: string;
-  'Recipient Product Supplier'?: string;
-  'FG PO Number'?: string;
-  'Received'?: number;
-  'Balance'?: number;
-  'Over Received'?: number;
-  'Size'?: string;
-  'Main Material'?: string;
-  'Main Material Description'?: string;
-  'Delivery Contact'?: string;
-  'PO Key Working Group 1'?: string;
-  'PO Key Working Group 2'?: string;
-  'PO Key Working Group 3'?: string;
-  'PO Key Working Group 4'?: string;
-  'Created By'?: string;
-  'Created'?: string;
-  'Last Edited'?: string;
-  'Last Edited By'?: string;
-  'Color'?: string;
-  'Vessel Schedule'?: string;
-  'Buyer PO Number'?: string;
-  'Shipment ID'?: string;
-  'Factory Invoiced'?: string;
-  'Supplier Invoice'?: string;
-  'QuickBooks Invoice'?: string;
-  'Shipment Noted'?: string;
-  'Buy Information'?: string;
-  'Handling Charges'?: string;
-  'Original Forecasts Quantity'?: number;
-  'Start Date'?: string;
-  'Cancelled Date'?: string;
-  'Factory Date Paid'?: string;
-  'Date Invoice Raised'?: string;
-  'Submitted Inspection Date'?: string;
-  'Remarks'?: string;
-  'Inspection Results'?: string;
-  'Report Type'?: string;
-  'Inspector'?: string;
-  'Approval Status'?: string;
-  'Shipment Status'?: string;
-  'QC Comment'?: string;
-  'Delay Shipment Code'?: string;
-  'Discount Percentage'?: string;
-  'SELL INC COMM'?: string;
-  'Buyer Surcharge'?: string;
-  'Buyer Surchage Percentage'?: string;
-  'MOQ'?: string;
-  'Discount Cost'?: string;
-  'Factory Surcharge'?: string;
-  'Factory Surchage Percentage'?: string;
-  'Buyer Season'?: string;
-  'Lookbook'?: string;
-  'Finished Good Testing Status'?: string;
-  'Supplier Location'?: string;
-  'Supplier Country'?: string;
-  'Selling Payment Term Description'?: string;
-  'Default Material Purchase Order Line Template'?: string;
-  'Default MPO Line Key Date'?: string;
-  'MPO Key Working Group 1'?: string;
-  'MPO Key Working Group 2'?: string;
-  'MPO Key Working Group 3'?: string;
-  'MPO Key Working Group 4'?: string;
+  'MPO Key User 6'?: string;
+  'MPO Key User 7'?: string;
+  'MPO Key User 8'?: string;
   
-  // Grouped columns
+  // Grouped columns for UI display
   'Trim Order'?: { 'Target Date': string; 'Completed Date': string };
   'Ex-Factory'?: { 'Target Date': string; 'Completed Date': string };
   'Trims Received'?: { 'Target Date': string; 'Completed Date': string };
@@ -168,9 +119,19 @@ export interface PurchaseOrderLine {
   'Main Material Order'?: { 'Target Date': string; 'Completed Date': string };
   'Main Material received'?: { 'Target Date': string; 'Completed Date': string };
   
-  // Order and Product fields
+  // Other fields that go in additional_data
+  'PO Line'?: string;
+  'Fit Comment'?: string;
+  'Collection'?: string;
+  'Selling Quantity'?: number;
+  'Product Type'?: string;
+  'Season'?: string;
+  'Department'?: string;
+  'Size'?: string;
+  'Color'?: string;
   'Order'?: string;
   'Product'?: string;
+  [key: string]: any; // Allow for additional dynamic fields
 }
 
 // Interface for Purchase Order data
@@ -191,8 +152,232 @@ export interface PurchaseOrder {
   lines?: PurchaseOrderLine[];
 }
 
+// Helper function to map interface fields to database columns
+const mapToDbColumns = (lineData: Partial<PurchaseOrderLine>) => {
+  const dbData: any = {};
+  const additionalData: any = {};
+  
+  // Map direct database columns
+  if (lineData.purchase_order_id !== undefined) dbData.purchase_order_id = lineData.purchase_order_id;
+  if (lineData.product_id !== undefined) dbData.product_id = lineData.product_id;
+  if (lineData.quantity !== undefined) dbData.quantity = lineData.quantity;
+  if (lineData.unit_price !== undefined) dbData.unit_price = lineData.unit_price;
+  if (lineData.total_price !== undefined) dbData.total_price = lineData.total_price;
+  if (lineData.received_quantity !== undefined) dbData.received_quantity = lineData.received_quantity;
+  if (lineData.notes !== undefined) dbData.notes = lineData.notes;
+  
+  // Map fields that have both snake_case and display versions
+  if (lineData.order_reference !== undefined) dbData.order_reference = lineData.order_reference;
+  if (lineData['Order Reference'] !== undefined) dbData.order_reference = lineData['Order Reference'];
+  
+  if (lineData.template !== undefined) dbData.template = lineData.template;
+  if (lineData['Template'] !== undefined) dbData.template = lineData['Template'];
+  
+  if (lineData.transport_method !== undefined) dbData.transport_method = lineData.transport_method;
+  if (lineData['Transport Method'] !== undefined) dbData.transport_method = lineData['Transport Method'];
+  
+  if (lineData.deliver_to !== undefined) dbData.deliver_to = lineData.deliver_to;
+  if (lineData['Deliver To'] !== undefined) dbData.deliver_to = lineData['Deliver To'];
+  
+  if (lineData.status !== undefined) dbData.status = lineData.status;
+  if (lineData['Status'] !== undefined) dbData.status = lineData['Status'];
+  
+  if (lineData.total_qty !== undefined) dbData.total_qty = lineData.total_qty;
+  if (lineData['Total Qty'] !== undefined) dbData.total_qty = lineData['Total Qty'];
+  
+  if (lineData.total_cost !== undefined) dbData.total_cost = lineData.total_cost;
+  if (lineData['Total Cost'] !== undefined) dbData.total_cost = lineData['Total Cost'];
+  
+  if (lineData.total_value !== undefined) dbData.total_value = lineData.total_value;
+  if (lineData['Total Value'] !== undefined) dbData.total_value = lineData['Total Value'];
+  
+  if (lineData.customer !== undefined) dbData.customer = lineData.customer;
+  if (lineData['Customer'] !== undefined) dbData.customer = lineData['Customer'];
+  
+  if (lineData.supplier !== undefined) dbData.supplier = lineData.supplier;
+  if (lineData['Supplier'] !== undefined) dbData.supplier = lineData['Supplier'];
+  
+  if (lineData.purchase_currency !== undefined) dbData.purchase_currency = lineData.purchase_currency;
+  if (lineData['Purchase Currency'] !== undefined) dbData.purchase_currency = lineData['Purchase Currency'];
+  
+  if (lineData.purchase_payment_term !== undefined) dbData.purchase_payment_term = lineData.purchase_payment_term;
+  if (lineData['Purchase Payment Term'] !== undefined) dbData.purchase_payment_term = lineData['Purchase Payment Term'];
+  
+  if (lineData.closed_date !== undefined) dbData.closed_date = lineData.closed_date;
+  if (lineData['Closed Date'] !== undefined) dbData.closed_date = lineData['Closed Date'];
+  
+  if (lineData.mpo_key_date !== undefined) dbData.mpo_key_date = lineData.mpo_key_date;
+  if (lineData['MPO Key Date'] !== undefined) dbData.mpo_key_date = lineData['MPO Key Date'];
+  
+  if (lineData.supplier_currency !== undefined) dbData.supplier_currency = lineData.supplier_currency;
+  if (lineData['Supplier Currency'] !== undefined) dbData.supplier_currency = lineData['Supplier Currency'];
+  
+  if (lineData.supplier_description !== undefined) dbData.supplier_description = lineData.supplier_description;
+  if (lineData['Supplier Description'] !== undefined) dbData.supplier_description = lineData['Supplier Description'];
+  
+  if (lineData.supplier_parent !== undefined) dbData.supplier_parent = lineData.supplier_parent;
+  if (lineData['Supplier Parent'] !== undefined) dbData.supplier_parent = lineData['Supplier Parent'];
+  
+  if (lineData.delivery_date !== undefined) dbData.delivery_date = lineData.delivery_date;
+  if (lineData['Delivery Date'] !== undefined) dbData.delivery_date = lineData['Delivery Date'];
+  
+  if (lineData.recipient_product_supplier !== undefined) dbData.recipient_product_supplier = lineData.recipient_product_supplier;
+  if (lineData['Recipient Product Supplier'] !== undefined) dbData.recipient_product_supplier = lineData['Recipient Product Supplier'];
+  
+  if (lineData.comments !== undefined) dbData.comments = lineData.comments;
+  if (lineData['Comments'] !== undefined) dbData.comments = lineData['Comments'];
+  
+  if (lineData.purchasing !== undefined) dbData.purchasing = lineData.purchasing;
+  if (lineData['Purchasing'] !== undefined) dbData.purchasing = lineData['Purchasing'];
+  
+  // Map user fields
+  if (lineData.mpo_key_user_2 !== undefined) dbData.mpo_key_user_2 = lineData.mpo_key_user_2;
+  if (lineData['MPO Key User 2'] !== undefined) dbData.mpo_key_user_2 = lineData['MPO Key User 2'];
+  
+  if (lineData.mpo_key_user_3 !== undefined) dbData.mpo_key_user_3 = lineData.mpo_key_user_3;
+  if (lineData['MPO Key User 3'] !== undefined) dbData.mpo_key_user_3 = lineData['MPO Key User 3'];
+  
+  if (lineData.mpo_key_user_4 !== undefined) dbData.mpo_key_user_4 = lineData.mpo_key_user_4;
+  if (lineData['MPO Key User 4'] !== undefined) dbData.mpo_key_user_4 = lineData['MPO Key User 4'];
+  
+  if (lineData.mpo_key_user_5 !== undefined) dbData.mpo_key_user_5 = lineData.mpo_key_user_5;
+  if (lineData['MPO Key User 5'] !== undefined) dbData.mpo_key_user_5 = lineData['MPO Key User 5'];
+  
+  if (lineData.mpo_key_user_6 !== undefined) dbData.mpo_key_user_6 = lineData.mpo_key_user_6;
+  if (lineData['MPO Key User 6'] !== undefined) dbData.mpo_key_user_6 = lineData['MPO Key User 6'];
+  
+  if (lineData.mpo_key_user_7 !== undefined) dbData.mpo_key_user_7 = lineData.mpo_key_user_7;
+  if (lineData['MPO Key User 7'] !== undefined) dbData.mpo_key_user_7 = lineData['MPO Key User 7'];
+  
+  if (lineData.mpo_key_user_8 !== undefined) dbData.mpo_key_user_8 = lineData.mpo_key_user_8;
+  if (lineData['MPO Key User 8'] !== undefined) dbData.mpo_key_user_8 = lineData['MPO Key User 8'];
+  
+  // Map milestone dates
+  if (lineData['Trim Order']) {
+    dbData.trim_order_target_date = lineData['Trim Order']['Target Date'];
+    dbData.trim_order_completed_date = lineData['Trim Order']['Completed Date'];
+  }
+  if (lineData['Ex-Factory']) {
+    dbData.ex_factory_target_date = lineData['Ex-Factory']['Target Date'];
+    dbData.ex_factory_completed_date = lineData['Ex-Factory']['Completed Date'];
+  }
+  if (lineData['Trims Received']) {
+    dbData.trims_received_target_date = lineData['Trims Received']['Target Date'];
+    dbData.trims_received_completed_date = lineData['Trims Received']['Completed Date'];
+  }
+  if (lineData['MPO Issue Date']) {
+    dbData.mpo_issue_date_target_date = lineData['MPO Issue Date']['Target Date'];
+    dbData.mpo_issue_date_completed_date = lineData['MPO Issue Date']['Completed Date'];
+  }
+  if (lineData['Main Material Order']) {
+    dbData.main_material_order_target_date = lineData['Main Material Order']['Target Date'];
+    dbData.main_material_order_completed_date = lineData['Main Material Order']['Completed Date'];
+  }
+  if (lineData['Main Material received']) {
+    dbData.main_material_received_target_date = lineData['Main Material received']['Target Date'];
+    dbData.main_material_received_completed_date = lineData['Main Material received']['Completed Date'];
+  }
+  
+  // Map remaining direct database fields
+  if (lineData.selling_currency !== undefined) dbData.selling_currency = lineData.selling_currency;
+  if (lineData.selling_payment_term !== undefined) dbData.selling_payment_term = lineData.selling_payment_term;
+  if (lineData.delivery_contact !== undefined) dbData.delivery_contact = lineData.delivery_contact;
+  if (lineData.division !== undefined) dbData.division = lineData.division;
+  if (lineData.group !== undefined) dbData.group = lineData.group;
+  if (lineData.supplier_location !== undefined) dbData.supplier_location = lineData.supplier_location;
+  if (lineData.supplier_country !== undefined) dbData.supplier_country = lineData.supplier_country;
+  if (lineData.selling_payment_term_description !== undefined) dbData.selling_payment_term_description = lineData.selling_payment_term_description;
+  if (lineData.default_material_purchase_order_line_template !== undefined) dbData.default_material_purchase_order_line_template = lineData.default_material_purchase_order_line_template;
+  if (lineData.default_mpo_line_key_date !== undefined) dbData.default_mpo_line_key_date = lineData.default_mpo_line_key_date;
+  if (lineData.mpo_key_working_group_1 !== undefined) dbData.mpo_key_working_group_1 = lineData.mpo_key_working_group_1;
+  if (lineData.mpo_key_working_group_2 !== undefined) dbData.mpo_key_working_group_2 = lineData.mpo_key_working_group_2;
+  if (lineData.mpo_key_working_group_3 !== undefined) dbData.mpo_key_working_group_3 = lineData.mpo_key_working_group_3;
+  if (lineData.mpo_key_working_group_4 !== undefined) dbData.mpo_key_working_group_4 = lineData.mpo_key_working_group_4;
+  if (lineData.note_count !== undefined) dbData.note_count = lineData.note_count;
+  if (lineData.latest_note !== undefined) dbData.latest_note = lineData.latest_note;
+  if (lineData.purchase_payment_term_description !== undefined) dbData.purchase_payment_term_description = lineData.purchase_payment_term_description;
+  if (lineData.created_by !== undefined) dbData.created_by = lineData.created_by;
+  if (lineData.created !== undefined) dbData.created = lineData.created;
+  if (lineData.last_edited !== undefined) dbData.last_edited = lineData.last_edited;
+  if (lineData.last_edited_by !== undefined) dbData.last_edited_by = lineData.last_edited_by;
+  
+  // Everything else goes in additional_data
+  Object.keys(lineData).forEach(key => {
+    // Skip fields that are already mapped to database columns
+    if (!['id', 'purchase_order_id', 'product_id', 'quantity', 'unit_price', 'total_price', 
+          'received_quantity', 'notes', 'created_at', 'updated_at', 'additional_data',
+          'order_reference', 'template', 'transport_method', 'deliver_to', 'status',
+          'total_qty', 'total_cost', 'total_value', 'customer', 'supplier', 'purchase_currency',
+          'purchase_payment_term', 'closed_date', 'mpo_key_date', 'supplier_currency',
+          'supplier_description', 'supplier_parent', 'delivery_date', 'recipient_product_supplier',
+          'comments', 'purchasing', 'mpo_key_user_2', 'mpo_key_user_3', 'mpo_key_user_4',
+          'mpo_key_user_5', 'mpo_key_user_6', 'mpo_key_user_7', 'mpo_key_user_8',
+          'note_count', 'latest_note', 'purchase_payment_term_description', 'created_by',
+          'created', 'last_edited', 'trim_order_target_date', 'trim_order_completed_date',
+          'ex_factory_target_date', 'ex_factory_completed_date', 'trims_received_target_date',
+          'trims_received_completed_date', 'mpo_issue_date_target_date', 'mpo_issue_date_completed_date',
+          'main_material_order_target_date', 'main_material_order_completed_date',
+          'main_material_received_target_date', 'main_material_received_completed_date',
+          'selling_currency', 'selling_payment_term', 'delivery_contact', 'division',
+          'group', 'supplier_location', 'supplier_country', 'selling_payment_term_description',
+          'default_material_purchase_order_line_template', 'default_mpo_line_key_date',
+          'mpo_key_working_group_1', 'mpo_key_working_group_2', 'mpo_key_working_group_3',
+          'mpo_key_working_group_4', 'last_edited_by',
+          // Skip display name versions that are already mapped
+          'Order Reference', 'Template', 'Transport Method', 'Deliver To', 'Status',
+          'Total Qty', 'Total Cost', 'Total Value', 'Customer', 'Supplier', 'Purchase Currency',
+          'Purchase Payment Term', 'Closed Date', 'MPO Key Date', 'Supplier Currency',
+          'Supplier Description', 'Supplier Parent', 'Delivery Date', 'Recipient Product Supplier',
+          'Comments', 'Purchasing', 'MPO Key User 2', 'MPO Key User 3', 'MPO Key User 4',
+          'MPO Key User 5', 'MPO Key User 6', 'MPO Key User 7', 'MPO Key User 8',
+          'Trim Order', 'Ex-Factory', 'Trims Received', 'MPO Issue Date', 'Main Material Order',
+          'Main Material received'
+        ].includes(key)) {
+      additionalData[key] = lineData[key as keyof PurchaseOrderLine];
+    }
+  });
+  
+  if (Object.keys(additionalData).length > 0) {
+    dbData.additional_data = additionalData;
+  }
+  
+  return dbData;
+};
+
 // Database service for Material Purchase Orders (MPOs)
 export const materialPurchaseOrderService = {
+  // Test connection
+  testConnection: async () => {
+    try {
+      // Test 1: Check authentication status
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      console.log('Auth User:', user);
+      console.log('Auth Error:', authError);
+      
+      // Test 2: Try a simple count query
+      const { count, error: countError } = await supabase
+        .from('materialpurchaseorder')
+        .select('*', { count: 'exact', head: true });
+      
+      console.log('Row Count:', count);
+      console.log('Count Error:', countError);
+      
+      // Test 3: Try fetching one row
+      const { data, error } = await supabase
+        .from('materialpurchaseorder')
+        .select('*')
+        .limit(1);
+      
+      console.log('Sample Data:', data);
+      console.log('Data Error:', error);
+      
+      return { user, count, data, error };
+    } catch (err) {
+      console.error('Connection test failed:', err);
+      return { error: err };
+    }
+  },
+
   // Get all MPO lines
   getAllMaterialPurchaseOrderLines: async (): Promise<PurchaseOrderLine[]> => {
     try {
@@ -237,81 +422,11 @@ export const materialPurchaseOrderService = {
   // Create new MPO line
   createMaterialPurchaseOrderLine: async (lineData: Omit<PurchaseOrderLine, 'id' | 'created_at' | 'updated_at'>): Promise<PurchaseOrderLine> => {
     try {
+      const dbData = mapToDbColumns(lineData);
+      
       const { data, error } = await supabase
         .from('materialpurchaseorder')
-        .insert({
-          purchase_order_id: (lineData as any).purchase_order_id,
-          product_id: (lineData as any).product_id,
-          quantity: (lineData as any).quantity,
-          unit_price: (lineData as any).unit_price,
-          received_quantity: (lineData as any).received_quantity || 0,
-          notes: (lineData as any).notes,
-          // Store additional MPO fields as JSON in additional_data
-          additional_data: JSON.stringify({
-            // Core MPO fields
-            'Order Reference': (lineData as any)['Order Reference'],
-            'Template': (lineData as any)['Template'],
-            'Transport Method': (lineData as any)['Transport Method'],
-            'Deliver To': (lineData as any)['Deliver To'],
-            'Status': (lineData as any)['Status'],
-            'Total Qty': (lineData as any)['Total Qty'],
-            'Total Cost': (lineData as any)['Total Cost'],
-            'Total Value': (lineData as any)['Total Value'],
-            'Customer': (lineData as any)['Customer'],
-            'Supplier': (lineData as any)['Supplier'],
-            'Purchase Currency': (lineData as any)['Purchase Currency'],
-            'Purchase Payment Term': (lineData as any)['Purchase Payment Term'],
-            'Closed Date': (lineData as any)['Closed Date'],
-            'MPO Key Date': (lineData as any)['MPO Key Date'],
-            'Supplier Currency': (lineData as any)['Supplier Currency'],
-            'Supplier Description': (lineData as any)['Supplier Description'],
-            'Supplier Parent': (lineData as any)['Supplier Parent'],
-            'Delivery Date': (lineData as any)['Delivery Date'],
-            'Recipient Product Supplier': (lineData as any)['Recipient Product Supplier'],
-            'Comments': (lineData as any)['Comments'],
-            'Purchasing': (lineData as any)['Purchasing'],
-            'MPO Key User 2': (lineData as any)['MPO Key User 2'],
-            'MPO Key User 3': (lineData as any)['MPO Key User 3'],
-            'MPO Key User 4': (lineData as any)['MPO Key User 4'],
-            'MPO Key User 5': (lineData as any)['MPO Key User 5'],
-            'PO Key User 6': (lineData as any)['PO Key User 6'],
-            'PO Key User 7': (lineData as any)['PO Key User 7'],
-            'PO Key User 8': (lineData as any)['PO Key User 8'],
-            'Note Count': (lineData as any)['Note Count'],
-            'Latest Note': (lineData as any)['Latest Note'],
-            'Purchase Payment Term Description': (lineData as any)['Purchase Payment Term Description'],
-            'Created By': (lineData as any)['Created By'],
-            'Created': (lineData as any)['Created'],
-            'Last Edited': (lineData as any)['Last Edited'],
-            'Last Edited By': (lineData as any)['Last Edited By'],
-            'Selling Currency': (lineData as any)['Selling Currency'],
-            'Selling Payment Term': (lineData as any)['Selling Payment Term'],
-            'Delivery Contact': (lineData as any)['Delivery Contact'],
-            'Division': (lineData as any)['Division'],
-            'Group': (lineData as any)['Group'],
-            'Supplier Location': (lineData as any)['Supplier Location'],
-            'Supplier Country': (lineData as any)['Supplier Country'],
-            'Selling Payment Term Description': (lineData as any)['Selling Payment Term Description'],
-            'Default Material Purchase Order Line Template': (lineData as any)['Default Material Purchase Order Line Template'],
-            'Default MPO Line Key Date': (lineData as any)['Default MPO Line Key Date'],
-            'MPO Key Working Group 1': (lineData as any)['MPO Key Working Group 1'],
-            'MPO Key Working Group 2': (lineData as any)['MPO Key Working Group 2'],
-            'MPO Key Working Group 3': (lineData as any)['MPO Key Working Group 3'],
-            'MPO Key Working Group 4': (lineData as any)['MPO Key Working Group 4'],
-            
-            // Grouped milestone fields
-            'Trim Order': (lineData as any)['Trim Order'],
-            'Ex-Factory': (lineData as any)['Ex-Factory'],
-            'Trims Received': (lineData as any)['Trims Received'],
-            'MPO Issue Date': (lineData as any)['MPO Issue Date'],
-            'Main Material Order': (lineData as any)['Main Material Order'],
-            'Main Material received': (lineData as any)['Main Material received'],
-            
-            // Legacy optional fields kept for compatibility
-            'Order': (lineData as any)['Order'],
-            'Product': (lineData as any)['Product']
-          })
-        })
+        .insert(dbData)
         .select()
         .single();
       
@@ -330,28 +445,11 @@ export const materialPurchaseOrderService = {
   // Update MPO line
   updatePurchaseOrderLine: async (id: string, lineData: Partial<PurchaseOrderLine>): Promise<PurchaseOrderLine> => {
     try {
-      const updateData: any = {};
-      
-      if (lineData.quantity !== undefined) updateData.quantity = lineData.quantity;
-      if (lineData.unit_price !== undefined) updateData.unit_price = lineData.unit_price;
-      if (lineData.received_quantity !== undefined) updateData.received_quantity = lineData.received_quantity;
-      if (lineData.notes !== undefined) updateData.notes = lineData.notes;
-      
-      // Update additional data
-      const additionalData: any = {};
-      Object.keys(lineData).forEach(key => {
-        if (key !== 'id' && key !== 'quantity' && key !== 'unit_price' && key !== 'received_quantity' && key !== 'notes' && key !== 'created_at' && key !== 'updated_at') {
-          additionalData[key] = lineData[key as keyof PurchaseOrderLine];
-        }
-      });
-      
-      if (Object.keys(additionalData).length > 0) {
-        updateData.additional_data = JSON.stringify(additionalData);
-      }
+      const dbData = mapToDbColumns(lineData);
       
       const { data, error } = await supabase
         .from('materialpurchaseorder')
-        .update(updateData)
+        .update(dbData)
         .eq('id', id)
         .select()
         .single();
@@ -389,78 +487,7 @@ export const materialPurchaseOrderService = {
   // Bulk import MPO lines
   bulkImportPurchaseOrderLines: async (lines: PurchaseOrderLine[]): Promise<PurchaseOrderLine[]> => {
     try {
-      const importData = lines.map(line => ({
-        purchase_order_id: line.purchase_order_id,
-        product_id: line.product_id,
-        quantity: line.quantity || 0,
-        unit_price: line.unit_price || 0,
-        received_quantity: line.received_quantity || 0,
-        notes: line.notes,
-        additional_data: JSON.stringify({
-          // Core MPO fields
-          'Order Reference': line['Order Reference'],
-          'Template': line['Template'],
-          'Transport Method': line['Transport Method'],
-          'Deliver To': line['Deliver To'],
-          'Status': line['Status'],
-          'Total Qty': line['Total Qty'],
-          'Total Cost': line['Total Cost'],
-          'Total Value': line['Total Value'],
-          'Customer': line['Customer'],
-          'Supplier': line['Supplier'],
-          'Purchase Currency': line['Purchase Currency'],
-          'Purchase Payment Term': line['Purchase Payment Term'],
-          'Closed Date': line['Closed Date'],
-          'MPO Key Date': line['MPO Key Date'],
-          'Supplier Currency': line['Supplier Currency'],
-          'Supplier Description': line['Supplier Description'],
-          'Supplier Parent': line['Supplier Parent'],
-          'Delivery Date': line['Delivery Date'],
-          'Recipient Product Supplier': line['Recipient Product Supplier'],
-          'Comments': line['Comments'],
-          'Purchasing': line['Purchasing'],
-          'MPO Key User 2': line['MPO Key User 2'],
-          'MPO Key User 3': line['MPO Key User 3'],
-          'MPO Key User 4': line['MPO Key User 4'],
-          'MPO Key User 5': line['MPO Key User 5'],
-          'PO Key User 6': line['PO Key User 6'],
-          'PO Key User 7': line['PO Key User 7'],
-          'PO Key User 8': line['PO Key User 8'],
-          'Note Count': line['Note Count'],
-          'Latest Note': line['Latest Note'],
-          'Purchase Payment Term Description': line['Purchase Payment Term Description'],
-          'Created By': line['Created By'],
-          'Created': line['Created'],
-          'Last Edited': line['Last Edited'],
-          'Last Edited By': line['Last Edited By'],
-          'Selling Currency': line['Selling Currency'],
-          'Selling Payment Term': line['Selling Payment Term'],
-          'Delivery Contact': line['Delivery Contact'],
-          'Division': line['Division'],
-          'Group': line['Group'],
-          'Supplier Location': line['Supplier Location'],
-          'Supplier Country': line['Supplier Country'],
-          'Selling Payment Term Description': line['Selling Payment Term Description'],
-          'Default Material Purchase Order Line Template': line['Default Material Purchase Order Line Template'],
-          'Default MPO Line Key Date': line['Default MPO Line Key Date'],
-          'MPO Key Working Group 1': line['MPO Key Working Group 1'],
-          'MPO Key Working Group 2': line['MPO Key Working Group 2'],
-          'MPO Key Working Group 3': line['MPO Key Working Group 3'],
-          'MPO Key Working Group 4': line['MPO Key Working Group 4'],
-          
-          // Grouped milestone fields
-          'Trim Order': line['Trim Order'],
-          'Ex-Factory': line['Ex-Factory'],
-          'Trims Received': line['Trims Received'],
-          'MPO Issue Date': line['MPO Issue Date'],
-          'Main Material Order': line['Main Material Order'],
-          'Main Material received': line['Main Material received'],
-          
-          // Legacy optional fields kept for compatibility
-          'Order': line['Order'],
-          'Product': line['Product']
-        })
-      }));
+      const importData = lines.map(line => mapToDbColumns(line));
       
       const { data, error } = await supabase
         .from('materialpurchaseorder')
@@ -501,53 +528,112 @@ export const materialPurchaseOrderService = {
 // Helper function to convert MPO database row to display format used by the UI
 export const convertDbRowToDisplayFormat = (dbRow: any): Record<string, any> => {
   try {
-    // Supabase returns jsonb as a native object. Handle both string and object safely.
-    const raw = dbRow?.additional_data ?? {};
-    const additionalData = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    // Parse additional_data if it exists
+    const additionalData = dbRow?.additional_data || {};
     
     return {
       id: dbRow.id,
-      // Core MPO fields
-      'Order Reference': additionalData['order_reference'] || '',
-      'Template': additionalData['template'] || '',
-      'Transport Method': additionalData['transport_method'] || '',
-      'Deliver To': additionalData['deliver_to'] || '',
-      'Status': additionalData['status'] || '',
-      'Total Qty': additionalData['total_qty'] || '',
-      'Total Cost': additionalData['total_cost'] || '',
-      'Total Value': additionalData['total_value'] || '',
-      'PO Line': additionalData['po_line'] || '',
-      'Fit Comment': additionalData['fit_comment'] || '',
-      'Fit Log Status': additionalData['fit_log_status'] || '',
-      'Fit Log Type': additionalData['fit_log_type'] || '',
-      'Fit Log Name': additionalData['fit_log_name'] || '',
-      'Customer': additionalData['customer'] || '',
-      'Collection': additionalData['collection'] || '',
-      'Division': additionalData['division'] || '',
-      'Group': additionalData['group'] || '',
-      'Delivery Date': additionalData['delivery_date'] || '',
-      'Comments': additionalData['comments'] || '',
+      
+      // Map database columns to display format
+      'Order Reference': dbRow.order_reference || '',
+      'Template': dbRow.template || '',
+      'Transport Method': dbRow.transport_method || '',
+      'Deliver To': dbRow.deliver_to || '',
+      'Status': dbRow.status || '',
+      'Total Qty': dbRow.total_qty || '',
+      'Total Cost': dbRow.total_cost || '',
+      'Total Value': dbRow.total_value || '',
+      'Customer': dbRow.customer || '',
+      'Supplier': dbRow.supplier || '',
+      'Purchase Currency': dbRow.purchase_currency || '',
+      'Purchase Payment Term': dbRow.purchase_payment_term || '',
+      'Closed Date': dbRow.closed_date || '',
+      'MPO Key Date': dbRow.mpo_key_date || '',
+      'Supplier Currency': dbRow.supplier_currency || '',
+      'Supplier Description': dbRow.supplier_description || '',
+      'Supplier Parent': dbRow.supplier_parent || '',
+      'Delivery Date': dbRow.delivery_date || '',
+      'Recipient Product Supplier': dbRow.recipient_product_supplier || '',
+      'Comments': dbRow.comments || '',
+      'Purchasing': dbRow.purchasing || '',
+      'MPO Key User 2': dbRow.mpo_key_user_2 || '',
+      'MPO Key User 3': dbRow.mpo_key_user_3 || '',
+      'MPO Key User 4': dbRow.mpo_key_user_4 || '',
+      'MPO Key User 5': dbRow.mpo_key_user_5 || '',
+      'MPO Key User 6': dbRow.mpo_key_user_6 || '',
+      'MPO Key User 7': dbRow.mpo_key_user_7 || '',
+      'MPO Key User 8': dbRow.mpo_key_user_8 || '',
+      'Note Count': dbRow.note_count || '',
+      'Latest Note': dbRow.latest_note || '',
+      'Purchase Payment Term Description': dbRow.purchase_payment_term_description || '',
+      'Created By': dbRow.created_by || '',
+      'Created': dbRow.created || '',
+      'Last Edited': dbRow.last_edited || '',
+      'Last Edited By': dbRow.last_edited_by || '',
+      'Selling Currency': dbRow.selling_currency || '',
+      'Selling Payment Term': dbRow.selling_payment_term || '',
+      'Delivery Contact': dbRow.delivery_contact || '',
+      'Division': dbRow.division || '',
+      'Group': dbRow.group || '',
+      'Supplier Location': dbRow.supplier_location || '',
+      'Supplier Country': dbRow.supplier_country || '',
+      'Selling Payment Term Description': dbRow.selling_payment_term_description || '',
+      'Default Material Purchase Order Line Template': dbRow.default_material_purchase_order_line_template || '',
+      'Default MPO Line Key Date': dbRow.default_mpo_line_key_date || '',
+      'MPO Key Working Group 1': dbRow.mpo_key_working_group_1 || '',
+      'MPO Key Working Group 2': dbRow.mpo_key_working_group_2 || '',
+      'MPO Key Working Group 3': dbRow.mpo_key_working_group_3 || '',
+      'MPO Key Working Group 4': dbRow.mpo_key_working_group_4 || '',
+      
+      // Core fields
       'Quantity': dbRow.quantity || 0,
-      'Selling Quantity': additionalData['selling_quantity'] || 0,
-      'Closed Date': additionalData['closed_date'] || '',
+      'Unit Price': dbRow.unit_price || 0,
+      'Total Price': dbRow.total_price || 0,
+      'Received Quantity': dbRow.received_quantity || 0,
+      'Notes': dbRow.notes || '',
+      
+      // Grouped milestone fields
+      'Trim Order': {
+        'Target Date': dbRow.trim_order_target_date || '',
+        'Completed Date': dbRow.trim_order_completed_date || ''
+      },
+      'Ex-Factory': {
+        'Target Date': dbRow.ex_factory_target_date || '',
+        'Completed Date': dbRow.ex_factory_completed_date || ''
+      },
+      'Trims Received': {
+        'Target Date': dbRow.trims_received_target_date || '',
+        'Completed Date': dbRow.trims_received_completed_date || ''
+      },
+      'MPO Issue Date': {
+        'Target Date': dbRow.mpo_issue_date_target_date || '',
+        'Completed Date': dbRow.mpo_issue_date_completed_date || ''
+      },
+      'Main Material Order': {
+        'Target Date': dbRow.main_material_order_target_date || '',
+        'Completed Date': dbRow.main_material_order_completed_date || ''
+      },
+      'Main Material received': {
+        'Target Date': dbRow.main_material_received_target_date || '',
+        'Completed Date': dbRow.main_material_received_completed_date || ''
+      },
+      
+      // Fields from additional_data
+      'PO Line': additionalData['PO Line'] || '',
+      'Fit Comment': additionalData['Fit Comment'] || '',
+      'Fit Log Status': additionalData['Fit Log Status'] || '',
+      'Fit Log Type': additionalData['Fit Log Type'] || '',
+      'Fit Log Name': additionalData['Fit Log Name'] || '',
+      'Collection': additionalData['Collection'] || '',
+      'Selling Quantity': additionalData['Selling Quantity'] || 0,
       'Line Purchase Price': additionalData['Line Purchase Price'] || '',
       'Line Selling Price': additionalData['Line Selling Price'] || '',
-      'Note Count': additionalData['Note Count'] || 0,
-      'Latest Note': additionalData['Latest Note'] || '',
       'Order Quantity Increment': additionalData['Order Quantity Increment'] || 0,
       'Order Lead Time': additionalData['Order Lead Time'] || '',
       'Supplier Ref.': additionalData['Supplier Ref.'] || '',
       'Purchase Order Status': additionalData['Purchase Order Status'] || '',
-      'MPO Key Date': additionalData['MPO Key Date'] || '',
-      'Supplier Currency': additionalData['Supplier Currency'] || '',
-      'Supplier Description': additionalData['Supplier Description'] || '',
-      'Supplier Parent': additionalData['Supplier Parent'] || '',
       'Supplier Purchase Currency': additionalData['Supplier Purchase Currency'] || '',
       'Customer Selling Currency': additionalData['Customer Selling Currency'] || '',
-      'Supplier': additionalData['Supplier'] || '',
-      'Purchase Currency': additionalData['Purchase Currency'] || '',
-      'Selling Currency': additionalData['Selling Currency'] || '',
-      'Selling Payment Term': additionalData['Selling Payment Term'] || '',
       'Minimum Order Quantity': additionalData['Minimum Order Quantity'] || 0,
       'Purchase Description': additionalData['Purchase Description'] || '',
       'Product Type': additionalData['Product Type'] || '',
@@ -561,7 +647,6 @@ export const convertDbRowToDisplayFormat = (dbRow: any): Record<string, any> => 
       'Costing Selling Currency': additionalData['Costing Selling Currency'] || '',
       'Costing Status': additionalData['Costing Status'] || '',
       'Supplier Payment Term': additionalData['Supplier Payment Term'] || '',
-      'Purchase Payment Term': additionalData['Purchase Payment Term'] || '',
       'Supplier Payment Term Description': additionalData['Supplier Payment Term Description'] || '',
       'Order Purchase Payment Term': additionalData['Order Purchase Payment Term'] || '',
       'Order Purchase Payment Term Description': additionalData['Order Purchase Payment Term Description'] || '',
@@ -571,7 +656,6 @@ export const convertDbRowToDisplayFormat = (dbRow: any): Record<string, any> => 
       'Order Selling Payment Term Description': additionalData['Order Selling Payment Term Description'] || '',
       'Product Supplier Selling Payment Term': additionalData['Product Supplier Selling Payment Term'] || '',
       'Product Supplier Selling Payment Term Description': additionalData['Product Supplier Selling Payment Term Description'] || '',
-      'Purchase Payment Term Description': additionalData['Purchase Payment Term Description'] || '',
       'Purchase Price': additionalData['Purchase Price'] || '',
       'Selling Price': additionalData['Selling Price'] || '',
       'Production': additionalData['Production'] || '',
@@ -579,19 +663,10 @@ export const convertDbRowToDisplayFormat = (dbRow: any): Record<string, any> => 
       'China-QC': additionalData['China-QC'] || '',
       'MLA-Planning': additionalData['MLA-Planning'] || '',
       'MLA-Shipping': additionalData['MLA-Shipping'] || '',
-      'Purchasing': additionalData['Purchasing'] || '',
-      'MPO Key User 2': additionalData['MPO Key User 2'] || '',
-      'MPO Key User 3': additionalData['MPO Key User 3'] || '',
-      'MPO Key User 4': additionalData['MPO Key User 4'] || '',
-      'MPO Key User 5': additionalData['MPO Key User 5'] || '',
-      'PO Key User 6': additionalData['PO Key User 6'] || '',
-      'PO Key User 7': additionalData['PO Key User 7'] || '',
-      'PO Key User 8': additionalData['PO Key User 8'] || '',
       'Season': additionalData['Season'] || '',
       'Department': additionalData['Department'] || '',
       'Customer Parent': additionalData['Customer Parent'] || '',
       'RECIPIENT PRODUCT SUPPLIER-NUMBER': additionalData['RECIPIENT PRODUCT SUPPLIER-NUMBER'] || '',
-      'Recipient Product Supplier': additionalData['Recipient Product Supplier'] || '',
       'FG PO Number': additionalData['FG PO Number'] || '',
       'Received': additionalData['Received'] || 0,
       'Balance': additionalData['Balance'] || 0,
@@ -599,24 +674,10 @@ export const convertDbRowToDisplayFormat = (dbRow: any): Record<string, any> => 
       'Size': additionalData['Size'] || '',
       'Main Material': additionalData['Main Material'] || '',
       'Main Material Description': additionalData['Main Material Description'] || '',
-      'Delivery Contact': additionalData['Delivery Contact'] || '',
       'PO Key Working Group 1': additionalData['PO Key Working Group 1'] || '',
       'PO Key Working Group 2': additionalData['PO Key Working Group 2'] || '',
       'PO Key Working Group 3': additionalData['PO Key Working Group 3'] || '',
       'PO Key Working Group 4': additionalData['PO Key Working Group 4'] || '',
-      'Created By': additionalData['Created By'] || '',
-      'Created': additionalData['Created'] || '',
-      'Last Edited': additionalData['Last Edited'] || '',
-      'Last Edited By': additionalData['Last Edited By'] || '',
-      'Supplier Location': additionalData['Supplier Location'] || '',
-      'Supplier Country': additionalData['Supplier Country'] || '',
-      'Selling Payment Term Description': additionalData['Selling Payment Term Description'] || '',
-      'Default Material Purchase Order Line Template': additionalData['Default Material Purchase Order Line Template'] || '',
-      'Default MPO Line Key Date': additionalData['Default MPO Line Key Date'] || '',
-      'MPO Key Working Group 1': additionalData['MPO Key Working Group 1'] || '',
-      'MPO Key Working Group 2': additionalData['MPO Key Working Group 2'] || '',
-      'MPO Key Working Group 3': additionalData['MPO Key Working Group 3'] || '',
-      'MPO Key Working Group 4': additionalData['MPO Key Working Group 4'] || '',
       'Color': additionalData['Color'] || '',
       'Vessel Schedule': additionalData['Vessel Schedule'] || '',
       'Buyer PO Number': additionalData['Buyer PO Number'] || '',
@@ -652,20 +713,144 @@ export const convertDbRowToDisplayFormat = (dbRow: any): Record<string, any> => 
       'Buyer Season': additionalData['Buyer Season'] || '',
       'Lookbook': additionalData['Lookbook'] || '',
       'Finished Good Testing Status': additionalData['Finished Good Testing Status'] || '',
-      // Grouped milestone fields
-      'Trim Order': additionalData['Trim Order'] || { 'Target Date': '', 'Completed Date': '' },
-      'Ex-Factory': additionalData['Ex-Factory'] || { 'Target Date': '', 'Completed Date': '' },
-      'Trims Received': additionalData['Trims Received'] || { 'Target Date': '', 'Completed Date': '' },
-      'MPO Issue Date': additionalData['MPO Issue Date'] || { 'Target Date': '', 'Completed Date': '' },
-      'Main Material Order': additionalData['Main Material Order'] || { 'Target Date': '', 'Completed Date': '' },
-      'Main Material received': additionalData['Main Material received'] || { 'Target Date': '', 'Completed Date': '' },
-
+      
       // Legacy optional fields for compatibility
       'Order': additionalData['Order'] || '',
-      'Product': additionalData['Product'] || ''
+      'Product': additionalData['Product'] || '',
+      
+      // Timestamps
+      'Created At': dbRow.created_at || '',
+      'Updated At': dbRow.updated_at || '',
+      
+      // Database IDs for reference
+      'Purchase Order ID': dbRow.purchase_order_id || '',
+      'Product ID': dbRow.product_id || ''
     };
   } catch (error) {
     console.error('Error converting database row to display format:', error);
-    return {};
+    return {
+      id: dbRow?.id || '',
+      error: 'Error parsing data'
+    };
   }
-}; 
+};
+
+// Helper function to convert display format back to database format
+export const convertDisplayFormatToDbRow = (displayRow: Record<string, any>): Partial<PurchaseOrderLine> => {
+  try {
+    const result: Partial<PurchaseOrderLine> = {
+      id: displayRow.id,
+      
+      // Map core fields
+      quantity: displayRow['Quantity'] || 0,
+      unit_price: displayRow['Unit Price'] || 0,
+      total_price: displayRow['Total Price'] || null,
+      received_quantity: displayRow['Received Quantity'] || 0,
+      notes: displayRow['Notes'] || null,
+      
+      // Map direct database columns
+      order_reference: displayRow['Order Reference'] || null,
+      template: displayRow['Template'] || null,
+      transport_method: displayRow['Transport Method'] || null,
+      deliver_to: displayRow['Deliver To'] || null,
+      status: displayRow['Status'] || null,
+      total_qty: displayRow['Total Qty'] || null,
+      total_cost: displayRow['Total Cost'] || null,
+      total_value: displayRow['Total Value'] || null,
+      customer: displayRow['Customer'] || null,
+      supplier: displayRow['Supplier'] || null,
+      purchase_currency: displayRow['Purchase Currency'] || null,
+      purchase_payment_term: displayRow['Purchase Payment Term'] || null,
+      closed_date: displayRow['Closed Date'] || null,
+      mpo_key_date: displayRow['MPO Key Date'] || null,
+      supplier_currency: displayRow['Supplier Currency'] || null,
+      supplier_description: displayRow['Supplier Description'] || null,
+      supplier_parent: displayRow['Supplier Parent'] || null,
+      delivery_date: displayRow['Delivery Date'] || null,
+      recipient_product_supplier: displayRow['Recipient Product Supplier'] || null,
+      comments: displayRow['Comments'] || null,
+      purchasing: displayRow['Purchasing'] || null,
+      mpo_key_user_2: displayRow['MPO Key User 2'] || null,
+      mpo_key_user_3: displayRow['MPO Key User 3'] || null,
+      mpo_key_user_4: displayRow['MPO Key User 4'] || null,
+      mpo_key_user_5: displayRow['MPO Key User 5'] || null,
+      mpo_key_user_6: displayRow['MPO Key User 6'] || null,
+      mpo_key_user_7: displayRow['MPO Key User 7'] || null,
+      mpo_key_user_8: displayRow['MPO Key User 8'] || null,
+      note_count: displayRow['Note Count'] || null,
+      latest_note: displayRow['Latest Note'] || null,
+      purchase_payment_term_description: displayRow['Purchase Payment Term Description'] || null,
+      created_by: displayRow['Created By'] || null,
+      created: displayRow['Created'] || null,
+      last_edited: displayRow['Last Edited'] || null,
+      last_edited_by: displayRow['Last Edited By'] || null,
+      selling_currency: displayRow['Selling Currency'] || null,
+      selling_payment_term: displayRow['Selling Payment Term'] || null,
+      delivery_contact: displayRow['Delivery Contact'] || null,
+      division: displayRow['Division'] || null,
+      group: displayRow['Group'] || null,
+      supplier_location: displayRow['Supplier Location'] || null,
+      supplier_country: displayRow['Supplier Country'] || null,
+      selling_payment_term_description: displayRow['Selling Payment Term Description'] || null,
+      default_material_purchase_order_line_template: displayRow['Default Material Purchase Order Line Template'] || null,
+      default_mpo_line_key_date: displayRow['Default MPO Line Key Date'] || null,
+      mpo_key_working_group_1: displayRow['MPO Key Working Group 1'] || null,
+      mpo_key_working_group_2: displayRow['MPO Key Working Group 2'] || null,
+      mpo_key_working_group_3: displayRow['MPO Key Working Group 3'] || null,
+      mpo_key_working_group_4: displayRow['MPO Key Working Group 4'] || null,
+      
+      // Map milestone dates
+      trim_order_target_date: displayRow['Trim Order']?.['Target Date'] || null,
+      trim_order_completed_date: displayRow['Trim Order']?.['Completed Date'] || null,
+      ex_factory_target_date: displayRow['Ex-Factory']?.['Target Date'] || null,
+      ex_factory_completed_date: displayRow['Ex-Factory']?.['Completed Date'] || null,
+      trims_received_target_date: displayRow['Trims Received']?.['Target Date'] || null,
+      trims_received_completed_date: displayRow['Trims Received']?.['Completed Date'] || null,
+      mpo_issue_date_target_date: displayRow['MPO Issue Date']?.['Target Date'] || null,
+      mpo_issue_date_completed_date: displayRow['MPO Issue Date']?.['Completed Date'] || null,
+      main_material_order_target_date: displayRow['Main Material Order']?.['Target Date'] || null,
+      main_material_order_completed_date: displayRow['Main Material Order']?.['Completed Date'] || null,
+      main_material_received_target_date: displayRow['Main Material received']?.['Target Date'] || null,
+      main_material_received_completed_date: displayRow['Main Material received']?.['Completed Date'] || null,
+      
+      // Map IDs if present
+      purchase_order_id: displayRow['Purchase Order ID'] || null,
+      product_id: displayRow['Product ID'] || null
+    };
+    
+    // Build additional_data from remaining fields
+    const additionalData: Record<string, any> = {};
+    const mappedFields = new Set([
+      'id', 'Quantity', 'Unit Price', 'Total Price', 'Received Quantity', 'Notes',
+      'Order Reference', 'Template', 'Transport Method', 'Deliver To', 'Status',
+      'Total Qty', 'Total Cost', 'Total Value', 'Customer', 'Supplier', 'Purchase Currency',
+      'Purchase Payment Term', 'Closed Date', 'MPO Key Date', 'Supplier Currency',
+      'Supplier Description', 'Supplier Parent', 'Delivery Date', 'Recipient Product Supplier',
+      'Comments', 'Purchasing', 'MPO Key User 2', 'MPO Key User 3', 'MPO Key User 4',
+      'MPO Key User 5', 'MPO Key User 6', 'MPO Key User 7', 'MPO Key User 8',
+      'Note Count', 'Latest Note', 'Purchase Payment Term Description', 'Created By',
+      'Created', 'Last Edited', 'Last Edited By', 'Selling Currency', 'Selling Payment Term',
+      'Delivery Contact', 'Division', 'Group', 'Supplier Location', 'Supplier Country',
+      'Selling Payment Term Description', 'Default Material Purchase Order Line Template',
+      'Default MPO Line Key Date', 'MPO Key Working Group 1', 'MPO Key Working Group 2',
+      'MPO Key Working Group 3', 'MPO Key Working Group 4', 'Trim Order', 'Ex-Factory',
+      'Trims Received', 'MPO Issue Date', 'Main Material Order', 'Main Material received',
+      'Purchase Order ID', 'Product ID', 'Created At', 'Updated At'
+    ]);
+    
+    Object.keys(displayRow).forEach(key => {
+      if (!mappedFields.has(key)) {
+        additionalData[key] = displayRow[key];
+      }
+    });
+    
+    if (Object.keys(additionalData).length > 0) {
+      result.additional_data = additionalData;
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('Error converting display format to database row:', error);
+    return { id: displayRow?.id };
+  }
+};

@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import bcrypt from 'bcryptjs';
 
 // Replace these with your actual Supabase project URL and anon key
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -43,37 +44,64 @@ export const auth = {
   // Sign in with email and password using custom users table
   signIn: async (email: string, password: string) => {
     try {
+      console.log('🔍 Attempting login for email:', email);
+      
       const { data, error } = await supabase
         .from('users')
         .select('*')
-        .eq('email_address', email)
-        .eq('password', password)
+        .eq('email_address', email) // Use correct database column name
         .eq('is_active', true)
         .single();
-      
-      if (error) {
-        console.error('Login error:', error);
+
+      if (error || !data) {
+        console.log('❌ User not found or error:', error);
         throw new Error('Invalid email or password');
       }
-      
-      if (data) {
-        // Map your custom user data to the expected format
-        const userData: SupabaseUser = {
-          id: data.id,
-          name: data.username,
-          email: data.email_address,
-          role: data.role,
-          department: data.department,
-          avatar: data.avatar || ''
-        };
+
+      console.log('✅ User found:', { 
+        id: data.id, 
+        username: data.username, 
+        email: data.email_address,
+        passwordLength: data.password?.length || 0,
+        passwordStartsWith: data.password?.substring(0, 10) || 'N/A'
+      });
+
+      // Check if password is already hashed
+      if (!data.password || data.password.length < 20) {
+        console.log('⚠️ Password appears to be plain text, hashing it now...');
+        // Hash the plain text password and update the database
+        const hashedPassword = await bcrypt.hash(data.password, 10);
+        await supabase
+          .from('users')
+          .update({ password: hashedPassword })
+          .eq('id', data.id);
+        console.log('✅ Password hashed and updated in database');
         
-        // Store user in localStorage for session management
-        localStorage.setItem('user', JSON.stringify(userData));
-        
-        return { user: userData };
+        // Update the data.password to use the new hashed password for comparison
+        data.password = hashedPassword;
       }
+
+      // Compare provided password with hashed one
+      console.log('🔐 Comparing passwords...');
+      const isMatch = await bcrypt.compare(password, data.password);
+      console.log('🔐 Password match result:', isMatch);
       
-      throw new Error('Invalid email or password');
+      if (!isMatch) {
+        throw new Error('Invalid email or password');
+      }
+
+      const userData: SupabaseUser = {
+        id: data.id,
+        name: data.username,
+        email: data.email_address, // Use correct database column name
+        role: data.role,
+        department: data.department,
+        avatar: data.avatar || ''
+      };
+
+      localStorage.setItem('user', JSON.stringify(userData));
+
+      return { user: userData };
     } catch (error) {
       console.error('Authentication error:', error);
       throw error;
@@ -83,12 +111,15 @@ export const auth = {
   // Sign up with email and password (adds to your custom users table)
   signUp: async (email: string, password: string, userData: Omit<SupabaseUser, 'id'>) => {
     try {
+      // Hash password before saving
+      const hashedPassword = await bcrypt.hash(password, 10);
+
       const { data, error } = await supabase
         .from('users')
         .insert({
-          email_address: email,
+          email_address: email, // Use correct database column name
           username: userData.name,
-          password: password, // Note: In production, use hashed passwords!
+          password: hashedPassword,
           role: userData.role,
           department: userData.department,
           avatar: userData.avatar || '',
@@ -96,86 +127,54 @@ export const auth = {
         })
         .select()
         .single();
-      
-      if (error) {
-        console.error('Signup error:', error);
-        throw error;
-      }
-      
-      if (data) {
-        const newUser: SupabaseUser = {
-          id: data.id,
-          name: data.username,
-          email: data.email_address,
-          role: data.role,
-          department: data.department,
-          avatar: data.avatar
-        };
-        
-        // Store user in localStorage
-        localStorage.setItem('user', JSON.stringify(newUser));
-        
-        return { user: newUser };
-      }
-      
-      throw new Error('Failed to create user');
+
+      if (error) throw error;
+
+      const newUser: SupabaseUser = {
+        id: data.id,
+        name: data.username,
+        email: data.email_address, // Use correct database column name
+        role: data.role,
+        department: data.department,
+        avatar: data.avatar
+      };
+
+      localStorage.setItem('user', JSON.stringify(newUser));
+
+      return { user: newUser };
     } catch (error) {
       console.error('Signup error:', error);
       throw error;
     }
   },
 
-  // Sign out (clears localStorage since we're not using Supabase auth)
   signOut: async () => {
-    try {
-      localStorage.removeItem('user');
-      return { error: null };
-    } catch (error) {
-      console.error('Signout error:', error);
-      throw error;
-    }
+    localStorage.removeItem('user');
+    return { error: null };
   },
 
-  // Get current session (check localStorage)
   getSession: async () => {
-    try {
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        const user = JSON.parse(userStr);
-        return { user };
-      }
-      return { user: null };
-    } catch (error) {
-      console.error('Get session error:', error);
-      return { user: null };
-    }
+    const userStr = localStorage.getItem('user');
+    return { user: userStr ? JSON.parse(userStr) : null };
   },
 
-  // Listen to auth state changes (simplified for custom auth)
   onAuthStateChange: (callback: (event: string, session: any) => void) => {
-    // For custom auth, we'll create a simple subscription
     const checkAuthState = () => {
       const userStr = localStorage.getItem('user');
       if (userStr) {
-        const user = JSON.parse(userStr);
-        callback('SIGNED_IN', { user });
+        callback('SIGNED_IN', { user: JSON.parse(userStr) });
       } else {
         callback('SIGNED_OUT', { user: null });
       }
     };
-    
-    // Check initial state
+
     checkAuthState();
-    
-    // Listen for storage changes (when user logs in/out in another tab)
     window.addEventListener('storage', checkAuthState);
-    
+
     return {
       data: {
         subscription: {
-          unsubscribe: () => {
-            window.removeEventListener('storage', checkAuthState);
-          }
+          unsubscribe: () => window.removeEventListener('storage', checkAuthState)
         }
       }
     };
@@ -184,221 +183,239 @@ export const auth = {
 
 // User management functions for administration
 export const userManagement = {
-  // Get all users
   getAllUsers: async (): Promise<AdminUser[]> => {
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        console.error('Error fetching users:', error);
-        throw error;
-      }
-      
-      // Map database fields to AdminUser interface
-      return data?.map(user => ({
-        id: user.id,
-        name: user.username,
-        email: user.email_address,
-        password: user.password,
-        role: user.role,
-        department: user.department,
-        status: user.is_active ? 'Active' : 'Inactive',
-        avatar: user.avatar,
-        phone: '', // Add phone field to users table if needed
-        lastLogin: '', // Add last_login field to users table if needed
-        is_active: user.is_active,
-        created_at: user.created_at,
-        updated_at: user.updated_at
-      })) || [];
-    } catch (error) {
-      console.error('Error in getAllUsers:', error);
-      throw error;
-    }
+    const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+
+    return data?.map(user => ({
+      id: user.id,
+      name: user.username,
+      email: user.email_address,
+      password: user.password,
+      role: user.role,
+      department: user.department,
+      status: user.is_active ? 'Active' : 'Inactive',
+      avatar: user.avatar,
+      phone: '',
+      lastLogin: '',
+      is_active: user.is_active,
+      created_at: user.created_at,
+      updated_at: user.updated_at
+    })) || [];
   },
 
-  // Get user by ID
   getUserById: async (id: string): Promise<AdminUser | null> => {
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', id)
-        .single();
-      
-      if (error) {
-        console.error('Error fetching user:', error);
-        throw error;
-      }
-      
-      if (data) {
-        return {
-          id: data.id,
-          name: data.username,
-          email: data.email_address,
-          password: data.password,
-          role: data.role,
-          department: data.department,
-          status: data.is_active ? 'Active' : 'Inactive',
-          avatar: data.avatar,
-          phone: '',
-          lastLogin: '',
-          is_active: data.is_active,
-          created_at: data.created_at,
-          updated_at: data.updated_at
-        };
-      }
-      
-      return null;
-    } catch (error) {
-      console.error('Error in getUserById:', error);
-      throw error;
-    }
+    const { data, error } = await supabase.from('users').select('*').eq('id', id).single();
+    if (error || !data) return null;
+
+    return {
+      id: data.id,
+      name: data.username,
+      email: data.email_address,
+      password: data.password,
+      role: data.role,
+      department: data.department,
+      status: data.is_active ? 'Active' : 'Inactive',
+      avatar: data.avatar,
+      phone: '',
+      lastLogin: '',
+      is_active: data.is_active,
+      created_at: data.created_at,
+      updated_at: data.updated_at
+    };
   },
 
-  // Create new user
   createUser: async (userData: Omit<AdminUser, 'id' | 'created_at' | 'updated_at'>): Promise<AdminUser> => {
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .insert({
-          email_address: userData.email,
-          username: userData.name,
-          password: userData.password,
-          role: userData.role,
-          department: userData.department,
-          avatar: userData.avatar || '',
-          is_active: userData.status === 'Active'
-        })
-        .select()
-        .single();
-      
-      if (error) {
-        console.error('Error creating user:', error);
-        throw error;
-      }
-      
-      return {
-        id: data.id,
-        name: data.username,
-        email: data.email_address,
-        password: data.password,
-        role: data.role,
-        department: data.department,
-        status: data.is_active ? 'Active' : 'Inactive',
-        avatar: data.avatar,
-        phone: '',
-        lastLogin: '',
-        is_active: data.is_active,
-        created_at: data.created_at,
-        updated_at: data.updated_at
-      };
-    } catch (error) {
-      console.error('Error in createUser:', error);
-      throw error;
-    }
+    // Hash password before saving
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+
+    const { data, error } = await supabase
+      .from('users')
+      .insert({
+        email_address: userData.email, // Use correct database column name
+        username: userData.name,
+        password: hashedPassword,
+        role: userData.role,
+        department: userData.department,
+        avatar: userData.avatar || '',
+        is_active: userData.status === 'Active'
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return {
+      id: data.id,
+      name: data.username,
+      email: data.email_address,
+      password: data.password,
+      role: data.role,
+      department: data.department,
+      status: data.is_active ? 'Active' : 'Inactive',
+      avatar: data.avatar,
+      phone: '',
+      lastLogin: '',
+      is_active: data.is_active,
+      created_at: data.created_at,
+      updated_at: data.updated_at
+    };
   },
 
-  // Update user
   updateUser: async (id: string, userData: Partial<AdminUser>): Promise<AdminUser> => {
-    try {
-      const updateData: any = {};
-      
-      if (userData.name !== undefined) updateData.username = userData.name;
-      if (userData.email !== undefined) updateData.email_address = userData.email;
-      if (userData.password !== undefined) updateData.password = userData.password;
-      if (userData.role !== undefined) updateData.role = userData.role;
-      if (userData.department !== undefined) updateData.department = userData.department;
-      if (userData.avatar !== undefined) updateData.avatar = userData.avatar;
-      if (userData.status !== undefined) updateData.is_active = userData.status === 'Active';
-      
-      const { data, error } = await supabase
-        .from('users')
-        .update(updateData)
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) {
-        console.error('Error updating user:', error);
-        throw error;
-      }
-      
-      return {
-        id: data.id,
-        name: data.username,
-        email: data.email_address,
-        password: data.password,
-        role: data.role,
-        department: data.department,
-        status: data.is_active ? 'Active' : 'Inactive',
-        avatar: data.avatar,
-        phone: '',
-        lastLogin: '',
-        is_active: data.is_active,
-        created_at: data.created_at,
-        updated_at: data.updated_at
-      };
-    } catch (error) {
-      console.error('Error in updateUser:', error);
-      throw error;
-    }
+    const updateData: any = {};
+
+    if (userData.name !== undefined) updateData.username = userData.name;
+    if (userData.email !== undefined) updateData.email_address = userData.email; // Use correct database column name
+    if (userData.password !== undefined) updateData.password = await bcrypt.hash(userData.password, 10);
+    if (userData.role !== undefined) updateData.role = userData.role;
+    if (userData.department !== undefined) updateData.department = userData.department;
+    if (userData.avatar !== undefined) updateData.avatar = userData.avatar;
+    if (userData.status !== undefined) updateData.is_active = userData.status === 'Active';
+
+    const { data, error } = await supabase.from('users').update(updateData).eq('id', id).select().single();
+    if (error) throw error;
+
+    return {
+      id: data.id,
+      name: data.username,
+      email: data.email_address,
+      password: data.password,
+      role: data.role,
+      department: data.department,
+      status: data.is_active ? 'Active' : 'Inactive',
+      avatar: data.avatar,
+      phone: '',
+      lastLogin: '',
+      is_active: data.is_active,
+      created_at: data.created_at,
+      updated_at: data.updated_at
+    };
   },
 
-  // Delete user
   deleteUser: async (id: string): Promise<void> => {
+    const { error } = await supabase.from('users').delete().eq('id', id);
+    if (error) throw error;
+  },
+
+  updateProfile: async (id: string, profileData: Partial<SupabaseUser>): Promise<SupabaseUser> => {
+    const updateData: any = {};
+    if (profileData.name !== undefined) updateData.username = profileData.name;
+    if (profileData.email !== undefined) updateData.email_address = profileData.email; // Use correct database column name
+    if (profileData.role !== undefined) updateData.role = profileData.role;
+    if (profileData.department !== undefined) updateData.department = profileData.department;
+    if (profileData.avatar !== undefined) updateData.avatar = profileData.avatar;
+
+    const { data, error } = await supabase.from('users').update(updateData).eq('id', id).select().single();
+    if (error) throw error;
+
+    return {
+      id: data.id,
+      name: data.username,
+      email: data.email_address,
+      role: data.role,
+      department: data.department,
+      avatar: data.avatar
+    };
+  },
+
+  // Check password status for all users
+  checkPasswordStatus: async (): Promise<{ hashed: number; plainText: number; total: number; details: any[] }> => {
     try {
-      const { error } = await supabase
-        .from('users')
-        .delete()
-        .eq('id', id);
+      console.log('🔍 Checking password status for all users...');
       
-      if (error) {
-        console.error('Error deleting user:', error);
-        throw error;
+      const { data: users, error } = await supabase.from('users').select('*');
+      if (error) throw error;
+      
+      let hashed = 0;
+      let plainText = 0;
+      const details: any[] = [];
+      
+      for (const user of users) {
+        const isHashed = user.password && user.password.length >= 20 && user.password.startsWith('$2a$');
+        
+        if (isHashed) {
+          hashed++;
+        } else {
+          plainText++;
+        }
+        
+        details.push({
+          id: user.id,
+          username: user.username,
+          email: user.email_address,
+          passwordLength: user.password?.length || 0,
+          isHashed,
+          passwordPreview: user.password ? user.password.substring(0, 10) + '...' : 'No password'
+        });
       }
+      
+      console.log(`📊 Password Status: ${hashed} hashed, ${plainText} plain text, ${users.length} total`);
+      return { hashed, plainText, total: users.length, details };
+      
     } catch (error) {
-      console.error('Error in deleteUser:', error);
+      console.error('❌ Failed to check password status:', error);
       throw error;
     }
   },
 
-  // Update user profile (for user's own profile)
-  updateProfile: async (id: string, profileData: Partial<SupabaseUser>): Promise<SupabaseUser> => {
+  // Migration function to hash all existing plain text passwords
+  migratePasswords: async (): Promise<{ success: number; errors: number }> => {
     try {
-      const updateData: any = {};
+      console.log('🔄 Starting password migration...');
       
-      if (profileData.name !== undefined) updateData.username = profileData.name;
-      if (profileData.email !== undefined) updateData.email_address = profileData.email;
-      if (profileData.role !== undefined) updateData.role = profileData.role;
-      if (profileData.department !== undefined) updateData.department = profileData.department;
-      if (profileData.avatar !== undefined) updateData.avatar = profileData.avatar;
+      // Get all users
+      const { data: users, error } = await supabase.from('users').select('*');
+      if (error) throw error;
       
-      const { data, error } = await supabase
-        .from('users')
-        .update(updateData)
-        .eq('id', id)
-        .select()
-        .single();
+      let success = 0;
+      let errors = 0;
       
-      if (error) {
-        console.error('Error updating profile:', error);
-        throw error;
+      for (const user of users) {
+        try {
+          // Check if password is already hashed (bcrypt hashes start with $2a$ and are ~60 chars)
+          if (user.password && (user.password.length < 20 || !user.password.startsWith('$2a$'))) {
+            console.log(`🔄 Hashing password for user: ${user.username} (${user.email_address})`);
+            
+            // Hash the plain text password
+            const hashedPassword = await bcrypt.hash(user.password, 10);
+            
+            // Update the user's password in the database
+            const { error: updateError } = await supabase
+              .from('users')
+              .update({ password: hashedPassword })
+              .eq('id', user.id);
+            
+            if (updateError) {
+              console.error(`❌ Failed to update password for ${user.username}:`, updateError);
+              errors++;
+            } else {
+              console.log(`✅ Successfully hashed password for ${user.username}`);
+              success++;
+            }
+          } else {
+            console.log(`✅ Password already hashed for user: ${user.username}`);
+          }
+        } catch (userError) {
+          console.error(`❌ Error processing user ${user.username}:`, userError);
+          errors++;
+        }
       }
       
-      return {
-        id: data.id,
-        name: data.username,
-        email: data.email_address,
-        role: data.role,
-        department: data.department,
-        avatar: data.avatar
-      };
+      console.log(`🎉 Password migration completed! Success: ${success}, Errors: ${errors}`);
+      return { success, errors };
+      
     } catch (error) {
-      console.error('Error in updateProfile:', error);
+      console.error('❌ Password migration failed:', error);
       throw error;
     }
   }
-}; 
+};
+
+// Expose helpers for running from the browser console (temporary admin aid)
+if (typeof window !== 'undefined') {
+  // @ts-ignore
+  window.userManagement = userManagement;
+  // @ts-ignore
+  window.auth = auth;
+}

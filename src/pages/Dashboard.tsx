@@ -323,58 +323,46 @@ const Dashboard: React.FC = () => {
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
-            <div className="space-y-4">
-              {recentTasks.map((task) => (
-                <div key={task.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className={`w-3 h-3 rounded-full ${
-                      task.status === 'completed' ? 'bg-green-500' : 
-                      task.status === 'in-progress' ? 'bg-yellow-500' : 'bg-gray-400'
-                    }`} />
-                    <div>
-                      <h4 className="font-medium text-gray-900">{task.title}</h4>
-                      <div className="flex items-center space-x-4 text-sm text-gray-500">
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          task.priority === 'High' ? 'bg-red-100 text-red-700' :
-                          task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-blue-100 text-blue-700'
-                        }`}>
-                          {task.priority}
-                        </span>
-                        <span className="flex items-center space-x-1">
-                          <Calendar className="h-4 w-4" />
-                          <span>Due: {new Date(task.dueDate).toLocaleDateString()}</span>
-                        </span>
+            {recentTasks.length > 0 ? (
+              <div className="space-y-4">
+                {recentTasks.map((task) => (
+                  <div key={task.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-3 h-3 rounded-full ${
+                        task.status === 'completed' ? 'bg-green-500' : 
+                        task.status === 'in-progress' ? 'bg-yellow-500' : 'bg-gray-400'
+                      }`} />
+                      <div>
+                        <h4 className="font-medium text-gray-900">{task.title}</h4>
+                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          <span className={`px-2 py-1 rounded-full text-xs ${
+                            task.priority === 'High' ? 'bg-red-100 text-red-700' :
+                            task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-blue-100 text-blue-700'
+                          }`}>
+                            {task.priority}
+                          </span>
+                          <span className="flex items-center space-x-1">
+                            <Calendar className="h-4 w-4" />
+                            <span>Due: {new Date(task.dueDate).toLocaleDateString()}</span>
+                          </span>
+                        </div>
                       </div>
                     </div>
+                    <button className="text-blue-600 hover:text-blue-700 font-medium text-sm">
+                      View
+                    </button>
                   </div>
-                  <button className="text-blue-600 hover:text-blue-700 font-medium text-sm">
-                    View
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {recentTasks.length === 0 && (
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">My Tasks</h2>
-                <Link 
-                  to="/my-tasks"
-                  className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center space-x-1"
-                >
-                  <span>View all</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+                ))}
               </div>
+            ) : (
               <div className="text-center py-8">
                 <CheckCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks assigned</h3>
                 <p className="text-gray-600">You're all caught up! Check back later for new tasks.</p>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Quick Actions */}

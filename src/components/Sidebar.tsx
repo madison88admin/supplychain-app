@@ -105,14 +105,13 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen, collapsed: externalCol
       items: [
         { icon: Database, label: 'Data Bank', path: '/data-bank' },
         { icon: Users, label: 'User Management', path: '/user-administration' },
-        { icon: ExternalLink, label: 'Factory Account Allocation', path: 'https://m88accountallocation.netlify.app/ ', external: true },
       ]
     },
     {
       title: 'External Links',
       items: [
         { icon: ExternalLink, label: 'Purchase Order Instructions', path: 'https://poinstructions.netlify.app/', external: true },
-        { icon: ExternalLink, label: 'Factory Account Allocation', path: 'https://m88accountallocation.netlify.app/ ', external: true }
+        { icon: ExternalLink, label: 'Factory Account Allocation', path: 'https://m88accountallocation.netlify.app/', external: true }
       ]
     }
   ];

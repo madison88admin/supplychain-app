@@ -1,0 +1,336 @@
+/* Mobile Responsive Styles for Supply Chain Management System */
+
+/* Base mobile styles */
+@media (max-width: 768px) {
+  /* Sidebar mobile improvements */
+  .sidebar--wrapper {
+    width: 100% !important;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .sidebar--wrapper.open {
+    transform: translateX(0);
+  }
+  
+  .sidebar--overlay {
+    display: block !important;
+  }
+
+  /* Header mobile improvements */
+  .header {
+    padding: 1rem;
+  }
+  
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  /* Dashboard mobile grid */
+  .dashboard-stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
+  }
+
+  /* Table mobile improvements */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .table {
+    min-width: 600px;
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  /* Form mobile improvements */
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .form-actions button {
+    width: 100%;
+  }
+
+  /* Modal mobile improvements */
+  .modal {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+  }
+  
+  .modal-content {
+    padding: 1rem;
+  }
+
+  /* Button groups mobile */
+  .button-group {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .button-group button {
+    width: 100%;
+  }
+
+  /* Search bar mobile */
+  .search-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .search-input {
+    width: 100%;
+  }
+
+  /* Pagination mobile */
+  .pagination {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .pagination-controls {
+    justify-content: center;
+  }
+
+  /* Card layouts mobile */
+  .card-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
+  }
+
+  /* Navigation mobile */
+  .nav-tabs {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .nav-tab {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+  }
+
+  /* Quick actions mobile */
+  .quick-actions {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1rem;
+  }
+
+  /* Stats cards mobile */
+  .stat-card {
+    padding: 1rem;
+  }
+  
+  .stat-card h3 {
+    font-size: 1.5rem;
+  }
+
+  /* Notification mobile */
+  .notification-container {
+    top: 1rem;
+    right: 1rem;
+    left: 1rem;
+    max-width: none;
+  }
+
+  /* Advanced search mobile */
+  .advanced-search {
+    margin: 0;
+  }
+  
+  .search-filters {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .filter-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .filter-row select,
+  .filter-row input {
+    width: 100%;
+  }
+}
+
+/* Tablet styles */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .dashboard-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .quick-actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Large mobile styles */
+@media (max-width: 480px) {
+  /* Extra small screens */
+  .container {
+    padding: 0.5rem;
+  }
+  
+  .page-header {
+    padding: 1rem 0.5rem;
+  }
+  
+  .page-title {
+    font-size: 1.25rem;
+  }
+  
+  .button {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .input,
+  .select {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.375rem;
+    font-size: 0.75rem;
+  }
+  
+  .modal {
+    margin: 0.5rem;
+    max-height: calc(100vh - 1rem);
+  }
+  
+  .stat-card {
+    padding: 0.75rem;
+  }
+  
+  .stat-card h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Touch devices */
+  .button,
+  .clickable {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .nav-tab {
+    padding: 0.75rem 1rem;
+  }
+  
+  .pagination button {
+    padding: 0.75rem 1rem;
+  }
+  
+  .form-control {
+    padding: 0.75rem;
+  }
+}
+
+/* Landscape mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .modal {
+    max-height: 90vh;
+  }
+  
+  .sidebar--wrapper {
+    width: 80% !important;
+  }
+  
+  .dashboard-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Print styles */
+@media print {
+  .sidebar,
+  .header,
+  .pagination,
+  .button,
+  .modal {
+    display: none !important;
+  }
+  
+  .main-content {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .table {
+    font-size: 0.75rem;
+  }
+  
+  .page-break {
+    page-break-before: always;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .button {
+    border: 2px solid currentColor;
+  }
+  
+  .table th,
+  .table td {
+    border: 1px solid currentColor;
+  }
+  
+  .card {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .notification-container {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+  
+  .notification-container .text-gray-800 {
+    color: #f9fafb;
+  }
+  
+  .notification-container .text-gray-700 {
+    color: #d1d5db;
+  }
+}

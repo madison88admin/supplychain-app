@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, X, Lightbulb, Sparkles, ArrowRight, Clock, TrendingUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 interface SearchFilter {
   id: string;
@@ -21,12 +21,21 @@ interface SearchResult {
 }
 
 const SearchPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState<string[]>(['all']);
   const [showFilters, setShowFilters] = useState(true);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+
+  // Initialize search query from URL parameters
+  useEffect(() => {
+    const query = searchParams.get('q');
+    if (query) {
+      setSearchQuery(query);
+    }
+  }, [searchParams]);
 
   // Search filters organized by category
   const searchFilters: SearchFilter[] = [
@@ -182,49 +191,34 @@ const SearchPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Search Header */}
+      {/* Search Results Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
-            <div className="flex-1 max-w-4xl">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search for anything in your supply chain..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-16 py-4 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  autoFocus
-                />
-                <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
-                  <button
-                    onClick={() => setShowFilters(!showFilters)}
-                    className={`p-2 rounded-lg transition-colors duration-200 ${
-                      showFilters ? 'bg-blue-100 text-blue-600' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
-                    }`}
-                    aria-label="Toggle filters"
-                  >
-                    <Filter className="h-5 w-5" />
-                  </button>
-                  {searchQuery && (
-                    <button
-                      onClick={clearSearch}
-                      className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors duration-200"
-                      aria-label="Clear search"
-                    >
-                      <X className="h-5 w-5" />
-                    </button>
-                  )}
-                </div>
-              </div>
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Search Results</h1>
+              <p className="text-gray-600">
+                {searchQuery ? `Results for "${searchQuery}"` : 'Enter a search term in the header to find what you\'re looking for'}
+              </p>
             </div>
-            <Link
-              to="/"
-              className="ml-6 px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              Cancel
-            </Link>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
+                  showFilters ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+                aria-label="Toggle filters"
+              >
+                <Filter className="h-5 w-5" />
+                <span>Filters</span>
+              </button>
+              <Link
+                to="/"
+                className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Back to Dashboard
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -351,6 +345,20 @@ const SearchPage: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-8">
+                {/* Search Instructions */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+                  <Search className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Start Your Search</h3>
+                  <p className="text-gray-600 mb-6">
+                    Use the search bar in the header above to find products, orders, suppliers, and more.
+                  </p>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
+                    <p className="text-sm text-blue-800">
+                      <strong>Tip:</strong> The search bar is always available in the header for quick access from any page.
+                    </p>
+                  </div>
+                </div>
+
                 {/* Search Tips */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                   <div className="flex items-start space-x-4">
@@ -359,16 +367,16 @@ const SearchPage: React.FC = () => {
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">Search Tips</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
                         <div>
-                          <p className="font-medium mb-1">Use filters to narrow results</p>
-                          <p>Select specific categories to focus your search on particular areas of your supply chain.</p>
+                          <p className="font-medium mb-1">Use the header search</p>
+                          <p>Type your search query in the search bar at the top of the page and press Enter.</p>
                         </div>
                         <div>
                           <p className="font-medium mb-1">Search by keywords</p>
                           <p>Try searching for product names, order numbers, supplier names, or material types.</p>
                         </div>
                         <div>
-                          <p className="font-medium mb-1">Use tags for better results</p>
-                          <p>Many items have tags that can help you find related content quickly.</p>
+                          <p className="font-medium mb-1">Use filters to narrow results</p>
+                          <p>Select specific categories to focus your search on particular areas of your supply chain.</p>
                         </div>
                         <div>
                           <p className="font-medium mb-1">Check recent activity</p>

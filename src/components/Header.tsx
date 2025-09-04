@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, User, Settings, LogOut } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import whiteLogo from '../images/whitelogo.png';
 import AdvancedSearch from './AdvancedSearch';
 
@@ -17,6 +17,7 @@ const Header: React.FC<HeaderProps> = ({
   setSidebarCollapsed 
 }) => {
   const { user, logout } = useUser();
+  const navigate = useNavigate();
   const [profileOpen, setProfileOpen] = useState(false);
   const [showProfileUpdate, setShowProfileUpdate] = useState(false);
 
@@ -114,7 +115,17 @@ const Header: React.FC<HeaderProps> = ({
         </div>
 
         <div className="flex-1 max-w-2xl mx-8">
-          <AdvancedSearch />
+          <AdvancedSearch 
+            onSearch={(query) => {
+              console.log('Global search:', query);
+              // Navigate to search page with query parameter
+              navigate(`/search?q=${encodeURIComponent(query)}`);
+            }}
+            onClear={() => {
+              console.log('Search cleared');
+            }}
+            placeholder="Search products, orders, suppliers..."
+          />
         </div>
 
         <div className="flex items-center space-x-4">

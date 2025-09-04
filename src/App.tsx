@@ -23,6 +23,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { UserProvider } from './contexts/UserContext';
 import { DataProvider } from './contexts/DataContext';
 import { SidebarProvider, useSidebar } from './contexts/SidebarContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 import PurchaseOrder from './pages/PurchaseOrder';
 import DataBank from './pages/DataBank';
 import MaterialPurchaseOrder from './pages/MaterialPurchaseOrder';
@@ -97,7 +98,9 @@ function App() {
     <UserProvider>
       <DataProvider>
         <SidebarProvider>
-          <AppContent />
+          <NotificationProvider>
+            <AppContent />
+          </NotificationProvider>
         </SidebarProvider>
       </DataProvider>
     </UserProvider>

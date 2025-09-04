@@ -41,7 +41,7 @@ const Login: React.FC = () => {
     },
     {
       email: 'qa@madison88.com',
-      password: 'demo123',
+      password: 'qa123',
       user: {
         id: 'qa-1',
         name: 'Sample QA Specialist',
@@ -219,7 +219,7 @@ const Login: React.FC = () => {
               Production Login (No Techpack Edit)
             </button>
             <button
-              onClick={() => handleDemoLogin('qa@madison88.com', 'demo123')}
+              onClick={() => handleDemoLogin('qa@madison88.com', 'qa123')}
               className="w-full flex items-center justify-center px-4 py-3 border border-gray-200 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
             >
               <User className="h-4 w-4 mr-2" />
@@ -233,7 +233,7 @@ const Login: React.FC = () => {
           <p>Demo credentials for testing purposes</p>
           <p className="mt-1">Admin: admin@madison88.com / admin123 (Full Access)</p>
           <p className="mt-1">Production: production@madison88.com / demo123 (No Techpack Edit)</p>
-          <p className="mt-1">QA: qa@madison88.com / demo123 (Techpack Access)</p>
+          <p className="mt-1">QA: qa@madison88.com / qa123 (Techpack Access)</p>
           <p className="mt-3">
             Don't have an account?{' '}
             <Link to="/signup" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">

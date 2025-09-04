@@ -721,7 +721,8 @@ const PurchaseOrder: React.FC = () => {
     return baseStyle;
   };
 
-  const [rows, setRows] = useState(generateDummyEntries());
+  const [rows, setRows] = useState<Record<string, any>[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [editRow, setEditRow] = useState<Record<string, any> | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
@@ -858,8 +859,15 @@ const PurchaseOrder: React.FC = () => {
   useEffect(() => {
     const loadDataFromDatabase = async () => {
       try {
+        setIsLoading(true);
         const dbRows = await purchaseOrderService.getAllPurchaseOrderLines();
-        if (!dbRows || dbRows.length === 0) return; // keep dummy
+        
+        if (!dbRows || dbRows.length === 0) {
+          // Use dummy data if no database data
+          setRows(generateDummyEntries());
+          setIsLoading(false);
+          return;
+        }
 
         const displayLines = dbRows.map(convertDbRowToDisplayFormat);
 
@@ -900,8 +908,11 @@ const PurchaseOrder: React.FC = () => {
         setRows(mapped);
         setPoLinesData(displayLines);
       } catch (e) {
-        // Keep dummy data on error
+        // Use dummy data on error
         console.error('Failed loading purchase orders from database:', e);
+        setRows(generateDummyEntries());
+      } finally {
+        setIsLoading(false);
       }
     };
     loadDataFromDatabase();
@@ -1506,6 +1517,19 @@ const PurchaseOrder: React.FC = () => {
       setSelectedCell(null);
     }
   };
+
+  // Show loading spinner while data is loading
+  if (isLoading) {
+    return (
+      <div className="p-4">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">Purchase Order</h1>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600">Loading purchase orders...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4">

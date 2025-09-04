@@ -15,7 +15,8 @@ import {
   X,
   Database,
   History,
-  FileBarChart
+  FileBarChart,
+  ExternalLink
 } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
 import './Sidebar.css';
@@ -45,6 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen, collapsed: externalCol
     icon: any;
     label: string;
     path: string;
+    external?: boolean;
   };
   type MenuSection = {
     title: string;
@@ -72,6 +74,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen, collapsed: externalCol
     {
       title: 'Purchasing',
       items: [
+        { icon: ExternalLink, label: 'Purchase Order Instructions', path: 'https://poinstructions.netlify.app/', external: true },
         { icon: ShoppingCart, label: 'Purchase Order', path: '/purchase-order' },
         { icon: ShoppingCart, label: 'Purchase Order Lines', path: '/purchase-orders' },
         { icon: Package, label: 'Material Purchase Order', path: '/material-purchase-order' },
@@ -102,6 +105,14 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen, collapsed: externalCol
       items: [
         { icon: Database, label: 'Data Bank', path: '/data-bank' },
         { icon: Users, label: 'User Management', path: '/user-administration' },
+        { icon: ExternalLink, label: 'Factory Account Allocation', path: 'https://m88accountallocation.netlify.app/ ', external: true },
+      ]
+    },
+    {
+      title: 'External Links',
+      items: [
+        { icon: ExternalLink, label: 'Purchase Order Instructions', path: 'https://poinstructions.netlify.app/', external: true },
+        { icon: ExternalLink, label: 'Factory Account Allocation', path: 'https://m88accountallocation.netlify.app/ ', external: true }
       ]
     }
   ];
@@ -200,25 +211,49 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen, collapsed: externalCol
                 {/* Section Items */}
                 {section.items.map((item) => (
                   <li key={item.path} className="sidebar__item">
-                    <Link
-                      to={item.path}
-                      onClick={() => setOpen(false)}
-                      className={`sidebar__item--link ${isActive(item.path) ? 'active' : ''} ${collapsed ? 'collapsed' : ''}`}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          setOpen(false);
-                        }
-                      }}
-                      tabIndex={0}
-                      role="menuitem"
-                      aria-label={`Navigate to ${item.label}`}
-                    >
-                      <item.icon className="sidebar__item--icon" />
-                      <span className={`sidebar__item--label ${collapsed ? 'collapsed' : ''}`}>
-                        {item.label}
-                      </span>
-                    </Link>
+                    {item.external ? (
+                      <a
+                        href={item.path}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setOpen(false)}
+                        className={`sidebar__item--link ${collapsed ? 'collapsed' : ''}`}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            setOpen(false);
+                          }
+                        }}
+                        tabIndex={0}
+                        role="menuitem"
+                        aria-label={`Open ${item.label} in new tab`}
+                      >
+                        <item.icon className="sidebar__item--icon" />
+                        <span className={`sidebar__item--label ${collapsed ? 'collapsed' : ''}`}>
+                          {item.label}
+                        </span>
+                      </a>
+                    ) : (
+                      <Link
+                        to={item.path}
+                        onClick={() => setOpen(false)}
+                        className={`sidebar__item--link ${isActive(item.path) ? 'active' : ''} ${collapsed ? 'collapsed' : ''}`}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            setOpen(false);
+                          }
+                        }}
+                        tabIndex={0}
+                        role="menuitem"
+                        aria-label={`Navigate to ${item.label}`}
+                      >
+                        <item.icon className="sidebar__item--icon" />
+                        <span className={`sidebar__item--label ${collapsed ? 'collapsed' : ''}`}>
+                          {item.label}
+                        </span>
+                      </Link>
+                    )}
                   </li>
                 ))}
               </React.Fragment>

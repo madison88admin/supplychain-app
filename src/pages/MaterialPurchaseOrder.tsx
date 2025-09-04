@@ -99,7 +99,7 @@ const MaterialPurchaseOrder: React.FC = () => {
   const [selectedProductDetails, setSelectedProductDetails] = useState<Record<string, any> | null>(null);
 
   // Supabase integration states
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dbRows, setDbRows] = useState<PurchaseOrderLine[]>([]);
 
@@ -1074,14 +1074,29 @@ const MaterialPurchaseOrder: React.FC = () => {
   
     return (
       <div className="p-6">
-      {/* Enhanced Header with Modern Button Design */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold text-gray-900">Material Purchase Orders</h1>
-        </div>
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            {error}
+          </div>
+        )}
+        
+        {/* Loading State */}
+        {loading && (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <span className="ml-3 text-gray-600">Loading material purchase orders...</span>
+          </div>
+        )}
+        
+        {/* Enhanced Header with Modern Button Design */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-3xl font-bold text-gray-900">Material Purchase Orders</h1>
+          </div>
 
-        {/* Action Buttons Row */}
-        <div className="flex flex-wrap items-center gap-3 mb-4">
+          {/* Action Buttons Row */}
+          <div className="flex flex-wrap items-center gap-3 mb-4">
           {/* Primary Actions */}
           <div className="flex items-center space-x-2">
             <button 
@@ -2515,7 +2530,6 @@ const MaterialPurchaseOrder: React.FC = () => {
         sidebarCollapsed={sidebarCollapsed}
         pageData={displayRows[selectedIndex] || {}}
       />
-
       </div>
     </div>
   );

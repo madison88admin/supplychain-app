@@ -1065,13 +1065,14 @@ const PurchaseOrders: React.FC = () => {
       )}
       
       {/* Loading State */}
-      {loading && (
-        <div className="mb-4 p-4 bg-blue-100 border border-blue-400 text-blue-700 rounded-lg">
-          Loading data...
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600">Loading purchase order lines...</span>
         </div>
-      )}
-      
-      {/* Enhanced Header with Modern Button Design */}
+      ) : (
+        <>
+          {/* Enhanced Header with Modern Button Design */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-3xl font-bold text-gray-900">Purchase Order Lines</h1>
@@ -1111,7 +1112,7 @@ const PurchaseOrders: React.FC = () => {
             >
               <Plus className="w-4 h-4 mr-2" />
               Add New
-        </button>
+            </button>
           </div>
 
           {/* Search Bar */}
@@ -4839,6 +4840,8 @@ const PurchaseOrders: React.FC = () => {
         sidebarCollapsed={sidebarCollapsed}
         pageData={displayRows[selectedIndex] || {}}
       />
+        </>
+      )}
     </div>
   );
 };
